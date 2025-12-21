@@ -27,8 +27,12 @@ export function useSearchMessages() {
 
 	const searchedChannelId = useMemo(() => {
 		const channelIdFilter = searchedRequest?.filters?.find((f) => f.field_name === 'channel_id');
-		if (channelIdFilter?.field_value) {
+		if (channelIdFilter?.field_value && channelIdFilter.field_value !== '0') {
 			return channelIdFilter.field_value;
+		}
+
+		if (!isClanView && currentDirectId) {
+			return currentDirectId;
 		}
 
 		const hasOtherFilters = searchedRequest?.filters?.some((f) => f.field_name !== 'content' && f.field_name !== 'channel_id');
@@ -37,7 +41,7 @@ export function useSearchMessages() {
 			return currentViewChannelId;
 		}
 		return '0';
-	}, [searchedRequest, currentViewChannelId]);
+	}, [searchedRequest, currentViewChannelId, isClanView, currentDirectId]);
 
 	const searchMessages = useAppSelector((state) => selectAllMessageSearch(state, searchedChannelId));
 	const totalResult = useAppSelector((state) => selectTotalResultSearchMessage(state, searchedChannelId));

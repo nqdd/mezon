@@ -929,17 +929,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
 					dispatch(appActions.cleanHistoryClan(user.clan_id));
-				} else {
-					dispatch(
-						channelMembersActions.removeUserByUserIdAndClan({
-							userId: id,
-							channelIds: channels.map((item) => item.id),
-							clanId: user.clan_id
-						})
-					);
-					dispatch(usersClanActions.remove({ userId: id, clanId: user.clan_id }));
-					dispatch(rolesClanActions.updateRemoveUserRole({ userId: id, clanId: user.clan_id }));
+					dispatch(channelsActions.removeByClanId(user.clan_id));
 				}
+				dispatch(
+					channelMembersActions.removeUserByUserIdAndClan({
+						userId: id,
+						channelIds: channels.map((item) => item.id),
+						clanId: user.clan_id
+					})
+				);
+				dispatch(usersClanActions.remove({ userId: id, clanId: user.clan_id }));
+				dispatch(rolesClanActions.updateRemoveUserRole({ userId: id, clanId: user.clan_id }));
 			});
 		},
 		[userId, isMobile]
@@ -1632,6 +1632,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(stickerSettingActions.removeStickersByClanId(clanDelete.clan_id));
 			dispatch(emojiSuggestionActions.invalidateCache());
 			dispatch(stickerSettingActions.invalidateCache());
+			dispatch(channelsActions.removeByClanId(clanDelete.clan_id));
 			if (clanDelete.deletor !== userId && currentClanId === clanDelete.clan_id) {
 				if (isMobile) {
 					const isVoiceJoined = selectVoiceInfo(store.getState());
@@ -2369,6 +2370,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const onclanupdated = useCallback(async (clanUpdatedEvent: ClanUpdatedEvent) => {
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
+		if (clanUpdatedEvent.prevent_anonymous) {
+			dispatch(accountActions.turnOffAnonymous());
+		}
 	}, []);
 
 	const onJoinChannelAppEvent = useCallback(async (joinChannelAppData: JoinChannelAppData) => {
@@ -2936,3 +2940,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+

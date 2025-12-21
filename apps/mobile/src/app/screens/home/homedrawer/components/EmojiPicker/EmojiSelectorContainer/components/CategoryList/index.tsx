@@ -1,6 +1,7 @@
 import { useTheme } from '@mezon/mobile-ui';
-import { IEmoji } from '@mezon/utils';
-import { FC, ReactNode, memo, useState } from 'react';
+import type { IEmoji } from '@mezon/utils';
+import type { FC, ReactNode } from 'react';
+import { memo, useState } from 'react';
 import { Pressable, ScrollView } from 'react-native-gesture-handler';
 import { style } from '../../styles';
 

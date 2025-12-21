@@ -4,6 +4,7 @@ import { useTheme } from '@mezon/mobile-ui';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DeviceEventEmitter, Keyboard, Platform, View } from 'react-native';
 import { createStyles } from './PanelKeyboard.styles';
+import AdvancedFunction from './components/AdvancedFunction';
 import Gallery from './components/AttachmentPicker/Gallery';
 import HeaderAttachmentPicker from './components/AttachmentPicker/HeaderAttachmentPicker';
 import EmojiPicker from './components/EmojiPicker';
@@ -120,9 +121,16 @@ const PanelKeyboard = React.memo((props: IProps) => {
 							bottomSheetRef={bottomPickerRef}
 							directMessageId={props?.directMessageId || ''}
 							messageActionNeedToResolve={messageActionNeedToResolve}
+							channelId={props?.currentChannelId}
+							messageAction={props?.messageAction}
 						/>
 					) : (
-						<View />
+						<AdvancedFunction
+							onClose={onClose}
+							messageAction={props?.messageAction}
+							directMessageId={props?.directMessageId || ''}
+							currentChannelId={props?.currentChannelId}
+						/>
 					)}
 				</BottomSheetScrollView>
 			</BottomSheetModal>

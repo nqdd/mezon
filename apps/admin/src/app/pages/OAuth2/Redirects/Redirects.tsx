@@ -15,6 +15,13 @@ interface IRedirectsProps {
 const Redirects = ({ currentApp, uriInputValuesRef, setInputArrLength, inputArrLength, setHasChange }: IRedirectsProps) => {
 	const { t } = useTranslation('adminApplication');
 
+	const appURIes = currentApp?.oAuthClient?.redirect_uris ?? [];
+
+	if (!uriInputValuesRef.current.length && appURIes.length && inputArrLength === 0) {
+		uriInputValuesRef.current = [...appURIes];
+		setInputArrLength(appURIes.length);
+	}
+
 	const handleAddDirectUri = () => {
 		if (uriInputValuesRef.current.includes('')) {
 			toast.warning(t('oauth2.redirects.toasts.fillAllInputs'));
@@ -108,10 +115,12 @@ const UriItem = ({ index, uriInputValuesRef, setInputArrLength, inputArrLength, 
 					className={`bg-bgLightModeThird dark:bg-[#1e1f22] border w-full ${isValid ? 'border-primary' : 'border-red-500'}  outline-none p-[10px] rounded-md`}
 				/>
 			</div>
-			<Icons.CloseButton
-				onClick={handleDeleteInput}
-				className="absolute top-3 right-1 w-5 dark:text-gray-500 dark:hover:text-gray-400 text-gray-500 hover:text-gray-700 cursor-pointer"
-			/>
+			{inputArrLength > 1 && (
+				<Icons.CloseButton
+					onClick={handleDeleteInput}
+					className="absolute top-3 right-1 w-5 dark:text-gray-500 dark:hover:text-gray-400 text-gray-500 hover:text-gray-700 cursor-pointer"
+				/>
+			)}
 		</div>
 	);
 };

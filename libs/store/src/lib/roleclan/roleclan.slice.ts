@@ -582,7 +582,7 @@ export type RoleState = {
 	removePermissions: string[];
 	removeMemberRoles: string[];
 	currentRoleIcon: string;
-	newRoleIcon: string;
+	newRoleIcon: string | null;
 };
 
 const roleStateInitialState: RoleState = {

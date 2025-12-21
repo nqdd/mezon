@@ -1,19 +1,7 @@
 import { useAuth } from '@mezon/core';
 import { Icons, Menu } from '@mezon/ui';
-import {
-	Background,
-	BackgroundVariant,
-	Connection,
-	Controls,
-	Edge,
-	EdgeChange,
-	NodeChange,
-	Panel,
-	ReactFlow,
-	useEdgesState,
-	useNodesState,
-	useReactFlow
-} from '@xyflow/react';
+import type { Connection, Edge, EdgeChange, NodeChange } from '@xyflow/react';
+import { Background, BackgroundVariant, Controls, Panel, ReactFlow, useEdgesState, useNodesState, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { FlowContext } from '../../../context/FlowContext';
 import flowService from '../../../services/flowService';
 import { addEdge, addNode, changeLoading, deleteNode, setEdgesContext, setNodesContext } from '../../../stores/flow/flow.action';
-import { IEdge, IFlowDataRequest, IFlowDetail, INode, INodeType, IParameter } from '../../../stores/flow/flow.interface';
+import type { IEdge, IFlowDataRequest, IFlowDetail, INode, INodeType, IParameter } from '../../../stores/flow/flow.interface';
 import ExampleFlow from '../../flowExamples/ExampleFlows';
 import AddNodeMenuPopup from '../AddNodeMenuPopup';
 import FlowChatPopup from '../FlowChat';

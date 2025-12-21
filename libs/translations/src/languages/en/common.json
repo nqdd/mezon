@@ -360,7 +360,9 @@
 		"yourName": "Your name...",
 		"usernamePlaceholder": "Please use your actual name to make it easier for people to identify you.",
 		"update": "Update",
-		"errorDuplicate": "There’s an issue or the name already exists, please choose another one."
+		"errorDuplicate": "There’s an issue or the name already exists, please choose another one.",
+		"skipUpdateQuestion": "Want to sign in again with your phone number?",
+		"skipUpdateBack": "Return to login with phone number"
 	},
 	"sessionExpired": {
 		"title": "Session Expired or Network Error",
@@ -471,5 +473,9 @@
 	"goBack": "Go Back",
 	"refresh": "Refresh",
 	"linkPhoneNumber": "Add phone number",
-	"linkEmail": "Add email"
+	"linkEmail": "Add email",
+	"poll": "Poll",
+	"ephemeral": "Ephemeral",
+	"threads": "Threads",
+	"anonymous": "Anonymous"
 }

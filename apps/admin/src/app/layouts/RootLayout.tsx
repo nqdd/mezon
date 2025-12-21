@@ -50,7 +50,7 @@ const RootLayout: React.FC = () => {
 		<>
 			{applicationLoading === 'loading' && <LoadingScreen />}
 			<div className="dark:bg-bgPrimary bg-bgLightPrimary flex flex-col h-screen dark:text-textDarkTheme text-textLightTheme">
-				<Header toggleSideBar={toggleCollapseSideBar} />
+				<Header toggleSideBar={toggleCollapseSideBar} isShowSideBar={showCollapseSideBar} />
 				<div className="flex flex-1 overflow-hidden">
 					<CollapseSideBar
 						currentAppId={param.applicationId}

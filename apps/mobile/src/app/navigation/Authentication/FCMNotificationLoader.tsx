@@ -1,6 +1,6 @@
 import { ChatContext } from '@mezon/core';
-import { save, STORAGE_IS_DISABLE_LOAD_BACKGROUND } from '@mezon/mobile-components';
-import { appActions, getStoreAsync } from '@mezon/store-mobile';
+import { ActionEmitEvent, save, STORAGE_IS_DISABLE_LOAD_BACKGROUND } from '@mezon/mobile-components';
+import { appActions, getStore, getStoreAsync, selectCurrentChannelId, selectDmGroupCurrentId } from '@mezon/store-mobile';
 import notifee, { EventType } from '@notifee/react-native';
 import { getApp } from '@react-native-firebase/app';
 import { getMessaging, onNotificationOpenedApp } from '@react-native-firebase/messaging';
@@ -9,7 +9,7 @@ import type { ChannelMessage } from 'mezon-js';
 import { safeJSONParse } from 'mezon-js';
 import moment from 'moment/moment';
 import { useCallback, useContext, useEffect, useRef } from 'react';
-import { AppState, Platform } from 'react-native';
+import { AppState, DeviceEventEmitter, Platform } from 'react-native';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import NotificationPreferences from '../../utils/NotificationPreferences';
 import { checkNotificationPermission, processNotification } from '../../utils/pushNotificationHelpers';
@@ -21,6 +21,7 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 	const isTabletLandscape = useTabletLandscape();
 	const { onchannelmessage } = useContext(ChatContext);
 	const appStateRef = useRef(AppState.currentState);
+
 	const checkPermission = async () => {
 		await checkNotificationPermission();
 	};
@@ -164,20 +165,31 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 		await setupNotificationListeners(navigation, isTabletLandscape);
 	};
 
-	const handleNotificationOpenedApp = async () => {
+	const handleNotificationOpenedApp = async (notifyInit?: any) => {
 		try {
+			const channelId = notifyInit?.data?.channel;
+			const store = getStore();
+			const state = store.getState();
+			const currentChannelId = selectCurrentChannelId(state);
+			const currentDirectId = selectDmGroupCurrentId(state);
+			const channelIdJoined = channelId || currentDirectId || currentChannelId;
+
+			if (!channelIdJoined) return;
 			if (Platform.OS === 'android') {
 				const notificationDataPushed = await NotificationPreferences.getValue('notificationDataPushed');
 				const notificationDataPushedParse = safeJSONParse(notificationDataPushed || '[]');
-				mapMessageNotificationToSlice(notificationDataPushedParse?.length ? notificationDataPushedParse.slice(0, 10) : []);
+				const notificationDataMain = notificationDataPushedParse?.filter((item) => item?.channel === channelIdJoined);
+				mapMessageNotificationToSlice(notificationDataMain?.length ? notificationDataMain.slice(0, 10) : []);
 				await NotificationPreferences.clearValue('notificationDataPushed');
 			} else {
 				const notificationsDisplay = await notifee.getDisplayedNotifications();
 				const notificationDataPushedParse = notificationsDisplay?.map?.((item) => {
 					return item?.notification?.data;
 				});
-				mapMessageNotificationToSlice(notificationDataPushedParse?.length ? notificationDataPushedParse.slice(0, 10) : []);
+				const notificationDataMain = notificationDataPushedParse?.filter((item) => item?.channel === channelIdJoined);
+				mapMessageNotificationToSlice(notificationDataMain?.length ? notificationDataMain.slice(0, 10) : []);
 			}
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_REMOVE_NOTIFY_BY_CHANNEL_ID, { channelId: channelIdJoined });
 		} catch (error) {
 			console.error('Error processing notifications:', error);
 		}
@@ -197,13 +209,13 @@ export const FCMNotificationLoader = ({ notifyInit }: { notifyInit: any }) => {
 
 	useEffect(() => {
 		checkPermission();
-		handleNotificationOpenedApp();
+		handleNotificationOpenedApp(notifyInit);
 		const appStateSubscription = AppState.addEventListener('change', handleAppStateChangeListener);
 		// To clear Intents
 		return () => {
 			appStateSubscription.remove();
 		};
-	}, []);
+	}, [notifyInit]);
 
 	return null;
 };

@@ -1,6 +1,6 @@
 import { useChannelMembers, useEditMessage, useEmojiSuggestionContext } from '@mezon/core';
 import type { MessagesEntity } from '@mezon/store';
-import { pinMessageActions, selectAllChannels, selectAllHashtagDm, selectAllRolesClan, selectCurrentChannelId, useAppDispatch } from '@mezon/store';
+import { pinMessageActions, selectAllChannels, selectAllRolesClan, selectCurrentChannelId, useAppDispatch } from '@mezon/store';
 import {
 	RECENT_EMOJI_CATEGORY,
 	TITLE_MENTION_HERE,
@@ -185,31 +185,12 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 		handleCancelEdit();
 	};
 
-	const commonChannels = useSelector(selectAllHashtagDm);
-
-	const commonChannelsMention: ChannelsMentionProps[] = useMemo(() => {
-		if (mode === ChannelStreamMode.STREAM_MODE_DM) {
-			return commonChannels.map((item) => {
-				return {
-					id: item?.channel_id ?? '',
-					display: item?.channel_label ?? '',
-					subText: item?.clan_name ?? ''
-				};
-			}) as ChannelsMentionProps[];
-		}
-		return [];
-	}, [mode, commonChannels]);
-
 	const handleSearchUserMention = (search: string): MentionData[] => {
 		return searchMentionsHashtag(search, mentionListData ?? []) as MentionData[];
 	};
 
 	const handleSearchHashtag = (search: string): MentionData[] => {
-		if (mode === ChannelStreamMode.STREAM_MODE_DM) {
-			return searchMentionsHashtag(search, commonChannelsMention ?? []) as MentionData[];
-		} else {
-			return searchMentionsHashtag(search, listChannelsMention ?? []) as MentionData[];
-		}
+		return searchMentionsHashtag(search, listChannelsMention ?? []) as MentionData[];
 	};
 
 	const handleSave = () => {

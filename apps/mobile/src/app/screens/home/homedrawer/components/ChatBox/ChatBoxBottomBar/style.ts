@@ -18,7 +18,8 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_40,
 			alignItems: 'center',
 			justifyContent: 'center',
-			overflow: 'hidden'
+			overflow: 'hidden',
+			backgroundColor: colors.tertiary
 		},
 		wrapperInput: {
 			position: 'relative',

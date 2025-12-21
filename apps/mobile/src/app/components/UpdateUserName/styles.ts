@@ -185,5 +185,15 @@ export const style = () =>
 		},
 		activityIndicator: {
 			zIndex: 10
+		},
+		backButton: {
+			marginTop: 20,
+			alignItems: 'center',
+			paddingVertical: 12
+		},
+		backButtonText: {
+			fontSize: 16,
+			color: '#FFFFFF',
+			textDecorationLine: 'underline'
 		}
 	});

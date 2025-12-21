@@ -17,6 +17,7 @@ import {
 	directActions,
 	getStoreAsync,
 	listChannelsByUserActions,
+	listUsersByUserActions,
 	messagesActions,
 	notificationActions,
 	selectAllAccount,
@@ -82,6 +83,7 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 		store.dispatch(clansActions.refreshStatus());
 		store.dispatch(accountActions.resetAllState());
 		store.dispatch(notificationActions.resetAllState());
+		store.dispatch(listUsersByUserActions.removeAll());
 
 		await remove(STORAGE_DATA_CLAN_CHANNEL_CACHE);
 		await remove(STORAGE_CHANNEL_CURRENT_CACHE);

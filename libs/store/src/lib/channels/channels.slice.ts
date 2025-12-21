@@ -450,10 +450,10 @@ export const createNewChannel = createAsyncThunk('channels/createNewChannel', as
 
 export const checkDuplicateChannelInCategory = createAsyncThunk(
 	'channels/checkDuplicateChannelInCategory',
-	async ({ channelName, categoryId }: { channelName: string; categoryId: string }, thunkAPI) => {
+	async ({ channelName, categoryId, clanId }: { channelName: string; categoryId: string; clanId: string }, thunkAPI) => {
 		try {
 			const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(channelName, categoryId, TypeCheck.TYPECHANNEL);
+			const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(channelName, categoryId, TypeCheck.TYPECHANNEL, clanId);
 
 			if (isDuplicateName?.type === TypeCheck.TYPECHANNEL) {
 				return isDuplicateName.exist;
@@ -1514,6 +1514,11 @@ export const channelsSlice = createSlice({
 			if (state.byClans[clanId]?.entities) {
 				channelsAdapter.removeMany(state.byClans[clanId].entities, channelIds);
 			}
+		},
+
+		removeByClanId: (state, action: PayloadAction<string>) => {
+			const clanId = action.payload;
+			delete state.byClans[clanId];
 		}
 	},
 	extraReducers: (builder) => {

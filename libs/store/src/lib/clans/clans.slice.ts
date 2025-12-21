@@ -274,7 +274,7 @@ export const createClan = createAsyncThunk('clans/createClans', async ({ clan_na
 export const checkDuplicateNameClan = createAsyncThunk('clans/duplicateNameClan', async (clan_name: string, thunkAPI) => {
 	try {
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-		const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(clan_name, '', TypeCheck.TYPECLAN);
+		const isDuplicateName = await mezon.socketRef.current?.checkDuplicateName(clan_name, '', TypeCheck.TYPECLAN, '0');
 
 		if (isDuplicateName?.type === TypeCheck.TYPECLAN) {
 			return isDuplicateName.exist;
@@ -833,7 +833,8 @@ export const clansSlice = createSlice({
 					logo: dataUpdate.logo,
 					banner: dataUpdate.banner,
 					is_onboarding: dataUpdate.is_onboarding,
-					welcome_channel_id: dataUpdate.welcome_channel_id !== '-1' ? dataUpdate.welcome_channel_id : currentClanData.welcome_channel_id
+					welcome_channel_id: dataUpdate.welcome_channel_id !== '-1' ? dataUpdate.welcome_channel_id : currentClanData.welcome_channel_id,
+					prevent_anonymous: dataUpdate?.prevent_anonymous ?? currentClanData.prevent_anonymous
 				}
 			});
 		},

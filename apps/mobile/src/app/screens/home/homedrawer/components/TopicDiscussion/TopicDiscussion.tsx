@@ -144,9 +144,6 @@ export default function TopicDiscussion() {
 				<ChatBox
 					channelId={currentChannel?.channel_id}
 					mode={checkIsThread(currentChannel) ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-					hiddenIcon={{
-						threadIcon: true
-					}}
 					isPublic={isPublicChannel(currentChannel)}
 					topicChannelId={currentTopicId}
 					isBanned={!!isBanned}

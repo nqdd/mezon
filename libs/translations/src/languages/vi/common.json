@@ -360,7 +360,9 @@
 		"yourName": "Tên của bạn...",
 		"usernamePlaceholder": "Hãy dùng tên thật để mọi người dễ nhận ra bạn",
 		"update": "Cập nhật",
-		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác."
+		"errorDuplicate": "Có sự cố hoặc tên đã tồn tại, vui lòng chọn tên khác.",
+		"skipUpdateQuestion": "Muốn đăng nhập lại với số điện thoại của bạn?",
+		"skipUpdateBack": "Quay lại đăng nhập với số điện thoại"
 	},
 	"sessionExpired": {
 		"title": "Phiên đăng nhập đã hết hạn hoặc lỗi mạng",
@@ -471,5 +473,9 @@
 	"goBack": "Quay lại",
 	"refresh": "Làm mới",
 	"linkPhoneNumber": "Thêm số điện thoại",
-	"linkEmail": "Thêm email"
+	"linkEmail": "Thêm email",
+	"poll": "Bình chọn",
+	"ephemeral": "Tin nhắn nhất thời",
+	"threads": "Chủ đề",
+	"anonymous": "Ẩn danh"
 }

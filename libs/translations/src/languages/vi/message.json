@@ -208,5 +208,6 @@
 		"attachment": "Tệp đính kèm"
 	},
 	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}.",
-	"addAMessage": "Thêm một tin nhắn (Không bắt buộc)"
+	"addAMessage": "Thêm một tin nhắn (Không bắt buộc)",
+	"slideToCancel": "Vuốt để hủy"
 }

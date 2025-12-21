@@ -1,4 +1,4 @@
-import { ActionEmitEvent, STORAGE_IS_LAST_ACTIVE_TAB_DM, save } from '@mezon/mobile-components';
+import { ActionEmitEvent, save, STORAGE_IS_LAST_ACTIVE_TAB_DM } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { useNavigation } from '@react-navigation/native';
 import { setTimeout } from '@testing-library/react-native/build/helpers/timers';
@@ -100,9 +100,6 @@ const HomeDefault = React.memo(
 				<ChatBox
 					channelId={channelId}
 					mode={isThread ? ChannelStreamMode.STREAM_MODE_THREAD : ChannelStreamMode.STREAM_MODE_CHANNEL}
-					hiddenIcon={{
-						threadIcon: channelType === ChannelType.CHANNEL_TYPE_THREAD || channelType === ChannelType.CHANNEL_TYPE_APP
-					}}
 					isPublic={isPublicChannel}
 					topicChannelId={''}
 					isBanned={isBanned}

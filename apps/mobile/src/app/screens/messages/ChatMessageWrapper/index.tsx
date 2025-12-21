@@ -42,9 +42,6 @@ export const ChatMessageWrapper = memo(
 				<ChatBox
 					channelId={directMessageId}
 					mode={Number(isModeDM ? ChannelStreamMode.STREAM_MODE_DM : ChannelStreamMode.STREAM_MODE_GROUP)}
-					hiddenIcon={{
-						threadIcon: true
-					}}
 					isPublic={false}
 					topicChannelId={''}
 					isBlocked={isBlocked}

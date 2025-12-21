@@ -57,7 +57,6 @@ export const FriendItem = React.memo(
 
 		return (
 			<TouchableOpacity
-				disabled={disabled}
 				style={styles.userItem}
 				onPress={() => onPressAction(showAction ? EFriendItemAction.ShowInformation : EFriendItemAction.MessageDetail)}
 				onLongPress={() => onLongPress()}

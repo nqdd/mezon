@@ -141,7 +141,7 @@ type ToggleItemProps = {
 	handleToggle: (checked: boolean) => void;
 };
 
-const ToggleItem: React.FC<ToggleItemProps> = ({ label, value, handleToggle }) => {
+export const ToggleItem: React.FC<ToggleItemProps> = ({ label, value, handleToggle }) => {
 	return (
 		<div className="self-stretch justify-start items-center gap-3 inline-flex text-sm py-1">
 			<div className="grow shrink basis-0 h-6 justify-start items-center gap-1 flex">

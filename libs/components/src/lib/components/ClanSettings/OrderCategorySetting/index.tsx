@@ -1,15 +1,11 @@
-import {
-	categoriesActions,
-	CategoriesEntity,
-	listChannelRenderAction,
-	selectAllCategories,
-	selectCurrentClanId,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
-import { EDragBorderPosition, ICategoryChannel } from '@mezon/utils';
-import { ApiCategoryOrderUpdate } from 'mezon-js/api.gen';
-import { useRef, useState } from 'react';
+import { closestCenter, DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { CategoriesEntity } from '@mezon/store';
+import { categoriesActions, listChannelRenderAction, selectAllCategories, selectCurrentClanId, useAppDispatch, useAppSelector } from '@mezon/store';
+import type { ICategoryChannel } from '@mezon/utils';
+import type { ApiCategoryOrderUpdate } from 'mezon-js/api.gen';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CategoryOrderSetting = () => {
@@ -17,45 +13,26 @@ const CategoryOrderSetting = () => {
 	const categoryList: CategoriesEntity[] = useAppSelector(selectAllCategories);
 	const currentClanId = useAppSelector(selectCurrentClanId);
 	const [categoryListState, setCategoryListState] = useState<CategoriesEntity[]>(categoryList);
-	const dragItemIndex = useRef<number | null>(null);
-	const dragOverItemIndex = useRef<number | null>(null);
-	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	const [hasChanged, setHasChanged] = useState<boolean>(false);
-	const [dragBorderPosition, setDragBorderPosition] = useState<EDragBorderPosition | null>(null);
 	const dispatch = useAppDispatch();
 
-	const handleDragStart = (index: number) => {
-		dragItemIndex.current = index;
-	};
+	const sensors = useSensors(
+		useSensor(PointerSensor, {
+			activationConstraint: { distance: 4 }
+		})
+	);
 
-	const handleDragEnter = (index: number) => {
-		dragOverItemIndex.current = index;
-		setHoveredIndex(index);
+	const handleDragEnd = (event: DragEndEvent) => {
+		const { active, over } = event;
+		if (!over || active.id === over.id) return;
 
-		if (dragItemIndex.current !== null && dragOverItemIndex.current !== null) {
-			if (dragItemIndex.current > dragOverItemIndex.current) {
-				setDragBorderPosition(EDragBorderPosition.TOP);
-			} else if (dragItemIndex.current < dragOverItemIndex.current) {
-				setDragBorderPosition(EDragBorderPosition.BOTTOM);
-			}
-		}
-	};
-
-	const handleDragEnd = () => {
-		setDragBorderPosition(null);
-		setHoveredIndex(null);
-
-		if (dragItemIndex.current !== null && dragOverItemIndex.current !== null) {
-			const copyCategoryList = [...categoryListState];
-			const [draggedItem] = copyCategoryList.splice(dragItemIndex.current, 1);
-			copyCategoryList.splice(dragOverItemIndex.current, 0, draggedItem);
-
-			setCategoryListState(copyCategoryList);
+		setCategoryListState((items) => {
+			const oldIndex = items.findIndex((item) => item.category_id === active.id);
+			const newIndex = items.findIndex((item) => item.category_id === over.id);
+			if (oldIndex === -1 || newIndex === -1) return items;
 			setHasChanged(true);
-		}
-
-		dragItemIndex.current = null;
-		dragOverItemIndex.current = null;
+			return arrayMove(items, oldIndex, newIndex);
+		});
 	};
 
 	const handleSave = () => {
@@ -90,27 +67,17 @@ const CategoryOrderSetting = () => {
 		setHasChanged(false);
 	};
 
+	const validCategories = categoryListState.filter((category) => category.category_id);
+
 	return (
 		<div className="overflow-y-auto">
-			{categoryListState.map((category, index) => (
-				<div
-					key={category.category_id}
-					className={`${index !== categoryListState.length - 1 && 'border-b'} cursor-grab bg-item-hover
-					${
-						hoveredIndex === index
-							? dragBorderPosition === EDragBorderPosition.BOTTOM
-								? 'border-b-4 border-b-green-500 dark:border-b-green-500'
-								: 'border-t-4 border-t-green-500 dark:border-t-green-500'
-							: ''
-					}`}
-					draggable
-					onDragStart={() => handleDragStart(index)}
-					onDragEnter={() => handleDragEnter(index)}
-					onDragEnd={handleDragEnd}
-				>
-					<p className="p-2 truncate uppercase">{category.category_name}</p>
-				</div>
-			))}
+			<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+				<SortableContext items={validCategories.map((category) => category.category_id as string)} strategy={verticalListSortingStrategy}>
+					{validCategories.map((category, index) => (
+						<SortableCategoryRow key={category.category_id} category={category} isLast={index === validCategories.length - 1} />
+					))}
+				</SortableContext>
+			</DndContext>
 			{hasChanged && (
 				<div className="flex flex-row justify-end gap-[20px] mt-10">
 					<button onClick={handleReset} className="rounded px-4 py-1.5 hover:underline ">
@@ -121,6 +88,34 @@ const CategoryOrderSetting = () => {
 					</button>
 				</div>
 			)}
+		</div>
+	);
+};
+
+type SortableCategoryRowProps = {
+	category: CategoriesEntity;
+	isLast: boolean;
+};
+
+const SortableCategoryRow = ({ category, isLast }: SortableCategoryRowProps) => {
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: category.category_id as string });
+
+	const style: React.CSSProperties = {
+		transform: CSS.Transform.toString(transform),
+		transition
+	};
+
+	return (
+		<div
+			ref={setNodeRef}
+			style={style}
+			className={`${!isLast ? 'border-b' : ''} cursor-grab bg-item-hover ${
+				isDragging ? 'border-b-4 border-b-green-500 dark:border-b-green-500' : ''
+			}`}
+			{...attributes}
+			{...listeners}
+		>
+			<p className="p-2 truncate uppercase">{category.category_name}</p>
 		</div>
 	);
 };

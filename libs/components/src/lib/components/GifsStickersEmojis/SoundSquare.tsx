@@ -159,14 +159,12 @@ function SoundSquare({ mode, onClose, isTopic = false, onSoundSelect }: ChannelM
 			if (clanName === selectedType) return;
 			setSelectedType(clanName);
 			const categoryDiv = categoryRefs.current[clanName];
-			const container = containerRef.current;
-			if (!categoryDiv || !container) return;
-			const containerTop = container.getBoundingClientRect().top;
-			const categoryTop = categoryDiv.getBoundingClientRect().top;
-			const offset = 0;
-			const scrollTop = categoryTop - containerTop - offset;
+			if (!categoryDiv) return;
 
-			container.scrollTop += scrollTop;
+			categoryDiv.scrollIntoView({
+				behavior: 'smooth',
+				block: 'start'
+			});
 		},
 		[selectedType]
 	);
@@ -177,15 +175,15 @@ function SoundSquare({ mode, onClose, isTopic = false, onSoundSelect }: ChannelM
 			tabIndex={-1}
 			className="outline-none flex h-[430px] w-full md:w-[500px] max-h-[430px] bg-theme-setting-primary overflow-hidden rounded-lg shadow-xl"
 		>
-			<div className="flex flex-col gap-y-3 bg-theme-setting-nav py-4 items-center w-[72px] flex-shrink-0 overflow-y-auto hide-scrollbar border-r border-white/5">
+			<div className="flex flex-col gap-y-4 bg-theme-setting-nav py-4 items-center w-11 flex-shrink-0 overflow-y-auto hide-scrollbar rounded-tl-lg rounded-tr-lg bg-item-theme ">
 				{categoryLogo.map((cat) => (
 					<button
 						title={cat.type}
 						key={cat.id}
 						onClick={(e) => scrollToClanSidebar(e, cat.type)}
-						className={`group relative flex justify-center items-center w-12 h-12 transition-all duration-300 ${
+						className={`group relative flex justify-center items-center w-7 h-7 transition-all duration-300 ${
 							selectedType === cat.type
-								? 'bg-[#5865f2] rounded-[16px] shadow-md text-white'
+								? 'bg-[#5865f2] rounded-[16px] shadow-md text-white scale-125'
 								: 'bg-item-theme rounded-[24px] hover:rounded-[16px] hover:bg-[#5865f2] hover:text-white'
 						}`}
 					>
@@ -203,11 +201,11 @@ function SoundSquare({ mode, onClose, isTopic = false, onSoundSelect }: ChannelM
 			</div>
 
 			<div className="flex flex-col flex-1 min-w-0 bg-theme-setting-primary overflow-hidden relative" ref={containerRef}>
-				<div className="flex-1 overflow-y-auto hide-scrollbar p-4">
+				<div className="flex-1 overflow-y-auto hide-scrollbar pb-4 px-4 ">
 					{valueInputToCheckHandleSearch ? (
 						<SoundPanel soundList={searchedSounds} onClickSendSound={onClickSendSound} />
 					) : (
-						<div className="flex flex-col gap-6">
+						<div className="flex flex-col gap-4">
 							{categoryLogo.map((avt) => (
 								<div
 									ref={(el) => {
@@ -251,6 +249,7 @@ const CategorizedSounds: React.FC<ICategorizedSoundProps> = React.memo(
 		const soundListByCategoryName = useMemo(() => soundList.filter((sound) => sound.clan_name === categoryName), [soundList, categoryName]);
 		const [isShowSoundList, setIsShowSoundList] = useState(true);
 		const currentClanName = useAppSelector(selectCurrentClanName);
+		const categoryLogo = useMemo(() => soundListByCategoryName[0]?.logo || '', [soundListByCategoryName]);
 
 		const handleToggleButton = useCallback(() => {
 			setIsShowSoundList((prev) => !prev);
@@ -258,18 +257,22 @@ const CategorizedSounds: React.FC<ICategorizedSoundProps> = React.memo(
 
 		return (
 			<div className="flex flex-col gap-2">
-				<button
-					onClick={handleToggleButton}
-					className="flex flex-row items-center gap-2 w-full text-left group sticky top-0 bg-theme-setting-primary z-10 py-1"
-				>
+				<button onClick={handleToggleButton} className="flex flex-row items-center gap-2 w-full text-left group sticky top-0  z-10 py-1  ">
+					{categoryLogo ? (
+						<img src={categoryLogo} alt={categoryName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+					) : (
+						<div className="w-4 h-4 rounded-full bg-theme-primary/20 flex items-center justify-center flex-shrink-0">
+							<span className="text-[8px] font-bold text-theme-primary/60">{categoryName.charAt(0).toUpperCase()}</span>
+						</div>
+					)}
+					<p className="uppercase font-bold text-xs tracking-wide text-theme-primary/60 group-hover:text-theme-primary transition-colors truncate overflow-hidden max-w-[300px]">
+						{categoryName !== 'custom' ? categoryName : currentClanName}
+					</p>
 					<span
 						className={`transition-transform duration-200 text-theme-primary/60 group-hover:text-theme-primary ${isShowSoundList ? 'rotate-90' : ''}`}
 					>
 						<Icons.ArrowRight defaultFill="currentColor" className="w-3 h-3" />
 					</span>
-					<p className="uppercase font-bold text-xs tracking-wide text-theme-primary/60 group-hover:text-theme-primary transition-colors">
-						{categoryName !== 'custom' ? categoryName : currentClanName}
-					</p>
 					<div className="h-[1px] flex-1 bg-theme-primary/10 group-hover:bg-theme-primary/20 transition-colors ml-2"></div>
 				</button>
 

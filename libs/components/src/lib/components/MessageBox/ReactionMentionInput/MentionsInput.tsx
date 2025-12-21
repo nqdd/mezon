@@ -1177,7 +1177,9 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 						case 'i':
 						case 'u':
 						case 's': {
-							//  Update: italic, underline, strike format later
+							if (e.key.toLowerCase() === 'i' && e.shiftKey) {
+								break;
+							}
 							e.preventDefault();
 							handled = true;
 							break;

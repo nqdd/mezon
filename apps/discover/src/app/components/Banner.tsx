@@ -19,7 +19,7 @@ const Banner: React.FC<BannerProps> = ({ onSearch, searchTerm }) => {
 
 	return (
 		<div className="relative bg-[#404eed] text-white">
-			<div className="absolute inset-0 bg-gradient-to-b from-[#404eed]/80 to-[#404eed]"></div>
+			<div className="absolute inset-0 bg-gradient-to-b from-[#8960e0] to-[#404eed]"></div>
 			<div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2029&auto=format&fit=crop')] bg-center bg-cover"></div>
 
 			<div className="relative container mx-auto px-4 py-16 text-center">

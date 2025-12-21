@@ -228,6 +228,7 @@ export const CreateNewChannelModal = () => {
 									placeholder={t('labels.placeholder')}
 									shouldValidate={true}
 									categoryId={currentCategory?.category_id || channelWelcome?.category_id}
+									clanId={currentCategory?.clan_id as string}
 								/>
 							)}
 							{channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (

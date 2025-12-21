@@ -11,7 +11,7 @@ import {
 	setSelectedMessage,
 	useAppDispatch
 } from '@mezon/store-mobile';
-import { ETypeLinkMedia, ID_MENTION_HERE, TypeMessage, isValidEmojiData } from '@mezon/utils';
+import { ETypeLinkMedia, ID_MENTION_HERE, isValidEmojiData, TypeMessage } from '@mezon/utils';
 import { ChannelStreamMode, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention } from 'mezon-js/api.gen';
 import React, { useCallback, useMemo, useRef } from 'react';
@@ -61,7 +61,6 @@ export type MessageItemProps = {
 	isSearchTab?: boolean;
 	userId?: string;
 	isHighlight?: boolean;
-	messageCount?: number;
 };
 
 const MessageItem = React.memo(
@@ -76,8 +75,7 @@ const MessageItem = React.memo(
 			channelId = '',
 			topicChannelId,
 			isSearchTab = false,
-			isHighlight = false,
-			messageCount = 0
+			isHighlight = false
 		} = props;
 		const dispatch = useAppDispatch();
 		const { t } = useTranslation(['message', 'common']);
@@ -293,7 +291,7 @@ const MessageItem = React.memo(
 		}, [message?.content, message?.mentions]);
 
 		if (message?.sender_id === '0' && !message?.content?.t && message?.username?.toLowerCase() === 'system') {
-			return <WelcomeMessage channelId={props.channelId} message={message} messageCount={messageCount} />;
+			return <WelcomeMessage channelId={props.channelId} message={message} />;
 		}
 
 		const panResponder = PanResponder.create({
@@ -511,8 +509,7 @@ const MessageItem = React.memo(
 				prevProps?.message?.content?.t +
 				prevProps?.message?.attachments?.length +
 				prevProps?.message?.references?.[0]?.content +
-				prevProps?.preventAction +
-				prevProps?.messageCount ===
+				prevProps?.preventAction ===
 			nextProps?.message?.id +
 				nextProps?.message?.update_time +
 				nextProps?.previousMessage?.id +
@@ -522,8 +519,7 @@ const MessageItem = React.memo(
 				nextProps?.message?.content?.t +
 				nextProps?.message?.attachments?.length +
 				nextProps?.message?.references?.[0]?.content +
-				nextProps?.preventAction +
-				nextProps?.messageCount
+				nextProps?.preventAction
 		);
 	}
 );
