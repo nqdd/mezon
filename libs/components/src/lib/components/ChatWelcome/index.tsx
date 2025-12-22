@@ -27,6 +27,7 @@ import { toast } from 'react-toastify';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import ModalEditGroup from '../ModalEditGroup';
+import WaveButtonDM from './WaveButtonDM';
 
 export type ChatWelComeProp = {
 	readonly name?: Readonly<string>;
@@ -256,6 +257,7 @@ const WelComeDm = (props: WelComeDmProps) => {
 				</button>
 			)}
 			{!isDmGroup && <StatusFriend username={username} checkAddFriend={checkAddFriend} userID={userID[0]} t={t} />}
+			{!isDmGroup && <WaveButtonDM username={username} />}
 		</>
 	);
 };
