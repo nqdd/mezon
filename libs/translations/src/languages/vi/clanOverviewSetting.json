@@ -30,7 +30,9 @@
       "welcomeSticker": "Yêu cầu thành viên trả lời tin nhắn chào mừng bằng nhãn dán",
       "boostMessage": "Gửi tin nhắn khi ai đó tăng cấp clan này",
       "setupTips": "Gửi các mẹo hữu ích để thiết lập clan",
-      "hideAuditLog": "Gửi nhật ký khi có hành động được thực hiện với clan"
+      "hideAuditLog": "Gửi nhật ký khi có hành động được thực hiện với clan",
+      "anonymousTitle": "Ngăn chặn chế độ ẩn danh",
+      "anonymousDescription": "Ngăn người dùng sử dụng chế độ ẩn danh"
     },
     "deleteServer": {
       "title": "Xóa clan",

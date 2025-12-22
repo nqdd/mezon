@@ -1,7 +1,7 @@
 import { usePermissionChecker } from '@mezon/core';
 import { ActionEmitEvent, optionNotification } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { clansActions, useAppSelector } from '@mezon/store';
+import { clansActions, selectCurrentClanPreventAnonymous, useAppSelector } from '@mezon/store';
 import type { ChannelsEntity } from '@mezon/store-mobile';
 import {
 	appActions,
@@ -58,6 +58,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	const currentClanBanner = useSelector(selectCurrentClanBanner);
 	const welcomeChannelId = useAppSelector(selectCurrentClanWelcomeChannelId);
 	const currentClanCreatorId = useAppSelector(selectCurrentClanCreatorId);
+	const currentClanPreventAnonymous = useAppSelector(selectCurrentClanPreventAnonymous);
 	const systemMessage = useSelector(selectClanSystemMessage);
 
 	const { t } = useTranslation(['clanOverviewSetting']);
@@ -74,6 +75,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	const [errorMessage, setErrorMessage] = useState<string>('');
 	const [selectedChannelMessage, setSelectedChannelMessage] = useState<ChannelsEntity>(null);
 	const [updateSystemMessageRequest, setUpdateSystemMessageRequest] = useState<ApiSystemMessageRequest | null>(null);
+	const [anonymousPrevented, setAnonymousPrevented] = useState<boolean>(currentClanPreventAnonymous);
 	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
 	const [notificationSetting, setNotificationSetting] = useState<number>(defaultNotificationClan?.notification_setting_type);
 
@@ -113,6 +115,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	useEffect(() => {
 		const isClanNameChanged = clanName !== currentClanName;
 		const isBannerChanged = banner !== (currentClanBanner || '');
+		const isAnonymousChanged = anonymousPrevented !== currentClanPreventAnonymous;
 
 		let hasSystemMessageChanged = false;
 		if (updateSystemMessageRequest && systemMessage) {
@@ -127,7 +130,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 			setErrorMessage(t('menu.serverName.errorMessage'));
 		}
 
-		setIsCheckValid((isClanNameChanged || isBannerChanged || hasSystemMessageChanged) && validInput(clanName));
+		setIsCheckValid((isClanNameChanged || isBannerChanged || hasSystemMessageChanged || isAnonymousChanged) && validInput(clanName));
 	}, [
 		clanName,
 		banner,
@@ -137,6 +140,8 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		defaultNotificationClan?.notification_setting_type,
 		currentClanName,
 		currentClanBanner,
+		anonymousPrevented,
+		currentClanPreventAnonymous,
 		t
 	]);
 
@@ -240,7 +245,8 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 						creator_id: currentClanCreatorId ?? '',
 						is_onboarding: currentClanIsOnboarding,
 						logo: currentClanLogo ?? '',
-						welcome_channel_id: welcomeChannelId ?? ''
+						welcome_channel_id: welcomeChannelId ?? '',
+						prevent_anonymous: anonymousPrevented
 					}
 				})
 			);
@@ -274,6 +280,7 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		currentClanLogo,
 		welcomeChannelId,
 		hasSystemMessageChanges,
+		anonymousPrevented,
 		handleUpdateSystemMessage,
 		t,
 		handleCheckDuplicateClanname
@@ -398,6 +405,14 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 		}
 	];
 
+	const anonymousMenu: IMezonMenuItemProps[] = [
+		{
+			title: t('menu.systemMessage.anonymousDescription'),
+			component: <MezonSwitch disabled={disabled} value={anonymousPrevented} onValueChange={(value) => setAnonymousPrevented(value)} />,
+			disabled
+		}
+	];
+
 	const deleteMenu: IMezonMenuItemProps[] = [
 		{
 			title: t('menu.deleteServer.delete'),
@@ -407,15 +422,17 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 	];
 
 	const generalMenu: IMezonMenuSectionProps[] = [
-		// {
-		// 	items: inactiveMenu,
-		// 	title: t('menu.inactive.title'),
-		// 	bottomDescription: t('menu.inactive.description')
-		// },
 		{
 			items: systemMessageMenu,
 			title: t('menu.systemMessage.title'),
 			bottomDescription: t('menu.systemMessage.description')
+		}
+	];
+
+	const preventActionMenu: IMezonMenuSectionProps[] = [
+		{
+			items: anonymousMenu,
+			title: t('menu.systemMessage.anonymousTitle')
 		}
 	];
 
@@ -460,6 +477,8 @@ export function ClanOverviewSetting({ navigation }: MenuClanScreenProps<ClanSett
 				</View>
 
 				<MezonMenu menu={generalMenu} />
+
+				<MezonMenu menu={preventActionMenu} />
 
 				<MezonOption
 					value={notificationSetting}
