@@ -418,7 +418,8 @@ export const DATA_E2E_IDENTIFIER = {
 				user_list_collapsed: {
 					item: '',
 					item_count: ''
-				}
+				},
+				badge: ''
 			},
 			thread_item: {
 				name: ''
@@ -461,7 +462,8 @@ export const DATA_E2E_IDENTIFIER = {
 				messages_count: '',
 				channel_name: ''
 			}
-		}
+		},
+		badge: ''
 	},
 	channel_setting_page: {
 		side_bar: {
@@ -664,7 +666,8 @@ export const DATA_E2E_IDENTIFIER = {
 					},
 					chat: '',
 					gallery: ''
-				}
+				},
+				badge: ''
 			},
 			actions: {
 				add_reaction: '',

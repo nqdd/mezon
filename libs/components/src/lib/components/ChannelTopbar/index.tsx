@@ -976,6 +976,7 @@ export function RedDot() {
 			className="absolute border-theme-primary
 		 w-[8px] h-[8px] rounded-full bg-colorDanger outline outline-1 outline-transparent
 		  font-bold text-[11px] flex items-center justify-center -bottom-[0.05rem] -right-[0.075rem]"
+			data-e2e={generateE2eId('chat.channel_message.header.badge')}
 		></div>
 	);
 }
