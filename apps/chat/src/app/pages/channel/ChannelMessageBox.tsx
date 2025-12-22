@@ -38,7 +38,7 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 	const dispatch = useDispatch();
 	const appDispatch = useAppDispatch();
 	const { sendMessage, sendMessageTyping } = useChatSending({ channelOrDirect: channel, mode });
-	const anonymousMode = useSelector(selectAnonymousMode);
+	const anonymousMode = useSelector((state) => selectAnonymousMode(state, clanId as string));
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, channelId ?? ''));
 	const chatboxRef = useRef<HTMLDivElement | null>(null);
 	const currentClanIsOnboarding = useSelector(selectCurrentClanIsOnboarding);
