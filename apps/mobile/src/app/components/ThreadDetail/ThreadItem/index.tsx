@@ -1,5 +1,5 @@
 import { getUpdateOrAddClanChannelCache, save, STORAGE_DATA_CLAN_CHANNEL_CACHE } from '@mezon/mobile-components';
-import { useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity, MessagesEntity, ThreadsEntity } from '@mezon/store-mobile';
 import {
 	channelsActions,
@@ -17,10 +17,10 @@ import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { safeJSONParse } from 'mezon-js';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, Text, View } from 'react-native';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
-import { useMessageSender } from '../../../hooks/useMessageSender';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import type { AppStackParamList } from '../../../navigation/ScreenTypes';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -33,59 +33,79 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const navigation = useNavigation<NavigationProp<AppStackParamList>>();
-	const messageId = useAppSelector((state) => selectLastMessageIdByChannelId(state, thread?.channel_id as string));
+	const { t } = useTranslation('message');
+	const isTabletLandscape = useTabletLandscape();
+	const messageId = useAppSelector((state) => selectLastMessageIdByChannelId(state, thread?.channel_id));
 	const message = useAppSelector(
-		(state) => selectMessageEntityById(state, thread?.channel_id as string, messageId || thread?.last_sent_message?.id) as MessagesEntity
+		(state) => selectMessageEntityById(state, thread?.channel_id, messageId || thread?.last_sent_message?.id) as MessagesEntity
 	);
 	const user = useAppSelector((state) =>
-		selectMemberClanByUserId(state, (message?.user?.id || thread?.last_sent_message?.sender_id) as string)
+		selectMemberClanByUserId(state, message?.user?.id || thread?.last_sent_message?.sender_id)
 	) as IChannelMember;
-	const isTabletLandscape = useTabletLandscape();
 
-	const { username } = useMessageSender(user);
+	const prioritySenderName = useMemo(() => {
+		if (thread?.last_sent_message?.sender_id === process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID) {
+			return 'Anonymous';
+		}
 
-	const handleNavigateThread = async (thread?: ThreadsEntity) => {
-		const clanId = thread?.clan_id;
+		return (
+			user?.clan_nick ||
+			user?.user?.display_name ||
+			user?.user?.username ||
+			message?.user?.name ||
+			message?.user?.username ||
+			message?.username ||
+			''
+		);
+	}, [
+		message?.user?.name,
+		message?.user?.username,
+		message?.username,
+		thread?.last_sent_message?.sender_id,
+		user?.clan_nick,
+		user?.user?.display_name,
+		user?.user?.username
+	]);
+
+	const handleNavigateThread = async (thread: ThreadsEntity) => {
 		const store = await getStoreAsync();
 		if (isTabletLandscape) {
 			navigation.goBack();
 		} else {
 			navigation.navigate(APP_SCREEN.HOME_DEFAULT);
 		}
-		const channelId = thread?.channel_id;
 		store.dispatch(
 			listChannelRenderAction.addThreadToListRender({
-				clanId: clanId ?? '',
+				clanId: thread?.clan_id ?? '',
 				channel: thread as ChannelsEntity
 			})
 		);
 		requestAnimationFrame(async () => {
-			store.dispatch(channelsActions.upsertOne({ clanId: clanId ?? '', channel: thread as ChannelsEntity }));
-			await store.dispatch(channelsActions.joinChannel({ clanId: clanId ?? '', channelId, noFetchMembers: false }));
+			store.dispatch(channelsActions.upsertOne({ clanId: thread?.clan_id ?? '', channel: thread as ChannelsEntity }));
+			await store.dispatch(
+				channelsActions.joinChannel({ clanId: thread?.clan_id ?? '', channelId: thread?.channel_id || '', noFetchMembers: false })
+			);
 		});
-		const dataSave = getUpdateOrAddClanChannelCache(clanId, channelId);
+		const dataSave = getUpdateOrAddClanChannelCache(thread?.clan_id, thread?.channel_id);
 		save(STORAGE_DATA_CLAN_CHANNEL_CACHE, dataSave);
 	};
 
 	const lastTimeMessage = useMemo(() => {
-		if (message && message.create_time_seconds) {
+		if (message?.create_time_seconds) {
 			return convertTimeMessage(message.create_time_seconds, i18n.language);
-		} else {
-			if (thread && thread.last_sent_message && thread.last_sent_message.timestamp_seconds) {
-				return convertTimeMessage(thread.last_sent_message.timestamp_seconds, i18n.language);
-			}
+		} else if (thread?.last_sent_message?.timestamp_seconds) {
+			return convertTimeMessage(thread.last_sent_message.timestamp_seconds, i18n.language);
 		}
-	}, [message, thread]);
+	}, [message?.create_time_seconds, thread?.last_sent_message?.timestamp_seconds]);
 
-	const checkType = useMemo(() => typeof thread.last_sent_message?.content === 'string', [thread.last_sent_message?.content]);
 	const lastSentMessage = useMemo(() => {
-		return (
+		const textMsg =
 			(message?.content?.t as string) ??
-			(thread.last_sent_message && checkType
+			(typeof thread?.last_sent_message?.content === 'string'
 				? safeJSONParse(thread.last_sent_message.content || '{}')?.t
-				: (thread.last_sent_message?.content as any)?.t || '')
-		);
-	}, [checkType, message?.content?.t, thread.last_sent_message]);
+				: (thread?.last_sent_message?.content as any)?.t || '');
+		return textMsg ? textMsg : `[${t('attachments.attachment')}]`;
+	}, [message?.content?.t, t, thread?.last_sent_message?.content]);
 
 	return (
 		<Pressable
@@ -98,9 +118,9 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 				<Text style={styles.threadName}>{thread?.channel_label}</Text>
 				<View style={styles.threadContent}>
 					<View style={styles.username}>
-						{username && (
+						{prioritySenderName && (
 							<Text numberOfLines={1} style={styles.textThreadCreateBy}>
-								{username}
+								{`${prioritySenderName}: `}
 							</Text>
 						)}
 						<Text numberOfLines={1} ellipsizeMode="tail" style={styles.messageContent}>
@@ -116,7 +136,7 @@ const ThreadItem = ({ thread }: IThreadItemProps) => {
 				</View>
 			</View>
 			<View style={styles.iconMargin}>
-				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={25} height={25} color={themeValue.textDisabled} />
+				<MezonIconCDN icon={IconCDN.chevronSmallRightIcon} width={size.s_24} height={size.s_24} color={themeValue.textDisabled} />
 			</View>
 		</Pressable>
 	);

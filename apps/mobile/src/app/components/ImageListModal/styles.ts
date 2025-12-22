@@ -1,8 +1,7 @@
-import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = () =>
 	StyleSheet.create({
 		messageBoxTop: {
 			gap: size.s_2,
@@ -12,7 +11,8 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			marginRight: size.s_10,
 			fontWeight: '600',
-			color: 'white'
+			color: 'white',
+			maxWidth: size.s_100 + size.s_20
 		},
 		dateMessageBox: {
 			fontSize: size.small,
