@@ -294,7 +294,7 @@ export const notificationSlice = createSlice({
 							...message,
 							id: noti.id || '',
 							...noti,
-							create_time: safeJSONParse(noti.content || '').create_time,
+							create_time: new Date().toISOString(),
 							content: safeJSONParse(noti.content || ''),
 							category: NotificationCategory.MESSAGES
 						};
