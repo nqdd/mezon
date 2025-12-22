@@ -5,10 +5,6 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import QRCode from 'react-qr-code';
 
-/**
- * --- CUSTOM SVG ICONS ---
- */
-
 const AppStoreIcon = () => (
 	<svg viewBox="0 0 135 40" className="h-full w-auto" xmlns="http://www.w3.org/2000/svg">
 		<path
