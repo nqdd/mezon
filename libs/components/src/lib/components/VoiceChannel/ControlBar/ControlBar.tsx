@@ -26,6 +26,7 @@ import { ScreenShareControl } from './ScreenShareControl';
 import { Icons } from '@mezon/ui';
 import { requestMediaPermission, useMediaPermissions } from '@mezon/utils';
 import Tooltip from 'rc-tooltip';
+import { RaisingHandControls } from './RaisingHandControl';
 import { useControlBarPermissions } from './hooks/useControlBarPermissions';
 import { useViewControls } from './hooks/useViewControls';
 
@@ -262,6 +263,7 @@ const ControlBar = ({
 			)}
 
 			<div className="flex justify-center gap-3 flex-1 max-md:scale-75">
+				<RaisingHandControls />
 				{visibleControls.microphone && (
 					<MicrophoneControl
 						isShowMember={isShowMember}
