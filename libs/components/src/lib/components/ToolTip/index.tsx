@@ -20,7 +20,7 @@ export const CustomTooltip = ({ children, text, offsetX = 12 }: CustomTooltipPro
 			if (!rect) return;
 
 			setPosition({
-				top: rect.top - 2,
+				top: rect.top - 8,
 				left: rect.left + rect.width / 2
 			});
 		};
@@ -47,16 +47,16 @@ export const CustomTooltip = ({ children, text, offsetX = 12 }: CustomTooltipPro
 						style={{
 							top: `${position.top}px`,
 							left: `${position.left}px`,
-							transform: `translate(calc(-50% + ${offsetX}px), -100%)`
+							transform: 'translate(-50%, -100%)'
 						}}
 					>
-						<div className="mb-2">
-							<div className="bg-tooltip-channelapp rounded-lg px-3 py-2 shadow-lg border-theme-primary">
+						<div className="relative">
+							<div className="bg-tooltip-channelapp rounded-lg px-3 py-2 shadow-lg">
 								<span className="text-theme-primary text-sm font-medium block truncate max-w-[100px]">{text}</span>
 							</div>
-							<div className="absolute top-full left-1/2 -mt-[1px]" style={{ transform: `translateX(calc(-50% - ${offsetX}px))` }}>
+							<div className="absolute top-full left-1/2 -translate-x-1/2">
 								<div
-									className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-theme-primary"
+									className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px]"
 									style={{ borderTopColor: 'var(--bg-tooltip-app)' }}
 								/>
 							</div>
