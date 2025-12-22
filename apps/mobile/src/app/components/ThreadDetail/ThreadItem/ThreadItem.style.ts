@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -38,7 +39,7 @@ export const style = (colors: Attributes) =>
 			fontSize: size.medium,
 			color: colors.textDisabled,
 			fontWeight: '500',
-			width: 'auto'
+			maxWidth: '75%'
 		},
 		bullet: {
 			marginHorizontal: 5,
@@ -52,7 +53,6 @@ export const style = (colors: Attributes) =>
 			fontWeight: '500'
 		},
 		messageContent: {
-			marginLeft: size.s_6,
 			fontSize: size.medium,
 			color: colors.textDisabled,
 			fontWeight: '500',
