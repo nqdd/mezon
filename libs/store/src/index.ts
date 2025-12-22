@@ -19,7 +19,6 @@ export * from './lib/channels/channelUser.slice';
 export * from './lib/channels/channelapp.slice';
 export * from './lib/channels/channelmeta.slice';
 export * from './lib/channels/channels.slice';
-export * from './lib/channels/hashtagDm.slice';
 export * from './lib/channels/listChannelRender.slice';
 export * from './lib/channels/listUsers.slice';
 export * from './lib/channels/updateChannelActions.slice';

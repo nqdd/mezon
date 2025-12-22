@@ -42,7 +42,10 @@ const Flows = () => {
 	return (
 		<div className="relative">
 			<div className="flex justify-between items-center">
-				<h4 className="text-xl font-semibold">{t('flows.title')}</h4>
+				<div>
+					<h4 className="text-xl font-semibold">{t('flows.title')}</h4>
+					{!hasToken && <p className="mt-1 text-sm text-gray-500">{t('flows.hasTokenInfo')}</p>}
+				</div>
 				<div className="flex gap-2">
 					<button
 						onClick={() => setOpenAppTokenModal(true)}
@@ -53,7 +56,9 @@ const Flows = () => {
 					<button
 						disabled={!hasToken}
 						onClick={handleGoToAddFlowPage}
-						className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg active:bg-indigo-600 transition-all"
+						className={`text-white px-3 py-2 rounded-lg transition-all ${
+							hasToken ? 'bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-600' : 'bg-indigo-300 cursor-not-allowed opacity-50'
+						}`}
 					>
 						{t('flows.addFlow')}
 					</button>

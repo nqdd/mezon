@@ -9,7 +9,6 @@ import {
 	selectAddEmojiState,
 	selectAllAccount,
 	selectAllChannels,
-	selectAllHashtagDm,
 	selectAllRolesClan,
 	selectAnonymousMode,
 	selectAttachmentByChannelId,
@@ -183,7 +182,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	const userProfile = useSelector(selectAllAccount);
 	const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
 	const allChannels = useAppSelector(selectAllChannels);
-	const allHashtagDm = useAppSelector(selectAllHashtagDm);
 	const { setOpenThreadMessageState, checkAttachment } = useReference(scopeId || '');
 	const [mentionData, setMentionData] = useState<ApiMessageMention[]>([]);
 	const [displayPlaintext, setDisplayPlaintext] = useState<string>('');
@@ -718,24 +716,14 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	}, [attachmentFiltered?.files]);
 
 	const hashtagData = useMemo(() => {
-		if (isDm) {
-			return allHashtagDm
-				.map((item) => ({
-					id: item?.channel_id ?? '',
-					display: item?.channel_label ?? '',
-					subText: item?.clan_name ?? ''
-				}))
-				.filter((mention) => mention.id || mention.display || mention.subText);
-		} else {
-			return allChannels
-				.map((item) => ({
-					id: item?.channel_id ?? '',
-					display: item?.channel_label ?? '',
-					subText: item?.category_name ?? ''
-				}))
-				.filter((mention) => mention.id || mention.display || mention.subText);
-		}
-	}, [isDm, allHashtagDm, allChannels]);
+		return allChannels
+			.map((item) => ({
+				id: item?.channel_id ?? '',
+				display: item?.channel_label ?? '',
+				subText: item?.category_name ?? ''
+			}))
+			.filter((mention) => mention.id || mention.display || mention.subText);
+	}, [isDm, allChannels]);
 
 	const isReplyOnChannel = dataReferences.message_ref_id && !props.isTopic ? true : false;
 	const isReplyOnTopic = dataReferencesTopic.message_ref_id && props.isTopic ? true : false;

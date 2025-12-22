@@ -17,15 +17,7 @@ import {
 } from '@mezon/store';
 import { InputField } from '@mezon/ui';
 import type { SearchItemProps } from '@mezon/utils';
-import {
-	TypeSearch,
-	addAttributesSearchList,
-	filterListByName,
-	generateE2eId,
-	normalizeString,
-	removeDuplicatesById,
-	sortFilteredList
-} from '@mezon/utils';
+import { TypeSearch, addAttributesSearchList, filterListByName, generateE2eId, normalizeString, sortFilteredList } from '@mezon/utils';
 import debounce from 'lodash.debounce';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
@@ -111,8 +103,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 				})
 			: [];
 		const listSearch = [...listDMSearch, ...listGroupSearch];
-		const removeDuplicate = removeDuplicatesById(listSearch.filter((item) => item?.id !== accountId));
-		const addPropsIntoSearchList = addAttributesSearchList(removeDuplicate, Object.values(allUsesInAllClansEntities) as any);
+		const addPropsIntoSearchList = addAttributesSearchList(listSearch, Object.values(allUsesInAllClansEntities) as any);
 		return addPropsIntoSearchList;
 	}, [accountId, listDM, listGroup, allUsesInAllClansEntities]);
 	const listChannelSearch = useMemo(() => {

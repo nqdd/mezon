@@ -197,6 +197,7 @@
 	"settings": "SETTINGS",
 	"flows": {
 		"title": "Chat Flows",
+		"hasTokenInfo": "You need to set up a Token before creating a new Bot Flow.",
 		"setToken": "Set Token",
 		"addFlow": "Add Flow",
 		"appTokenModal": {

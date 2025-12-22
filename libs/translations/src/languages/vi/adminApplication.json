@@ -197,6 +197,7 @@
 	"settings": "CÀI ĐẶT",
 	"flows": {
 		"title": "Luồng Chat",
+		"hasTokenInfo": "Bạn cần thiết lập Token trước khi tạo luồng Bot mới.",
 		"setToken": "Đặt Token",
 		"addFlow": "Thêm Luồng",
 		"appTokenModal": {

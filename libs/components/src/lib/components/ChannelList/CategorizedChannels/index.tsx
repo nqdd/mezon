@@ -1,3 +1,5 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useAuth, useCategory, usePermissionChecker, UserRestrictionZone } from '@mezon/core';
 import {
 	categoriesActions,
@@ -95,6 +97,17 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 	const dispatch = useAppDispatch();
 	const isShowCreateChannel = isClanOwner || hasAdminPermission || hasChannelManagePermission || hasClanPermission;
 
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id: category.category_id as string,
+		disabled: category.id === FAVORITE_CATEGORY_ID || !category.category_id
+	});
+
+	const style: React.CSSProperties = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1
+	};
+
 	const handleOpenEditCategory = () => {
 		openCategoryEdit();
 		closeRightClickModal();
@@ -175,9 +188,12 @@ const CategorizedItem: React.FC<CategorizedChannelsProps> = ({ category }) => {
 	return (
 		category.category_name && (
 			<div
-				className="flex flex-row px-2 relative gap-1"
+				ref={setNodeRef}
+				style={style}
+				className={`flex flex-row px-2 relative gap-1 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
 				onMouseDown={handleMouseClick}
-				ref={panelRef}
+				{...attributes}
+				{...listeners}
 				role={'button'}
 				data-e2e={generateE2eId('clan_page.side_bar.channel_list.category')}
 			>
