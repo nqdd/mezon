@@ -125,7 +125,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 			icon: categoryIcons[index + 1]
 		}));
 		categories.splice(0, 0, {
-			name: t(`emojiCategories.${FOR_SALE_CATE}`) || FOR_SALE_CATE,
+			name: FOR_SALE_CATE,
 			icon: categoryIcons[0]
 		});
 
