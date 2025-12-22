@@ -97,10 +97,10 @@ const SuggestItem = memo(
 					{isChannelPrivate && isChannelText && !isThread && (
 						<MezonIconCDN icon={IconCDN.channelTextLock} width={size.s_16} height={size.s_16} color={themeValue.channelNormal} />
 					)}
-					{!isChannelPrivate && isChannelText && isThread && (
+					{!isChannelPrivate && isThread && (
 						<MezonIconCDN icon={IconCDN.threadIcon} width={size.s_16} height={size.s_16} color={themeValue.channelNormal} />
 					)}
-					{isChannelPrivate && isChannelText && isThread && (
+					{isChannelPrivate && isThread && (
 						<MezonIconCDN icon={IconCDN.threadLockIcon} width={size.s_16} height={size.s_16} color={themeValue.channelNormal} />
 					)}
 					{!isChannelPrivate && isChannelVoice && (
