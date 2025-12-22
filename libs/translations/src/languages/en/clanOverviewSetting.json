@@ -30,7 +30,9 @@
 			"welcomeSticker": "Prompt members to reply to welcome messages with a sticker",
 			"boostMessage": "Send a messages when someone boosts this clan",
 			"setupTips": "Send helpful tips for clan setup",
-			"hideAuditLog": "Send a log when an action is applied to the clan"
+			"hideAuditLog": "Send a log when an action is applied to the clan",
+			"anonymousTitle": "Prevent Anonymous",
+			"anonymousDescription": "Prevent users from using anonymous mode"
 		},
 		"deleteServer": {
 			"title": "Delete Clan",
