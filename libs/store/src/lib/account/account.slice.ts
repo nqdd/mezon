@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import { authActions } from '../auth/auth.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { clearApiCallTracker, createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+// import { selectCurrentClanId } from '../clans/clans.slice';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { RootState } from '../store';
@@ -22,7 +23,7 @@ export interface AccountState {
 	error?: string | null;
 	account?: IAccount | null;
 	userProfile?: IUserAccount | null;
-	anonymousMode: boolean;
+	anonymousMode: Record<string, true>;
 	topicAnonymousMode: boolean;
 	cache?: CacheMetadata;
 	avatarVersion: number;
@@ -32,7 +33,7 @@ export const initialAccountState: AccountState = {
 	loadingStatus: 'not loaded',
 	account: null,
 	userProfile: null,
-	anonymousMode: false,
+	anonymousMode: {},
 	topicAnonymousMode: false,
 	avatarVersion: 0
 };
@@ -208,11 +209,29 @@ export const accountSlice = createSlice({
 		setAccount(state, action) {
 			state.account = action.payload;
 		},
-		turnOffAnonymous(state) {
-			state.anonymousMode = false;
+		turnOffAnonymous(state, action: PayloadAction<string>) {
+			const id = action.payload;
+			if (state.anonymousMode?.[id]) {
+				const next = { ...state.anonymousMode };
+				delete next[id];
+				state.anonymousMode = next;
+			}
 		},
-		setAnonymousMode(state) {
-			state.anonymousMode = !state.anonymousMode;
+
+		setAnonymousMode(state, action: PayloadAction<string>) {
+			const id = action.payload;
+
+			if (state.anonymousMode?.[id]) {
+				const next = { ...state.anonymousMode };
+				delete next[id];
+				state.anonymousMode = next;
+				return;
+			}
+
+			state.anonymousMode = {
+				...state.anonymousMode,
+				[id]: true
+			};
 		},
 		setTopicAnonymousMode(state) {
 			state.topicAnonymousMode = !state.topicAnonymousMode;
@@ -323,7 +342,9 @@ export const selectAllAccount = createSelector(getAccountState, (state: AccountS
 
 export const selectCurrentUserId = createSelector(getAccountState, (state: AccountState) => state?.userProfile?.user?.id || '');
 
-export const selectAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.anonymousMode);
+export const selectAnonymousMode = createSelector([getAccountState, (state, clanId: string) => clanId], (state: AccountState, clanId) => {
+	return !!state.anonymousMode?.[clanId];
+});
 
 export const selectTopicAnonymousMode = createSelector(getAccountState, (state: AccountState) => state.topicAnonymousMode);
 
