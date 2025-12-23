@@ -622,6 +622,9 @@ export const DATA_E2E_IDENTIFIER = {
 				leave_group: {
 					button: ''
 				}
+			},
+			side_bar: {
+				item: ''
 			}
 		},
 		channel_message: {
