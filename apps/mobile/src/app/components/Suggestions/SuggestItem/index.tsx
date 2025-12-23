@@ -1,7 +1,7 @@
 import { useCheckVoiceStatus } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { ChannelStatusEnum, checkIsThread, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,8 +34,7 @@ const SuggestItem = memo(
 			const isChannelPrivate = channel?.channel_private === ChannelStatusEnum.isPrivate;
 			const isChannelText = channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL;
 
-			const isThread = checkIsThread(channel as ChannelsEntity);
-
+			const isThread = channel?.type === ChannelType.CHANNEL_TYPE_THREAD;
 			const isChannelVoice = channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 			const isChannelStream = channel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
 			const isChannelApp = channel?.type === ChannelType.CHANNEL_TYPE_APP;

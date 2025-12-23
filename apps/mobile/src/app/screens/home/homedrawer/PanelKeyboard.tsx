@@ -24,10 +24,17 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	const bottomPickerRef = useRef<BottomSheetModal>(null);
 	const typeKeyboardBottomSheetRef = useRef<string>(null);
 	const heightKeyboardShowRef = useRef<number>(0);
+	const [heightKeyboardShow, setHeightKeyboardShow] = useState<number>(0);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 	const spacerHeightAnim = useRef(new Animated.Value(0)).current;
 
 	const styles = useMemo(() => createStyles(themeValue), [themeValue]);
+
+	const snapPoints = useMemo(() => {
+		const height = heightKeyboardShow > 0 ? heightKeyboardShow : 1;
+		const validHeight = Math.max(1, height);
+		return [validHeight, Platform.OS === 'ios' ? '95%' : '100%'];
+	}, [heightKeyboardShow]);
 
 	useEffect(() => {
 		const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -35,11 +42,13 @@ const PanelKeyboard = React.memo((props: IProps) => {
 
 		const showSub = Keyboard.addListener(showEvent, (e) => {
 			const height = e?.endCoordinates?.height ?? 0;
-			heightKeyboardShowRef.current = height;
+			const validHeight = Math.max(0, height);
+			heightKeyboardShowRef.current = validHeight;
+			setHeightKeyboardShow(validHeight);
 			bottomPickerRef?.current?.present();
 
 			Animated.timing(spacerHeightAnim, {
-				toValue: height,
+				toValue: validHeight,
 				duration: 200,
 				useNativeDriver: false
 			}).start();
@@ -49,6 +58,8 @@ const PanelKeyboard = React.memo((props: IProps) => {
 			if (typeKeyboardBottomSheetRef.current !== 'text') {
 				return;
 			}
+			heightKeyboardShowRef.current = 0;
+			setHeightKeyboardShow(0);
 			Animated.timing(spacerHeightAnim, {
 				toValue: 0,
 				duration: 200,
@@ -65,12 +76,15 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	const onShowKeyboardBottomSheet = useCallback(
 		async (isShow: boolean, type?: string) => {
 			const keyboardHeight = heightKeyboardShowRef.current ? heightKeyboardShowRef.current : Platform.OS === 'ios' ? 365 : 300;
+			const validHeight = Math.max(0, keyboardHeight); // Ensure non-negative
+
 			if (isShow) {
 				typeKeyboardBottomSheetRef.current = type;
 				setTypeKeyboardBottomSheet(type);
-				heightKeyboardShowRef.current = keyboardHeight;
+				heightKeyboardShowRef.current = validHeight;
+				setHeightKeyboardShow(validHeight);
 				Animated.timing(spacerHeightAnim, {
-					toValue: keyboardHeight,
+					toValue: validHeight,
 					duration: 200,
 					useNativeDriver: false
 				}).start();
@@ -85,11 +99,9 @@ const PanelKeyboard = React.memo((props: IProps) => {
 					useNativeDriver: false
 				}).start(() => {
 					heightKeyboardShowRef.current = 0;
+					setHeightKeyboardShow(0);
 					setTypeKeyboardBottomSheet('text');
 				});
-			} else if (!isShow) {
-				bottomPickerRef?.current?.dismiss();
-				bottomPickerRef?.current?.close();
 			}
 		},
 		[spacerHeightAnim]
@@ -122,10 +134,10 @@ const PanelKeyboard = React.memo((props: IProps) => {
 		};
 	}, []);
 
-	const handleSheetChange = (index: number) => {
+	const handleSheetChange = async (index: number) => {
 		if (index === -1) {
 			setTypeKeyboardBottomSheet('text');
-			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, { isShow: false, mode: 'text' });
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, { isShow: false, mode: 'force' });
 		}
 	};
 
@@ -141,7 +153,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 			</Animated.View>
 			<BottomSheetModal
 				ref={bottomPickerRef}
-				snapPoints={[heightKeyboardShowRef.current ? heightKeyboardShowRef.current : 1, Platform.OS === 'ios' ? '95%' : '100%']}
+				snapPoints={snapPoints}
 				index={0}
 				animateOnMount
 				animationConfigs={{
@@ -158,6 +170,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 						<View style={styles.handleIndicator} />
 					</View>
 				)}
+				backgroundStyle={styles.backgroundBottomSheet}
 				backdropComponent={null}
 				enableDynamicSizing={false}
 				enablePanDownToClose={true}

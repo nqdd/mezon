@@ -15,6 +15,7 @@ export const createStyles = (themeValue: Attributes) =>
 		},
 		handleIndicator: {
 			height: size.s_6,
+			backgroundColor: themeValue.text,
 			borderRadius: size.s_6,
 			width: size.s_50
 		},
@@ -27,5 +28,8 @@ export const createStyles = (themeValue: Attributes) =>
 		},
 		scrollViewContentFlex: {
 			flex: 1
+		},
+		backgroundBottomSheet: {
+			backgroundColor: themeValue.primary
 		}
 	});
