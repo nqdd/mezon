@@ -104,11 +104,6 @@ function SearchModal({ onClose }: SearchModalProps) {
 		return list;
 	}, [listChannels]);
 
-	const findFilterDm = (id: string) => {
-		const dm = listDirectSearch.find((item) => item.id === id);
-		return dm ? dm.idDM : undefined;
-	};
-
 	const listMemberSearch = useMemo(() => {
 		const list: SearchItemProps[] = [];
 
@@ -122,7 +117,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 					avatarUser: user?.avatar_url ?? '',
 					displayName: user?.display_name ?? '',
 					lastSentTimeStamp: '0',
-					idDM: findFilterDm(user?.id),
+					idDM: user?.id,
 					typeChat: TypeSearch.Dm_Type,
 					type: ChannelType.CHANNEL_TYPE_DM,
 					searchName: (user.list_nick_names || []).join('.')
