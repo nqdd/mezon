@@ -97,7 +97,7 @@ const TextChannelPage = () => {
 	};
 
 	const toggleSideBar = () => {
-		setSideBarIsOpen(!sideBarIsOpen);
+		setSideBarIsOpen((prev) => !prev);
 	};
 
 	const scrollToSection = (id: string, event: React.MouseEvent) => {
@@ -186,14 +186,23 @@ const TextChannelPage = () => {
   `;
 
 	return (
-		<div className="min-h-screen bg-white">
+		<div className="min-h-screen bg-white relative">
 			<style>{animationStyles}</style>
-			{!sideBarIsOpen && <HeaderMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
-			{sideBarIsOpen && <SideBarMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
+			<HeaderMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />
+			<SideBarMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />
+
+			<div
+				className={`fixed inset-0 z-30 bg-black transition-opacity duration-300 ease-in-out max-lg:block hidden ${
+					sideBarIsOpen ? 'opacity-50 pointer-events-auto' : 'opacity-0 pointer-events-none'
+				}`}
+				onClick={toggleSideBar}
+				style={{ top: '72px' }}
+			/>
 
 			<section
 				ref={section1Ref}
-				className="section-animate relative w-full bg-white pt-[120px] pb-20 2xl:pt-[273px] 2xl:pb-[193px] max-md:pt-[100px] max-md:pb-12 overflow-hidden"
+				className={`section-animate relative w-full bg-white pt-[120px] pb-20 2xl:pt-[273px] 2xl:pb-[193px] max-md:pt-[100px] max-md:pb-12 overflow-hidden
+				}`}
 			>
 				<div className="max-w-[1600px] 2xl:max-w-[2400px] mx-auto px-10">
 					<div className="flex items-center justify-between 2xl:justify-around max-lg:flex-col-reverse max-lg:gap-12 gap-8 lg:gap-12 xl:gap-16">
