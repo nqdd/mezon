@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { ModalDownload } from '../homepage/mezonpage/components';
 import Footer from '../homepage/mezonpage/footer';
 import HeaderMezon from '../homepage/mezonpage/header';
+import { SideBarMezon } from '../homepage/mezonpage/sidebar';
 
 const TextChannelPage = () => {
 	const { t } = useTranslation('textchannel');
@@ -20,6 +21,7 @@ const TextChannelPage = () => {
 	const [openFAQ, setOpenFAQ] = useState<number | null>(0);
 	const [isMobile, setIsMobile] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [sideBarIsOpen, setSideBarIsOpen] = useState(false);
 
 	const slides = (t('discover.slides', { returnObjects: true }) as Array<{ title: string; description: string }>).map((slide, index) => ({
 		...slide,
@@ -92,6 +94,15 @@ const TextChannelPage = () => {
 
 	const goToNext = () => {
 		setCurrentSlide((prev) => Math.min(prev + 1, slides.length - 1));
+	};
+
+	const toggleSideBar = () => {
+		setSideBarIsOpen(!sideBarIsOpen);
+	};
+
+	const scrollToSection = (id: string, event: React.MouseEvent) => {
+		event.preventDefault();
+		setSideBarIsOpen(false);
 	};
 
 	const animationStyles = `
@@ -177,15 +188,8 @@ const TextChannelPage = () => {
 	return (
 		<div className="min-h-screen bg-white">
 			<style>{animationStyles}</style>
-			<HeaderMezon
-				sideBarIsOpen={false}
-				toggleSideBar={() => {
-					('');
-				}}
-				scrollToSection={() => {
-					('');
-				}}
-			/>
+			{!sideBarIsOpen && <HeaderMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
+			{sideBarIsOpen && <SideBarMezon sideBarIsOpen={sideBarIsOpen} toggleSideBar={toggleSideBar} scrollToSection={scrollToSection} />}
 
 			<section
 				ref={section1Ref}

@@ -52,9 +52,9 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 			<div ref={headerSideBarRef} className="flex items-center justify-between pt-[14px] pr-[16px] pb-[14px] pl-[16px] h-[72px] relative">
 				<Link to={'/mezon'} className="flex gap-[4.92px] items-center">
 					<Image src={`assets/images/mezon-logo-black.svg`} width={32} height={32} className="aspect-square object-cover" />
-					<div className="font-semibold text-[22.15px] leading-[26.58px] tracking-[0.06em]">mezon</div>
+					<div className="font-semibold text-[22.15px] leading-[26.58px] tracking-[0.06em] text-[#F4F7F9]">mezon</div>
 				</Link>
-				<Icons.MenuClose className="w-[20px] max-lg:block cursor-pointer" onClick={toggleSideBar} />
+				<Icons.MenuClose className="w-[20px] max-lg:block cursor-pointer text-[#F4F7F9]" onClick={toggleSideBar} />
 			</div>
 
 			<div
@@ -70,7 +70,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 				<a
 					href="#home"
 					onClick={(event) => scrollToSection('home', event)}
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.home')}
 				</a>
@@ -78,7 +78,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					href={'developers/applications'}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.developers')}
 				</a>
@@ -86,7 +86,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					href={'https://top.mezon.ai'}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.botsApps')}
 				</a>
@@ -94,7 +94,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					href={'docs/'}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.documents')}
 				</a>
@@ -102,7 +102,7 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					href={'clans/'}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.discover')}
 				</a>
@@ -110,13 +110,13 @@ export const SideBarMezon = memo((props: SideBarProps) => {
 					href={'blogs/'}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
+					className="text-center px-[16px] py-[10px] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] hover:rounded-[8px] focus:rounded-[8px] focus:bg-[#281FB5]"
 				>
 					{t('header.blogs')}
 				</a>
 
 				<Link
-					className="text-center px-[16px] py-[10px] rounded-[8px] bg-[#1024D4] text-[#F4F7F9] font-semibold text-base hover:bg-[#0C1AB2] focus:bg-[#281FB5] whitespace-nowrap"
+					className="text-center px-[16px] py-[10px] rounded-[8px] bg-[#1024D4] text-[#F4F7F9] font-semibold text-[16px] leading-[24px] hover:bg-[#0C1AB2] focus:bg-[#281FB5] whitespace-nowrap"
 					to={'/mezon'}
 				>
 					{isLogin ? t('header.openMezon') : t('header.login')}
