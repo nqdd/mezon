@@ -137,7 +137,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 
 	const dispatch = useAppDispatch();
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
-	const anonymousMode = useSelector(selectAnonymousMode);
+	const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentChannel?.clan_id as string));
 	const [mentionEveryone, setMentionEveryone] = useState(false);
 	const addEmojiState = useSelector(selectAddEmojiState);
 	const emojiPicked = useSelector(selectEmojiObjSuggestion);
@@ -255,7 +255,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 
 			const store = getStore();
 			const userIds = selectMemberIdsByChannelId(store.getState(), channel.id as string);
-			const needsJoin = !userProfile?.user?.id ? false : !userIds.includes(userProfile?.user?.id);
+			const needsJoin = !userProfile?.user?.id ? false : !userIds?.includes(userProfile?.user?.id);
 
 			if (isArchived) {
 				await dispatch(

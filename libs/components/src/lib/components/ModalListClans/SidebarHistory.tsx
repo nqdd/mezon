@@ -52,13 +52,15 @@ const SideBarHistory = () => {
 	const checkHold = useRef<boolean>(false);
 	const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-	const handleMouseDown = () => {
+	const handleMouseDown = (e: React.MouseEvent) => {
+		if (e.button === 2) return;
 		timerRef.current = setTimeout(() => {
 			checkHold.current = true; // gọi action giống onContextMenu
 		}, 500);
 	};
 
-	const handleMouseUp = (left: boolean) => {
+	const handleMouseUp = (e: React.MouseEvent, left: boolean) => {
+		if (e.button === 2) return;
 		if (timerRef.current) {
 			clearTimeout(timerRef.current);
 			if (checkHold.current) {
@@ -75,16 +77,22 @@ const SideBarHistory = () => {
 		<div className="flex pb-1 text-theme-primary-active">
 			<div
 				className={`rotate-180 rounded-full aspect-square p-1 bg-item-theme-hover cursor-pointer  ${history?.current === 0 || !history?.url?.length ? 'opacity-40' : ''}`}
-				onContextMenu={() => onOpenHistoryList(true)}
+				onContextMenu={(e) => {
+					e.preventDefault();
+					onOpenHistoryList(true);
+				}}
 				onMouseDown={handleMouseDown}
-				onMouseUp={() => handleMouseUp(true)}
+				onMouseUp={(e) => handleMouseUp(e, true)}
 			>
 				<Icons.LongArrowRight className="w-5" />
 			</div>
 			<div
-				onContextMenu={() => onOpenHistoryList(false)}
+				onContextMenu={(e) => {
+					e.preventDefault();
+					onOpenHistoryList(false);
+				}}
 				onMouseDown={handleMouseDown}
-				onMouseUp={() => handleMouseUp(false)}
+				onMouseUp={(e) => handleMouseUp(e, false)}
 				className={`rounded-full aspect-square bg-item-theme-hover p-1 cursor-pointer ${history?.current !== null && history?.current < history?.url?.length - 1 ? '' : 'opacity-40 pointer-events-none'}`}
 			>
 				<Icons.LongArrowRight className="w-5" />

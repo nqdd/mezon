@@ -35,5 +35,13 @@ export const useSendReaction = () => {
 		[socketRef, channelId, canSend]
 	);
 
-	return { sendEmojiReaction, sendSoundReaction };
+	const sendRaisingHand = useCallback(
+		(userId: string) => {
+			if (!socketRef.current || !channelId || !canSend()) return;
+			socketRef.current.writeVoiceReaction([`raising:${userId}`], channelId);
+		},
+		[socketRef, channelId, canSend]
+	);
+
+	return { sendEmojiReaction, sendSoundReaction, sendRaisingHand };
 };

@@ -6,6 +6,7 @@ import { MEZON_AVATAR_URL, STICKER_WAVE, WAVE_SENDER_NAME } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiChannelDescription } from 'mezon-js/api.gen';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface IWaveButtonProps {
@@ -13,6 +14,7 @@ interface IWaveButtonProps {
 }
 
 const WaveButton = ({ message }: IWaveButtonProps) => {
+	const { t } = useTranslation('dmMessage');
 	const currenChannel = useSelector(selectCurrentChannel);
 	const currentDm = useSelector(selectCurrentDM);
 	const mode = useMemo(() => {
@@ -84,7 +86,7 @@ const WaveButton = ({ message }: IWaveButtonProps) => {
 				onClick={handleSendWaveSticker}
 			>
 				<img src={urlIcon} alt="Wave Icon" className="object-contain mb-1" width={32} height={32} />
-				<p className="text-theme-secondary text-sm font-medium text-center">Wave to say hi!</p>
+				<p className="text-theme-secondary text-sm font-medium text-center">{t('waveWelcome')}</p>
 			</button>
 		</div>
 	);

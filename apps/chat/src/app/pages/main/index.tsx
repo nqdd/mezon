@@ -129,7 +129,8 @@ function MyApp() {
 					dispatch(accountActions.setTopicAnonymousMode());
 					return;
 				}
-				dispatch(accountActions.setAnonymousMode());
+				if (!currentClanId) return;
+				dispatch(accountActions.setAnonymousMode(currentClanId));
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();

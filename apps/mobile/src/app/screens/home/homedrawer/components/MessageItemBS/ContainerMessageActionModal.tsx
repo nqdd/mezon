@@ -64,7 +64,6 @@ import { ConfirmPinMessageModal } from '../ConfirmPinMessageModal';
 import EmojiSelector from '../EmojiPicker/EmojiSelector';
 import type { IReactionMessageProps } from '../MessageReaction';
 import { QuickMenuModal } from '../QuickMenuModal';
-import { ReportMessageModal } from '../ReportMessageModal';
 import { RecentEmojiMessageAction } from './RecentEmojiMessageAction';
 import { style } from './styles';
 
@@ -138,13 +137,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		},
 		[currentChannel, currentChannelId, currentDmId, currentTopicId, dispatch, message, mode, socketRef, store]
 	);
-
-	const handleActionReportMessage = useCallback(() => {
-		const data = {
-			children: <ReportMessageModal />
-		};
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-	}, []);
 
 	const onConfirmAction = useCallback(
 		(payload: IConfirmActionPayload) => {
@@ -598,9 +590,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.SaveMedia:
 				handleActionSaveImage();
 				break;
-			case EMessageActionType.Report:
-				handleActionReportMessage();
-				break;
 			case EMessageActionType.ForwardMessage:
 				handleForwardMessage();
 				break;
@@ -656,8 +645,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				return <MezonIconCDN icon={IconCDN.linkIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.CopyMessageLink:
 				return <MezonIconCDN icon={IconCDN.linkIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
-			case EMessageActionType.Report:
-				return <MezonIconCDN icon={IconCDN.redFlag} width={size.s_14} height={size.s_14} color={baseColor.red} />;
 			case EMessageActionType.GiveACoffee:
 				return <MezonIconCDN icon={IconCDN.giftIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />;
 			case EMessageActionType.ResendMessage:
@@ -704,7 +691,6 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			isMessageSystem ||
 			message?.code === TypeMessage.MessageBuzz;
 		const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
-		const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 		const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
 		const isHideActionMedia =
 			message?.attachments?.length === 0 ||
@@ -743,9 +729,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 
 		let availableMessageActions: IMessageAction[] = [];
 		if (isMyMessage) {
-			availableMessageActions = getMessageActions(t).filter(
-				(action) => ![...listOfActionOnlyOtherMessage, ...listOfActionShouldHide].includes(action.type)
-			);
+			availableMessageActions = getMessageActions(t).filter((action) => !listOfActionShouldHide.includes(action.type));
 		} else {
 			availableMessageActions = getMessageActions(t).filter(
 				(action) => ![...listOfActionOnlyMyMessage, ...listOfActionShouldHide].includes(action.type)
@@ -767,7 +751,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			EMessageActionType.Reply,
 			EMessageActionType.CreateThread
 		];
-		const warningActionList = [EMessageActionType.Report, EMessageActionType.DeleteMessage];
+		const warningActionList = [EMessageActionType.DeleteMessage];
 
 		return {
 			frequent: availableMessageActions.filter((action) => frequentActionList.includes(action.type)),

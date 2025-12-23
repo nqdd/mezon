@@ -2371,7 +2371,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
 		if (clanUpdatedEvent.prevent_anonymous) {
-			dispatch(accountActions.turnOffAnonymous());
+			dispatch(accountActions.turnOffAnonymous(clanUpdatedEvent.clan_id));
 		}
 	}, []);
 
@@ -2940,4 +2940,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

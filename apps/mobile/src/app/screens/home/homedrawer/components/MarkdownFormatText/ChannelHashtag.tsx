@@ -1,32 +1,15 @@
 import { type ChannelsEntity } from '@mezon/store-mobile';
-import { ChannelStreamMode, ChannelType, HashtagDm } from 'mezon-js';
+import { ChannelType } from 'mezon-js';
 
 type IChannelHashtag = {
 	channelHashtagId: string;
-	currentChannelId?: string;
-	hashtagDmEntity?: HashtagDm;
 	channelEntity: ChannelsEntity;
-	mode?: number;
 };
-export const ChannelHashtag = ({ channelHashtagId, currentChannelId, mode, hashtagDmEntity, channelEntity }: IChannelHashtag) => {
-	const getChannelById = (channelHashtagId: string): ChannelsEntity => {
-		let channel;
-		if (currentChannelId && [ChannelStreamMode.STREAM_MODE_DM].includes(mode)) {
-			channel = hashtagDmEntity;
-		} else {
-			channel = channelEntity;
-		}
-		if (channel) {
-			return channel;
-		}
-
-		return {
-			id: channelHashtagId,
-			channel_label: 'unknown'
-		};
+export const ChannelHashtag = ({ channelHashtagId, channelEntity }: IChannelHashtag) => {
+	const channel = channelEntity || {
+		id: channelHashtagId,
+		channel_label: 'unknown'
 	};
-
-	const channel = getChannelById(channelHashtagId);
 
 	const dataPress = `${channel.type}***${channel.channel_id}***${channel.clan_id}***${channel.status}***${channel.meeting_code}***${channel.category_id}`;
 

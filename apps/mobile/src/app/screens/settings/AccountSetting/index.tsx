@@ -151,20 +151,6 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 				break;
 			}
-			case EAccountSettingType.DisableAccount: {
-				const disableData = {
-					children: (
-						<MezonConfirm
-							title={t('disableAccountAlert.title')}
-							content={t('disableAccountAlert.description')}
-							confirmText={t('deleteAccountAlert.yesConfirm')}
-							onConfirm={() => logout()}
-						/>
-					)
-				};
-				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data: disableData });
-				break;
-			}
 			case EAccountSettingType.SetPassword:
 				if (!userProfile?.email) {
 					const linkEmailRequiredData = {
@@ -228,10 +214,6 @@ export const AccountSetting = ({ navigation }: SettingScreenProps<AccountSetting
 			{
 				title: t('setPassword'),
 				type: EAccountSettingType.SetPassword
-			},
-			{
-				title: t('disableAccount'),
-				type: EAccountSettingType.DisableAccount
 			},
 			{
 				title: t('deleteAccount'),

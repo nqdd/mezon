@@ -25,6 +25,12 @@ export interface DisplayedEmoji {
 	};
 }
 
+export interface DisplayedHand {
+	id: string;
+	avatar: string;
+	name: string;
+}
+
 export interface DisplayedSound {
 	id: string;
 	soundId: string;

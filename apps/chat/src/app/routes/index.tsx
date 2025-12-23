@@ -62,6 +62,7 @@ const ClanDetailPage = lazy(() => import(/* webpackChunkName: "clandetail-page" 
 const OrganizePage = lazy(() => import(/* webpackChunkName: "organize-page" */ '../pages/organize'));
 const CustomizePage = lazy(() => import(/* webpackChunkName: "customize-page" */ '../pages/customize'));
 const AIGenerationPage = lazy(() => import(/* webpackChunkName: "aigeneration-page" */ '../pages/aigeneration'));
+const MobileDownload = lazy(() => import(/* webpackChunkName: "mobile-download" */ '../pages/mobile-download'));
 const Login = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/login'));
 const LoginCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/loginCallback'));
 const LogoutCallback = lazy(() => import(/* webpackChunkName: "auth-pages" */ '../pages/logoutCallback'));
@@ -300,6 +301,14 @@ export const Routes = memo(() => {
 						element: (
 							<Suspense fallback={<SuspenseFallback />}>
 								<AIGenerationPage />
+							</Suspense>
+						)
+					},
+					{
+						path: '/mobile-download',
+						element: (
+							<Suspense fallback={<SuspenseFallback />}>
+								<MobileDownload />
 							</Suspense>
 						)
 					},

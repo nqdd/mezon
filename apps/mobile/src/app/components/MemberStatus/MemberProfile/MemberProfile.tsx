@@ -84,6 +84,10 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 		);
 	}, [currentChannel?.type, currentChannel?.creator_id, creatorClanId, userId]);
 
+	const isShowInVoiceLabel = useMemo(() => {
+		return !!userVoiceStatus && !isDM && infoMemberStatus?.status !== EUserStatus.INVISIBLE;
+	}, [userVoiceStatus, isDM, infoMemberStatus?.status]);
+
 	return (
 		<View style={styles.container}>
 			<MezonAvatar
@@ -110,7 +114,7 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 							{memberUsername}
 						</Text>
 					)}
-					{!!userVoiceStatus && !isDM && (
+					{isShowInVoiceLabel && (
 						<View style={styles.voiceContainer}>
 							<MezonIconCDN icon={IconCDN.channelVoice} color={baseColor.green} width={size.s_12} height={size.s_12} />
 							<Text style={styles.voiceText}>{t('voiceInfo.inVoice')}</Text>

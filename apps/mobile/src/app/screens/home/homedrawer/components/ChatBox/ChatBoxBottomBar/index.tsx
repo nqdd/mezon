@@ -17,7 +17,7 @@ import {
 	getStore,
 	referencesActions,
 	selectAllChannels,
-	selectAllHashtagDm,
+	selectAllChannelsByUser,
 	selectAnonymousMode,
 	selectCurrentChannelId,
 	selectCurrentDM,
@@ -382,9 +382,9 @@ export const ChatBoxBottomBar = memo(
 						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 						// @ts-expect-error
 						const listChannel = selectAllChannels(store.getState() as RootState);
-						const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
+						const listChannelHashtagDm = selectAllChannelsByUser(store.getState() as RootState);
 						const channelLabel = channelName?.slice?.(2, -1);
-						const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
+						const channelInfo = getChannelHashtag(listChannelHashtagDm, listChannel, mode, channelLabel);
 
 						mentionBeforeHashtagCount++;
 
