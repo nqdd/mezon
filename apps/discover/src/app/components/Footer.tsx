@@ -1,10 +1,6 @@
-import { generateE2eId } from '@mezon/utils';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
-	const { t } = useTranslation();
-
 	return (
 		<footer className="bg-[#131221]">
 			<div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
@@ -119,12 +115,7 @@ const Footer: React.FC = () => {
 
 				<div className="">
 					<div className="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
-						<div
-							className="text-white/80 text-xs font-medium text-center md:text-left"
-							data-e2e={generateE2eId('homepage.footer.text.copyright')}
-						>
-							© 2025 Mezon. All rights reserved.
-						</div>
+						<div className="text-white/80 text-xs font-medium text-center md:text-left">© 2025 Mezon. All rights reserved.</div>
 						<div className="flex gap-4 md:gap-6 items-center">
 							<a
 								href="https://github.com/mezonai/mezon"
