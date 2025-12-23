@@ -16,7 +16,6 @@ import { ChannelStreamMode } from 'mezon-js';
 import { useCallback, useEffect, useRef } from 'react';
 import { DeviceEventEmitter, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
@@ -84,7 +83,7 @@ export default function TopicDiscussion() {
 		DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 			isShow: false,
-			mode: ''
+			mode: 'text'
 		});
 		return () => {
 			dispatch(topicsActions.setCurrentTopicId(''));
@@ -92,7 +91,7 @@ export default function TopicDiscussion() {
 			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, null);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false,
-				mode: ''
+				mode: 'text'
 			});
 		};
 	}, [currentChannel?.channel_id, dispatch]);
@@ -120,11 +119,7 @@ export default function TopicDiscussion() {
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
 				style={[StyleSheet.absoluteFillObject]}
 			/>
-			<KeyboardAvoidingView
-				style={styles.channelView}
-				behavior={'padding'}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-			>
+			<View style={styles.channelView}>
 				<TopicHeader currentChannelId={currentChannel?.channel_id} handleBack={onGoBack} />
 				<PanGestureHandler failOffsetY={[-5, 5]} onHandlerStateChange={onHandlerStateChange}>
 					<Animated.View style={styles.panGestureContainer}>
@@ -149,7 +144,7 @@ export default function TopicDiscussion() {
 					isBanned={!!isBanned}
 				/>
 				<PanelKeyboard currentChannelId={currentTopicId || currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
-			</KeyboardAvoidingView>
+			</View>
 		</View>
 	);
 }

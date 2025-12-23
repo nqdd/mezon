@@ -3,9 +3,8 @@ import { selectBanMemberCurrentClanById, selectCurrentChannel, selectCurrentUser
 import { checkIsThread, isPublicChannel } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback } from 'react';
-import { Platform, StatusBar, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated from 'react-native-reanimated';
 import { useSelector } from 'react-redux';
@@ -32,11 +31,7 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 	}, []);
 
 	return (
-		<KeyboardAvoidingView
-			style={styles.channelView}
-			behavior={'padding'}
-			keyboardVerticalOffset={Platform.OS === 'ios' ? 85 : StatusBar.currentHeight + 40}
-		>
+		<View style={styles.channelView}>
 			<LinearGradient
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
@@ -63,7 +58,7 @@ const ChatBoxStream = ({ navigation }: AppStackScreenProps<ChatBoxStreamScreen>)
 				isBanned={!!isBanned}
 			/>
 			<PanelKeyboard currentChannelId={currentChannel?.channel_id} currentClanId={currentChannel?.clan_id} />
-		</KeyboardAvoidingView>
+		</View>
 	);
 };
 
