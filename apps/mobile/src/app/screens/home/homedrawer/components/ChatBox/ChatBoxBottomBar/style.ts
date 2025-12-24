@@ -70,7 +70,7 @@ export const style = (colors: Attributes) =>
 			paddingLeft: Platform.OS === 'ios' ? size.s_16 : size.s_20,
 			paddingRight: size.s_40,
 			fontSize: size.medium,
-			paddingTop: Platform.OS === 'ios' ? size.s_10 : size.s_8,
+			paddingTop: Platform.OS === 'ios' ? size.s_12 : size.s_10,
 			paddingBottom: size.s_12,
 			backgroundColor: colors.tertiary,
 			color: colors.textStrong,

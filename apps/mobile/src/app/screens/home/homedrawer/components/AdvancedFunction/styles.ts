@@ -1,15 +1,17 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			backgroundColor: colors.primary,
+			height: '100%',
 			padding: size.s_6,
 			paddingTop: size.s_20,
 			width: '100%',
-			minHeight: size.s_100
+			minHeight: size.s_100,
+			zIndex: 10
 		},
 		gridContainer: {
 			flexDirection: 'row',

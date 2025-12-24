@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { useFriends } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
 import {
 	EStateFriend,
-	MessagesEntity,
 	friendsActions,
 	getStore,
 	getStoreAsync,
+	MessagesEntity,
 	selectAllAccount,
 	selectChannelById,
 	selectDmGroupCurrent,
 	selectFriendById,
 	selectMemberClanByUserId,
+	selectMessagesByChannel,
 	useAppSelector
 } from '@mezon/store-mobile';
 import type { IChannel } from '@mezon/utils';
 import { ChannelStatusEnum, createImgproxyUrl } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -33,7 +33,6 @@ import { style } from './styles';
 interface IWelcomeMessageProps {
 	channelId: string;
 	message?: MessagesEntity;
-	messageCount?: number;
 }
 
 const useCurrentChannel = (channelId: string) => {
@@ -42,7 +41,7 @@ const useCurrentChannel = (channelId: string) => {
 	return dmGroup || channel;
 };
 
-const WelcomeMessage = React.memo(({ channelId, message, messageCount = 0 }: IWelcomeMessageProps) => {
+const WelcomeMessage = React.memo(({ channelId, message }: IWelcomeMessageProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['userProfile', 'dmMessage', 'chatWelcome']);
@@ -51,7 +50,8 @@ const WelcomeMessage = React.memo(({ channelId, message, messageCount = 0 }: IWe
 	const currentUserId = userProfile?.user?.id;
 	const targetUserId = currenChannel?.user_ids?.[0];
 	const infoFriend = useAppSelector((state) => selectFriendById(state, targetUserId || ''));
-
+	const selectMessagesByChannelMemoized = useAppSelector((state) => selectMessagesByChannel(state, channelId));
+	const messageCount = useMemo(() => selectMessagesByChannelMemoized?.ids?.length, [selectMessagesByChannelMemoized?.ids?.length]);
 	const { blockFriend, unBlockFriend } = useFriends();
 	const isMySelf = useMemo(() => {
 		return targetUserId === currentUserId;
@@ -78,11 +78,19 @@ const WelcomeMessage = React.memo(({ channelId, message, messageCount = 0 }: IWe
 	const isPrivate = useMemo(() => currenChannel?.channel_private === ChannelStatusEnum.isPrivate, [currenChannel?.channel_private]);
 
 	const isMediaChannel = useMemo(() => {
-		return [ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE, ChannelType.CHANNEL_TYPE_APP].includes(Number(currenChannel?.type));
+		return [ChannelType.CHANNEL_TYPE_STREAMING, ChannelType.CHANNEL_TYPE_MEZON_VOICE, ChannelType.CHANNEL_TYPE_APP].includes(
+			Number(currenChannel?.type)
+		);
 	}, [currenChannel?.type]);
 
 	const iconRender = useMemo(() => {
-		return isChannel ? (isPrivate && !isMediaChannel ? IconCDN.channelTextLock : IconCDN.channelText) : isPrivate ? IconCDN.threadLockIcon : IconCDN.threadIcon;
+		return isChannel
+			? isPrivate && !isMediaChannel
+				? IconCDN.channelTextLock
+				: IconCDN.channelText
+			: isPrivate
+				? IconCDN.threadLockIcon
+				: IconCDN.threadIcon;
 	}, [isChannel, isPrivate, isMediaChannel]);
 
 	const priorityName = useMemo(() => {

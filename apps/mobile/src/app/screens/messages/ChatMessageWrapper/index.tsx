@@ -1,8 +1,7 @@
 import { useTheme } from '@mezon/mobile-ui';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo } from 'react';
-import { Platform, StatusBar, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { View } from 'react-native';
 import ChannelMessages from '../../home/homedrawer/ChannelMessages';
 import { ChatBox } from '../../home/homedrawer/ChatBox';
 import PanelKeyboard from '../../home/homedrawer/PanelKeyboard';
@@ -22,11 +21,7 @@ export const ChatMessageWrapper = memo(
 		const styles = style(themeValue);
 
 		return (
-			<KeyboardAvoidingView
-				style={styles.content}
-				behavior={'padding'}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-			>
+			<View style={styles.content}>
 				<View style={{ flex: 1 }}>
 					<ChannelMessages
 						channelId={directMessageId}
@@ -47,7 +42,7 @@ export const ChatMessageWrapper = memo(
 					isBlocked={isBlocked}
 				/>
 				<PanelKeyboard directMessageId={directMessageId || ''} currentChannelId={directMessageId} currentClanId={'0'} />
-			</KeyboardAvoidingView>
+			</View>
 		);
 	},
 	(prevProps, nextProps) => {
