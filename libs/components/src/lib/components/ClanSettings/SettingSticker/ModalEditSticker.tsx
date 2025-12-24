@@ -356,7 +356,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 								<InputField
 									type="string"
 									placeholder={t('exCatHug')}
-									className={'px-[8px] bg-transparent '}
+									className={'px-[8px] bg-transparent pr-10 '}
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
 									onKeyDown={handleOnEnter}
