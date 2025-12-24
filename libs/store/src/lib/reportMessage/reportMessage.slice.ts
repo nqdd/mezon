@@ -1,7 +1,7 @@
 import { captureSentryError } from '@mezon/logger';
 import type { LoadingStatus } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import { ensureSession, getMezonCtx } from '../helpers';
 import { toastActions } from '../toasts/toasts.slice';
 
@@ -100,14 +100,7 @@ export const reportMessageActions = {
 };
 
 export const getReportMessageState = (rootState: { [REPORT_MESSAGE_FEATURE_KEY]: ReportMessageState }) => rootState[REPORT_MESSAGE_FEATURE_KEY];
-
-export const selectReportMessageLoadingStatus = (rootState: { [REPORT_MESSAGE_FEATURE_KEY]: ReportMessageState }) =>
-	getReportMessageState(rootState).loadingStatus;
-
-export const selectReportMessageError = (rootState: { [REPORT_MESSAGE_FEATURE_KEY]: ReportMessageState }) => getReportMessageState(rootState).error;
-
-export const selectIsReportModalVisible = (rootState: { [REPORT_MESSAGE_FEATURE_KEY]: ReportMessageState }) =>
-	getReportMessageState(rootState).isReportModalVisible;
-
-export const selectReportingMessageId = (rootState: { [REPORT_MESSAGE_FEATURE_KEY]: ReportMessageState }) =>
-	getReportMessageState(rootState).reportingMessageId;
+export const selectReportMessageLoadingStatus = createSelector([getReportMessageState], (state) => state.loadingStatus);
+export const selectReportMessageError = createSelector([getReportMessageState], (state) => state.error);
+export const selectIsReportModalVisible = createSelector([getReportMessageState], (state) => state.isReportModalVisible);
+export const selectReportingMessageId = createSelector([getReportMessageState], (state) => state.reportingMessageId);
