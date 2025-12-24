@@ -6,6 +6,7 @@ import { ChannelType, safeJSONParse } from 'mezon-js';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
+import { MemberInvoiceStatus } from '../../components/MemberStatus/MemberInvoiceStatus';
 import { DmListItemLastMessage } from './DMListItemLastMessage';
 import { style } from './styles';
 
@@ -126,7 +127,7 @@ export const MessagePreviewLastest = React.memo(
 					</View>
 				);
 			} else {
-				return null;
+				return <MemberInvoiceStatus userId={userId} />;
 			}
 		}
 

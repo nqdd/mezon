@@ -4,8 +4,8 @@ import type { IOption } from '@mezon/mobile-components';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size } from '@mezon/mobile-ui';
 import {
-	directMetaActions,
 	DMCallActions,
+	directMetaActions,
 	getStore,
 	groupCallActions,
 	messagesActions,
@@ -18,7 +18,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store-mobile';
-import { createImgproxyUrl, IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
+import { IMessageTypeCallLog, TypeMessage, WEBRTC_SIGNALING_TYPES, createImgproxyUrl } from '@mezon/utils';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
@@ -27,6 +27,7 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { useSendSignaling } from '../../../components/CallingGroupModal';
 import ImageNative from '../../../components/ImageNative';
+import { MemberInvoiceStatus } from '../../../components/MemberStatus/MemberInvoiceStatus';
 import { IconCDN } from '../../../constants/icon_cdn';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
@@ -278,9 +279,12 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 						<UserStatusDM isOnline={currentDmGroup?.onlines?.some(Boolean)} userId={currentDmGroup?.user_ids?.[0]} />
 					</View>
 				)}
-				<Text style={styles.titleText} numberOfLines={1}>
-					{dmLabel}
-				</Text>
+				<View style={{ flex: 1 }}>
+					<Text style={styles.titleText} numberOfLines={1}>
+						{dmLabel}
+					</Text>
+					{!isTypeDMGroup && <MemberInvoiceStatus userId={currentDmGroup?.user_ids?.[0] || ''} />}
+				</View>
 				{!isBlocked && (
 					<View style={styles.iconWrapper}>
 						{!isChatWithMyself && (
