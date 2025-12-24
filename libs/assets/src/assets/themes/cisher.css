@@ -171,4 +171,5 @@
 	/* notice region */
 	--text-separator-theme-primary: #25252521;
 	--bg-tooltip-app: #19191c;
+	--bg-unread-message: #fafafa;
 }

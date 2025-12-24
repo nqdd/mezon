@@ -208,7 +208,7 @@ const TopBarChannelText = memo(() => {
 						{!!channelType && (
 							<>
 								{channelParent && (
-									<div className="flex gap-1 items-center truncate max-sbm:hidden" onClick={handleNavigateToParent}>
+									<div className="flex gap-1 items-center truncate max-sbm:hidden cursor-pointer" onClick={handleNavigateToParent}>
 										<ChannelTopbarLabel
 											isPrivate={!!channelParent?.channel_private}
 											label={channelParent?.channel_label || ''}
