@@ -477,12 +477,6 @@ export const deleteChannel = createAsyncThunk('channels/deleteChannel', async (b
 			thunkAPI.dispatch(channelsActions.remove({ channelId: body.channelId, clanId: body.clanId }));
 			thunkAPI.dispatch(listChannelsByUserActions.remove(body.channelId));
 			thunkAPI.dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: body.channelId, clanId: body.clanId }));
-			thunkAPI.dispatch(
-				channelsActions.removeChannelApp({
-					clanId: body.clanId,
-					channelId: body.channelId
-				})
-			);
 		}
 	} catch (error) {
 		captureSentryError(error, 'channels/deleteChannel');
