@@ -30,7 +30,7 @@
 	"loading": "Loading...",
 	"topic": "Topic",
 	"reactions": "React",
-	"invoice": "Invoice",
+	"invoice": "In voice",
 	"callMessages": {
 		"startedVoiceCall": "Started voice call",
 		"startedVideoCall": "Started video call"
