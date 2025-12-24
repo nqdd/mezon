@@ -24,8 +24,6 @@ export const style = (colors: Attributes) =>
 			gap: size.s_10
 		},
 		backButton: {
-			backgroundColor: colors.primary,
-			position: 'absolute',
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_10,

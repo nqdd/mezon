@@ -405,7 +405,7 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 			if (onClose) {
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false,
-					mode: 'text'
+					mode: 'force'
 				});
 				onClose(SHOULD_FOCUS_AFTER_ACTION.includes(_item.id));
 			}
