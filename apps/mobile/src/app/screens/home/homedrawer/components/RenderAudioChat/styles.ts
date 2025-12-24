@@ -1,5 +1,7 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { Platform, StyleSheet } from 'react-native';
+
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		totalTime: {
@@ -29,7 +31,8 @@ export const style = (colors: Attributes) =>
 		innerContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10
+			gap: size.s_10,
+			height: size.s_30
 		},
 		playButton: {
 			backgroundColor: baseColor.bgDeepLavender,
