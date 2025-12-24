@@ -1,7 +1,7 @@
 import { useMemberStatus } from '@mezon/core';
-import { baseColor, size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
+import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { selectAllAccount, selectMemberClanByUserId, selectMemberDMByUserId, selectStatusInVoice, useAppSelector } from '@mezon/store-mobile';
+import { selectAllAccount, selectMemberClanByUserId, selectMemberDMByUserId, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, IChannel } from '@mezon/utils';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, EUserStatus } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import MezonAvatar from '../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../constants/icon_cdn';
+import { MemberInvoiceStatus } from '../MemberInvoiceStatus';
 import { AddedByUser } from '../MemberItem/AddedByUser';
 import { style } from './style';
 
@@ -28,7 +29,6 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 	const { t } = useTranslation(['userProfile']);
 	const userId = user?.id || user?.user?.id || '';
 	const { highestPermissionRoleColor } = useColorsRoleById(userId);
-	const userVoiceStatus = useAppSelector((state) => selectStatusInVoice(state, userId));
 	const getStatus = useMemberStatus(userId);
 	const currentUserProfile = useSelector(selectAllAccount);
 	const userProfile = useAppSelector((state) => selectMemberDMByUserId(state, userId));
@@ -84,10 +84,6 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 		);
 	}, [currentChannel?.type, currentChannel?.creator_id, creatorClanId, userId]);
 
-	const isShowInVoiceLabel = useMemo(() => {
-		return !!userVoiceStatus && !isDM && infoMemberStatus?.status !== EUserStatus.INVISIBLE;
-	}, [userVoiceStatus, isDM, infoMemberStatus?.status]);
-
 	return (
 		<View style={styles.container}>
 			<MezonAvatar
@@ -114,12 +110,7 @@ export const MemberProfile = memo(({ user, creatorClanId, isDM, currentChannel, 
 							{memberUsername}
 						</Text>
 					)}
-					{isShowInVoiceLabel && (
-						<View style={styles.voiceContainer}>
-							<MezonIconCDN icon={IconCDN.channelVoice} color={baseColor.green} width={size.s_12} height={size.s_12} />
-							<Text style={styles.voiceText}>{t('voiceInfo.inVoice')}</Text>
-						</View>
-					)}
+					{currentChannel?.type !== ChannelType.CHANNEL_TYPE_GROUP && <MemberInvoiceStatus userId={userId} />}
 					{currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP && <AddedByUser groupId={currentChannel?.id} userId={userId} />}
 				</View>
 			</View>

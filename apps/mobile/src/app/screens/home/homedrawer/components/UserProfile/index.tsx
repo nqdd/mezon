@@ -592,7 +592,7 @@ const UserProfile = React.memo(
 						)}
 					</View>
 
-					{showAction && <UserVoiceInfo userId={userId || user?.id || ''} />}
+					{!isDMGroup && <UserVoiceInfo userId={userId || user?.id || ''} />}
 
 					{isShowUserContent && (
 						<View style={styles.roleGroup}>
