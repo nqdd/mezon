@@ -121,7 +121,7 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 	const { online, offline } = membersByStatus;
 
 	const shouldShowMemberList = useMemo(() => {
-		return (online.length > 0 || offline.length > 0) && !isChatWithMyself;
+		return (online?.length > 0 || offline?.length > 0) && !isChatWithMyself;
 	}, [online.length, offline.length, isChatWithMyself]);
 
 	const navigateToNewGroupScreen = () => {
@@ -193,7 +193,7 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 				<SectionList
 					sections={
 						isDM
-							? [{ title: t('common:members'), data: [...online, ...offline], key: 'onlineMembers' }]
+							? [{ title: t('common:members'), data: [...(online ?? []), ...(offline ?? [])], key: 'onlineMembers' }]
 							: [
 									{ title: t('common:onlines'), data: online, key: 'onlineMembers' },
 									{ title: t('common:offlines'), data: offline, key: 'offlineMembers' }
@@ -205,7 +205,11 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 						return (
 							<Text style={styles.text}>
 								{`${title} - ${
-									isDM ? online.length + offline.length : title === t('common:onlines') ? online.length : offline.length
+									isDM
+										? (online?.length ?? 0) + (offline?.length ?? 0)
+										: title === t('common:onlines')
+											? online?.length
+											: offline?.length
 								}`}
 							</Text>
 						);
