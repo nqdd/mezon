@@ -26,6 +26,11 @@ export const style = (colors: Attributes) =>
 			height: size.s_30,
 			borderRadius: 50
 		},
+		roleImage: {
+			width: size.s_20,
+			height: size.s_20,
+			borderRadius: size.s_20
+		},
 		symbol: {
 			fontSize: size.label,
 			fontWeight: '600',
