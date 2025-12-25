@@ -40,7 +40,7 @@ const DeleteClanModal: React.FC<DeleteClanModalProps> = ({ onClose, title, butto
 	return (
 		<div className="fixed inset-0 flex items-center justify-center z-50 ">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
-			<form className="relative z-10 bg-theme-setting-primary rounded-[5px]" onSubmit={handleSubmit}>
+			<form className="relative z-10 bg-theme-setting-primary rounded-[5px] w-[90%] md:w-[500px] mx-auto md:mx-0" onSubmit={handleSubmit}>
 				<div className="top-block p-[16px]  flex flex-col gap-[15px] max-w-[500px]">
 					<div
 						className="text-xl font-semibold text-theme-primary-active truncate overflow-auto max-w-[400px]"
