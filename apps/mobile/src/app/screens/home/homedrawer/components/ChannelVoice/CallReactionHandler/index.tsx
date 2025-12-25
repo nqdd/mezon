@@ -1,4 +1,4 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { getStore, selectMemberClanByUserId } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
 import { getSrcEmoji, getSrcSound } from '@mezon/utils';
@@ -7,6 +7,9 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Easing, Platform, Text, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Sound from 'react-native-sound';
+import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
+import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { style } from '../styles';
 
 const { width, height } = Dimensions.get('window');
@@ -41,6 +44,14 @@ interface EmojiItem {
 	startX: number;
 	startY: number;
 	displayName?: string;
+}
+
+interface RaiseHandItem {
+	id: string;
+	displayName: string;
+	avatarUrl: string;
+	opacity: Animated.Value;
+	translateY: Animated.Value;
 }
 
 interface ReactProps {
@@ -79,6 +90,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const [displayedEmojis, setDisplayedEmojis] = useState<EmojiItem[]>([]);
+	const [raiseHandAnimation, setRaiseHandAnimation] = useState<RaiseHandItem>(null);
 	const { socketRef } = useMezon();
 	const animationTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set());
 	const soundRefs = useRef<Map<string, Sound>>(new Map());
@@ -167,6 +179,40 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 			])
 		]);
 	}, []);
+	const createRaiseHandAnimation = useCallback(
+		(displayName: string, avatarUrl: string) => {
+			const item: RaiseHandItem = {
+				id: `${displayName}-${Date.now()}`,
+				displayName,
+				opacity: new Animated.Value(0),
+				translateY: new Animated.Value(50),
+				avatarUrl
+			};
+			cleanupTimeouts();
+			setRaiseHandAnimation(item);
+
+			Animated.parallel([
+				Animated.timing(item.opacity, {
+					toValue: 1,
+					duration: 300,
+					useNativeDriver: true
+				}),
+				Animated.timing(item.translateY, {
+					toValue: 0,
+					duration: 300,
+					useNativeDriver: true
+				})
+			]).start();
+
+			const timeoutId = setTimeout(() => {
+				setRaiseHandAnimation(null);
+				animationTimeoutsRef.current.delete(timeoutId);
+			}, 5000);
+
+			animationTimeoutsRef.current.add(timeoutId);
+		},
+		[cleanupTimeouts]
+	);
 
 	// Optimized emoji creation and animation trigger
 	const createAndAnimateEmoji = useCallback(
@@ -253,7 +299,13 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 				const senderId = message.sender_id;
 
 				if (emojiId) {
-					if (emojiId.startsWith('sound:')) {
+					if (emojiId?.startsWith('raising:')) {
+						const store = getStore();
+						const members = selectMemberClanByUserId(store.getState?.(), senderId);
+						const displayName = members?.clan_nick || members?.user?.display_name || members?.user?.username || '';
+						const avatarUrl = members?.clan_avatar || members?.user?.avatar_url || '';
+						createRaiseHandAnimation(displayName, avatarUrl);
+					} else if (emojiId.startsWith('sound:')) {
 						const soundId = emojiId.replace('sound:', '');
 						const soundUrl = getSrcSound(soundId);
 
@@ -275,7 +327,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 				displayedCountRef.current = Math.max(0, displayedCountRef.current - 1);
 			}
 		},
-		[channelId, createAndAnimateEmoji, onSoundReaction, playSound]
+		[channelId, createAndAnimateEmoji, createRaiseHandAnimation, onSoundReaction, playSound]
 	);
 
 	// Effect for socket handling with proper cleanup
@@ -306,7 +358,7 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 		};
 	}, [cleanupTimeouts]);
 
-	if (displayedEmojis?.length === 0 || !isAnimatedCompleted) {
+	if ((displayedEmojis?.length === 0 && !raiseHandAnimation) || !isAnimatedCompleted) {
 		return null;
 	}
 
@@ -315,6 +367,33 @@ export const CallReactionHandler = memo(({ channelId, isAnimatedCompleted, onSou
 			{displayedEmojis.map((item) => (
 				<AnimatedEmoji key={item.id} item={item} styles={styles} />
 			))}
+			{raiseHandAnimation && (
+				<Animated.View
+					style={[
+						styles.raiseHandIcon,
+						{
+							opacity: raiseHandAnimation.opacity,
+							transform: [{ translateY: raiseHandAnimation.translateY }]
+						},
+						styles.raiseHandWrapper
+					]}
+				>
+					{raiseHandAnimation?.displayName && (
+						<View style={styles.reactionRaiseHandContainer}>
+							<MezonClanAvatar
+								image={raiseHandAnimation.avatarUrl}
+								alt={raiseHandAnimation.displayName}
+								imageHeight={100}
+								imageWidth={100}
+							/>
+						</View>
+					)}
+					<Text numberOfLines={1} style={styles.senderNameRaiseHand}>
+						{raiseHandAnimation.displayName}
+					</Text>
+					<MezonIconCDN icon={IconCDN.raiseHandIcon} height={size.s_32} width={size.s_32} color={baseColor.goldenrodYellow} />
+				</Animated.View>
+			)}
 		</View>
 	);
 });
