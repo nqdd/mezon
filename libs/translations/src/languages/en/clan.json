@@ -44,7 +44,7 @@
 		"title": "Customize Your Clan",
 		"description": "Give your new clan a personality with a name and an icon. You can always change it later.",
 		"upload": "Upload",
-		"clanName": "CLAN NAME *",
+		"clanName": "CLAN NAME",
 		"placeholder": "Enter the clan name",
 		"invalidName": "Please enter a valid clan name (max 64 characters, only words, numbers, _ or -).",
 		"duplicateName": "The clan name already exists. Please enter another name.",
