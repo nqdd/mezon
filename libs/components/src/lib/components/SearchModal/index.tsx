@@ -207,18 +207,18 @@ function SearchModal({ onClose }: SearchModalProps) {
 
 	const handleSelectMem = useCallback(
 		async (user: SearchItemProps) => {
-			const foundDirect = listDirectSearch.find((item) => item.id === user.id);
+			const foundDirect = listDirectSearch.find((item) => item.idDM === user.id);
 			if (foundDirect !== undefined) {
 				dispatch(
 					channelsActions.setPreviousChannels({
 						clanId: '0',
-						channelId: foundDirect.idDM || ''
+						channelId: foundDirect.id || ''
 					})
 				);
 				dispatch(directActions.openDirectMessage({ channelId: foundDirect.idDM || '', clanId: '0' }));
 				const result = await dispatch(
 					directActions.joinDirectMessage({
-						directMessageId: foundDirect.idDM ?? '',
+						directMessageId: foundDirect.id ?? '',
 						channelName: '',
 						type: foundDirect?.type ?? ChannelType.CHANNEL_TYPE_DM,
 						noCache: true
@@ -228,7 +228,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 					navigate(toDmGroupPageFromMainApp(foundDirect.idDM ?? '', user?.type ?? ChannelType.CHANNEL_TYPE_DM));
 				}
 			} else {
-				const response = await createDirectMessageWithUser(user.id || '', user.displayName || user.name, user.name, user.avatarUser);
+				const response = await createDirectMessageWithUser(user.idDM || '', user.displayName || user.name, user.name, user.avatarUser);
 				if (response.channel_id) {
 					const directChat = toDmGroupPageFromMainApp(response.channel_id, Number(response.type));
 					navigate(directChat);
