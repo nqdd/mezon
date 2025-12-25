@@ -23,8 +23,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiCreateChannelDescRequest, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Keyboard, Platform, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { DeviceEventEmitter, Keyboard, ScrollView, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
@@ -232,11 +231,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 	};
 
 	return (
-		<KeyboardAvoidingView
-			style={styles.createChannelContent}
-			behavior={'padding'}
-			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight + 5}
-		>
+		<View style={styles.createChannelContent}>
 			<LinearGradient
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
@@ -301,6 +296,6 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					messageAction={EMessageActionType.CreateThread}
 				/>
 			</View>
-		</KeyboardAvoidingView>
+		</View>
 	);
 }

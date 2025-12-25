@@ -1683,6 +1683,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					isShowCreateThread: false
 				})
 			);
+			dispatch(
+				channelsActions.removeChannelApp({
+					clanId: channelDeleted.clan_id,
+					channelId: channelDeleted.channel_id
+				})
+			);
 
 			if (channelDeleted?.parent_id) {
 				dispatch(
@@ -2942,4 +2948,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

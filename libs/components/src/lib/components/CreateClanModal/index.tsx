@@ -1,10 +1,19 @@
 import { toChannelPage, useAppNavigation, useClans } from '@mezon/core';
-import { channelsActions, checkDuplicateNameClan, selectAllClans, triggerClanLimitModal, useAppDispatch } from '@mezon/store';
+import {
+	categoriesActions,
+	channelsActions,
+	checkDuplicateNameClan,
+	createNewChannel,
+	selectAllClans,
+	triggerClanLimitModal,
+	useAppDispatch
+} from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Button, ButtonLoading, Icons, InputField } from '@mezon/ui';
 import { DEBOUNCE_TYPING_TIME, LIMIT_SIZE_UPLOAD_IMG, ValidateSpecialCharacters, checkClanLimit, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { useCallback, useState } from 'react';
+import { ChannelType } from 'mezon-js';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
@@ -19,18 +28,183 @@ type openModalErrorProps = {
 	errorType: boolean;
 	errorSize: boolean;
 };
+
 enum EValidateListMessage {
 	INVALID_NAME = 'INVALID_NAME',
 	DUPLICATE_NAME = 'DUPLICATE_NAME',
 	VALIDATED = 'VALIDATED'
 }
 
+enum EModalStep {
+	TEMPLATE_SELECTION = 'TEMPLATE_SELECTION',
+	CLAN_DETAILS = 'CLAN_DETAILS'
+}
+
+type ChannelTemplate = {
+	name: string;
+	type: 'text' | 'voice';
+};
+
+type CategoryTemplate = {
+	name: string;
+	channels: ChannelTemplate[];
+};
+
+type ClanTemplate = {
+	id: string;
+	name: string;
+	icon: React.JSX.Element;
+	categories: CategoryTemplate[];
+};
+
+const CLAN_TEMPLATES: ClanTemplate[] = [
+	{
+		id: 'gaming',
+		name: 'clanTemplateModal.gamingTemplate',
+		icon: <Icons.GamingConsoleIcon />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general-chat', type: 'text' },
+					{ name: 'clips-highlights', type: 'text' },
+					{ name: 'looking-for-group', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lobby', type: 'voice' },
+					{ name: 'Gaming', type: 'voice' }
+				]
+			}
+		]
+	},
+	{
+		id: 'friends',
+		name: 'clanTemplateModal.friendsTemplate',
+		icon: <Icons.IconFriends />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general', type: 'text' },
+					{ name: 'memes', type: 'text' },
+					{ name: 'photos', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lounge', type: 'voice' },
+					{ name: 'Stream Room', type: 'voice' }
+				]
+			}
+		]
+	},
+	{
+		id: 'study-group',
+		name: 'clanTemplateModal.studyGroupTemplate',
+		icon: <Icons.MemberList />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general', type: 'text' },
+					{ name: 'homework-help', type: 'text' },
+					{ name: 'session-planning', type: 'text' },
+					{ name: 'off-topic', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lounge', type: 'voice' },
+					{ name: 'Study Room 1', type: 'voice' },
+					{ name: 'Study Room 2', type: 'voice' }
+				]
+			}
+		]
+	},
+	{
+		id: 'school-club',
+		name: 'clanTemplateModal.schoolClubTemplate',
+		icon: <Icons.School />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general', type: 'text' },
+					{ name: 'meeting-plans', type: 'text' },
+					{ name: 'off-topic', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lounge', type: 'voice' },
+					{ name: 'Meeting Room 1', type: 'voice' },
+					{ name: 'Meeting Room 2', type: 'voice' }
+				]
+			}
+		]
+	},
+	{
+		id: 'local-community',
+		name: 'clanTemplateModal.localCommunityTemplate',
+		icon: <Icons.Community />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general', type: 'text' },
+					{ name: 'events', type: 'text' },
+					{ name: 'introductions', type: 'text' },
+					{ name: 'resources', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lounge', type: 'voice' },
+					{ name: 'Meeting Room', type: 'voice' }
+				]
+			}
+		]
+	},
+	{
+		id: 'artists-creators',
+		name: 'clanTemplateModal.artistsCreatorsTemplate',
+		icon: <Icons.PaintTray />,
+		categories: [
+			{
+				name: 'Text channels',
+				channels: [
+					{ name: 'general', type: 'text' },
+					{ name: 'showcase', type: 'text' },
+					{ name: 'ideas-and-feedback', type: 'text' }
+				]
+			},
+			{
+				name: 'Voice Channels',
+				channels: [
+					{ name: 'Lounge', type: 'voice' },
+					{ name: 'Community Hangout', type: 'voice' },
+					{ name: 'Stream Room', type: 'voice' }
+				]
+			}
+		]
+	}
+];
+
 const ModalCreateClans = (props: ModalCreateClansProps) => {
 	const { t } = useTranslation('clan');
 	const { onClose } = props;
+	const [currentStep, setCurrentStep] = useState<EModalStep>(EModalStep.TEMPLATE_SELECTION);
+	const [selectedTemplate, setSelectedTemplate] = useState<ClanTemplate | null>(null);
 	const [urlImage, setUrlImage] = useState('');
 	const [nameClan, setNameClan] = useState('');
-	const [checkvalidate, setCheckValidate] = useState<EValidateListMessage | null>(EValidateListMessage.INVALID_NAME);
+	const [validationState, setValidationState] = useState<EValidateListMessage | null>(EValidateListMessage.INVALID_NAME);
 	const { sessionRef, clientRef } = useMezon();
 	const { navigate, toClanPage } = useAppNavigation();
 	const { createClans } = useClans();
@@ -39,12 +213,12 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const value = e.target.value;
 		setNameClan(value);
-		setCheckValidate(null);
+		setValidationState(null);
 		if (value) {
 			debouncedSetClanName(value);
 		} else {
 			debouncedSetClanName.cancel();
-			setCheckValidate(EValidateListMessage.INVALID_NAME);
+			setValidationState(EValidateListMessage.INVALID_NAME);
 		}
 	};
 	const debouncedSetClanName = useDebouncedCallback(async (value: string) => {
@@ -54,14 +228,14 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 				.then(unwrapResult)
 				.then((result) => {
 					if (result) {
-						setCheckValidate(EValidateListMessage.DUPLICATE_NAME);
+						setValidationState(EValidateListMessage.DUPLICATE_NAME);
 						return;
 					}
-					setCheckValidate(EValidateListMessage.VALIDATED);
+					setValidationState(EValidateListMessage.VALIDATED);
 				});
 			return;
 		}
-		setCheckValidate(EValidateListMessage.INVALID_NAME);
+		setValidationState(EValidateListMessage.INVALID_NAME);
 	}, DEBOUNCE_TYPING_TIME);
 
 	const [openModalError, seOpenModalError] = useState<openModalErrorProps>({
@@ -93,6 +267,53 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 		});
 	};
 
+	const createTemplateChannels = async (clanId: string, template: ClanTemplate) => {
+		for (const category of template.categories) {
+			const res = await dispatch(
+				categoriesActions.createNewCategory({
+					clan_id: clanId,
+					category_name: category.name
+				})
+			);
+			const newCategory = unwrapResult(res);
+			if (!newCategory.category_id) continue;
+			for (const channelTemplate of category.channels) {
+				const channelType = channelTemplate.type === 'voice' ? ChannelType.CHANNEL_TYPE_MEZON_VOICE : ChannelType.CHANNEL_TYPE_CHANNEL;
+
+				await dispatch(
+					createNewChannel({
+						clan_id: clanId,
+						type: channelType,
+						channel_label: channelTemplate.name,
+						channel_private: 0,
+						category_id: newCategory.category_id,
+						parent_id: '0'
+					})
+				);
+				await new Promise((resolve) => setTimeout(resolve, 450));
+			}
+		}
+		await new Promise((resolve) => setTimeout(resolve, 100));
+	};
+
+	const navigateToNewClan = async (clanId: string) => {
+		const result = await dispatch(channelsActions.fetchChannels({ clanId, noCache: true }));
+		const channels = (result?.payload as any)?.channels || [];
+
+		if (channels.length > 0) {
+			const firstChannel = channels[0];
+			dispatch(
+				channelsActions.setCurrentChannelId({
+					clanId,
+					channelId: firstChannel.channel_id
+				})
+			);
+			navigate(toChannelPage(firstChannel.channel_id, clanId));
+		} else {
+			navigate(toClanPage(clanId));
+		}
+	};
+
 	const handleCreateClan = async () => {
 		const clanLimitCheck = checkClanLimit(allClans.length, 'create');
 
@@ -102,24 +323,20 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 			return;
 		}
 
-		const res = await createClans(nameClan.trim(), urlImage);
+		const clan = await createClans(nameClan.trim(), urlImage);
 
-		if (res && res.clan_id) {
-			const result = await dispatch(channelsActions.fetchChannels({ clanId: res.clan_id, noCache: true }));
-			const channels = (result?.payload as any)?.channels || [];
-			if (channels.length > 0) {
-				const firstChannel = channels[0];
-				dispatch(
-					channelsActions.setCurrentChannelId({
-						clanId: res.clan_id,
-						channelId: firstChannel.channel_id
-					})
-				);
-				navigate(toChannelPage(firstChannel.channel_id, res.clan_id));
-			} else {
-				navigate(toClanPage(res.clan_id));
+		if (clan?.clan_id) {
+			if (selectedTemplate) {
+				try {
+					await createTemplateChannels(clan.clan_id, selectedTemplate);
+				} catch (error) {
+					console.error('Error creating template channels:', error);
+				}
 			}
+
+			await navigateToNewClan(clan.clan_id);
 		}
+
 		handleClose();
 	};
 
@@ -127,7 +344,117 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 		onClose();
 		setUrlImage('');
 		setNameClan('');
+		setCurrentStep(EModalStep.TEMPLATE_SELECTION);
+		setSelectedTemplate(null);
+		setValidationState(EValidateListMessage.INVALID_NAME);
 	}, [onClose]);
+
+	const handleTemplateSelect = (template: ClanTemplate | null) => {
+		setSelectedTemplate(template);
+		setCurrentStep(EModalStep.CLAN_DETAILS);
+	};
+
+	const handleBackToTemplates = () => {
+		setCurrentStep(EModalStep.TEMPLATE_SELECTION);
+		setSelectedTemplate(null);
+		setNameClan('');
+		setUrlImage('');
+		setValidationState(EValidateListMessage.INVALID_NAME);
+	};
+
+	const templateSelection = () => (
+		<div className="flex flex-col px-5 py-4 min-w-80 max-w-[480px]">
+			<div className="flex items-center flex-col justify-center">
+				<div className="w-full relative flex items-center flex-col justify-center">
+					<span className="text-[24px] pb-2 font-[700] leading-8">{t('clanTemplateModal.title')}</span>
+					<p className="text-center text-[16px] leading-6 font-[400] mb-6">{t('clanTemplateModal.description')}</p>
+				</div>
+
+				<div className="w-full px-3 py-2 flex flex-col overflow-y-auto thread-scroll max-h-[30vh]">
+					<button
+						onClick={() => handleTemplateSelect(null)}
+						className="w-full p-3 mb-4 rounded-lg relative border border-theme-primary cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out flex flex-row items-center gap-2 group h-fit"
+					>
+						<Icons.Sparkles />
+						<span className="font-semibold text-sm text-center pl-2">{t('clanTemplateModal.createMyOwn')}</span>
+					</button>
+
+					<div className="w-full">
+						<p className="text-sm font-bold mb-3 text-gray-500 dark:text-gray-400 uppercase">
+							{t('clanTemplateModal.startFromTemplate')}
+						</p>
+						<div className="grid grid-cols-1 gap-2">
+							{CLAN_TEMPLATES.map((template) => (
+								<button
+									key={template.id}
+									onClick={() => handleTemplateSelect(template)}
+									className="p-3 rounded-lg relative border border-theme-primary cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out flex flex-row items-center gap-2 group h-fit"
+								>
+									{template.icon}
+									<span className="font-semibold text-sm text-center pl-2">{t(`${template.name}`)}</span>
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+
+	const clanCustomization = () => (
+		<div className="flex flex-col px-5 py-4 min-w-80 max-w-[480px]">
+			<div className="flex items-center flex-col justify-center">
+				<span className="text-[24px] pb-4 font-[700] leading-8">{t('createClanModal.title')}</span>
+				<p className="text-center text-[16px] leading-6 font-[400]">{t('createClanModal.description')}</p>
+				<label className="block mt-8 mb-4">
+					{urlImage ? (
+						<img id="preview_img" className="h-[81px] w-[81px] object-cover rounded-full" src={urlImage} alt="Current profile" />
+					) : (
+						<div
+							id="preview_img"
+							className="h-[81px] w-[81px] flex justify-center bg-item-theme items-center flex-col border-white relative border-[1px] border-dashed rounded-full cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out"
+						>
+							<div className="absolute right-0 top-[-3px] left-[54px]">
+								<Icons.AddIcon />
+							</div>
+							<Icons.UploadImage className="" />
+							<span className="text-[14px]">{t('createClanModal.upload')}</span>
+						</div>
+					)}
+					<input
+						id="preview_img"
+						type="file"
+						onChange={(e) => handleFile(e)}
+						className="w-full text-sm hidden"
+						data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')}
+					/>
+				</label>
+				<div className="w-full">
+					<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>
+					<InputField
+						onChange={handleInputChange}
+						type="text"
+						className="mb-2 mt-4 py-2"
+						placeholder={t('createClanModal.placeholder')}
+						maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
+						data-e2e={generateE2eId('clan_page.modal.create_clan.input.clan_name')}
+					/>
+					{validationState !== EValidateListMessage.VALIDATED && (
+						<p className="text-[#e44141] text-xs italic font-thin">
+							{validationState === EValidateListMessage.INVALID_NAME && t('createClanModal.invalidName')}
+							{validationState === EValidateListMessage.DUPLICATE_NAME && t('createClanModal.duplicateName')}
+						</p>
+					)}
+					<span className="text-[14px]">
+						{t('createClanModal.agreement')} <span className="text-contentBrandLight">{t('createClanModal.communityGuidelines')}</span>
+						{'.'}
+					</span>
+				</div>
+			</div>
+			<ModalErrorTypeUpload open={openModalError.errorType} onClose={() => seOpenModalError((prev) => ({ ...prev, errorType: false }))} />
+			<ModalOverData open={openModalError.errorSize} onClose={() => seOpenModalError((prev) => ({ ...prev, errorSize: false }))} />
+		</div>
+	);
 
 	return (
 		<ModalLayout onClose={handleClose}>
@@ -140,76 +467,33 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 						×
 					</Button>
 				</div>
-				<div className="flex flex-col px-5 py-4 max-w-[684px]">
-					<div className="flex items-center flex-col justify-center ">
-						<span className=" text-[24px] pb-4 font-[700] leading-8">{t('createClanModal.title')}</span>
-						<p className="text-center text-[20px] leading-6 font-[400]">{t('createClanModal.description')}</p>
-						<label className="block mt-8 mb-4">
-							{urlImage ? (
-								<img id="preview_img" className="h-[81px] w-[81px] object-cover rounded-full" src={urlImage} alt="Current profile" />
-							) : (
-								<div
-									id="preview_img"
-									className="h-[81px] w-[81px] flex justify-center bg-item-theme items-center flex-col  border-white relative border-[1px] border-dashed rounded-full cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out"
-								>
-									<div className="absolute right-0 top-[-3px] left-[54px]">
-										<Icons.AddIcon />
-									</div>
-									<Icons.UploadImage className="" />
-									<span className="text-[14px]">{t('createClanModal.upload')}</span>
-								</div>
-							)}
-							<input
-								id="preview_img"
-								type="file"
-								onChange={(e) => handleFile(e)}
-								className="w-full text-sm hidden"
-								data-e2e={generateE2eId('clan_page.modal.create_clan.input.upload_avatar_clan')}
-							/>
-						</label>
-						<div className="w-full">
-							<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>
-							<InputField
-								onChange={handleInputChange}
-								type="text"
-								className="mb-2 mt-4 py-2"
-								placeholder={t('createClanModal.placeholder')}
-								maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
-								data-e2e={generateE2eId('clan_page.modal.create_clan.input.clan_name')}
-							/>
-							{checkvalidate !== EValidateListMessage.VALIDATED && (
-								<p className="text-[#e44141] text-xs italic font-thin">
-									{checkvalidate === EValidateListMessage.INVALID_NAME && t('createClanModal.invalidName')}
-									{checkvalidate === EValidateListMessage.DUPLICATE_NAME && t('createClanModal.duplicateName')}
-								</p>
-							)}
-							<span className="text-[14px]">
-								{t('createClanModal.agreement')}{' '}
-								<span className="text-contentBrandLight">{t('createClanModal.communityGuidelines')}</span>
-								{'.'}
-							</span>
-						</div>
-					</div>
-					<ModalErrorTypeUpload
-						open={openModalError.errorType}
-						onClose={() => seOpenModalError((prev) => ({ ...prev, errorType: false }))}
-					/>
 
-					<ModalOverData open={openModalError.errorSize} onClose={() => seOpenModalError((prev) => ({ ...prev, errorSize: false }))} />
-					<div className="flex items-center border-t border-solid dark:border-borderDefault rounded-b justify-between pt-4">
+				{currentStep === EModalStep.TEMPLATE_SELECTION ? templateSelection() : clanCustomization()}
+
+				<div className="flex items-center border-t-theme-primary rounded-b justify-between px-5 py-4">
+					{currentStep === EModalStep.TEMPLATE_SELECTION ? (
 						<Button
 							className="text-contentBrandLight px-4 py-2 background-transparent font-semibold text-sm outline-none focus:outline-none rounded-lg"
 							onClick={onClose}
 						>
 							{t('createClanModal.back')}
 						</Button>
-						<ButtonLoading
-							className={`font-semibold btn-primary btn-primary-hover text-sm px-4 py-2 shadow hover:shadow-lg rounded-lg ${checkvalidate !== EValidateListMessage.VALIDATED ? 'opacity-50 cursor-not-allowed' : ''}`}
-							onClick={handleCreateClan}
-							label={t('createClanModal.create')}
-							disabled={checkvalidate !== EValidateListMessage.VALIDATED}
-						/>
-					</div>
+					) : (
+						<>
+							<Button
+								className="text-contentBrandLight px-4 py-2 background-transparent font-semibold text-sm outline-none focus:outline-none rounded-lg"
+								onClick={handleBackToTemplates}
+							>
+								{t('createClanModal.back')}
+							</Button>
+							<ButtonLoading
+								className={`font-semibold btn-primary btn-primary-hover text-sm px-4 py-2 shadow hover:shadow-lg rounded-lg ${validationState !== EValidateListMessage.VALIDATED ? 'opacity-50 cursor-not-allowed' : ''}`}
+								onClick={handleCreateClan}
+								label={t('createClanModal.create')}
+								disabled={validationState !== EValidateListMessage.VALIDATED}
+							/>
+						</>
+					)}
 				</div>
 			</div>
 		</ModalLayout>

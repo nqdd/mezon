@@ -44,7 +44,7 @@
 		"title": "Tùy chỉnh Clan của bạn",
 		"description": "Hãy tạo sắc màu cho clan mới của bạn bằng cách chọn một tên và biểu tượng nhé! Bạn có thể thay đổi sau nếu thích!",
 		"upload": "Tải lên",
-		"clanName": "TÊN CLAN",
+		"clanName": "TÊN CLAN *",
 		"placeholder": "Nhập tên clan",
 		"invalidName": "Vui lòng nhập tên clan hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
 		"duplicateName": "Tên clan đã tồn tại. Vui lòng chọn tên khác.",
@@ -55,6 +55,18 @@
 		"toast": {
 			"limitImageSize": "Kích thước hình ảnh phải nhỏ hơn {{size}}MB"
 		}
+	},
+	"clanTemplateModal": {
+		"title": "Tạo Clan của bạn",
+		"description": "Clan của bạn là nơi bạn giao lưu với bạn bè của mình. Hãy tạo Clan của riêng bạn và bắt đầu trò chuyện.",
+		"createMyOwn": "Tạo mẫu riêng",
+		"startFromTemplate": "Bắt đầu từ một mẫu",
+		"gamingTemplate": "Trò chơi",
+		"friendsTemplate": "Bạn bè",
+		"studyGroupTemplate": "Nhóm học tập",
+		"schoolClubTemplate": "Câu lạc bộ trường học",
+		"localCommunityTemplate": "Cộng đồng địa phương",
+		"artistsCreatorsTemplate": "Nghệ sĩ & Nhà sáng tạo"
 	},
 	"limitModal": {
 		"title": "Đã đạt giới hạn!",

@@ -26,6 +26,8 @@ interface IStickerProps {
 	isCallReact?: boolean;
 }
 
+const NUM_OF_FLATLIST_COLUMNS = 5;
+
 const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	return (
 		<>
@@ -99,7 +101,7 @@ const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale, 
 		}));
 
 		return [...data, ...paddedItems];
-	}, [stickerList, categoryName, forSale]);
+	}, [stickerList, NUM_COLUMNS, categoryName, forSale]);
 
 	const onBuySticker = useCallback(
 		async (sticker: any) => {
@@ -194,7 +196,7 @@ const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale, 
 					data={stickersListByCategoryName}
 					renderItem={renderItem}
 					keyExtractor={keyExtractor}
-					numColumns={NUM_COLUMNS}
+					numColumns={NUM_OF_FLATLIST_COLUMNS}
 					scrollEnabled={false}
 					removeClippedSubviews={true}
 					maxToRenderPerBatch={5}

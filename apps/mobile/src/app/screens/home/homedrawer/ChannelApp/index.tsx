@@ -2,8 +2,9 @@
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
 import { channelAppActions, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Modal, Platform, StatusBar, Text, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, Dimensions, Modal, Platform, StatusBar, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import StatusBarHeight from '../../../../components/StatusBarHeight/StatusBarHeight';
@@ -106,9 +107,18 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 						opacity: animatedHeight
 					},
 					orientation === 'Landscape' && styles.backButtonLandscape,
-					Platform.OS === 'ios' && { top: insets.top }
+					Platform.OS === 'ios' && { backgroundColor: themeValue.primary }
 				]}
 			>
+				{Platform.OS === 'ios' && (
+					<LinearGradient
+						start={{ x: 1, y: 0 }}
+						end={{ x: 0, y: 0 }}
+						colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+						style={[StyleSheet.absoluteFillObject]}
+					/>
+				)}
+
 				<TouchableOpacity onPress={onClose} style={{ padding: size.s_8, paddingRight: size.s_2 }}>
 					<MezonIconCDN icon={IconCDN.closeIcon} height={size.s_24} width={size.s_24} color={themeValue.text} />
 				</TouchableOpacity>

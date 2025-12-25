@@ -7,7 +7,8 @@ import type { IEmoji } from '@mezon/utils';
 import { FOR_SALE_CATE, RECENT_EMOJI_CATEGORY } from '@mezon/utils';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Keyboard, Text, TextInput, View } from 'react-native';
+import { DeviceEventEmitter, Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useDispatch } from 'react-redux';
 import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
@@ -276,7 +277,13 @@ export default function EmojiSelectorContainer({
 			switch (item.type) {
 				case 'SEARCH_AREA':
 					return (
-						<View style={styles.primaryBackground}>
+						<View>
+							<LinearGradient
+								start={{ x: 1, y: 0 }}
+								end={{ x: 0, y: 0 }}
+								colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+								style={[StyleSheet.absoluteFillObject]}
+							/>
 							<View style={styles.textInputWrapper}>
 								<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
 								<TextInput
