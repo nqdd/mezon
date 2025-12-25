@@ -61,7 +61,7 @@ export const style = (colors: Attributes) =>
 			alignItems: 'center'
 		},
 		roleIcon: {
-			width: size.s_16,
-			height: size.s_16
+			width: size.s_20,
+			height: size.s_20
 		}
 	});

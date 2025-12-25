@@ -45,7 +45,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 		<View style={styles.outerWrapper}>
 			<TouchableOpacity onPress={handleOpenTopic} style={styles.container}>
 				<View style={styles.avatarWrapper}>
-					<MezonClanAvatar alt={topicCreator?.user?.username || ''} image={priorityCreatorAvatar} />
+					<MezonClanAvatar alt={topicCreator?.user?.username || ''} image={priorityCreatorAvatar} customFontSizeAvatarCharacter={size.h8} />
 				</View>
 				<Text style={styles.repliesText}>{t('creator')}</Text>
 				<Text style={styles.dateMessageBox}>{t('viewTopic')}</Text>
