@@ -374,6 +374,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 					<button
 						onClick={() => handleTemplateSelect(null)}
 						className="w-full p-3 mb-4 rounded-lg relative border border-theme-primary cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out flex flex-row items-center gap-2 group h-fit"
+						data-e2e={generateE2eId('clan_page.modal.create_clan.template.item.create_my_own')}
 					>
 						<Icons.Sparkles />
 						<span className="font-semibold text-sm text-center pl-2">{t('clanTemplateModal.createMyOwn')}</span>
@@ -389,6 +390,7 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 									key={template.id}
 									onClick={() => handleTemplateSelect(template)}
 									className="p-3 rounded-lg relative border border-theme-primary cursor-pointer transform hover:scale-105 transition duration-300 ease-in-out flex flex-row items-center gap-2 group h-fit"
+									data-e2e={generateE2eId('clan_page.modal.create_clan.template.item.name')}
 								>
 									{template.icon}
 									<span className="font-semibold text-sm text-center pl-2">{t(`${template.name}`)}</span>
