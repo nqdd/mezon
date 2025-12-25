@@ -119,8 +119,8 @@ const SuggestItem = ({
 			<div className="flex flex-row items-center gap-2 py-[3px] text-theme-primary text-theme-primary-hover">
 				{showAvatar && (
 					<div>
-						{color ? (
-							<Icons.RoleIcon defaultSize="w-5 h-[30px] min-w-5" />
+						{color && !avatarUrl ? (
+							<Icons.RoleIcon defaultSize="w-5 h-[30px] min-w-5" defaultFill={color} />
 						) : (
 							<AvatarImage
 								alt={subText || ''}
@@ -128,7 +128,7 @@ const SuggestItem = ({
 								srcImgProxy={createImgproxyUrl(avatarUrl ?? '')}
 								src={avatarUrl}
 								className="size-4"
-								classNameText="text-[9px] min-w-5 min-h-5 pt-[3px] "
+								classNameText="text-[9px] min-w-5 min-h-5 pt-[3px]"
 							/>
 						)}
 					</div>
@@ -139,9 +139,10 @@ const SuggestItem = ({
 				{channelIcon}
 
 				{display && (
-					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`} style={{ color }}>
+					<span className={`text-[15px] font-thin text-theme-primary one-line flex items-center`}>
 						<span
 							className={`${isUnread || (count && count > 0) ? 'text-theme-primary-active font-semibold' : 'font-medium text-theme-primary '}`}
+							style={{ color }}
 						>
 							{isHightLight ? HighlightMatchBold(display ?? '', valueHightLight ?? '') : display}
 						</span>
