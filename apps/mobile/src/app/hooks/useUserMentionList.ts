@@ -58,7 +58,7 @@ const transformRoleToMention = (item: ApiRole): MentionDataProps | null => {
 	return {
 		id: item.id,
 		display: item.title,
-		avatarUrl: '',
+		avatarUrl: item?.role_icon || '',
 		clanNick: item.title,
 		isRoleUser: true,
 		color: item.color
