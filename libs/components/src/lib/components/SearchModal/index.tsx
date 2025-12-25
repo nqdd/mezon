@@ -182,7 +182,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 		if (listDirectSearch.length > 0) {
 			for (let i = listDirectSearch.length - 1; i >= 0; i--) {
 				const itemDMId = listDirectSearch[i]?.idDM || '';
-				const existsInPrevious = previous.some((item) => item?.id === listDirectSearch[i]?.idDM);
+				const existsInPrevious = previous.some((item) => item?.idDM === listDirectSearch[i]?.idDM);
 				if (previousChannels.map((item) => item.channelId).includes(itemDMId) && !existsInPrevious) {
 					previous.unshift(listDirectSearch[i]);
 				}
