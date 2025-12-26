@@ -91,7 +91,7 @@ export const DeleteAccountModal: React.FC<ModalProps> = ({ handleLogOut, onClose
 	return (
 		<div className="fixed  inset-0 flex items-center justify-center z-50">
 			<div className="fixed inset-0 bg-black opacity-80"></div>
-			<div className="relative z-10 bg-theme-setting-primary p-6 rounded-lg text-center">
+			<div className="relative z-10 bg-theme-setting-primary p-6 rounded-lg text-center w-[90%] sm:w-auto">
 				<h2 className="text-[30px] font-semibold mb-4 text-theme-primary ">{t('deleteAccount')}</h2>
 				<p
 					className="text-theme-primary
@@ -106,7 +106,12 @@ export const DeleteAccountModal: React.FC<ModalProps> = ({ handleLogOut, onClose
 					>
 						{t('cancel')}
 					</Button>
-					<ButtonLoading onClick={handleLogOut} disabled={isDeleting} className={`px-4 py-2 rounded text-white bg-red-500 hover:opacity-80 `} label={t('delete')} />
+					<ButtonLoading
+						onClick={handleLogOut}
+						disabled={isDeleting}
+						className={`px-4 py-2 rounded text-white bg-red-500 hover:opacity-80 `}
+						label={t('delete')}
+					/>
 				</div>
 			</div>
 		</div>

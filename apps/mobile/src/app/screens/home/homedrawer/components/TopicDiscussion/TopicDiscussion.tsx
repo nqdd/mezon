@@ -1,12 +1,14 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import {
+	accountActions,
 	messagesActions,
 	selectBanMemberCurrentClanById,
 	selectCurrentChannel,
 	selectCurrentClanId,
 	selectCurrentTopicId,
 	selectCurrentUserId,
+	selectIsShowCreateTopic,
 	topicsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
@@ -32,10 +34,17 @@ export default function TopicDiscussion() {
 	const currentClanId = useSelector(selectCurrentClanId);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentUserId = useSelector(selectCurrentUserId);
+	const isCreateTopic = useSelector(selectIsShowCreateTopic);
 	const isBanned = useSelector((state) => selectBanMemberCurrentClanById(state, currentChannel?.channel_id, currentUserId));
 	const dispatch = useAppDispatch();
 	const navigation = useNavigation<any>();
 	const topicIdRef = useRef<string>('');
+
+	useEffect(() => {
+		if (currentClanId && !currentTopicId && isCreateTopic) {
+			dispatch(accountActions.turnOffAnonymous(currentClanId));
+		}
+	}, [currentClanId, currentTopicId, isCreateTopic]);
 
 	useEffect(() => {
 		if (currentTopicId) topicIdRef.current = currentTopicId;

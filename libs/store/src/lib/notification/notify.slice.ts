@@ -288,7 +288,7 @@ export const notificationSlice = createSlice({
 			.addCase(
 				markMessageNotify.fulfilled,
 				(state: NotificationState, action: PayloadAction<{ noti: ApiChannelMessageHeader; message: MessagesEntity }>) => {
-					if (state.notifications[NotificationCategory.MESSAGES].data.length) {
+					if (state.notifications[NotificationCategory.MESSAGES].data) {
 						const { noti, message } = action.payload;
 						const notiMark: INotification = {
 							...message,

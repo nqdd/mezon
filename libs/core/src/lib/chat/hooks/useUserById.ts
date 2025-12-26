@@ -1,7 +1,6 @@
 import type { ChannelsEntity } from '@mezon/store';
 import {
 	getStore,
-	selectChannelByChannelId,
 	selectChannelByIdAndClanId,
 	selectClanView,
 	selectCurrentChannel,
@@ -10,6 +9,7 @@ import {
 	selectMemberClanByUserId,
 	selectMemberDMByUserId,
 	selectMemberGroupByUserId,
+	selectSearchChannelById,
 	selectUserStatusById,
 	useAppSelector
 } from '@mezon/store';
@@ -51,7 +51,7 @@ export const useUserByUserId = (userID: string | undefined): ChannelMembersEntit
 export const useTagById = (tagId: string | undefined): ChannelsEntity | undefined => {
 	return useAppSelector((state) => {
 		if (!tagId) return undefined;
-		return selectChannelByChannelId(state, tagId) as unknown as ChannelsEntity;
+		return selectSearchChannelById(state, tagId) as unknown as ChannelsEntity;
 	});
 };
 
