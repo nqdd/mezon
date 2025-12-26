@@ -215,7 +215,7 @@ export const MessageLine = ({
 	const lkym = Array.isArray(lky) ? lky.map((item) => ({ ...item, kindOf: ETokenMessage.LINKYOUTUBE })) : [];
 	const vkm = Array.isArray(vk) ? vk.map((item) => ({ ...item, kindOf: ETokenMessage.VOICE_LINKS })) : [];
 	const elements: ElementToken[] = [
-		...mentions.map((item) => ({ ...item, kindOf: ETokenMessage.MENTIONS })),
+		...(mentions || []).map((item) => ({ ...item, kindOf: ETokenMessage.MENTIONS })),
 		...hgm,
 		...ejm,
 		...mkm,
