@@ -13,6 +13,7 @@ import { Button, ButtonLoading, Icons, InputField } from '@mezon/ui';
 import { DEBOUNCE_TYPING_TIME, LIMIT_SIZE_UPLOAD_IMG, ValidateSpecialCharacters, checkClanLimit, fileTypeImage, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
+import type { ApiCategoryDesc } from 'mezon-js/api.gen';
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -42,7 +43,8 @@ enum EModalStep {
 
 type ChannelTemplate = {
 	name: string;
-	type: 'text' | 'voice';
+	type: ChannelType.CHANNEL_TYPE_CHANNEL | ChannelType.CHANNEL_TYPE_MEZON_VOICE;
+	isPrivate?: boolean;
 };
 
 type CategoryTemplate = {
@@ -64,18 +66,21 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.GamingConsoleIcon />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general-chat', type: 'text' },
-					{ name: 'clips-highlights', type: 'text' },
-					{ name: 'looking-for-group', type: 'text' }
+					{ name: 'clips-highlights', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'looking-for-group', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'admin-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lobby', type: 'voice' },
-					{ name: 'Gaming', type: 'voice' }
+					{ name: 'Lobby', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Gaming', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -86,18 +91,21 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.IconFriends />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general', type: 'text' },
-					{ name: 'memes', type: 'text' },
-					{ name: 'photos', type: 'text' }
+					{ name: 'memes', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'photos', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'private-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lounge', type: 'voice' },
-					{ name: 'Stream Room', type: 'voice' }
+					{ name: 'Lounge', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Stream Room', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -108,20 +116,23 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.MemberList />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general', type: 'text' },
-					{ name: 'homework-help', type: 'text' },
-					{ name: 'session-planning', type: 'text' },
-					{ name: 'off-topic', type: 'text' }
+					{ name: 'homework-help', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'session-planning', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'off-topic', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'private-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lounge', type: 'voice' },
-					{ name: 'Study Room 1', type: 'voice' },
-					{ name: 'Study Room 2', type: 'voice' }
+					{ name: 'Lounge', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Study Room 1', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Study Room 2', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -132,19 +143,22 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.School />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general', type: 'text' },
-					{ name: 'meeting-plans', type: 'text' },
-					{ name: 'off-topic', type: 'text' }
+					{ name: 'meeting-plans', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'off-topic', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'private-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lounge', type: 'voice' },
-					{ name: 'Meeting Room 1', type: 'voice' },
-					{ name: 'Meeting Room 2', type: 'voice' }
+					{ name: 'Lounge', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Meeting Room 1', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Meeting Room 2', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -155,19 +169,22 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.Community />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general', type: 'text' },
-					{ name: 'events', type: 'text' },
-					{ name: 'introductions', type: 'text' },
-					{ name: 'resources', type: 'text' }
+					{ name: 'events', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'introductions', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'resources', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'private-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lounge', type: 'voice' },
-					{ name: 'Meeting Room', type: 'voice' }
+					{ name: 'Lounge', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Meeting Room', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -178,19 +195,22 @@ const CLAN_TEMPLATES: ClanTemplate[] = [
 		icon: <Icons.PaintTray />,
 		categories: [
 			{
-				name: 'Text channels',
+				name: '',
 				channels: [
-					{ name: 'general', type: 'text' },
-					{ name: 'showcase', type: 'text' },
-					{ name: 'ideas-and-feedback', type: 'text' }
+					{ name: 'showcase', type: ChannelType.CHANNEL_TYPE_CHANNEL },
+					{ name: 'ideas-and-feedback', type: ChannelType.CHANNEL_TYPE_CHANNEL }
 				]
+			},
+			{
+				name: 'Private Channels',
+				channels: [{ name: 'private-chat', type: ChannelType.CHANNEL_TYPE_CHANNEL, isPrivate: true }]
 			},
 			{
 				name: 'Voice Channels',
 				channels: [
-					{ name: 'Lounge', type: 'voice' },
-					{ name: 'Community Hangout', type: 'voice' },
-					{ name: 'Stream Room', type: 'voice' }
+					{ name: 'Lounge', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Community Hangout', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE },
+					{ name: 'Stream Room', type: ChannelType.CHANNEL_TYPE_MEZON_VOICE }
 				]
 			}
 		]
@@ -267,48 +287,46 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 		});
 	};
 
-	const createTemplateChannels = async (clanId: string, template: ClanTemplate) => {
+	const createTemplateChannels = async (clanId: string, template: ClanTemplate, defaultCategoryId: string) => {
 		for (const category of template.categories) {
-			const res = await dispatch(
-				categoriesActions.createNewCategory({
-					clan_id: clanId,
-					category_name: category.name
-				})
-			);
-			const newCategory = unwrapResult(res);
+			let newCategory: ApiCategoryDesc = { category_id: defaultCategoryId };
+			if (category.name) {
+				const res = await dispatch(
+					categoriesActions.createNewCategory({
+						clan_id: clanId,
+						category_name: category.name
+					})
+				);
+				newCategory = unwrapResult(res);
+			}
 			if (!newCategory.category_id) continue;
-			for (const channelTemplate of category.channels) {
-				const channelType = channelTemplate.type === 'voice' ? ChannelType.CHANNEL_TYPE_MEZON_VOICE : ChannelType.CHANNEL_TYPE_CHANNEL;
+			for (const channel of category.channels) {
+				const isPrivate = channel.isPrivate ? 1 : 0;
 
 				await dispatch(
 					createNewChannel({
 						clan_id: clanId,
-						type: channelType,
-						channel_label: channelTemplate.name,
-						channel_private: 0,
+						type: channel.type,
+						channel_label: channel.name,
+						channel_private: isPrivate,
 						category_id: newCategory.category_id,
 						parent_id: '0'
 					})
 				);
-				await new Promise((resolve) => setTimeout(resolve, 450));
+				await new Promise((resolve) => setTimeout(resolve, 400));
 			}
 		}
-		await new Promise((resolve) => setTimeout(resolve, 100));
 	};
 
-	const navigateToNewClan = async (clanId: string) => {
-		const result = await dispatch(channelsActions.fetchChannels({ clanId, noCache: true }));
-		const channels = (result?.payload as any)?.channels || [];
-
-		if (channels.length > 0) {
-			const firstChannel = channels[0];
+	const navigateToNewClan = async (clanId: string, channelId?: string) => {
+		if (channelId) {
 			dispatch(
 				channelsActions.setCurrentChannelId({
 					clanId,
-					channelId: firstChannel.channel_id
+					channelId
 				})
 			);
-			navigate(toChannelPage(firstChannel.channel_id, clanId));
+			navigate(toChannelPage(channelId, clanId));
 		} else {
 			navigate(toClanPage(clanId));
 		}
@@ -324,17 +342,17 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 		}
 
 		const clan = await createClans(nameClan.trim(), urlImage);
-
 		if (clan?.clan_id) {
+			const result = await dispatch(channelsActions.fetchChannels({ clanId: clan.clan_id, noCache: true }));
+			const channels = (result?.payload as any)?.channels || [];
+			await navigateToNewClan(clan.clan_id, channels[0]?.channel_id);
 			if (selectedTemplate) {
 				try {
-					await createTemplateChannels(clan.clan_id, selectedTemplate);
+					await createTemplateChannels(clan.clan_id, selectedTemplate, channels[0]?.category_id);
 				} catch (error) {
 					console.error('Error creating template channels:', error);
 				}
 			}
-
-			await navigateToNewClan(clan.clan_id);
 		}
 
 		handleClose();
@@ -430,7 +448,10 @@ const ModalCreateClans = (props: ModalCreateClansProps) => {
 					/>
 				</label>
 				<div className="w-full">
-					<span className="font-[700] text-[16px] leading-6">{t('createClanModal.clanName')}</span>
+					<span className="font-[700] text-[16px] leading-6">
+						{t('createClanModal.clanName')}
+						<span className="text-[#e44141]"> *</span>
+					</span>
 					<InputField
 						onChange={handleInputChange}
 						type="text"
