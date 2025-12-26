@@ -412,6 +412,15 @@ export const DATA_E2E_IDENTIFIER = {
 					},
 					name_input: '',
 					role_color: ''
+				},
+				item: {
+					role_name: '',
+					button: {
+						edit: '',
+						delete: '',
+						view: ''
+					},
+					member_count: ''
 				}
 			}
 		},
