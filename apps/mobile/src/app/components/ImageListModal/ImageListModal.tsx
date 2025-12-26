@@ -1,14 +1,15 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { baseColor, size, useTheme } from '@mezon/mobile-ui';
-import { AttachmentEntity, selectAllListAttachmentByChannel, sleep } from '@mezon/store-mobile';
+import { baseColor, size } from '@mezon/mobile-ui';
+import type { AttachmentEntity } from '@mezon/store-mobile';
+import { selectGalleryAttachmentsByChannel, sleep, useAppSelector } from '@mezon/store-mobile';
 import { Snowflake } from '@theinternetfolks/snowflake';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Dimensions, Text, View, useWindowDimensions } from 'react-native';
-import GalleryAwesome, { GalleryRef, RenderItemInfo } from 'react-native-awesome-gallery';
+import { DeviceEventEmitter, Dimensions, Text, useWindowDimensions, View } from 'react-native';
+import type { GalleryRef, RenderItemInfo } from 'react-native-awesome-gallery';
+import GalleryAwesome from 'react-native-awesome-gallery';
 import Toast from 'react-native-toast-message';
-import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -35,39 +36,43 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const { width, height } = useWindowDimensions();
 	const { imageSelected, channelId } = props;
 	const { t } = useTranslation(['common', 'message']);
-	const { themeValue } = useTheme();
-	const styles = stylesFn(themeValue);
+	const styles = stylesFn();
 	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(imageSelected);
 	const [visibleToolbarConfig, setVisibleToolbarConfig] = useState<IVisibleToolbarConfig>({ showHeader: true, showFooter: false });
 	const [showSavedImage, setShowSavedImage] = useState(false);
 	const [isLoadingSaveImage, setIsLoadingSaveImage] = useState(false);
-	const attachments = useSelector((state) => selectAllListAttachmentByChannel(state, channelId));
+	const galleryAttachmentsByChannel = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, channelId));
+
 	const ref = useRef<GalleryRef>(null);
 	const footerTimeoutRef = useRef<NodeJS.Timeout>(null);
 	const currentScaleRef = useRef<number>(1);
 	const imageSavedTimeoutRef = useRef<NodeJS.Timeout>(null);
 
-	const initialIndex = useMemo(() => {
-		if (attachments?.length) {
-			return attachments.findIndex((file) => file?.url === imageSelected?.url);
-		} else {
-			return 0;
-		}
-	}, [attachments, imageSelected]);
-
 	const formattedImageList = useMemo(() => {
+		const attachments =
+			galleryAttachmentsByChannel?.filter((attachment) => !attachment?.url?.includes(`${process.env.NX_BASE_IMG_URL}/stickers`)) ?? [];
 		let index: number;
 		if (attachments?.length) {
 			index = attachments.findIndex((file) => file?.url === imageSelected?.url);
 		} else {
 			index = -1;
 		}
-		return index === -1
-			? [{ ...imageSelected, id: `${Snowflake.generate()}` }, ...(attachments ? attachments : [])]
-			: attachments
-				? attachments
-				: [];
-	}, [attachments, imageSelected]);
+		const list =
+			index === -1
+				? [{ ...imageSelected, id: `${Snowflake.generate()}` }, ...(attachments ? attachments : [])]
+				: attachments
+					? attachments
+					: [];
+		return [...list].reverse();
+	}, [galleryAttachmentsByChannel, imageSelected]);
+
+	const initialIndex = useMemo(() => {
+		if (formattedImageList?.length) {
+			return formattedImageList?.findIndex((file) => file?.url === imageSelected?.url);
+		} else {
+			return 0;
+		}
+	}, [formattedImageList, imageSelected]);
 
 	const onClose = useCallback(() => {
 		if (Math.floor(currentScaleRef?.current) === 1) DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });

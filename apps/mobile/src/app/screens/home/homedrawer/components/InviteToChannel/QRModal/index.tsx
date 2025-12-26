@@ -1,4 +1,4 @@
-import { ActionEmitEvent } from '@mezon/mobile-components';
+import { ActionEmitEvent, save, STORAGE_QR_INVITE_CACHE } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { selectCurrentClanLogo, selectCurrentClanName } from '@mezon/store-mobile';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -68,7 +68,6 @@ export const QRModal = memo(({ inviteLink }: IQRModalProps) => {
 			console.error('Error downloading QR code:', error);
 		}
 	}, []);
-
 	const handleShareQRCode = useCallback(async () => {
 		try {
 			const brandedUri = await customQRRef.current?.capture();
@@ -80,6 +79,7 @@ export const QRModal = memo(({ inviteLink }: IQRModalProps) => {
 
 			const shareFilePath = `${baseDir}/qr_share_clan_${currentClanName}_${Date.now()}.png`;
 			await RNFetchBlob.fs.cp(brandedUri.replace('file://', ''), shareFilePath);
+			save(STORAGE_QR_INVITE_CACHE, shareFilePath);
 
 			await Share.open({
 				url: `file://${shareFilePath}`,
@@ -95,7 +95,7 @@ export const QRModal = memo(({ inviteLink }: IQRModalProps) => {
 			});
 			console.error('Error sharing QR code:', error);
 		}
-	}, [currentClanName, inviteLink]);
+	}, [currentClanName, inviteLink, t]);
 
 	const handleCloseModal = useCallback(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });

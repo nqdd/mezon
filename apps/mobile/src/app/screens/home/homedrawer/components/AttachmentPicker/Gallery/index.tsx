@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { appActions, referencesActions, selectAttachmentByChannelId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, fileTypeImage } from '@mezon/utils';
+import { fileTypeImage, IMAGE_MAX_FILE_SIZE, MAX_FILE_SIZE } from '@mezon/utils';
 import type { PhotoIdentifier } from '@react-native-camera-roll/camera-roll';
 import {
 	CameraRoll,
@@ -24,11 +24,13 @@ import type { IFile } from '../../../../../../componentUI/MezonImagePicker';
 import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
 import GalleryItem from './components/GalleryItem';
 import { style } from './styles';
+
 export const { height } = Dimensions.get('window');
 interface IProps {
 	currentChannelId: string;
 }
 
+const GALLERY_MAX_SELECTION = 20;
 const Gallery = ({ currentChannelId }: IProps) => {
 	const { themeValue } = useTheme();
 	const isTabletLandscape = useTabletLandscape();
@@ -61,7 +63,7 @@ const Gallery = ({ currentChannelId }: IProps) => {
 	const isDisableSelectAttachment = useMemo(() => {
 		if (!attachmentFilteredByChannelId) return false;
 		const { files } = attachmentFilteredByChannelId;
-		return files?.length >= MAX_FILE_ATTACHMENTS;
+		return files?.length >= GALLERY_MAX_SELECTION;
 	}, [attachmentFilteredByChannelId]);
 
 	const selectedFilenameSet = useMemo(() => {
