@@ -25,8 +25,7 @@ export const style = (colors: Attributes) =>
 		},
 		titleText: {
 			color: colors.text,
-			fontSize: size.label,
-			flex: 1
+			fontSize: size.label
 		},
 		content: {
 			flex: 1,

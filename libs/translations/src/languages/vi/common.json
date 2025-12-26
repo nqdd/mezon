@@ -477,5 +477,10 @@
 	"poll": "Bình chọn",
 	"ephemeral": "Tin nhắn nhất thời",
 	"threads": "Chủ đề",
-	"anonymous": "Ẩn danh"
+	"anonymous": "Ẩn danh",
+	"copy": "Sao chép",
+	"forward": "Chuyển tiếp",
+	"share": "Chia sẻ",
+	"download": "Tải xuống",
+	"jumpToMessage": "Đi đến tin nhắn"
 }

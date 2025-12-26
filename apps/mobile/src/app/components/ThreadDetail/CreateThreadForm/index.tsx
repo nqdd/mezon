@@ -289,6 +289,7 @@ export default function CreateThreadForm({ navigation, route }: MenuThreadScreen
 					mode={ChannelStreamMode.STREAM_MODE_THREAD}
 					isPublic={isPublicChannel(targetParentChannel)}
 					topicChannelId={''}
+					hiddenAdvanceFunc={true}
 				/>
 				<PanelKeyboard
 					currentChannelId={targetParentChannel?.channel_id}

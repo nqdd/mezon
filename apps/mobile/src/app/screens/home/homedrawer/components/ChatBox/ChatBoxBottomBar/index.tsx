@@ -104,6 +104,7 @@ interface IChatInputProps {
 	onDeleteMessageActionNeedToResolve?: () => void;
 	isPublic: boolean;
 	topicChannelId?: string;
+	hiddenAdvanceFunc?: boolean;
 }
 
 interface IEphemeralTargetUserInfo {
@@ -170,7 +171,8 @@ export const ChatBoxBottomBar = memo(
 		messageAction,
 		onDeleteMessageActionNeedToResolve,
 		isPublic = false,
-		topicChannelId = ''
+		topicChannelId = '',
+		hiddenAdvanceFunc = false
 	}: IChatInputProps) => {
 		const { themeValue } = useTheme();
 		const dispatch = useAppDispatch();
@@ -768,6 +770,7 @@ export const ChatBoxBottomBar = memo(
 						isAvailableSending={textChange?.length > 0}
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
+						hiddenAdvanceFunc={hiddenAdvanceFunc}
 					/>
 					<RecordMessageProcessing />
 					<View style={styles.inputWrapper}>

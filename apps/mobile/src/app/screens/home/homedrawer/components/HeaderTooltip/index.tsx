@@ -1,7 +1,7 @@
-import { IOption } from '@mezon/mobile-components';
+import { ActionEmitEvent, IOption } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import { useCallback, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, TouchableOpacity, View } from 'react-native';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
@@ -19,6 +19,7 @@ const HeaderTooltip = ({ onPressOption, options }: ITooltipHeaderProps) => {
 	const [isShowTooltip, setIsShowTooltip] = useState(false);
 
 	const toggleTooltip = () => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, { isShow: false, mode: 'force' });
 		setIsShowTooltip(!isShowTooltip);
 	};
 

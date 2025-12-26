@@ -25,7 +25,13 @@ const MessageWebhookClan = React.memo(({ message }: IMessageNotificationProps) =
 	return (
 		<View>
 			{attachments?.length ? (
-				<MessageAttachment attachments={message?.attachments || []} clanId={message?.clan_id} channelId={message?.channel_id} />
+				<MessageAttachment
+					attachments={message?.attachments || []}
+					clanId={message?.clan_id}
+					channelId={message?.channel_id}
+					messageCreatTime={message?.create_time}
+					senderId={message?.sender_id}
+				/>
 			) : null}
 			<View>
 				<RenderTextMarkdownContent

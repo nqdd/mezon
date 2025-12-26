@@ -7,7 +7,8 @@ export const style = (colors: Attributes) =>
 		voiceContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: 4
+			gap: size.s_4,
+			paddingTop: size.s_2
 		},
 		voiceText: {
 			color: colors.textDisabled,
