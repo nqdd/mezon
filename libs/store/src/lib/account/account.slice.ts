@@ -209,12 +209,15 @@ export const accountSlice = createSlice({
 		setAccount(state, action) {
 			state.account = action.payload;
 		},
-		turnOffAnonymous(state, action: PayloadAction<string>) {
-			const id = action.payload;
+		turnOffAnonymous(state, action: PayloadAction<{ id: string; topic: boolean }>) {
+			const { id, topic } = action.payload;
 			if (state.anonymousMode?.[id]) {
 				const next = { ...state.anonymousMode };
 				delete next[id];
 				state.anonymousMode = next;
+			}
+			if (topic) {
+				state.topicAnonymousMode = false;
 			}
 		},
 

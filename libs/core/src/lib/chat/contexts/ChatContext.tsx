@@ -2379,7 +2379,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
 		if (clanUpdatedEvent.prevent_anonymous) {
-			dispatch(accountActions.turnOffAnonymous(clanUpdatedEvent.clan_id));
+			const store = getStore();
+			const clanIdActive = selectCurrentClanId(store.getState());
+			dispatch(accountActions.turnOffAnonymous({ id: clanUpdatedEvent.clan_id, topic: clanIdActive === clanUpdatedEvent.clan_id }));
 		}
 	}, []);
 
