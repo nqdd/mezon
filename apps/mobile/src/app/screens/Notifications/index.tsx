@@ -159,7 +159,7 @@ const Notifications = ({ navigation, route }) => {
 									})
 								),
 								store.dispatch(topicsActions.setCurrentTopicId(notify?.content?.topic_id || notify?.id || '')),
-								store.dispatch(getFirstMessageOfTopic(notify?.content?.topic_id || notify?.id || '')),
+								store.dispatch(getFirstMessageOfTopic({ topicId: notify?.content?.topic_id || notify?.id || '', isMobile: true })),
 								store.dispatch(topicsActions.setIsShowCreateTopic(true))
 							);
 						}

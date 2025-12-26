@@ -24,6 +24,7 @@ import useTabletLandscape from '../../../../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { style } from '../styles';
 import ButtonEndCall from './ButtonEndCall';
+import ButtonRaiseHand from './ButtonRaiseHand';
 import ToggleMic from './ButtonToggleMic';
 
 const ControlBottomBar = ({
@@ -201,16 +202,7 @@ const ControlBottomBar = ({
 						<MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.textStrong} />
 					</TouchableOpacity>
 				)}
-				{/* remove */}
-				{/*{!isGroupCall && (*/}
-				{/*	<TouchableOpacity onPress={handleToggleScreenShare} style={styles.menuIcon}>*/}
-				{/*		{isScreenShareEnabled ? (*/}
-				{/*			<MezonIconCDN icon={IconCDN.shareScreenIcon} color={themeValue.textStrong} />*/}
-				{/*		) : (*/}
-				{/*			<MezonIconCDN icon={IconCDN.shareScreenSlashIcon} color={themeValue.textStrong} />*/}
-				{/*		)}*/}
-				{/*	</TouchableOpacity>*/}
-				{/*)}*/}
+				{!isGroupCall && <ButtonRaiseHand channelId={channelId} />}
 				<ButtonEndCall isGroupCall={isGroupCall} channelId={channelId} clanId={clanId} />
 			</View>
 		</View>

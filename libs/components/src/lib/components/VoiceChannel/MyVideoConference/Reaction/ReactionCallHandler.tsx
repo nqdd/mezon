@@ -117,7 +117,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 							const timeoutId = window.setTimeout(() => {
 								setRaisingList((list) => list.filter((i) => i.id !== senderId));
 								timeoutsRef.current.delete(senderId);
-							}, 5000);
+							}, 10000);
 
 							timeoutsRef.current.set(senderId, timeoutId);
 
@@ -198,15 +198,16 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 					</div>
 				))}
 			{raisingList.length && (
-				<div className="absolute w-24 right-2 top-[68px] flex flex-col gap-1">
+				<div className="absolute w-40 right-2 top-[68px] flex flex-col gap-1">
 					{raisingList.map((item) => (
-						<div className="w-24 h-11 bg-white rounded-full right-2 flex gap-3 items-center justify-center p-1" key={item.id}>
+						<div className="w-40 h-9 bg-white rounded-full right-2 flex gap-2 items-center justify-center p-1" key={item.id}>
 							{item.avatar ? (
-								<img src={item.avatar} className="w-10 h-10 rounded-full" />
+								<img src={item.avatar} className="w-8 h-8 rounded-full" />
 							) : (
 								<div className="w-10 h-10 rounded-full">{item.name.charAt(0)}</div>
 							)}
-							<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.0 -10.0 110.0 135.0" className="h-11" fill="#efbc39">
+							<div className="text-sm text-black flex-1 truncate font-semibold">{item.name}</div>
+							<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5.0 -10.0 110.0 135.0" className="h-8" fill="#efbc39">
 								<defs>
 									<filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
 										<feDropShadow dx="2" dy="2" stdDeviation="5" floodColor="#000000" floodOpacity="1" />

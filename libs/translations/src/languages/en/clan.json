@@ -56,6 +56,18 @@
 			"limitImageSize": "Image size must be less than {{size}}MB"
 		}
 	},
+	"clanTemplateModal": {
+		"title": "Create Your Clan",
+		"description": "Create your own space to connect with friends. Build your clan and start chatting today.",
+		"createMyOwn": "Create My Own",
+		"startFromTemplate": "Start from a template",
+		"gamingTemplate": "Gaming",
+		"friendsTemplate": "Friends",
+		"studyGroupTemplate": "Study Group",
+		"schoolClubTemplate": "School Club",
+		"localCommunityTemplate": "Local Community",
+		"artistsCreatorsTemplate": "Artists & Creators"
+	},
 	"limitModal": {
 		"title": "Limit Reached!",
 		"message": "You're already in 50 clans. You'll need to leave one before you can join or create another.",

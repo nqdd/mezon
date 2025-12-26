@@ -1,8 +1,14 @@
 {
-  "selectScreen": "Chọn màn hình để chia sẻ",
-  "entireScreen": "Toàn bộ màn hình",
-  "applicationWindow": "Cửa sổ ứng dụng",
-  "shareAudio": "Chia sẻ âm thanh",
-  "share": "Chia sẻ",
-  "cancel": "Hủy"
+	"selectScreen": "Chọn màn hình để chia sẻ",
+	"entireScreen": "Toàn bộ màn hình",
+	"applicationWindow": "Cửa sổ ứng dụng",
+	"shareAudio": "Chia sẻ âm thanh",
+	"share": "Chia sẻ",
+	"cancel": "Hủy",
+	"chooseWhatToShare": "Chọn nội dung muốn chia sẻ",
+	"window": "Cửa sổ",
+	"alsoShareSystemAudio": "Đồng thời chia sẻ âm thanh hệ thống",
+	"loadingMore": "Đang tải thêm...",
+	"loadMore": "Tải thêm",
+	"remaining": "còn lại"
 }

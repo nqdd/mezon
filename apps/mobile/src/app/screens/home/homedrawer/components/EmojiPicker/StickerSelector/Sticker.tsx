@@ -30,16 +30,16 @@ const StickerItem = memo(({ item, onPress, isAudio, styles }: any) => {
 	return (
 		<>
 			{isAudio ? (
-				<>
+				<TouchableOpacity onPress={() => onPress(item)} style={[styles.audioContent, styles.itemMargin, item?.isEmpty && { opacity: 0 }]}>
 					{item?.source && (
-						<TouchableOpacity onPress={() => onPress(item)} style={[styles.audioContent, styles.itemMargin]}>
+						<View style={[styles.audioContent, styles.itemMargin]}>
 							<RenderAudioItem audioURL={item.source} />
 							<Text style={styles.soundName} numberOfLines={1}>
 								{item?.shortname}
 							</Text>
-						</TouchableOpacity>
+						</View>
 					)}
-				</>
+				</TouchableOpacity>
 			) : (
 				<TouchableOpacity onPress={() => onPress(item)} style={[styles.content, styles.itemMargin]}>
 					<FastImage
@@ -99,7 +99,7 @@ const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale, 
 		}));
 
 		return [...data, ...paddedItems];
-	}, [stickerList, categoryName, forSale]);
+	}, [stickerList, NUM_COLUMNS, categoryName, forSale]);
 
 	const onBuySticker = useCallback(
 		async (sticker: any) => {
@@ -191,6 +191,7 @@ const Sticker = ({ stickerList, categoryName, onClickSticker, isAudio, forSale, 
 			</TouchableOpacity>
 			{isExpanded && (
 				<FlatList
+					key={`${categoryName}_stickerList_${NUM_COLUMNS}`}
 					data={stickersListByCategoryName}
 					renderItem={renderItem}
 					keyExtractor={keyExtractor}

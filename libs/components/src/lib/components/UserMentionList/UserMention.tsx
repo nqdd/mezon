@@ -59,7 +59,7 @@ export function UserMentionList({ channelID, channelMode }: UserMentionListProps
 			rolesToUse?.map((item: ApiRole) => ({
 				id: item.id ?? '',
 				display: item.title,
-				avatarUrl: '',
+				avatarUrl: item.role_icon || '',
 				clanNick: item.title,
 				color: item.color,
 				isRole: true

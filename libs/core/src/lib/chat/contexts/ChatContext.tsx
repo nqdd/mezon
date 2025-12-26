@@ -1683,6 +1683,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					isShowCreateThread: false
 				})
 			);
+			dispatch(
+				channelsActions.removeChannelApp({
+					clanId: channelDeleted.clan_id,
+					channelId: channelDeleted.channel_id
+				})
+			);
 
 			if (channelDeleted?.parent_id) {
 				dispatch(
@@ -2373,7 +2379,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
 		if (clanUpdatedEvent.prevent_anonymous) {
-			dispatch(accountActions.turnOffAnonymous(clanUpdatedEvent.clan_id));
+			const store = getStore();
+			const clanIdActive = selectCurrentClanId(store.getState());
+			dispatch(accountActions.turnOffAnonymous({ id: clanUpdatedEvent.clan_id, topic: clanIdActive === clanUpdatedEvent.clan_id }));
 		}
 	}, []);
 
@@ -2942,4 +2950,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

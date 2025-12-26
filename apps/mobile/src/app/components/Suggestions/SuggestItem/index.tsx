@@ -1,7 +1,7 @@
 import { useCheckVoiceStatus } from '@mezon/core';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelsEntity } from '@mezon/store-mobile';
-import { ChannelStatusEnum, checkIsThread, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
+import { ChannelStatusEnum, createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,8 +34,7 @@ const SuggestItem = memo(
 			const isChannelPrivate = channel?.channel_private === ChannelStatusEnum.isPrivate;
 			const isChannelText = channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL;
 
-			const isThread = checkIsThread(channel as ChannelsEntity);
-
+			const isThread = channel?.type === ChannelType.CHANNEL_TYPE_THREAD;
 			const isChannelVoice = channel?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 			const isChannelStream = channel?.type === ChannelType.CHANNEL_TYPE_STREAMING;
 			const isChannelApp = channel?.type === ChannelType.CHANNEL_TYPE_APP;
@@ -56,7 +55,22 @@ const SuggestItem = memo(
 			<View>
 				{isRoleUser && (
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<MezonIconCDN icon={IconCDN.shieldUserIcon} color={color ?? themeValue.textRoleLink} width={size.s_20} height={size.s_20} />
+						{avatarUrl ? (
+							<FastImage
+								style={styles.roleImage}
+								source={{
+									uri: createImgproxyUrl(avatarUrl ?? '', { width: 100, height: 100, resizeType: 'fit' })
+								}}
+							/>
+						) : (
+							<MezonIconCDN
+								icon={IconCDN.shieldUserIcon}
+								color={color ?? themeValue.textRoleLink}
+								width={size.s_20}
+								height={size.s_20}
+							/>
+						)}
+
 						<Text style={[styles.roleText, { color: color ?? themeValue.textRoleLink }]}>{`${name}`}</Text>
 					</View>
 				)}
@@ -74,7 +88,7 @@ const SuggestItem = memo(
 		return (
 			<View style={styles.wrapperItem}>
 				<View style={styles.containerItem}>
-					{avatarUrl ? (
+					{avatarUrl && !isRoleUser ? (
 						<FastImage
 							style={styles.image}
 							source={{

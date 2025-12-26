@@ -280,7 +280,9 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 			<div
 				ref={modalRef}
 				tabIndex={-1}
-				className={'relative w-full flex flex-col max-w-[684px] flex-1 bg-theme-setting-primary rounded-lg overflow-hidden '}
+				className={
+					'relative w-[90%] md:w-full flex flex-col max-w-[684px] md:flex-1 bg-theme-setting-primary rounded-lg overflow-hidden mx-auto'
+				}
 			>
 				<div className="flex-1 flex items-center justify-end border-b-theme-primary rounded-t p-4">
 					<Button
@@ -356,7 +358,7 @@ const ModalSticker = ({ graphic, handleCloseModal, type }: ModalEditStickerProps
 								<InputField
 									type="string"
 									placeholder={t('exCatHug')}
-									className={'px-[8px] bg-transparent '}
+									className={'px-[8px] bg-transparent pr-10 '}
 									value={editingGraphic.shortname}
 									onChange={handleChangeShortName}
 									onKeyDown={handleOnEnter}

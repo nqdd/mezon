@@ -118,7 +118,7 @@ export default function SetPassword({ onSubmit, submitButtonText, initialEmail =
 
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-			<div className="w-full max-w-md rounded-lg shadow-sm relative bg-theme-setting-primary  text-theme-primary overflow-hidden">
+			<div className="w-[90%] sm:w-full max-w-md rounded-lg shadow-sm relative bg-theme-setting-primary  text-theme-primary overflow-hidden">
 				<button
 					onClick={onClose}
 					title={t('setPasswordModal.close')}

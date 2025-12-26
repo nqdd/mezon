@@ -4,12 +4,20 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ViewStyle } from 'react-native';
 import { ActivityIndicator, Platform, Text, TouchableOpacity, View } from 'react-native';
 import InCallManager from 'react-native-incall-manager';
-import Sound from 'react-native-sound';
+import TrackPlayer, {
+	Capability,
+	Event,
+	State,
+	useActiveTrack,
+	usePlaybackState,
+	useProgress
+} from 'react-native-track-player';
 import { WAY_AUDIO } from '../../../../../../assets/lottie';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { style } from './styles';
 
+let isPlayerInitialized = false;
 const formatTime = (millis: number) => {
 	const minutes = Math.floor(millis / 60000);
 	const seconds = Math.floor((millis % 60000) / 1000);
@@ -27,16 +35,32 @@ const RenderAudioChat = React.memo(({ audioURL, stylesContainerCustom, styleLott
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const recordingWaveRef = useRef(null);
-	const [isPlaying, setIsPlaying] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [sound, setSound] = useState<Sound | null>(null);
-	const [totalTime, setTotalTime] = useState(duration ? duration * 1000 : 0); // Initialize with prop if available
-	const [remainingTime, setRemainingTime] = useState(duration ? duration * 1000 : 0);
-	const soundRef = useRef<Sound | null>(null);
-	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const [totalDuration, setTotalDuration] = useState(duration || 0);
 	const isUploading = !audioURL?.includes('http');
-
+	const playbackState = usePlaybackState();
+	const progress = useProgress();
+	const activeTrack = useActiveTrack();
+	const isThisTrackActive = activeTrack?.url === audioURL;
+	const isPlaying = isThisTrackActive && playbackState.state === State.Playing;
 	useEffect(() => {
+		const setupPlayer = async () => {
+			if (isPlayerInitialized) return;
+
+			try {
+				await TrackPlayer.setupPlayer();
+				await TrackPlayer.updateOptions({
+					capabilities: [Capability.Play, Capability.Pause, Capability.Stop],
+					compactCapabilities: [Capability.Play, Capability.Pause]
+				});
+				isPlayerInitialized = true;
+			} catch (error) {
+				// Player might already be initialized, which is fine
+			}
+		};
+
+		setupPlayer();
+
 		recordingWaveRef?.current?.reset();
 		return () => {
 			if (Platform.OS === 'android') {
@@ -46,124 +70,100 @@ const RenderAudioChat = React.memo(({ audioURL, stylesContainerCustom, styleLott
 		};
 	}, []);
 
-	const clearTimer = useCallback(() => {
-		if (timerRef.current) {
-			clearInterval(timerRef.current);
-			timerRef.current = null;
+	useEffect(() => {
+		return () => {
+			const cleanup = async () => {
+				try {
+					const currentTrack = await TrackPlayer.getActiveTrack();
+					if (currentTrack?.url === audioURL) {
+						await TrackPlayer.reset();
+					}
+				} catch (error) {
+					console.error('Error cleaning up TrackPlayer:', error);
+				}
+			};
+			cleanup();
+		};
+	}, [audioURL]);
+
+	useEffect(() => {
+		if (isPlaying) {
+			recordingWaveRef?.current?.play(0, 45);
+		} else {
+			recordingWaveRef?.current?.pause();
 		}
+	}, [isPlaying]);
+
+	useEffect(() => {
+		const listener = TrackPlayer.addEventListener(Event.PlaybackQueueEnded, async () => {
+			try {
+				await TrackPlayer.seekTo(0);
+				recordingWaveRef?.current?.reset();
+			} catch (error) {
+				console.error('Error resetting track:', error);
+			}
+		});
+
+		return () => {
+			listener.remove();
+		};
 	}, []);
 
-	const startTimer = useCallback(
-		(duration: number) => {
-			clearTimer();
-			timerRef.current = setInterval(() => {
-				if (soundRef.current) {
-					soundRef.current.getCurrentTime((seconds) => {
-						const currentMs = seconds * 1000;
-						const remaining = Math.max(0, duration - currentMs);
-						setRemainingTime(remaining);
-					});
-				}
-			}, 500);
-		},
-		[clearTimer]
-	);
-
-	const playLoadedSound = useCallback(
-		(soundToPlay: Sound, duration: number) => {
-			if (Platform.OS === 'ios') {
-				Sound.setCategory('Playback', true);
-			}
-			if (Platform.OS === 'android') {
-				InCallManager.setSpeakerphoneOn(true);
-				InCallManager.setForceSpeakerphoneOn(true);
-			}
-			soundToPlay.play((success) => {
-				if (success) {
-					soundToPlay.setCurrentTime(0);
-					recordingWaveRef?.current?.reset();
-					setIsPlaying(false);
-					setRemainingTime(duration);
-					clearTimer();
-				}
-			});
-			setIsPlaying(true);
-			startTimer(duration);
-		},
-		[clearTimer, startTimer]
-	);
-
-	const loadAndPlaySound = useCallback(() => {
-		if (soundRef.current) {
-			playLoadedSound(soundRef.current, totalTime);
-			return;
-		}
-
+	const loadTrack = useCallback(async () => {
 		setIsLoading(true);
+		try {
+			await TrackPlayer.reset();
 
-		const newSound = new Sound(audioURL, '', (error) => {
+			const track = {
+				url: audioURL,
+				title: 'Audio Message',
+				artist: 'Mezon',
+				duration: duration || undefined
+			};
+
+			await TrackPlayer.add(track);
+
+			if (!duration) {
+				const trackInfo = await TrackPlayer.getActiveTrack();
+				if (trackInfo?.duration) {
+					setTotalDuration(trackInfo.duration);
+				}
+			}
+		} catch (error) {
+			console.error('Error loading track:', error);
+		} finally {
 			setIsLoading(false);
-
-			if (error) {
-				console.error('Failed to load sound:', error);
-				return;
-			}
-
-			const soundDuration = duration ? duration * 1000 : newSound.getDuration() * 1000;
-			setTotalTime(soundDuration);
-			setRemainingTime(soundDuration);
-			recordingWaveRef?.current?.play(0, 45);
-			if (Platform.OS === 'ios') {
-				newSound.setNumberOfLoops(0);
-				newSound.setVolume(1.0);
-			}
-
-			soundRef.current = newSound;
-			setSound(newSound);
-			playLoadedSound(newSound, soundDuration);
-		});
-	}, [audioURL, duration, totalTime, playLoadedSound]);
-
-	const handlePress = useCallback(() => {
-		if (isLoading) return;
-
-		if (isPlaying && sound) {
-			sound.pause();
-			recordingWaveRef?.current?.pause();
-			setIsPlaying(false);
-			clearTimer();
-		} else if (sound) {
-			playLoadedSound(sound, totalTime);
-		} else {
-			loadAndPlaySound();
 		}
-	}, [isLoading, isPlaying, sound, totalTime, loadAndPlaySound, playLoadedSound, clearTimer]);
+	}, [audioURL, duration]);
 
-	useEffect(() => {
-		return () => {
-			clearTimer();
-			if (soundRef.current) {
-				soundRef.current.stop();
-				soundRef.current.release();
-				soundRef.current = null;
-			}
-		};
-	}, [clearTimer]);
+	const handlePress = useCallback(async () => {
+		if (isLoading || isUploading) return;
 
-	useEffect(() => {
-		return () => {
-			clearTimer();
-			if (soundRef.current) {
-				soundRef.current.stop();
-				soundRef.current.release();
-				soundRef.current = null;
-				setSound(null);
-				setTotalTime(0);
-				setRemainingTime(0);
-				setIsPlaying(false);
+		try {
+			if (isThisTrackActive) {
+				if (isPlaying) {
+					await TrackPlayer.pause();
+				} else {
+					if (Platform.OS === 'android') {
+						InCallManager.setSpeakerphoneOn(true);
+						InCallManager.setForceSpeakerphoneOn(true);
+					}
+					await TrackPlayer.play();
+				}
+			} else {
+				await loadTrack();
+
+				if (Platform.OS === 'android') {
+					InCallManager.setSpeakerphoneOn(true);
+					InCallManager.setForceSpeakerphoneOn(true);
+				}
+
+				await TrackPlayer.play();
 			}
-		};
-	}, [audioURL, clearTimer]);
+		} catch (error) {
+			console.error('Error handling playback:', error);
+		}
+	}, [isLoading, isUploading, isThisTrackActive, isPlaying, loadTrack]);
 
 	const renderPlayButton = () => {
 		if (isLoading) {
@@ -176,11 +176,18 @@ const RenderAudioChat = React.memo(({ audioURL, stylesContainerCustom, styleLott
 	};
 
 	const getDisplayTime = () => {
-		if (totalTime === 0) return '--:--';
-		if (isPlaying || remainingTime < totalTime) {
-			return formatTime(remainingTime);
+		const duration = isThisTrackActive ? progress.duration || totalDuration : totalDuration;
+
+		if (duration === 0) return '--:--';
+
+		const currentPosition = isThisTrackActive ? progress.position : 0;
+		const remaining = duration - currentPosition;
+
+		if (isThisTrackActive && (isPlaying || currentPosition > 0)) {
+			return formatTime(Math.max(0, remaining * 1000));
 		}
-		return formatTime(totalTime);
+
+		return formatTime(duration * 1000);
 	};
 
 	return (

@@ -8,12 +8,12 @@ import {
 	referencesActions,
 	selectAddEmojiState,
 	selectAllAccount,
-	selectAllChannels,
 	selectAllRolesClan,
 	selectAnonymousMode,
 	selectAttachmentByChannelId,
 	selectCloseMenu,
 	selectCurrentTopicId,
+	selectDataMentions,
 	selectDataReferences,
 	selectEmojiObjSuggestion,
 	selectIdMessageRefEdit,
@@ -177,12 +177,11 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	const scopeId = props.isTopic ? currTopicId || CREATING_TOPIC : props.currentChannelId!;
 
 	const attachmentFiltered = useAppSelector((state) => selectAttachmentByChannelId(state, scopeId || ''));
-
-	const isDm = props.mode === ChannelStreamMode.STREAM_MODE_DM;
+	const isDm = props.mode === ChannelStreamMode.STREAM_MODE_DM || props.mode === ChannelStreamMode.STREAM_MODE_GROUP;
 
 	const userProfile = useSelector(selectAllAccount);
 	const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
-	const allChannels = useAppSelector(selectAllChannels);
+	const allChannels = useAppSelector((state) => selectDataMentions(state, isDm));
 	const { setOpenThreadMessageState, checkAttachment } = useReference(scopeId || '');
 	const [mentionData, setMentionData] = useState<ApiMessageMention[]>([]);
 	const [displayPlaintext, setDisplayPlaintext] = useState<string>('');
@@ -717,14 +716,18 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	}, [attachmentFiltered?.files]);
 
 	const hashtagData = useMemo(() => {
-		return allChannels
-			.map((item) => ({
-				id: item?.channel_id ?? '',
-				display: item?.channel_label ?? '',
-				subText: item?.category_name ?? ''
-			}))
-			.filter((mention) => mention.id || mention.display || mention.subText);
-	}, [isDm, allChannels]);
+		return allChannels.reduce<Array<{ id: string; display: string; subText: string }>>((acc, item) => {
+			const id = item?.channel_id ?? '';
+			const display = item?.channel_label ?? '';
+			const subText = ((item as ChannelsEntity)?.category_name || item?.clan_name) ?? '';
+
+			if (id || display || subText) {
+				acc.push({ id, display, subText });
+			}
+
+			return acc;
+		}, []);
+	}, [props.mode, allChannels]);
 
 	const isReplyOnChannel = dataReferences.message_ref_id && !props.isTopic ? true : false;
 	const isReplyOnTopic = dataReferencesTopic.message_ref_id && props.isTopic ? true : false;

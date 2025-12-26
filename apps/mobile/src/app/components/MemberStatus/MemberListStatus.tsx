@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
-import { selectAllChannelMembersClan, selectMemberByGroupId, useAppSelector } from '@mezon/store-mobile';
+import { selectAllChannelMembersClan, selectMemberByGroupId, selectStatusEntities, useAppSelector } from '@mezon/store-mobile';
 import type { ChannelMembersEntity, IChannel, UsersClanEntity } from '@mezon/utils';
 import { EUserStatus, GROUP_CHAT_MAXIMUM_MEMBERS } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
@@ -34,8 +34,9 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const navigation = useNavigation<any>();
-	const rawMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
+	const groupMembers = useAppSelector((state) => selectMemberByGroupId(state, currentChannel?.channel_id));
 	const channelMembers = useAppSelector((state) => selectAllChannelMembersClan(state, currentChannel?.channel_id));
+	const statusEntities = useAppSelector(selectStatusEntities);
 
 	const [selectedUser, setSelectedUser] = useState<ChannelMembersEntity | null>(null);
 	const { t } = useTranslation();
@@ -55,8 +56,8 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 	}, [currentChannel]);
 
 	const isMaximumMembers = useMemo(() => {
-		return isDM && rawMembers?.length >= GROUP_CHAT_MAXIMUM_MEMBERS;
-	}, [isDM, rawMembers]);
+		return isDM && groupMembers?.length >= GROUP_CHAT_MAXIMUM_MEMBERS;
+	}, [isDM, groupMembers]);
 
 	const handleAddOrInviteMembers = useCallback(
 		(action: EActionButton) => {
@@ -72,8 +73,8 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 		[isMaximumMembers]
 	);
 
-	const listMembersChannelGroupDM = useMemo(() => {
-		const members = isDM ? rawMembers : channelMembers;
+	const membersByStatus = useMemo(() => {
+		const members = isDM ? groupMembers : channelMembers;
 
 		if (!members) {
 			return {
@@ -82,9 +83,18 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 			};
 		}
 
-		members?.sort((a, b) => {
-			const aOnline = !!a.user?.online && a.user?.status !== EUserStatus.INVISIBLE;
-			const bOnline = !!b.user?.online && b.user?.status !== EUserStatus.INVISIBLE;
+		const combinedMembers = members.map((member: ChannelMembersEntity) => ({
+			...member,
+			user: {
+				...member?.user,
+				online: !!statusEntities?.[member?.id]?.online,
+				status: statusEntities?.[member?.id]?.status
+			}
+		}));
+
+		combinedMembers.sort((a, b) => {
+			const aOnline = !!a?.user?.online && a?.user?.status !== EUserStatus.INVISIBLE;
+			const bOnline = !!b?.user?.online && b?.user?.status !== EUserStatus.INVISIBLE;
 
 			if (aOnline === bOnline) {
 				const nameA = getName(a as UsersClanEntity);
@@ -94,15 +104,13 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 
 			return aOnline ? -1 : 1;
 		});
-		const firstOfflineIndex = members.findIndex((user) => !user.user?.online || user.user?.status === EUserStatus.INVISIBLE);
-		const onlineUsers = firstOfflineIndex === -1 ? members : members?.slice(0, firstOfflineIndex);
-		const offlineUsers = firstOfflineIndex === -1 ? [] : members?.slice(firstOfflineIndex);
+		const firstOfflineIndex = combinedMembers.findIndex((user) => !user?.user?.online || user?.user?.status === EUserStatus.INVISIBLE);
 
 		return {
-			online: onlineUsers?.map((item) => item),
-			offline: offlineUsers?.map((item) => item)
+			online: firstOfflineIndex === -1 ? combinedMembers : combinedMembers.slice(0, firstOfflineIndex),
+			offline: firstOfflineIndex === -1 ? [] : combinedMembers.slice(firstOfflineIndex)
 		};
-	}, [isDM, rawMembers, channelMembers]);
+	}, [isDM, groupMembers, channelMembers, statusEntities]);
 
 	const shouldShowNewGroupButton = useMemo(() => {
 		return (
@@ -110,7 +118,11 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 		);
 	}, [currentChannel?.type, currentChannel?.user_ids?.[0], currentChannel?.usernames?.[0], currentUserId]);
 
-	const { online, offline } = listMembersChannelGroupDM;
+	const { online, offline } = membersByStatus;
+
+	const shouldShowMemberList = useMemo(() => {
+		return (online?.length > 0 || offline?.length > 0) && !isChatWithMyself;
+	}, [online.length, offline.length, isChatWithMyself]);
 
 	const navigateToNewGroupScreen = () => {
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
@@ -177,7 +189,7 @@ export const MemberListStatus = memo(({ currentChannel, currentUserId }: IMember
 				</Pressable>
 			) : null}
 
-			{(online?.length > 0 || offline?.length > 0) && !isChatWithMyself ? (
+			{shouldShowMemberList ? (
 				<SectionList
 					sections={
 						isDM

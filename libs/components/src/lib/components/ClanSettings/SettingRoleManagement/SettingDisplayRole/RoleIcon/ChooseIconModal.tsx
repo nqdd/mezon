@@ -73,7 +73,7 @@ const ChooseIconModal: React.FC<ChooseIconModalProps> = ({ onClose }) => {
 			tabIndex={0}
 		>
 			<div
-				className="w-[400px] h-[400px] rounded-lg bg-theme-setting-primary  flex-col justify-center items-start gap-3 inline-flex overflow-hidden p-3"
+				className="w-[90%] max-w-[400px] h-[400px] rounded-lg bg-theme-setting-primary  flex-col justify-center items-start gap-3 inline-flex overflow-hidden p-3"
 				ref={modalRef}
 			>
 				{isLoading && (

@@ -3,8 +3,8 @@ import { useChatSending } from '@mezon/core';
 import { debounce, isEmpty } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
-	MediaType,
 	gifsStickerEmojiActions,
+	MediaType,
 	selectAnonymousMode,
 	selectCurrentChannel,
 	selectCurrentClanPreventAnonymous,
@@ -33,7 +33,7 @@ import StickerSelector from './StickerSelector';
 import { style } from './styles';
 
 export type IProps = {
-	onDone: () => void;
+	onDone: (isFocusKeyboard?: boolean) => void;
 	bottomSheetRef: MutableRefObject<BottomSheetMethods>;
 	directMessageId?: string;
 	messageActionNeedToResolve?: IMessageActionNeedToResolve | null;
@@ -147,7 +147,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 			/* empty */
 		}
 
-		onDone && type !== 'emoji' && onDone();
+		onDone && type !== 'emoji' && onDone(false);
 	}
 
 	function handleInputSearchFocus() {
