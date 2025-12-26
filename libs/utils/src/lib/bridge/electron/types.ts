@@ -24,7 +24,14 @@ export type MezonElectronAPI = {
 		}
 	) => Promise<void>;
 	dowloadImage: (url: string) => Promise<void>;
-	getScreenSources: (source: string) => Promise<{ id: string; name: string; thumbnail: string; icon: string }[]>;
+	getScreenSources: (
+		source: string
+	) => Promise<{ sources: { id: string; name: string; thumbnail: string; icon: string }[]; total: number; hasMore: boolean }>;
+	loadMoreScreenSources: (
+		source: string,
+		offset: number
+	) => Promise<{ sources: { id: string; name: string; thumbnail: string; icon: string }[]; hasMore: boolean }>;
+	clearScreenSourcesCache: (source?: string) => Promise<{ success: boolean }>;
 	setRatioWindow: (ratio: boolean) => void;
 	launchAppWindow: (url: string) => Promise<void>;
 };
