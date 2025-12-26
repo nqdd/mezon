@@ -129,7 +129,7 @@ const SettingPhone = ({ title, description, isLoading, onClose }: SetPhoneProps)
 	const disabled = count > 0 || !!errors.phone || isLoading === 'loading' || !phone;
 	return (
 		<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
-			<div className="w-full max-w-md bg-theme-setting-primary rounded-lg shadow-lg relative text-theme-primary-active">
+			<div className="w-[90%] md:w-full max-w-md bg-theme-setting-primary rounded-lg shadow-lg relative text-theme-primary-active">
 				<button
 					onClick={onClose}
 					title={t('setPhoneModal.close')}

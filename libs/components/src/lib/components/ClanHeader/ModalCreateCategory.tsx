@@ -78,7 +78,7 @@ const ModalCreateCategory = ({ onClose, onCreateCategory }: ModalCreateCategoryP
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div ref={modalRef} className="w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden" tabIndex={-1} autoFocus>
+			<div ref={modalRef} className="w-[90%] max-w-[480px] bg-theme-setting-primary rounded-xl overflow-hidden" tabIndex={-1} autoFocus>
 				<div className=" flex items-center justify-between px-6 pt-4 rounded-tl-[5px] rounded-tr-[5px]">
 					<div className="text-[19px] font-bold uppercase">{t('createCategoryModal.title')}</div>
 					<button className="flex items-center justify-center opacity-50 text-theme-primary-hover" onClick={onClose}>

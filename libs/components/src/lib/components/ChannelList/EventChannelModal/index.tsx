@@ -29,7 +29,9 @@ const EventModal = (props: EventModalProps) => {
 	}, [eventUpdateId]);
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className={`relative w-full sm:h-auto rounded-lg ${openModal ? 'max-w-[472px]' : 'max-w-[600px]'}`}>
+			<div
+				className={`relative w-[calc(100%-2rem)] sm:w-full sm:h-auto rounded-lg mx-4 sm:mx-auto ${openModal ? 'max-w-[472px]' : 'max-w-[600px]'}`}
+			>
 				{!openModal ? (
 					<div
 						className="rounded-lg text-sm overflow-hidden bg-theme-setting-primary text-theme-primary"

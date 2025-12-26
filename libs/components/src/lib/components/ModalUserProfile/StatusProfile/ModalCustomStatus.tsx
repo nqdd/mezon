@@ -119,7 +119,7 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className="bg-theme-setting-primary pt-4 rounded w-[440px] " data-e2e={generateE2eId('short_profile.modal.custom_status')}>
+			<div className="bg-theme-setting-primary pt-4 rounded w-[90%] md:w-[440px] " data-e2e={generateE2eId('short_profile.modal.custom_status')}>
 				<div>
 					<h1 className="text-theme-primary-active text-xl font-semibold text-center">{t('title')}</h1>
 				</div>

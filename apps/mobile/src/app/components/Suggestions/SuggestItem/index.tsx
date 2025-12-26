@@ -55,7 +55,22 @@ const SuggestItem = memo(
 			<View>
 				{isRoleUser && (
 					<View style={{ flexDirection: 'row', alignItems: 'center', gap: size.s_10 }}>
-						<MezonIconCDN icon={IconCDN.shieldUserIcon} color={color ?? themeValue.textRoleLink} width={size.s_20} height={size.s_20} />
+						{avatarUrl ? (
+							<FastImage
+								style={styles.roleImage}
+								source={{
+									uri: createImgproxyUrl(avatarUrl ?? '', { width: 100, height: 100, resizeType: 'fit' })
+								}}
+							/>
+						) : (
+							<MezonIconCDN
+								icon={IconCDN.shieldUserIcon}
+								color={color ?? themeValue.textRoleLink}
+								width={size.s_20}
+								height={size.s_20}
+							/>
+						)}
+
 						<Text style={[styles.roleText, { color: color ?? themeValue.textRoleLink }]}>{`${name}`}</Text>
 					</View>
 				)}
@@ -73,7 +88,7 @@ const SuggestItem = memo(
 		return (
 			<View style={styles.wrapperItem}>
 				<View style={styles.containerItem}>
-					{avatarUrl ? (
+					{avatarUrl && !isRoleUser ? (
 						<FastImage
 							style={styles.image}
 							source={{

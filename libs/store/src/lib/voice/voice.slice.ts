@@ -235,21 +235,22 @@ export const voiceSlice = createSlice({
 			} else {
 				voiceAdapter.removeOne(state, voice.id);
 			}
-			delete state.listInVoiceStatus[voice.voice_user_id];
+
+			const entitiesAfter = voiceAdapter.getSelectors().selectAll(state);
+			const userStillInVoice = entitiesAfter.some((entity) => entity.user_id === voice.voice_user_id);
+			if (!userStillInVoice) {
+				delete state.listInVoiceStatus[voice.voice_user_id];
+			}
 		},
 		removeFromClanInvoice: (state, action: PayloadAction<string>) => {
 			const userId = action.payload;
-			const listUser = voiceAdapter.getSelectors().selectAll(state);
-			const keyRemove = listUser
-				.filter((user) => {
-					return user.user_id === userId;
-				})
-				.map((user) => user.id);
-
-			if (keyRemove.length > 0) {
-				voiceAdapter.removeMany(state, keyRemove);
+			const entitiesOfUser = voiceAdapter
+				.getSelectors()
+				.selectAll(state)
+				.filter((entity) => entity.user_id === userId);
+			if (entitiesOfUser.length === 0) {
+				delete state.listInVoiceStatus[userId];
 			}
-			delete state.listInVoiceStatus[userId];
 		},
 		voiceEnded: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;

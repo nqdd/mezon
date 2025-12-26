@@ -39,7 +39,7 @@ import { rolesClanActions } from '../roleclan/roleclan.slice';
 import type { RootState } from '../store';
 import { selectListThreadId, threadsActions } from '../threads/threads.slice';
 import type { LIST_CHANNELS_USER_FEATURE_KEY, ListChannelsByUserState } from './channelUser.slice';
-import { listChannelsByUserActions, selectEntitiesChannelsByUser } from './channelUser.slice';
+import { listChannelsByUserActions, selectAllChannelsByUser, selectEntitiesChannelsByUser } from './channelUser.slice';
 import type { ChannelMetaEntity } from './channelmeta.slice';
 import { channelMetaActions, enableMute, selectChannelMetaById } from './channelmeta.slice';
 import { listChannelRenderAction, selectListChannelRenderByClanId } from './listChannelRender.slice';
@@ -1701,6 +1701,13 @@ export const selectAllChannels = createSelector(
 	[getChannelsState, (state: RootState) => state.clans.currentClanId as string],
 	(channelsState, clanId) => {
 		return selectAll(channelsState.byClans[clanId]?.entities ?? channelsAdapter.getInitialState());
+	}
+);
+
+export const selectDataMentions = createSelector(
+	[selectAllChannels, selectAllChannelsByUser, (_, isDm: boolean) => isDm],
+	(channel, hashtag, isDm) => {
+		return isDm ? hashtag : channel;
 	}
 );
 
