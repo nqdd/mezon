@@ -18,6 +18,7 @@ interface IProps {
 	clanId: string;
 	channelId: string;
 	messageCreatTime: string;
+	senderId?: string;
 }
 
 const isSecureTenorUrl = (url: string | undefined): boolean => {
@@ -49,7 +50,7 @@ const classifyAttachments = (attachments: ApiMessageAttachment[]) => {
 	return { videos, images, documents };
 };
 
-export const MessageAttachment = React.memo(({ attachments, onLongPressImage, clanId, channelId, messageCreatTime }: IProps) => {
+export const MessageAttachment = React.memo(({ attachments, onLongPressImage, clanId, channelId, messageCreatTime, senderId }: IProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
@@ -80,11 +81,23 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 				})
 			);
 			const data = {
-				children: <ImageListModal channelId={channelId} imageSelected={image} disableGoback={true} />
+				children: (
+					<ImageListModal
+						channelId={channelId}
+						imageSelected={{
+							...image,
+							uploader: image?.uploader || senderId,
+							clanId: image?.clanId || clanId,
+							channelId: image?.channelId || channelId,
+							create_time: image?.create_time || messageCreatTime
+						}}
+						disableGoback={true}
+					/>
+				)
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		},
-		[channelId, clanId, dispatch, messageCreatTime]
+		[channelId, clanId, dispatch, messageCreatTime, senderId]
 	);
 
 	const hasMultipleMedia = useMemo(() => {

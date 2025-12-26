@@ -75,7 +75,7 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 						clanId: currentClanId,
 						channelId,
 						limit: 30,
-						direction: 'before',
+						direction: 'initial',
 						fileType: 'all',
 						mediaFilter: 'all'
 					})

@@ -11,8 +11,7 @@ export const style = (colors?: Attributes) =>
 			fontSize: size.medium,
 			marginRight: size.s_10,
 			fontWeight: '600',
-			color: 'white',
-			maxWidth: size.s_100 + size.s_20
+			color: 'white'
 		},
 		dateMessageBox: {
 			fontSize: size.small,
@@ -95,7 +94,10 @@ export const style = (colors?: Attributes) =>
 		headerLeftSection: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			gap: size.s_10
+			gap: size.s_10,
+			flex: 1,
+			maxWidth: '90%',
+			overflow: 'hidden'
 		},
 		uploaderSection: {
 			flexDirection: 'row',

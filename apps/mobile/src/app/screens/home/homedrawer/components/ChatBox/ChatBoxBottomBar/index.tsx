@@ -10,7 +10,7 @@ import {
 	save,
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
-import { useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
 import {
 	emojiSuggestionActions,
@@ -810,7 +810,7 @@ export const ChatBoxBottomBar = memo(
 								spellCheck={false}
 								numberOfLines={4}
 								textBreakStrategy="simple"
-								style={[styles.inputStyle]}
+								style={[styles.inputStyle, !textValueInputRef?.current && { height: size.s_40 }]}
 								children={RenderTextContent({ text: textValueInputRef?.current })}
 								onSelectionChange={textInputProps?.onSelectionChange}
 								onPressIn={handlePressIn}

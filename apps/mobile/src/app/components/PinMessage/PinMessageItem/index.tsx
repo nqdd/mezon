@@ -98,6 +98,7 @@ const PinMessageItem = memo(({ pinMessageItem, handleUnpinMessage, contentMessag
 						clanId={message?.clan_id}
 						channelId={message?.channel_id}
 						messageCreatTime={message?.create_time}
+						senderId={message?.sender_id}
 					/>
 				)}
 			</View>

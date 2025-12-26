@@ -87,6 +87,7 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 							clanId={firstMessage?.clan_id || ''}
 							channelId={firstMessage?.channel_id || ''}
 							messageCreatTime={firstMessage?.create_time}
+							senderId={firstMessage?.sender_id}
 						/>
 					)}
 					{!!firstMessage?.content?.embed?.[0] && (

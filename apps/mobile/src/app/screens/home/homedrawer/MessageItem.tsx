@@ -456,6 +456,7 @@ const MessageItem = React.memo(
 											clanId={message?.clan_id}
 											channelId={message?.channel_id}
 											onLongPressImage={onLongPressImage}
+											senderId={message?.sender_id}
 										/>
 									)}
 									{isEphemeralMessage && (

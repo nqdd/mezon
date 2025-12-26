@@ -30,6 +30,7 @@ const MessageWebhookClan = React.memo(({ message }: IMessageNotificationProps) =
 					clanId={message?.clan_id}
 					channelId={message?.channel_id}
 					messageCreatTime={message?.create_time}
+					senderId={message?.sender_id}
 				/>
 			) : null}
 			<View>
