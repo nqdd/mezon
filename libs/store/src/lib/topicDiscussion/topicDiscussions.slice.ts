@@ -3,7 +3,6 @@ import type { IMessageSendPayload, IMessageWithUser, LoadingStatus } from '@mezo
 import { getMobileUploadedAttachments, getWebUploadedAttachments } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import { safeJSONParse } from 'mezon-js';
 import type { ApiChannelMessage, ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic } from 'mezon-js/api.gen';
 import type { ApiChannelMessageHeader, ApiSdTopicRequest } from 'mezon-js/dist/api.gen';
 import type { MezonValueContext } from '../helpers';
@@ -289,12 +288,7 @@ export const topicsSlice = createSlice({
 				const { message, message_id } = data || {};
 				state.initTopicMessageId = message_id || '';
 				if (message && isMobile) {
-					state.firstMessageTopic = {
-						...message,
-						content: typeof message?.content === 'string' ? safeJSONParse(message?.content || '{}') : (message?.content ?? {}),
-						attachments:
-							typeof message?.attachments === 'string' ? safeJSONParse(message?.attachments || '[]') : (message?.attachments ?? [])
-					};
+					state.firstMessageTopic = message;
 				}
 			});
 	}
