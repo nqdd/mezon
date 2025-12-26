@@ -3,7 +3,7 @@ import type { IMessageSendPayload, IMessageWithUser, LoadingStatus } from '@mezo
 import { getMobileUploadedAttachments, getWebUploadedAttachments } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic } from 'mezon-js/api.gen';
+import type { ApiChannelMessage, ApiMessageAttachment, ApiMessageMention, ApiMessageRef, ApiSdTopic } from 'mezon-js/api.gen';
 import type { ApiChannelMessageHeader, ApiSdTopicRequest } from 'mezon-js/dist/api.gen';
 import type { MezonValueContext } from '../helpers';
 import { ensureSession, ensureSocket, getMezonCtx } from '../helpers';
@@ -29,6 +29,7 @@ export interface TopicDiscussionsState extends EntityState<TopicDiscussionsEntit
 	openTopicMessageState: boolean;
 	currentTopicId?: string;
 	initTopicMessageId?: string;
+	firstMessageTopic?: ApiChannelMessage;
 	isFocusTopicBox: boolean;
 	channelTopics: Record<string, string>;
 	clanTopics: Record<string, EntityState<TopicDiscussionsEntity, string>>;
@@ -53,16 +54,19 @@ const mapToTopicEntity = (topics: ApiSdTopic[]) => {
 	}));
 };
 
-export const getFirstMessageOfTopic = createAsyncThunk('topics/getFirstMessageOfTopic', async (topicId: string, thunkAPI) => {
-	try {
-		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const response = await mezon.client.getTopicDetail(mezon.session, topicId);
-		return response;
-	} catch (error) {
-		captureSentryError(error, 'topics/getFirstMessageOfTopic');
-		return thunkAPI.rejectWithValue(error);
+export const getFirstMessageOfTopic = createAsyncThunk(
+	'topics/getFirstMessageOfTopic',
+	async ({ topicId, isMobile = false }: { topicId: string; isMobile?: boolean }, thunkAPI) => {
+		try {
+			const mezon = await ensureSession(getMezonCtx(thunkAPI));
+			const response = await mezon.client.getTopicDetail(mezon.session, topicId);
+			return { data: response, isMobile };
+		} catch (error) {
+			captureSentryError(error, 'topics/getFirstMessageOfTopic');
+			return thunkAPI.rejectWithValue(error);
+		}
 	}
-});
+);
 
 export const fetchTopics = createAsyncThunk('topics/fetchTopics', async ({ clanId, noCache }: FetchTopicDiscussionsArgs, thunkAPI) => {
 	try {
@@ -90,7 +94,8 @@ export const initialTopicsState: TopicDiscussionsState = topicsAdapter.getInitia
 	isFocusTopicBox: false,
 	channelTopics: {},
 	clanTopics: {},
-	initTopicMessageId: undefined
+	initTopicMessageId: undefined,
+	firstMessageTopic: undefined
 });
 
 export const createTopic = createAsyncThunk('topics/createTopic', async (body: ApiSdTopicRequest, thunkAPI) => {
@@ -204,6 +209,9 @@ export const topicsSlice = createSlice({
 		setCurrentTopicId: (state, action: PayloadAction<string>) => {
 			state.currentTopicId = action.payload;
 		},
+		setFirstMessageTopic(state, action) {
+			state.firstMessageTopic = action.payload;
+		},
 		setChannelTopic: (state, action: PayloadAction<{ channelId: string; topicId: string }>) => {
 			const { channelId, topicId } = action.payload;
 			state.channelTopics[channelId] = topicId;
@@ -276,7 +284,12 @@ export const topicsSlice = createSlice({
 				}
 			})
 			.addCase(getFirstMessageOfTopic.fulfilled, (state: TopicDiscussionsState, action) => {
-				state.initTopicMessageId = action.payload?.message_id || '';
+				const { data, isMobile } = action.payload;
+				const { message, message_id } = data || {};
+				state.initTopicMessageId = message_id || '';
+				if (message && isMobile) {
+					state.firstMessageTopic = message;
+				}
 			});
 	}
 });
@@ -348,6 +361,8 @@ export const selectFirstMessageOfCurrentTopic = createSelector([getTopicsState, 
 	if (!state.initTopicMessageId) return null;
 	return entities?.[state.initTopicMessageId];
 });
+
+export const selectFirstMessageEntityTopic = createSelector(getTopicsState, (state) => state.firstMessageTopic);
 
 export const selectTopicsSort = createSelector(selectAllTopics, (data) => {
 	return data.sort((a, b) => {
