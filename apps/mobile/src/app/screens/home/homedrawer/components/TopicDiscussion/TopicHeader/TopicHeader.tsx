@@ -1,6 +1,6 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
+import { selectFirstMessageEntityTopic, selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,7 +23,15 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'common']);
-	const firstMessage = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+	const firstMessageEntity = useAppSelector((state) => selectFirstMessageEntityTopic(state));
+	const firstMessageByChannel = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+
+	const firstMessage = useMemo(() => {
+		if (firstMessageByChannel) {
+			return firstMessageByChannel;
+		}
+		return firstMessageEntity;
+	}, [firstMessageByChannel, firstMessageEntity]);
 
 	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(firstMessage?.sender_id || '');
 	const userRolesClan = useColorsRoleById(firstMessage?.sender_id || '');
