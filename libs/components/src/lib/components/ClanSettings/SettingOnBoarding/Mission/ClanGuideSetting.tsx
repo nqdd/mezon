@@ -162,7 +162,7 @@ const OwnerGreeting = () => {
 	const clanOwner = useAppSelector((state) => selectMemberClanByUserId(state, creatorId as string));
 	return (
 		<div className="p-[2px] flex items-center justify-center bg-gradient-to-br from-indigo-300 to-purple-300 dark:from-[#9e9e9e] dark:to-[#494949]">
-			<div className="w-full p-4 pt-2 flex flex-col gap-2 bg-gradient-to-br bg-theme-setting-nav rounded-md">
+			<div className="w-full p-4 pt-2 flex flex-col gap-2 bg-gradient-to-br rounded-md">
 				<div className="flex  gap-3">
 					<div className="w-12 relative">
 						<img
