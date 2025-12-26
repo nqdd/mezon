@@ -592,7 +592,7 @@ const handleOpenTopicDiscustion = async (store: any, topicId: string, channelId:
 	const promises = [];
 	promises.push(store.dispatch(topicsActions.setCurrentTopicId(topicId || '')));
 	promises.push(store.dispatch(topicsActions.setIsShowCreateTopic(true)));
-	promises.push(store.dispatch(getFirstMessageOfTopic(topicId || '')));
+	promises.push(store.dispatch(getFirstMessageOfTopic({ topicId: topicId || '', isMobile: true })));
 
 	await Promise.all(promises);
 	if (navigation) {
