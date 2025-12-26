@@ -3,9 +3,11 @@ import {
 	ActionEmitEvent,
 	getAttachmentUnique,
 	getUpdateOrAddClanChannelCache,
+	load,
 	save,
 	STORAGE_CLAN_ID,
-	STORAGE_DATA_CLAN_CHANNEL_CACHE
+	STORAGE_DATA_CLAN_CHANNEL_CACHE,
+	STORAGE_QR_INVITE_CACHE
 } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectBanMemberCurrentClanById, selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist } from '@mezon/store';
@@ -135,7 +137,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	}, [listChannelsText, listDMText]);
 
 	const dataMedia = useMemo(() => {
-		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
+		const urlQRInvite = load(STORAGE_QR_INVITE_CACHE);
+		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath || !!urlQRInvite);
 	}, [data]);
 
 	const handleSearchResults = useCallback((results: any[]) => {
@@ -307,14 +310,15 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	};
 	const convertFileFormat = async () => {
 		try {
+			const urlQRInvite = load(STORAGE_QR_INVITE_CACHE);
 			const fileFormats = await Promise.all(
 				dataMedia.map(async (media) => {
-					const fileName = media?.fileName || media?.contentUri || media?.filePath;
+					const fileName = media?.fileName || media?.contentUri || media?.filePath || urlQRInvite;
 					// Add to preview immediately
 					setAttachmentPreview((prev) => [
 						...prev,
 						{
-							url: media?.contentUri || media?.filePath,
+							url: media?.contentUri || media?.filePath || urlQRInvite,
 							filename: fileName?.originalFilename || fileName,
 							isUploaded: false,
 							error: false
@@ -352,8 +356,9 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					const pathCompressed = checkIsVideo
 						? await compressVideo(media?.filePath || media?.contentUri)
 						: checkIsImage
-							? await compressImage(media?.filePath || media?.contentUri, media?.contentUri)
-							: media?.filePath || media?.contentUri;
+							? await compressImage(media?.filePath || media?.contentUri || urlQRInvite, media?.contentUri || urlQRInvite)
+							: media?.filePath || media?.contentUri || urlQRInvite;
+					save(STORAGE_QR_INVITE_CACHE, null);
 					let cleanPath = pathCompressed || '';
 					if (Platform.OS === 'ios') {
 						cleanPath = cleanPath.replace(/^file:\/\//, '');
@@ -367,7 +372,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					if (checkIsImage) {
 						await new Promise((resolve, reject) => {
 							ImageRN.getSize(
-								media?.contentUri || media?.filePath,
+								media?.contentUri || media?.filePath || urlQRInvite,
 								(w, h) => {
 									width = w;
 									height = h;
@@ -381,9 +386,9 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 						});
 					}
 					return {
-						uri: media?.contentUri || media?.filePath,
-						name: media?.fileName || media?.contentUri || media?.filePath,
-						type: media?.mimeType,
+						uri: media?.contentUri || media?.filePath || urlQRInvite,
+						name: media?.fileName || media?.contentUri || media?.filePath || urlQRInvite,
+						type: media?.mimeType || 'image/png',
 						size: fileSize,
 						width,
 						height,

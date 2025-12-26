@@ -48,10 +48,13 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 	const styles = style(themeValue, widthImage);
 	const dispatch = useAppDispatch();
 	const currentChannelId = channelId;
-	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
+	const galleryAttachmentsByChannel = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
 	const paginationState = useAppSelector((state) => selectGalleryPaginationByChannel(state, currentChannelId));
 	const currentClanId = useAppSelector((state) => selectCurrentClanId(state as any)) ?? '';
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
+	const attachments = useMemo(() => {
+		return galleryAttachmentsByChannel?.filter((attachment) => !attachment?.url?.includes(`${process.env.NX_BASE_IMG_URL}/stickers`)) ?? [];
+	}, [galleryAttachmentsByChannel]);
 
 	useEffect(() => {
 		moment.locale(currentLanguage);

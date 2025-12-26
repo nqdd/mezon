@@ -278,12 +278,15 @@ export default function EmojiSelectorContainer({
 				case 'SEARCH_AREA':
 					return (
 						<View>
-							<LinearGradient
-								start={{ x: 1, y: 0 }}
-								end={{ x: 0, y: 0 }}
-								colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-								style={[StyleSheet.absoluteFillObject]}
-							/>
+							{!isReactMessage && (
+								<LinearGradient
+									start={{ x: 1, y: 0 }}
+									end={{ x: 0, y: 0 }}
+									colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+									style={[StyleSheet.absoluteFillObject]}
+								/>
+							)}
+
 							<View style={styles.textInputWrapper}>
 								<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_18} width={size.s_18} color={themeValue.text} />
 								<TextInput

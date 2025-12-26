@@ -1,4 +1,4 @@
-import { ActionEmitEvent, load, STORAGE_SESSION_KEY } from '@mezon/mobile-components';
+import { ActionEmitEvent, load, save, STORAGE_QR_INVITE_CACHE, STORAGE_SESSION_KEY } from '@mezon/mobile-components';
 import { authActions, directActions, selectHasInternetMobile, selectIsLogin, useAppDispatch } from '@mezon/store-mobile';
 import { MobileEventSessionEmitter, useMezon } from '@mezon/transport';
 import type { IWithError } from '@mezon/utils';
@@ -59,6 +59,7 @@ const RefreshSessionWrapper = ({ children }) => {
 
 	const refreshSessionLoader = useCallback(async () => {
 		const configSession = await getSessionCacheKey();
+		save(STORAGE_QR_INVITE_CACHE, null);
 		if (configSession && clientRef?.current) {
 			clientRef.current.setBasePath(configSession.host as string, configSession.port as string, process.env.NX_CHAT_APP_API_SECURE === 'true');
 		}

@@ -1,9 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import {
 	ACTION_SHOW_IMAGE,
+	CLEAR_SCREEN_SOURCES_CACHE,
 	GET_APP_VERSION,
 	GET_DEVICE_ID,
 	LAUNCH_APP_WINDOW,
+	LOAD_MORE_SCREEN_SOURCES,
 	NOTIFICATION_CLICKED,
 	OPEN_NEW_WINDOW,
 	REQUEST_PERMISSION_SCREEN,
@@ -48,6 +50,8 @@ contextBridge.exposeInMainWorld('electron', {
 		return ipcRenderer.invoke(ACTION_SHOW_IMAGE, { payload: { action, fileURL: url } });
 	},
 	getScreenSources: (source: string) => ipcRenderer.invoke(REQUEST_PERMISSION_SCREEN, source),
+	loadMoreScreenSources: (source: string, offset: number) => ipcRenderer.invoke(LOAD_MORE_SCREEN_SOURCES, source, offset),
+	clearScreenSourcesCache: (source?: string) => ipcRenderer.invoke(CLEAR_SCREEN_SOURCES_CACHE, source),
 	setRatioWindow: (ratio: boolean) => ipcRenderer.invoke(SET_RATIO_WINDOW, ratio),
 	launchAppWindow: (props: string) => {
 		return ipcRenderer.invoke(LAUNCH_APP_WINDOW, props);
