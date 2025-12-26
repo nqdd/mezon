@@ -1,7 +1,9 @@
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { EmitterSubscription } from 'react-native';
 import { Animated, DeviceEventEmitter, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'react-native-linear-gradient';
 import { createStyles } from './PanelKeyboard.styles';
@@ -11,6 +13,10 @@ import HeaderAttachmentPicker from './components/AttachmentPicker/HeaderAttachme
 import EmojiPicker from './components/EmojiPicker';
 import type { EMessageActionType } from './enums';
 import type { IMessageActionNeedToResolve } from './types';
+
+let globalPanelKeyboardListener: EmitterSubscription | null = null;
+let globalShowKeyboardListener: EmitterSubscription | null = null;
+let activeInstanceId: string | null = null;
 
 interface IProps {
 	directMessageId?: string;
@@ -27,6 +33,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	const [heightKeyboardShow, setHeightKeyboardShow] = useState<number>(0);
 	const [messageActionNeedToResolve, setMessageActionNeedToResolve] = useState<IMessageActionNeedToResolve | null>(null);
 	const spacerHeightAnim = useRef(new Animated.Value(0)).current;
+	const instanceIdRef = useRef(`panel-keyboard-${Date.now()}-${Math.random()}`);
 
 	const styles = useMemo(() => createStyles(themeValue), [themeValue]);
 
@@ -106,25 +113,45 @@ const PanelKeyboard = React.memo((props: IProps) => {
 					toValue: 0,
 					duration: 200,
 					useNativeDriver: false
-				}).start(() => {
-					heightKeyboardShowRef.current = 0;
-					setHeightKeyboardShow(0);
-					setTypeKeyboardBottomSheet('text');
-				});
+				}).start();
+				heightKeyboardShowRef.current = 0;
+				setHeightKeyboardShow(0);
+				setTypeKeyboardBottomSheet('text');
 			}
 		},
 		[spacerHeightAnim]
 	);
 
-	useEffect(() => {
-		const eventListener = DeviceEventEmitter.addListener(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, ({ isShow = false, mode = '' }) => {
-			onShowKeyboardBottomSheet(isShow, mode as string);
-		});
+	useFocusEffect(
+		useCallback(() => {
+			const currentInstanceId = instanceIdRef.current;
+			if (globalPanelKeyboardListener) {
+				globalPanelKeyboardListener.remove();
+				globalPanelKeyboardListener = null;
+			}
 
-		return () => {
-			eventListener.remove();
-		};
-	}, [onShowKeyboardBottomSheet]);
+			activeInstanceId = currentInstanceId;
+
+			globalPanelKeyboardListener = DeviceEventEmitter.addListener(
+				ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET,
+				({ isShow = false, mode = '' }) => {
+					if (activeInstanceId === currentInstanceId) {
+						onShowKeyboardBottomSheet(isShow, mode as string);
+					}
+				}
+			);
+
+			return () => {
+				if (activeInstanceId === currentInstanceId) {
+					if (globalPanelKeyboardListener) {
+						globalPanelKeyboardListener.remove();
+						globalPanelKeyboardListener = null;
+					}
+					activeInstanceId = null;
+				}
+			};
+		}, [onShowKeyboardBottomSheet])
+	);
 
 	const onClose = useCallback(
 		(isFocusKeyboard = true) => {
@@ -134,14 +161,31 @@ const PanelKeyboard = React.memo((props: IProps) => {
 		[onShowKeyboardBottomSheet]
 	);
 
-	useEffect(() => {
-		const showKeyboard = DeviceEventEmitter.addListener(ActionEmitEvent.SHOW_KEYBOARD, (value) => {
-			setMessageActionNeedToResolve(value);
-		});
-		return () => {
-			showKeyboard.remove();
-		};
-	}, []);
+	useFocusEffect(
+		useCallback(() => {
+			const currentInstanceId = instanceIdRef.current;
+
+			if (globalShowKeyboardListener) {
+				globalShowKeyboardListener.remove();
+				globalShowKeyboardListener = null;
+			}
+
+			globalShowKeyboardListener = DeviceEventEmitter.addListener(ActionEmitEvent.SHOW_KEYBOARD, (value) => {
+				if (activeInstanceId === currentInstanceId) {
+					setMessageActionNeedToResolve(value);
+				}
+			});
+
+			return () => {
+				if (activeInstanceId === currentInstanceId) {
+					if (globalShowKeyboardListener) {
+						globalShowKeyboardListener.remove();
+						globalShowKeyboardListener = null;
+					}
+				}
+			};
+		}, [])
+	);
 
 	const handleSheetChange = async (index: number) => {
 		if (index === -1) {

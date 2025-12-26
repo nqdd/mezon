@@ -22,6 +22,7 @@ import { style as stylesFn } from './styles';
 interface IImageListModalProps {
 	imageSelected?: AttachmentEntity;
 	channelId: string;
+	disableGoback?: boolean;
 }
 
 interface IVisibleToolbarConfig {
@@ -29,12 +30,11 @@ interface IVisibleToolbarConfig {
 	showFooter: boolean;
 }
 const ORIGIN_SCALE = 1;
-const TIME_TO_HIDE_THUMBNAIL = 5000;
 const TIME_TO_SHOW_SAVE_IMAGE_SUCCESS = 3000;
 
 export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const { width, height } = useWindowDimensions();
-	const { imageSelected, channelId } = props;
+	const { imageSelected, channelId, disableGoback = false } = props;
 	const { t } = useTranslation(['common', 'message']);
 	const styles = stylesFn();
 	const [currentImage, setCurrentImage] = useState<AttachmentEntity | null>(imageSelected);
@@ -44,7 +44,6 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	const galleryAttachmentsByChannel = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, channelId));
 
 	const ref = useRef<GalleryRef>(null);
-	const footerTimeoutRef = useRef<NodeJS.Timeout>(null);
 	const currentScaleRef = useRef<number>(1);
 	const imageSavedTimeoutRef = useRef<NodeJS.Timeout>(null);
 
@@ -108,14 +107,6 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		[currentImage, formattedImageList]
 	);
 
-	const setTimeoutHideFooter = useCallback(() => {
-		footerTimeoutRef.current = setTimeout(() => {
-			updateToolbarConfig({
-				showFooter: false
-			});
-		}, TIME_TO_HIDE_THUMBNAIL);
-	}, [updateToolbarConfig]);
-
 	const onTap = useCallback(() => {
 		updateToolbarConfig({
 			showHeader: !visibleToolbarConfig.showHeader,
@@ -123,27 +114,16 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 		});
 	}, [updateToolbarConfig, visibleToolbarConfig?.showHeader]);
 
-	const clearTimeoutFooter = () => {
-		footerTimeoutRef.current && clearTimeout(footerTimeoutRef.current);
-	};
-
 	const onPanStart = useCallback(() => {
-		clearTimeoutFooter();
-		if (visibleToolbarConfig.showFooter) {
-			setTimeoutHideFooter();
-			return;
-		}
 		if (!visibleToolbarConfig.showFooter && currentScaleRef?.current === 1) {
 			updateToolbarConfig({ showFooter: true });
-			setTimeoutHideFooter();
 			return;
 		}
-	}, [setTimeoutHideFooter, updateToolbarConfig, visibleToolbarConfig?.showFooter]);
+	}, [updateToolbarConfig, visibleToolbarConfig?.showFooter]);
 
 	const onDoubleTap = useCallback(
 		(toScale: number) => {
 			if (toScale > ORIGIN_SCALE) {
-				clearTimeoutFooter();
 				updateToolbarConfig({
 					showHeader: false,
 					showFooter: false
@@ -160,14 +140,9 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 				setCurrentImage(image);
 				ref.current?.setIndex(imageIndexSelected);
 				ref.current?.reset();
-
-				if (visibleToolbarConfig.showFooter) {
-					clearTimeoutFooter();
-					setTimeoutHideFooter();
-				}
 			}
 		},
-		[formattedImageList, setTimeoutHideFooter, visibleToolbarConfig?.showFooter]
+		[formattedImageList]
 	);
 
 	const renderItem = useCallback(({ item, index, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
@@ -223,20 +198,6 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 	}, []);
 
 	useEffect(() => {
-		if (visibleToolbarConfig.showFooter) {
-			clearTimeout(footerTimeoutRef.current);
-			setTimeoutHideFooter();
-		}
-	}, [visibleToolbarConfig?.showFooter, currentImage?.id, setTimeoutHideFooter]);
-
-	useEffect(() => {
-		return () => {
-			footerTimeoutRef.current && clearTimeout(footerTimeoutRef.current);
-			imageSavedTimeoutRef.current && clearTimeout(imageSavedTimeoutRef.current);
-		};
-	}, []);
-
-	useEffect(() => {
 		const sub = Dimensions.addEventListener('change', async ({ window }) => {
 			await sleep(100);
 			ref?.current?.reset();
@@ -250,15 +211,15 @@ export const ImageListModal = React.memo((props: IImageListModalProps) => {
 
 	return (
 		<View style={styles.container}>
-			{visibleToolbarConfig.showHeader && (
-				<RenderHeaderModal
-					imageSelected={currentImage}
-					onImageSaved={onImageSaved}
-					onLoading={onLoading}
-					onImageCopy={onImageCopy}
-					onImageShare={onImageShare}
-				/>
-			)}
+			<RenderHeaderModal
+				imageSelected={currentImage}
+				onImageSaved={onImageSaved}
+				visible={visibleToolbarConfig.showHeader}
+				onLoading={onLoading}
+				onImageCopy={onImageCopy}
+				onImageShare={onImageShare}
+				disableGoback={disableGoback}
+			/>
 			<GalleryAwesome
 				ref={ref}
 				style={styles.galleryContainer}

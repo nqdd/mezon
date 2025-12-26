@@ -1,4 +1,4 @@
-import { attachmentActions, channelMembersActions, selectCurrentClanId, selectCurrentUserId, useAppDispatch } from '@mezon/store-mobile';
+import { channelMembersActions, galleryActions, selectCurrentClanId, selectCurrentUserId, useAppDispatch } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -69,7 +69,17 @@ export const AssetsViewer = React.memo(({ channelId }: { channelId: string }) =>
 			if (index === 0) {
 				dispatch(channelMembersActions.fetchChannelMembers({ clanId: currentClanId, channelId, channelType: currentChannel?.type }));
 			}
-			if (index === 1 || index === 2) dispatch(attachmentActions.fetchChannelAttachments({ clanId: currentClanId, channelId }));
+			if (index === 1 || index === 2)
+				dispatch(
+					galleryActions.fetchGalleryAttachments({
+						clanId: currentClanId,
+						channelId,
+						limit: 30,
+						direction: 'before',
+						fileType: 'all',
+						mediaFilter: 'all'
+					})
+				);
 		},
 		[channelId, currentChannel?.type, currentClanId, dispatch]
 	);

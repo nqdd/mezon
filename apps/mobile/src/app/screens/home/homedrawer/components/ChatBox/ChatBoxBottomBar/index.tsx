@@ -10,7 +10,7 @@ import {
 	save,
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
-import { size, useTheme } from '@mezon/mobile-ui';
+import { useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
 import {
 	emojiSuggestionActions,
@@ -104,6 +104,7 @@ interface IChatInputProps {
 	onDeleteMessageActionNeedToResolve?: () => void;
 	isPublic: boolean;
 	topicChannelId?: string;
+	hiddenAdvanceFunc?: boolean;
 }
 
 interface IEphemeralTargetUserInfo {
@@ -170,7 +171,8 @@ export const ChatBoxBottomBar = memo(
 		messageAction,
 		onDeleteMessageActionNeedToResolve,
 		isPublic = false,
-		topicChannelId = ''
+		topicChannelId = '',
+		hiddenAdvanceFunc = false
 	}: IChatInputProps) => {
 		const { themeValue } = useTheme();
 		const dispatch = useAppDispatch();
@@ -768,6 +770,7 @@ export const ChatBoxBottomBar = memo(
 						isAvailableSending={textChange?.length > 0}
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
+						hiddenAdvanceFunc={hiddenAdvanceFunc}
 					/>
 					<RecordMessageProcessing />
 					<View style={styles.inputWrapper}>
@@ -807,7 +810,7 @@ export const ChatBoxBottomBar = memo(
 								spellCheck={false}
 								numberOfLines={4}
 								textBreakStrategy="simple"
-								style={[styles.inputStyle, !textValueInputRef?.current && { height: size.s_40 }]}
+								style={[styles.inputStyle]}
 								children={RenderTextContent({ text: textValueInputRef?.current })}
 								onSelectionChange={textInputProps?.onSelectionChange}
 								onPressIn={handlePressIn}

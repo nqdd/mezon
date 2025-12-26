@@ -1,6 +1,6 @@
 import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
 export const style = (colors: Attributes) =>
@@ -360,7 +360,7 @@ export const style = (colors: Attributes) =>
 		},
 		raiseHandIcon: {
 			position: 'absolute',
-			bottom: -size.s_100,
+			bottom: Platform.OS === 'ios' ? -size.s_50 : -size.s_100,
 			right: -size.s_40,
 			height: size.s_36,
 			alignItems: 'center',

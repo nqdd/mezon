@@ -3,26 +3,30 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	accountActions,
+	type ChannelsEntity,
 	getStoreAsync,
 	referencesActions,
 	selectAnonymousMode,
 	selectChannelById,
+	selectCurrentChannel,
+	selectCurrentClanId,
 	selectCurrentClanPreventAnonymous,
 	selectCurrentDM,
+	selectCurrentTopicId,
 	selectDmGroupCurrent,
 	useAppDispatch,
-	useAppSelector,
-	type ChannelsEntity
+	useAppSelector
 } from '@mezon/store-mobile';
-import { TypeMessage, checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile } from '@mezon/utils';
+import { checkIsThread, getMaxFileSize, isFileSizeExceeded, isImageFile, TypeMessage } from '@mezon/utils';
 import Geolocation from '@react-native-community/geolocation';
-import { errorCodes, pick, types, type DocumentPickerResponse } from '@react-native-documents/picker';
+import { type DocumentPickerResponse, errorCodes, pick, types } from '@react-native-documents/picker';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, Keyboard, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import ShareLocationConfirmModal from '../../../../../components/ShareLocationConfirmModal/ShareLocationConfirmModal';
@@ -83,9 +87,11 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 	const { t } = useTranslation(['message', 'sharing', 'common']);
 	const dispatch = useAppDispatch();
 
-	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId || ''));
+	const currentChannel = useSelector(selectCurrentChannel);
+	const clanId = useAppSelector(selectCurrentClanId);
+	const currentTopicId = useAppSelector(selectCurrentTopicId);
 	const currentDmGroup = useAppSelector(selectDmGroupCurrent(directMessageId));
-	const anonymousMode = useAppSelector((state) => selectAnonymousMode(state, currentChannel?.clan_id));
+	const anonymousMode = useAppSelector((state) => selectAnonymousMode(state, clanId));
 	const currentClanPreventAnonymous = useAppSelector(selectCurrentClanPreventAnonymous);
 
 	const channelOrDirect = useMemo(() => (directMessageId ? currentDmGroup : currentChannel), [directMessageId, currentDmGroup, currentChannel]);
@@ -103,7 +109,8 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 
 	const { sendMessage } = useChatSending({
 		mode,
-		channelOrDirect
+		channelOrDirect,
+		fromTopic: !!currentTopicId
 	});
 
 	const advancedFunctions: AdvancedFunctionItem[] = useMemo(() => {
@@ -121,7 +128,8 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 				backgroundColor: FUNCTION_COLORS.ATTACHMENT
 			},
 			!directMessageId &&
-				currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL && {
+				currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
+				!currentTopicId && {
 					id: 'create_thread' as const,
 					label: t('common:threads'),
 					icon: IconCDN.threadPlusIcon,
@@ -161,7 +169,7 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 		];
 
 		return allFunctions.filter((item): item is AdvancedFunctionItem => Boolean(item));
-	}, [directMessageId, currentChannel?.type, anonymousMode, t]);
+	}, [t, directMessageId, currentChannel?.type, currentTopicId, currentClanPreventAnonymous, anonymousMode]);
 
 	const handleCreateThread = useCallback(() => {
 		navigation.navigate(APP_SCREEN.MENU_THREAD.STACK, {
@@ -304,8 +312,8 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 	}, [handleBuzzMessage]);
 
 	const handleToggleAnonymous = useCallback(() => {
-		dispatch(accountActions.setAnonymousMode(currentChannel?.clan_id));
-	}, [currentChannel?.clan_id, dispatch]);
+		dispatch(accountActions.setAnonymousMode(clanId));
+	}, [clanId, dispatch]);
 
 	const handleTransferFunds = useCallback(() => {
 		navigation.push(APP_SCREEN.WALLET, {
@@ -370,7 +378,6 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 					]
 				})
 			);
-			DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, {});
 		} catch (err) {
 			if (err?.code === errorCodes.OPERATION_CANCELED) {
 				// User cancelled the picker
@@ -407,10 +414,10 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 					isShow: false,
 					mode: 'force'
 				});
-				onClose(SHOULD_FOCUS_AFTER_ACTION.includes(_item.id));
+				onClose(SHOULD_FOCUS_AFTER_ACTION.includes(_item.id) && !currentTopicId);
 			}
 		},
-		[actionHandlers, onClose]
+		[actionHandlers, currentTopicId, onClose]
 	);
 
 	const renderFunctionItem = useCallback(

@@ -100,7 +100,6 @@ export const style = (colors: Attributes, isTabletLandscape: boolean) =>
 			width: '100%'
 		},
 		detail: {
-			backgroundColor: colors.secondaryLight,
 			flexDirection: 'row',
 			flexWrap: 'wrap'
 		},

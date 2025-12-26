@@ -1,6 +1,6 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { attachmentActions, useAppDispatch } from '@mezon/store-mobile';
+import { galleryActions, useAppDispatch } from '@mezon/store-mobile';
 import { notImplementForGifOrStickerSendFromPanel } from '@mezon/utils';
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
@@ -17,6 +17,7 @@ interface IProps {
 	onLongPressImage?: (image?: ApiMessageAttachment) => void;
 	clanId: string;
 	channelId: string;
+	messageCreatTime: string;
 }
 
 const isSecureTenorUrl = (url: string | undefined): boolean => {
@@ -48,7 +49,7 @@ const classifyAttachments = (attachments: ApiMessageAttachment[]) => {
 	return { videos, images, documents };
 };
 
-export const MessageAttachment = React.memo(({ attachments, onLongPressImage, clanId, channelId }: IProps) => {
+export const MessageAttachment = React.memo(({ attachments, onLongPressImage, clanId, channelId, messageCreatTime }: IProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const dispatch = useAppDispatch();
@@ -67,13 +68,23 @@ export const MessageAttachment = React.memo(({ attachments, onLongPressImage, cl
 
 	const onPressImage = useCallback(
 		async (image: any) => {
-			await dispatch(attachmentActions.fetchChannelAttachments({ clanId, channelId }));
+			const messageTimestamp = messageCreatTime ? Math.floor(new Date(messageCreatTime).getTime() / 1000) : undefined;
+			const beforeTimestamp = messageTimestamp ? messageTimestamp + 86400 : undefined;
+			dispatch(
+				galleryActions.fetchGalleryAttachments({
+					clanId,
+					channelId,
+					limit: 20,
+					mediaFilter: 'all',
+					before: beforeTimestamp
+				})
+			);
 			const data = {
-				children: <ImageListModal channelId={channelId} imageSelected={image} />
+				children: <ImageListModal channelId={channelId} imageSelected={image} disableGoback={true} />
 			};
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
 		},
-		[channelId, clanId, dispatch]
+		[channelId, clanId, dispatch, messageCreatTime]
 	);
 
 	const hasMultipleMedia = useMemo(() => {

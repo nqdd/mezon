@@ -1,7 +1,7 @@
-import { baseColor, size } from '@mezon/mobile-ui';
+import { type Attributes, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = () =>
+export const style = (colors?: Attributes) =>
 	StyleSheet.create({
 		messageBoxTop: {
 			gap: size.s_2,
@@ -43,8 +43,23 @@ export const style = () =>
 			borderRadius: 3
 		},
 		option: {
-			flexDirection: 'row',
+			zIndex: 100,
 			gap: size.s_10
+		},
+		itemOption: {
+			flexDirection: 'row',
+			justifyContent: 'space-between',
+			alignItems: 'center',
+			gap: size.s_6,
+			borderBottomWidth: 1,
+			borderBottomColor: colors?.secondaryLight,
+			paddingBottom: size.s_10
+		},
+		textOption: {
+			fontSize: size.medium,
+			fontWeight: '600',
+			color: colors?.text,
+			paddingRight: size.s_30
 		},
 		container: {
 			flex: 1
@@ -135,5 +150,13 @@ export const style = () =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			backgroundColor: 'rgba(0,0,0,0.3)'
+		},
+		iconTooltip: {
+			borderRadius: size.s_30,
+			paddingLeft: size.s_20,
+			height: size.s_30,
+			justifyContent: 'center',
+			alignItems: 'center',
+			zIndex: 1000
 		}
 	});

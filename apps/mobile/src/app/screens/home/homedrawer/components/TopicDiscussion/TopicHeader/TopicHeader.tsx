@@ -1,7 +1,7 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
 import { selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
-import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
+import { convertTimeString, DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR } from '@mezon/utils';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -86,6 +86,7 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 							attachments={firstMessage?.attachments || []}
 							clanId={firstMessage?.clan_id || ''}
 							channelId={firstMessage?.channel_id || ''}
+							messageCreatTime={firstMessage?.create_time}
 						/>
 					)}
 					{!!firstMessage?.content?.embed?.[0] && (
