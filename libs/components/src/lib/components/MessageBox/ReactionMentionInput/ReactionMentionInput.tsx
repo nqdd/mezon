@@ -8,12 +8,12 @@ import {
 	referencesActions,
 	selectAddEmojiState,
 	selectAllAccount,
-	selectAllChannels,
 	selectAllRolesClan,
 	selectAnonymousMode,
 	selectAttachmentByChannelId,
 	selectCloseMenu,
 	selectCurrentTopicId,
+	selectDataMentions,
 	selectDataReferences,
 	selectEmojiObjSuggestion,
 	selectIdMessageRefEdit,
@@ -42,6 +42,7 @@ import {
 	CHANNEL_INPUT_ID,
 	CREATING_TOPIC,
 	ID_MENTION_HERE,
+	IS_SAFARI,
 	MIN_THRESHOLD_CHARS,
 	QUICK_MENU_TYPE,
 	RECENT_EMOJI_CATEGORY,
@@ -137,7 +138,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 
 	const dispatch = useAppDispatch();
 	const openThreadMessageState = useSelector(selectOpenThreadMessageState);
-	const anonymousMode = useSelector(selectAnonymousMode);
+	const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentChannel?.clan_id as string));
 	const [mentionEveryone, setMentionEveryone] = useState(false);
 	const addEmojiState = useSelector(selectAddEmojiState);
 	const emojiPicked = useSelector(selectEmojiObjSuggestion);
@@ -176,12 +177,11 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	const scopeId = props.isTopic ? currTopicId || CREATING_TOPIC : props.currentChannelId!;
 
 	const attachmentFiltered = useAppSelector((state) => selectAttachmentByChannelId(state, scopeId || ''));
-
-	const isDm = props.mode === ChannelStreamMode.STREAM_MODE_DM;
+	const isDm = props.mode === ChannelStreamMode.STREAM_MODE_DM || props.mode === ChannelStreamMode.STREAM_MODE_GROUP;
 
 	const userProfile = useSelector(selectAllAccount);
 	const idMessageRefEdit = useSelector(selectIdMessageRefEdit);
-	const allChannels = useAppSelector(selectAllChannels);
+	const allChannels = useAppSelector((state) => selectDataMentions(state, isDm));
 	const { setOpenThreadMessageState, checkAttachment } = useReference(scopeId || '');
 	const [mentionData, setMentionData] = useState<ApiMessageMention[]>([]);
 	const [displayPlaintext, setDisplayPlaintext] = useState<string>('');
@@ -255,7 +255,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 
 			const store = getStore();
 			const userIds = selectMemberIdsByChannelId(store.getState(), channel.id as string);
-			const needsJoin = !userProfile?.user?.id ? false : !userIds.includes(userProfile?.user?.id);
+			const needsJoin = !userProfile?.user?.id ? false : !userIds?.includes(userProfile?.user?.id);
 
 			if (isArchived) {
 				await dispatch(
@@ -716,14 +716,18 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	}, [attachmentFiltered?.files]);
 
 	const hashtagData = useMemo(() => {
-		return allChannels
-			.map((item) => ({
-				id: item?.channel_id ?? '',
-				display: item?.channel_label ?? '',
-				subText: item?.category_name ?? ''
-			}))
-			.filter((mention) => mention.id || mention.display || mention.subText);
-	}, [isDm, allChannels]);
+		return allChannels.reduce<Array<{ id: string; display: string; subText: string }>>((acc, item) => {
+			const id = item?.channel_id ?? '';
+			const display = item?.channel_label ?? '';
+			const subText = ((item as ChannelsEntity)?.category_name || item?.clan_name) ?? '';
+
+			if (id || display || subText) {
+				acc.push({ id, display, subText });
+			}
+
+			return acc;
+		}, []);
+	}, [props.mode, allChannels]);
 
 	const isReplyOnChannel = dataReferences.message_ref_id && !props.isTopic ? true : false;
 	const isReplyOnTopic = dataReferencesTopic.message_ref_id && props.isTopic ? true : false;
@@ -1007,9 +1011,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					onChange={onChangeMentionInput}
 					onKeyDown={onKeyDown}
 					placeholder={ephemeralTargetUserId ? t('ephemeralMessage', { username: ephemeralTargetUserDisplay }) : t('placeholder')}
-					className={`mentions min-h-11 text-theme-message rounded-lg border-none max-h-[350px] overflow-auto thread-scroll ${
-						props.isThread && !threadCurrentChannel ? 'p-2.5' : 'py-[9px] pr-[120px] pl-[9px]'
-					}`}
+					className={`mentions min-h-11 text-theme-message rounded-lg border-none max-h-[350px] overflow-auto ${
+						IS_SAFARI ? '' : 'thread-scroll '
+					}${props.isThread && !threadCurrentChannel ? 'p-2.5' : 'py-[9px] pr-[120px] pl-[9px]'}`}
 					onSend={(formattedText: FormattedText) => {
 						handleSendWithFormattedText(formattedText, anonymousMode);
 					}}

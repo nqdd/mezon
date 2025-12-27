@@ -592,10 +592,10 @@ const UserProfile = React.memo(
 						)}
 					</View>
 
-					{showAction && <UserVoiceInfo userId={userId || user?.id || ''} />}
+					{!isDMGroup && <UserVoiceInfo userId={userId || user?.id || ''} />}
 
 					{isShowUserContent && (
-						<View style={[!isDMGroup && styles.roleGroup]}>
+						<View style={styles.roleGroup}>
 							{!isDMGroup && (userById?.user?.create_time || user?.create_time || user?.user?.create_time) && (
 								<View style={styles.memberSince}>
 									<Text style={styles.title}>{t('userInfoDM.mezonMemberSince')}</Text>

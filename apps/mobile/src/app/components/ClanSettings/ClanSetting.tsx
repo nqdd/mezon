@@ -27,9 +27,13 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 		EPermission.clanOwner
 	]);
 
+	const isShowOverviewOption = useMemo(() => {
+		return hasAdminPermission || isClanOwner;
+	}, [hasAdminPermission, isClanOwner]);
+
 	const isCanEditRole = useMemo(() => {
-		return hasAdminPermission || isClanOwner || hasManageClanPermission;
-	}, [hasAdminPermission, hasManageClanPermission, isClanOwner]);
+		return isShowOverviewOption || hasManageClanPermission;
+	}, [isShowOverviewOption, hasManageClanPermission]);
 
 	const settingsMenu: IMezonMenuItemProps[] = [
 		{
@@ -38,7 +42,8 @@ export function ClanSetting({ navigation }: MenuClanScreenProps<ClanSettingsScre
 				navigation.navigate(APP_SCREEN.MENU_CLAN.OVERVIEW_SETTING);
 			},
 			expandable: true,
-			icon: <MezonIconCDN icon={IconCDN.circleInformation} color={themeValue.text} />
+			icon: <MezonIconCDN icon={IconCDN.circleInformation} color={themeValue.text} />,
+			isShow: isShowOverviewOption
 		},
 		{
 			title: t('menu.settings.auditLog'),

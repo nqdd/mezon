@@ -31,7 +31,6 @@ import {
 	getIsShowPopupForward,
 	getStore,
 	onboardingActions,
-	selectAllAppChannelsListShowOnPopUp,
 	selectChannelById,
 	selectChatStreamWidth,
 	selectClanNumber,
@@ -67,31 +66,9 @@ import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import ChannelStream from '../channel/ChannelStream';
-import DraggableModal from '../channel/DraggableModal/DraggableModal';
 import { MainContent } from './MainContent';
 import PopupQuickMess from './PopupQuickMess';
 import DirectUnread from './directUnreads';
-
-const DraggableModalList = memo(({ currentClanId }: { currentClanId: string }) => {
-	const allChannelApp = useSelector(selectAllAppChannelsListShowOnPopUp);
-	const groupedByClan = useMemo(() => {
-		if (!allChannelApp) return {};
-		return allChannelApp?.reduce<Record<string, typeof allChannelApp>>((acc, item) => {
-			if (item?.clan_id) {
-				(acc[item?.clan_id] ||= []).push(item);
-			}
-			return acc;
-		}, {});
-	}, [allChannelApp]);
-
-	return (
-		<>
-			{Object.entries(groupedByClan).map(([clanId, apps]) => (
-				<DraggableModal appChannelList={apps} key={clanId} inVisible={clanId !== currentClanId} />
-			))}
-		</>
-	);
-});
 
 function MyApp() {
 	const dispatch = useAppDispatch();
@@ -129,7 +106,8 @@ function MyApp() {
 					dispatch(accountActions.setTopicAnonymousMode());
 					return;
 				}
-				dispatch(accountActions.setAnonymousMode());
+				if (!currentClanId) return;
+				dispatch(accountActions.setAnonymousMode(currentClanId));
 			}
 			if (event[prefixKey] && event.key === '-' && isElectron()) {
 				event.preventDefault();
@@ -200,8 +178,6 @@ function MyApp() {
 
 	return (
 		<div className="relative overflow-hidden w-full h-full">
-			<DraggableModalList currentClanId={currentClanId as string} />
-
 			<MemoizedErrorModals />
 
 			<div

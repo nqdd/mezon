@@ -4,8 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { setTimeout } from '@testing-library/react-native/build/helpers/timers';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { DeviceEventEmitter, Keyboard, Platform, StatusBar, View } from 'react-native';
-import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { DeviceEventEmitter, Keyboard, Platform, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AgeRestrictedModal from '../../../components/AgeRestricted/AgeRestrictedModal';
 import NotificationSetting from '../../../components/NotificationSetting';
@@ -13,10 +12,10 @@ import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import ChannelAppHotbar from './ChannelAppHotbar';
 import ChannelMessages from './ChannelMessages';
 import { ChatBox } from './ChatBox';
+import LicenseAgreement from './components/LicenseAgreement';
 import DrawerListener from './DrawerListener';
 import HomeDefaultHeader from './HomeDefaultHeader';
 import PanelKeyboard from './PanelKeyboard';
-import LicenseAgreement from './components/LicenseAgreement';
 import { style } from './styles';
 // HomeDefault check
 const HomeDefault = React.memo(
@@ -71,11 +70,7 @@ const HomeDefault = React.memo(
 		}, []);
 
 		return (
-			<KeyboardAvoidingView
-				style={styles.channelView}
-				behavior={'padding'}
-				keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : StatusBar.currentHeight}
-			>
+			<View style={styles.channelView}>
 				<LinearGradient
 					start={{ x: 1, y: 0 }}
 					end={{ x: 0, y: 0 }}
@@ -107,7 +102,7 @@ const HomeDefault = React.memo(
 				<PanelKeyboard currentChannelId={channelId} currentClanId={clanId} />
 
 				<AgeRestrictedModal />
-			</KeyboardAvoidingView>
+			</View>
 		);
 	},
 	(prevProps, nextProps) => {

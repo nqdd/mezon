@@ -1,6 +1,6 @@
 import type { Attributes } from '@mezon/mobile-ui';
 import { baseColor, size } from '@mezon/mobile-ui';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { transparent } from 'tailwindcss/colors';
 
 export const style = (colors: Attributes) =>
@@ -190,10 +190,22 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_10,
 			width: size.s_90
 		},
+		reactionRaiseHandContainer: {
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_20,
+			overflow: 'hidden'
+		},
 		senderName: {
 			fontSize: size.s_10,
 			color: colors.text,
 			textAlign: 'center'
+		},
+		senderNameRaiseHand: {
+			fontSize: size.s_10,
+			color: colors.text,
+			textAlign: 'center',
+			maxWidth: size.s_100
 		},
 		focusedContainer: {
 			width: '100%',
@@ -314,6 +326,13 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			zIndex: 1000
 		},
+		raiseHandWrapper: {
+			padding: size.s_4,
+			borderRadius: size.s_40,
+			backgroundColor: colors.black,
+			flexDirection: 'row',
+			gap: size.s_8
+		},
 		emojiImage: {
 			width: size.s_36,
 			height: size.s_36
@@ -338,5 +357,15 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_10
+		},
+		raiseHandIcon: {
+			position: 'absolute',
+			bottom: Platform.OS === 'ios' ? -size.s_50 : -size.s_100,
+			right: -size.s_40,
+			height: size.s_36,
+			alignItems: 'center',
+			justifyContent: 'center',
+			flexDirection: 'row',
+			zIndex: 1000
 		}
 	});

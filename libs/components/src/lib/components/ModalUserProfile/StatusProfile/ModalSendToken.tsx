@@ -219,7 +219,7 @@ const ModalSendToken = ({
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className="bg-theme-chat rounded-xl overflow-hidden w-[480px]">
+			<div className="bg-theme-chat rounded-xl overflow-hidden w-[90%] md:w-[480px]">
 				<div className="flex items-center justify-between p-6 border-b dark:border-gray-700 border-gray-200">
 					<div className="flex items-center gap-3">
 						<div className="w-10 h-10 rounded-full btn-primary text-theme-primary-hover flex items-center justify-center">

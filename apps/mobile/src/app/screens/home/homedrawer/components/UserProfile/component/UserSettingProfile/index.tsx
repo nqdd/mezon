@@ -145,8 +145,7 @@ const UserSettingProfile = ({ user, showActionOutside = true }: IUserSettingProf
 				value: EActionSettingUserProfile.ThreadRemove,
 				icon: <MezonIconCDN icon={IconCDN.removeFriend} width={size.s_22} height={size.s_22} color={baseColor.red} />,
 				action: handleSettingUserProfile,
-				isShow:
-					!isItMe && isThread && isUserInThread && (isThatClanOwner || hasClanOwnerPermission || (hasAdminPermission && !isThatClanOwner))
+				isShow: !isItMe && isThread && isUserInThread && (hasClanOwnerPermission || (hasAdminPermission && !isThatClanOwner))
 			},
 			{
 				label: isBannedUser ? t('action.unban') : t('action.ban'),

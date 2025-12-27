@@ -1,24 +1,35 @@
-import { Attributes, size } from '@mezon/mobile-ui';
-import { Platform, StyleSheet } from 'react-native';
+import { type Attributes, size } from '@mezon/mobile-ui';
+import { StyleSheet } from 'react-native';
 
-export const createStyles = (themeValue: Attributes, heightKeyboardShow: number, typeKeyboardBottomSheet: string) =>
+export const createStyles = (themeValue: Attributes) =>
 	StyleSheet.create({
 		spacerView: {
-			height: Platform.OS === 'ios' || typeKeyboardBottomSheet !== 'text' ? heightKeyboardShow : 0,
-			backgroundColor: themeValue.primary
+			overflow: 'hidden',
+			bottom: 0,
+			left: 0,
+			right: 0,
+			zIndex: 0
 		},
 		bottomSheetBackground: {
-			backgroundColor: themeValue.primary
+			paddingTop: 0
 		},
 		handleIndicator: {
-			backgroundColor: 'rgba(255, 255, 255, 0.8)',
 			height: size.s_6,
+			backgroundColor: themeValue.text,
+			borderRadius: size.s_6,
 			width: size.s_50
+		},
+		handleIndicatorContainer: {
+			width: '100%',
+			height: size.s_20,
+			justifyContent: 'center',
+			alignItems: 'center',
+			zIndex: 1
 		},
 		scrollViewContentFlex: {
 			flex: 1
 		},
-		scrollViewMinHeight: {
-			minHeight: heightKeyboardShow
+		backgroundBottomSheet: {
+			backgroundColor: themeValue.primary
 		}
 	});

@@ -45,7 +45,7 @@ export const useNotificationJump = ({ messageId, channelId, clanId, topicId, isT
 				await navigate(channelPath);
 			}
 
-			const topicDetailResult = await dispatch(getFirstMessageOfTopic(topicId));
+			const topicDetailResult = await dispatch(getFirstMessageOfTopic({ topicId }));
 
 			if (!topicDetailResult?.payload) {
 				console.error('Failed to get topic detail, cannot jump to topic');

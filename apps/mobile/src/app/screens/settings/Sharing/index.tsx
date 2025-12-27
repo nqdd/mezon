@@ -3,9 +3,11 @@ import {
 	ActionEmitEvent,
 	getAttachmentUnique,
 	getUpdateOrAddClanChannelCache,
+	load,
 	save,
 	STORAGE_CLAN_ID,
-	STORAGE_DATA_CLAN_CHANNEL_CACHE
+	STORAGE_DATA_CLAN_CHANNEL_CACHE,
+	STORAGE_QR_INVITE_CACHE
 } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectBanMemberCurrentClanById, selectBlockedUsersForMessage, selectCurrentUserId, selectDirectsOpenlist } from '@mezon/store';
@@ -135,7 +137,8 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	}, [listChannelsText, listDMText]);
 
 	const dataMedia = useMemo(() => {
-		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath);
+		const urlQRInvite = load(STORAGE_QR_INVITE_CACHE);
+		return data?.filter?.((data: { contentUri: string; filePath: string }) => !!data?.contentUri || !!data?.filePath || !!urlQRInvite);
 	}, [data]);
 
 	const handleSearchResults = useCallback((results: any[]) => {
@@ -161,7 +164,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		handleChannelSelection(channel);
 	}, []);
 
-	const sendToDM = async (dataSend: { text: any; links: any[] }) => {
+	const sendToDM = async (dataSend: { text: any; links: any[] }, attachments: any) => {
 		try {
 			const store = await getStoreAsync();
 			await store.dispatch(
@@ -183,7 +186,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					mk: dataSend.links || []
 				},
 				[],
-				getAttachmentUnique(attachmentUpload) || [],
+				attachments,
 				[]
 			);
 		} catch (e) {
@@ -191,7 +194,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		}
 	};
 
-	const sendToChannel = async (dataSend: { text: any; links: any[] }) => {
+	const sendToChannel = async (dataSend: { text: any; links: any[] }, attachments: any) => {
 		const clanIdStore = selectCurrentClanId(store.getState());
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
@@ -242,7 +245,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				mk: dataSend.links || []
 			},
 			[], //mentions
-			getAttachmentUnique(attachmentUpload) || [], //attachments
+			attachments, //attachments
 			[], //references
 			false, //anonymous
 			false //mentionEveryone
@@ -287,11 +290,17 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			text: dataText,
 			links
 		};
+		const attachments = getAttachmentUnique(attachmentUpload) || [];
+		if (!attachments?.length && !dataSend?.text && !dataSend?.links?.length) {
+			alert(t('empty'));
+			setIsLoading(false);
+			return;
+		}
 		// Send to DM message
 		if (channelSelected.type === ChannelType.CHANNEL_TYPE_GROUP || channelSelected.type === ChannelType.CHANNEL_TYPE_DM) {
-			await sendToDM(dataSend);
+			await sendToDM(dataSend, attachments);
 		} else {
-			await sendToChannel(dataSend);
+			await sendToChannel(dataSend, attachments);
 		}
 		setIsLoading(false);
 		onCloseSharing(true);
@@ -307,14 +316,15 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 	};
 	const convertFileFormat = async () => {
 		try {
+			const urlQRInvite = load(STORAGE_QR_INVITE_CACHE);
 			const fileFormats = await Promise.all(
 				dataMedia.map(async (media) => {
-					const fileName = media?.fileName || media?.contentUri || media?.filePath;
+					const fileName = media?.fileName || media?.contentUri || media?.filePath || urlQRInvite;
 					// Add to preview immediately
 					setAttachmentPreview((prev) => [
 						...prev,
 						{
-							url: media?.contentUri || media?.filePath,
+							url: media?.contentUri || media?.filePath || urlQRInvite,
 							filename: fileName?.originalFilename || fileName,
 							isUploaded: false,
 							error: false
@@ -352,8 +362,9 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					const pathCompressed = checkIsVideo
 						? await compressVideo(media?.filePath || media?.contentUri)
 						: checkIsImage
-							? await compressImage(media?.filePath || media?.contentUri, media?.contentUri)
-							: media?.filePath || media?.contentUri;
+							? await compressImage(media?.filePath || media?.contentUri || urlQRInvite, media?.contentUri || urlQRInvite)
+							: media?.filePath || media?.contentUri || urlQRInvite;
+					save(STORAGE_QR_INVITE_CACHE, null);
 					let cleanPath = pathCompressed || '';
 					if (Platform.OS === 'ios') {
 						cleanPath = cleanPath.replace(/^file:\/\//, '');
@@ -367,7 +378,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					if (checkIsImage) {
 						await new Promise((resolve, reject) => {
 							ImageRN.getSize(
-								media?.contentUri || media?.filePath,
+								media?.contentUri || media?.filePath || urlQRInvite,
 								(w, h) => {
 									width = w;
 									height = h;
@@ -381,9 +392,9 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 						});
 					}
 					return {
-						uri: media?.contentUri || media?.filePath,
-						name: media?.fileName || media?.contentUri || media?.filePath,
-						type: media?.mimeType,
+						uri: media?.contentUri || media?.filePath || urlQRInvite,
+						name: media?.fileName || media?.contentUri || media?.filePath || urlQRInvite,
+						type: media?.mimeType || 'image/png',
 						size: fileSize,
 						width,
 						height,

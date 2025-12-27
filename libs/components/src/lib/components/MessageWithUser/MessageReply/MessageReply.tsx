@@ -136,10 +136,10 @@ const MessageReply: React.FC<MessageReplyProps> = ({ message, onClick, isTopic, 
 				<div className="rounded flex flex-row gap-1 items-center justify-start w-fit text-[14px] ml-9 mb-[-5px] mt-1 replyMessage h-[24px]">
 					<Icons.ReplyCorner />
 					<div className="flex flex-row gap-1 mb-2 pr-12 items-center">
-						<div className="rounded-full dark:bg-bgSurface bg-bgLightModeButton size-4">
+						<div className="rounded-full text-theme-primary-active size-4 bg-item-theme">
 							<Icons.IconReplyMessDeleted />
 						</div>
-						<i className="dark:text-zinc-400 text-colorTextLightMode text-[13px]">{t('messageDeleteReply')}</i>
+						<i className="text-theme-primary text-[13px]">{t('messageDeleteReply')}</i>
 					</div>
 				</div>
 			)}

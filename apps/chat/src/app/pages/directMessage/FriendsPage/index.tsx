@@ -173,8 +173,6 @@ const FriendsPage = () => {
 	const statusMenu = useSelector(selectStatusMenu);
 
 	const closeMenuMobile = closeMenu && !statusMenu;
-	const addFriendImg = 'add-fr-img-dark.webp';
-
 	return (
 		<div className="flex flex-col flex-1 shrink min-w-0  h-[100%]">
 			<div className={`draggable-area flex min-w-0 items-center bg-theme-chat  px-6 py-3 justify-start h-heightHeader border-b-theme-primary`}>
@@ -312,8 +310,13 @@ const FriendsPage = () => {
 								</div>
 							</div>
 							<div className="flex flex-col items-center gap-7">
-								<Image src={`assets/images/${addFriendImg}`} width={48} height={48} className="object-cover w-[376px]" />
-								<div className="bg-theme-input text-theme-primary">{t('addFriendModal.waitingMessage')}</div>
+								<Image
+									src={'https://cdn.mezon.ai/landing-page-mezon/addfriends.webp'}
+									width={100}
+									height={100}
+									className="object-cover w-[646px] opacity-45"
+								/>
+								<div className="text-theme-primary">{t('addFriendModal.waitingMessage')}</div>
 							</div>
 						</div>
 					)}

@@ -4,8 +4,8 @@ import {
 	emojiSuggestionActions,
 	getStore,
 	selectAllChannels,
+	selectAllChannelsByUser,
 	selectAllEmojiSuggestion,
-	selectAllHashtagDm,
 	selectCurrentUserId,
 	useAppDispatch
 } from '@mezon/store-mobile';
@@ -147,7 +147,7 @@ export interface MentionHashtagSuggestionsProps {
 const HashtagSuggestions: FC<MentionHashtagSuggestionsProps> = memo(({ keyword, onSelect, directMessageId, mode }) => {
 	const styles = style();
 	const channels = useSelector(selectAllChannels);
-	const commonChannelDms = useSelector(selectAllHashtagDm);
+	const commonChannelDms = useSelector(selectAllChannelsByUser);
 	const [channelsMentionData, setChannelsMentionData] = useState([]);
 	const listChannelsMention = useMemo(() => {
 		let channelsMention = [];
@@ -298,3 +298,4 @@ const EmojiSuggestion: FC<IEmojiSuggestionProps> = memo(({ keyword, onSelect }) 
 });
 
 export { EmojiSuggestion, HashtagSuggestions, Suggestions };
+

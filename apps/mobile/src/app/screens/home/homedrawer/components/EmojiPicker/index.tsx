@@ -3,10 +3,11 @@ import { useChatSending } from '@mezon/core';
 import { debounce, isEmpty } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
-	MediaType,
 	gifsStickerEmojiActions,
+	MediaType,
 	selectAnonymousMode,
 	selectCurrentChannel,
+	selectCurrentClanPreventAnonymous,
 	selectCurrentTopicId,
 	selectDmGroupCurrent,
 	selectIsShowCreateTopic,
@@ -32,7 +33,7 @@ import StickerSelector from './StickerSelector';
 import { style } from './styles';
 
 export type IProps = {
-	onDone: () => void;
+	onDone: (isFocusKeyboard?: boolean) => void;
 	bottomSheetRef: MutableRefObject<BottomSheetMethods>;
 	directMessageId?: string;
 	messageActionNeedToResolve?: IMessageActionNeedToResolve | null;
@@ -67,7 +68,8 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 	const styles = style(themeValue);
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDirectMessage = useSelector(selectDmGroupCurrent(directMessageId)); //Note: prioritize DM first
-	const anonymousMode = useSelector(selectAnonymousMode);
+	const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentChannel?.clan_id));
+	const currentClanPreventAnonymous = useSelector(selectCurrentClanPreventAnonymous);
 	const [mode, setMode] = useState<ExpressionType>('emoji');
 	const [searchText, setSearchText] = useState<string>('');
 	const { t } = useTranslation('message');
@@ -106,9 +108,9 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 			attachments?: Array<ApiMessageAttachment>,
 			references?: Array<ApiMessageRef>
 		) => {
-			sendMessage(content, mentions, attachments, references, dmMode ? false : anonymousMode, false, true);
+			sendMessage(content, mentions, attachments, references, dmMode ? false : anonymousMode && !currentClanPreventAnonymous, false, true);
 		},
-		[anonymousMode, dmMode, sendMessage]
+		[anonymousMode, currentClanPreventAnonymous, dmMode, sendMessage]
 	);
 
 	function handleSelected(type: ExpressionType, data: any) {
@@ -145,7 +147,7 @@ function EmojiPicker({ onDone, bottomSheetRef, directMessageId = '', messageActi
 			/* empty */
 		}
 
-		onDone && type !== 'emoji' && onDone();
+		onDone && type !== 'emoji' && onDone(false);
 	}
 
 	function handleInputSearchFocus() {

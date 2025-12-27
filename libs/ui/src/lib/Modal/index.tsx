@@ -57,7 +57,7 @@ const Modal = (props: ModalProps) => {
 				>
 					<div className="fixed inset-0 bg-black opacity-80"></div>
 					<div className={`relative w-full ${isInviteModal ? 'max-w-[480px]' : 'max-w-[684px]'} sm:h-auto ${classNameBox}`}>
-						<div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-theme-setting-primary outline-none focus:outline-none h-full sm:h-auto">
+						<div className="border-0 rounded-lg shadow-lg relative flex flex-col w-[90%] sm:w-full mx-auto sm:mx-0 bg-theme-setting-primary outline-none focus:outline-none h-full sm:h-auto">
 							<div className={`flex items-start justify-between p-4 border-b-theme-primary rounded-t ${classNameHeader} `}>
 								<div>
 									<h3 className="text-[22px] font-semibold text-theme-primary-active cursor-default ">{title}</h3>

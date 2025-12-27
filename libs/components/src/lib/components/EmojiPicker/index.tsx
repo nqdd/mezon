@@ -125,7 +125,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 			icon: categoryIcons[index + 1]
 		}));
 		categories.splice(0, 0, {
-			name: t(`emojiCategories.${FOR_SALE_CATE}`) || FOR_SALE_CATE,
+			name: FOR_SALE_CATE,
 			icon: categoryIcons[0]
 		});
 
@@ -561,7 +561,7 @@ const EmojiHover = React.memo(function EmojiHover({ emojiHoverShortCode, isReact
 	return (
 		<div className={`w-full max-h-12 flex-1 bg-item-theme flex flex-row items-center pl-1 gap-x-1 justify-start py-1`}>
 			{emojiId ? <img draggable="false" className="max-w-10 max-h-full" src={getSrcEmoji(emojiId)} /> : null}
-			{emojiHoverShortCode}
+			<span className="truncate max-w-[200px] overflow-hidden">{emojiHoverShortCode}</span>
 		</div>
 	);
 });

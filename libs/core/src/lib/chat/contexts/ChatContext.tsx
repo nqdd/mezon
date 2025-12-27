@@ -1683,6 +1683,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					isShowCreateThread: false
 				})
 			);
+			dispatch(
+				channelsActions.removeChannelApp({
+					clanId: channelDeleted.clan_id,
+					channelId: channelDeleted.channel_id
+				})
+			);
 
 			if (channelDeleted?.parent_id) {
 				dispatch(
@@ -1709,6 +1715,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(threadsActions.remove(channelDeleted.channel_id));
+				dispatch(channelsActions.removeChannelApp({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 
 				return;
 			}
@@ -1750,6 +1757,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				dispatch(listChannelsByUserActions.remove(channelDeleted.channel_id));
 				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
+				dispatch(channelsActions.removeChannelApp({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 
 				dispatch(
 					threadsActions.removeThreadFromCache({
@@ -2371,7 +2379,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		if (!clanUpdatedEvent) return;
 		dispatch(clansSlice.actions.update({ dataUpdate: clanUpdatedEvent }));
 		if (clanUpdatedEvent.prevent_anonymous) {
-			dispatch(accountActions.turnOffAnonymous());
+			const store = getStore();
+			const clanIdActive = selectCurrentClanId(store.getState());
+			dispatch(accountActions.turnOffAnonymous({ id: clanUpdatedEvent.clan_id, topic: clanIdActive === clanUpdatedEvent.clan_id }));
 		}
 	}, []);
 
@@ -2940,4 +2950,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

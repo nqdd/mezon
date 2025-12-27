@@ -288,13 +288,13 @@ export const notificationSlice = createSlice({
 			.addCase(
 				markMessageNotify.fulfilled,
 				(state: NotificationState, action: PayloadAction<{ noti: ApiChannelMessageHeader; message: MessagesEntity }>) => {
-					if (state.notifications[NotificationCategory.MESSAGES].data.length) {
+					if (state.notifications[NotificationCategory.MESSAGES].data) {
 						const { noti, message } = action.payload;
 						const notiMark: INotification = {
 							...message,
 							id: noti.id || '',
 							...noti,
-							create_time: safeJSONParse(noti.content || '').create_time,
+							create_time: new Date().toISOString(),
 							content: safeJSONParse(noti.content || ''),
 							category: NotificationCategory.MESSAGES
 						};

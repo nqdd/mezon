@@ -48,10 +48,13 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 	const styles = style(themeValue, widthImage);
 	const dispatch = useAppDispatch();
 	const currentChannelId = channelId;
-	const attachments = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
+	const galleryAttachmentsByChannel = useAppSelector((state) => selectGalleryAttachmentsByChannel(state, currentChannelId));
 	const paginationState = useAppSelector((state) => selectGalleryPaginationByChannel(state, currentChannelId));
 	const currentClanId = useAppSelector((state) => selectCurrentClanId(state as any)) ?? '';
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
+	const attachments = useMemo(() => {
+		return galleryAttachmentsByChannel?.filter((attachment) => !attachment?.url?.includes(`${process.env.NX_BASE_IMG_URL}/stickers`)) ?? [];
+	}, [galleryAttachmentsByChannel]);
 
 	useEffect(() => {
 		moment.locale(currentLanguage);
@@ -59,11 +62,13 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 
 	const visibleDatesRef = useRef<Set<string>>(new Set());
 
-	const flatData: FlatDataItem[] = useMemo(() => {
+	// Memoize date grouping separately for better performance
+	const dateGroups = useMemo(() => {
 		if (!attachments || attachments.length === 0) {
-			return [];
+			return new Map<string, AttachmentEntity[]>();
 		}
-		const dateGroups = new Map<string, AttachmentEntity[]>();
+
+		const groups = new Map<string, AttachmentEntity[]>();
 
 		for (const attachment of attachments) {
 			if (!attachment.create_time) continue;
@@ -71,11 +76,20 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 			const date = new Date(attachment.create_time);
 			const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-			if (!dateGroups.has(dateKey)) {
-				dateGroups.set(dateKey, []);
+			if (!groups.has(dateKey)) {
+				groups.set(dateKey, []);
 			}
-			dateGroups.get(dateKey)!.push(attachment);
+			groups.get(dateKey)!.push(attachment);
 		}
+
+		return groups;
+	}, [attachments]);
+
+	const flatData: FlatDataItem[] = useMemo(() => {
+		if (dateGroups.size === 0) {
+			return [];
+		}
+
 		const result: FlatDataItem[] = [];
 
 		dateGroups.forEach((items, dateKey) => {
@@ -99,7 +113,7 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 		});
 
 		return result;
-	}, [attachments]);
+	}, [dateGroups]);
 
 	const openImage = useCallback(
 		(image: AttachmentEntity) => {
@@ -141,32 +155,44 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 		}
 	}, []);
 
+	// Memoized header component
+	const renderHeader = useCallback(
+		(item: FlatDataItem) => (
+			<View style={styles.sectionHeader}>
+				<LinearGradient
+					start={{ x: 1, y: 0 }}
+					end={{ x: 0, y: 0 }}
+					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
+					style={[StyleSheet.absoluteFillObject]}
+				/>
+				<Text style={styles.sectionDayHeaderTitle}>{formatDateHeader(item.date!)}</Text>
+			</View>
+		),
+		[styles.sectionHeader, styles.sectionDayHeaderTitle, themeValue.primary, themeValue?.primaryGradiant, formatDateHeader]
+	);
+
+	// Memoized row component
+	const renderRow = useCallback(
+		(item: FlatDataItem) => (
+			<View style={styles.rowContainer}>
+				{item.items?.map((media, idx) => (
+					<View key={media?.id || `${idx}_${media?.filename}`} style={styles.rowItem}>
+						<MediaItem data={media} onPress={openImage} isDM={isDM} />
+					</View>
+				))}
+			</View>
+		),
+		[styles.rowContainer, styles.rowItem, openImage, isDM]
+	);
+
 	const renderItem = useCallback(
 		({ item }: { item: FlatDataItem }) => {
 			if (item.type === 'header') {
-				return (
-					<View style={styles.sectionHeader}>
-						<LinearGradient
-							start={{ x: 1, y: 0 }}
-							end={{ x: 0, y: 0 }}
-							colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-							style={[StyleSheet.absoluteFillObject]}
-						/>
-						<Text style={styles.sectionDayHeaderTitle}>{formatDateHeader(item.date)}</Text>
-					</View>
-				);
+				return renderHeader(item);
 			}
-			return (
-				<View style={styles.rowContainer}>
-					{item.items?.map((media, idx) => (
-						<View key={`${media?.id ?? idx}_${media?.filename}`} style={styles.rowItem}>
-							<MediaItem data={media} onPress={openImage} isDM={isDM} />
-						</View>
-					))}
-				</View>
-			);
+			return renderRow(item);
 		},
-		[openImage, styles, isDM]
+		[renderHeader, renderRow]
 	);
 
 	const renderListFooter = useCallback(() => {
@@ -209,7 +235,12 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 		[flatData, widthImage]
 	);
 
-	const onViewableItemsChanged = useCallback(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+	const viewabilityConfigRef = useRef({
+		itemVisiblePercentThreshold: 50,
+		minimumViewTime: 100
+	});
+
+	const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
 		const newVisibleDates = new Set<string>();
 		viewableItems.forEach((item) => {
 			if (item.item.type === 'header' && item.item.date) {
@@ -217,15 +248,7 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 			}
 		});
 		visibleDatesRef.current = newVisibleDates;
-	}, []);
-
-	const viewabilityConfig = useMemo(
-		() => ({
-			itemVisiblePercentThreshold: 50,
-			minimumViewTime: 100
-		}),
-		[]
-	);
+	}).current;
 
 	useEffect(() => {
 		if (!currentClanId || !currentChannelId) return;
@@ -243,15 +266,6 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 
 	const keyExtractor = useCallback((item: FlatDataItem) => item.id, []);
 
-	const stickyHeaderIndices = useMemo(() => {
-		return flatData.reduce((indices: number[], item, index) => {
-			if (item.type === 'header') {
-				indices.push(index);
-			}
-			return indices;
-		}, []);
-	}, [flatData]);
-
 	return (
 		<View style={styles.wrapper}>
 			{paginationState?.isLoading && attachments?.length === 0 ? (
@@ -265,20 +279,18 @@ const MediaChannel = memo(({ channelId, isDM }: IMediaChannelProps) => {
 					contentContainerStyle={styles.contentContainer}
 					showsVerticalScrollIndicator={false}
 					bounces={false}
-					initialNumToRender={12}
-					maxToRenderPerBatch={10}
-					updateCellsBatchingPeriod={12}
-					windowSize={12}
+					initialNumToRender={10}
+					maxToRenderPerBatch={5}
+					updateCellsBatchingPeriod={50}
+					windowSize={5}
 					removeClippedSubviews={true}
 					onEndReached={handleEndReached}
-					onEndReachedThreshold={0.3}
+					onEndReachedThreshold={0.5}
 					disableIntervalMomentum={true}
 					scrollEventThrottle={16}
-					disableVirtualization={true}
 					getItemLayout={getItemLayout}
 					onViewableItemsChanged={onViewableItemsChanged}
-					viewabilityConfig={viewabilityConfig}
-					stickyHeaderIndices={stickyHeaderIndices}
+					viewabilityConfig={viewabilityConfigRef.current}
 					maintainVisibleContentPosition={{
 						minIndexForVisible: 0
 					}}

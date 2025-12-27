@@ -21,6 +21,7 @@ interface IChatBoxProps {
 	topicChannelId?: string;
 	isBlocked?: boolean;
 	isBanned?: boolean;
+	hiddenAdvanceFunc?: boolean;
 }
 
 export const ChatBoxMain = memo((props: IChatBoxProps) => {
@@ -99,6 +100,7 @@ export const ChatBoxMain = memo((props: IChatBoxProps) => {
 					messageAction={props?.messageAction}
 					isPublic={props?.isPublic}
 					topicChannelId={props?.topicChannelId}
+					hiddenAdvanceFunc={props?.hiddenAdvanceFunc}
 				/>
 			)}
 		</View>

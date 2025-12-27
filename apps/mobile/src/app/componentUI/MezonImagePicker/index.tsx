@@ -1,14 +1,17 @@
 import { ActionEmitEvent, QUALITY_IMAGE_UPLOAD } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { handleUploadFileMobile, useMezon } from '@mezon/transport';
-import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { iosRequestReadWriteGalleryPermission } from '@react-native-camera-roll/camera-roll';
+import { iosReadGalleryPermission } from '@react-native-camera-roll/camera-roll/src/CameraRollIOSPermission';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DimensionValue, StyleProp, ViewStyle } from 'react-native';
-import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Linking, PermissionsAndroid, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { openCropper, openPicker } from 'react-native-image-crop-picker';
 import { launchImageLibrary } from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
 import MezonClanAvatar from '../MezonClanAvatar';
+import MezonConfirm from '../MezonConfirm';
 import { style as _style } from './styles';
 
 export interface IFile {
@@ -128,9 +131,115 @@ export default memo(
 			return res.url;
 		}
 
+		const getCheckPermissionPromise = async () => {
+			try {
+				if (Platform.OS === 'android') {
+					if (Platform.Version >= 33) {
+						const hasImagePermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES);
+						const hasVideoPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO);
+
+						return hasImagePermission && hasVideoPermission;
+					} else {
+						return await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE);
+					}
+				}
+				return false;
+			} catch (error) {
+				console.warn('Permission check error:', error);
+				return false;
+			}
+		};
+
+		const alertOpenSettings = (title?: string, desc?: string) => {
+			const data = {
+				children: (
+					<MezonConfirm
+						title={title || t('common:permissionNotification.photoTitle')}
+						content={desc || t('common:permissionNotification.photoDesc')}
+						confirmText={t('common:openSettings')}
+						onConfirm={() => {
+							openAppSettings();
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+						}}
+					/>
+				)
+			};
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+		};
+
+		const requestPermission = async () => {
+			if (Platform.OS === 'android') {
+				const hasPermission = await getCheckPermissionPromise();
+				if (hasPermission) {
+					return true;
+				}
+
+				try {
+					if (Platform.Version >= 33) {
+						const granted = await PermissionsAndroid.requestMultiple([
+							PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+							PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO
+						]);
+
+						if (
+							granted['android.permission.READ_MEDIA_IMAGES'] !== PermissionsAndroid.RESULTS.GRANTED ||
+							granted['android.permission.READ_MEDIA_VIDEO'] !== PermissionsAndroid.RESULTS.GRANTED
+						) {
+							alertOpenSettings();
+						}
+
+						return (
+							granted['android.permission.READ_MEDIA_IMAGES'] === PermissionsAndroid.RESULTS.GRANTED &&
+							granted['android.permission.READ_MEDIA_VIDEO'] === PermissionsAndroid.RESULTS.GRANTED
+						);
+					} else {
+						const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, {
+							title: 'Photo Library Access',
+							message: 'This app needs access to your photo library.',
+							buttonNeutral: 'Ask Me Later',
+							buttonNegative: 'Cancel',
+							buttonPositive: 'OK'
+						});
+
+						if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+							alertOpenSettings();
+						}
+
+						return granted === PermissionsAndroid.RESULTS.GRANTED;
+					}
+				} catch (err) {
+					console.warn('Permission request error:', err);
+					return false;
+				}
+			} else if (Platform.OS === 'ios') {
+				const result = await iosReadGalleryPermission('readWrite');
+
+				if (result === 'not-determined' || result === 'denied') {
+					const requestResult = await iosRequestReadWriteGalleryPermission();
+					if (requestResult === 'not-determined' || requestResult === 'denied' || requestResult === 'blocked') {
+						alertOpenSettings();
+					}
+					return requestResult === 'granted' || requestResult === 'limited';
+				}
+
+				return result === 'granted' || result === 'limited';
+			}
+
+			return false;
+		};
+
+		const openAppSettings = () => {
+			if (Platform.OS === 'ios') {
+				Linking.openURL('app-settings:');
+			} else {
+				Linking.openSettings();
+			}
+		};
+
 		async function handleImage() {
 			try {
-				// First, let user select an image without cropping to check if it's a GIF
+				const hasPermission = await requestPermission();
+				if (!hasPermission) return;
 				const selectedFile = await openPicker({
 					mediaType: 'photo',
 					includeBase64: true,

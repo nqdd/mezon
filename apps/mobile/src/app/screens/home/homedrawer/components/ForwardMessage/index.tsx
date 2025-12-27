@@ -4,7 +4,6 @@ import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity, MessagesEntity } from '@mezon/store-mobile';
 import {
 	getIsFowardAll,
-	getSelectedMessage,
 	getStore,
 	selectAllChannelsByUser,
 	selectBanMemberCurrentClanById,
@@ -19,9 +18,9 @@ import {
 	useAppSelector
 } from '@mezon/store-mobile';
 import { useMezon } from '@mezon/transport';
-import type { ChannelThreads, IMessageWithUser } from '@mezon/utils';
+import type { ChannelThreads } from '@mezon/utils';
 import { FORWARD_MESSAGE_TIME, isValidEmojiData, normalizeString } from '@mezon/utils';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { FlashList } from '@shopify/flash-list';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -52,15 +51,13 @@ export interface IForwardIObject {
 
 const MAX_RAW_TEXT_LENGTH = 2000;
 
-const ForwardMessageScreen = () => {
+const ForwardMessageScreen = ({ route }) => {
 	const [searchText, setSearchText] = useState('');
 	const [personalRawMessages, setPersonalRawMessages] = useState<string>('');
 	const [isReadyToSend, setIsReadyToSend] = useState(false);
+	const selectedMessage = route?.params?.message;
 
 	const navigation = useNavigation();
-	const route = useRoute();
-	const params = route.params as { message: IMessageWithUser; isPublic?: boolean };
-	const { message } = params || {};
 	const { sendForwardMessage } = useSendForwardMessage();
 	const { t } = useTranslation('message');
 	const { themeValue } = useTheme();
@@ -72,7 +69,6 @@ const ForwardMessageScreen = () => {
 	const currentDmId = useSelector(selectDmGroupCurrentId);
 	const currentChannelId = useSelector(selectCurrentChannelId);
 	const currentTopicId = useSelector(selectCurrentTopicId);
-	const selectedMessage = useSelector(getSelectedMessage);
 
 	const selectedForwardObjectsRef = useRef<IForwardIObject[]>([]);
 
@@ -302,7 +298,7 @@ const ForwardMessageScreen = () => {
 		}
 	}, [messagesToForward, sendMessagesToTargets, onClose, t]);
 
-	const isOnlyContainEmoji = useMemo(() => isValidEmojiData(message.content), [message.content]);
+	const isOnlyContainEmoji = useMemo(() => isValidEmojiData(selectedMessage?.content), [selectedMessage?.content]);
 
 	const onSelectChange = useCallback((value: boolean, item: IForwardIObject) => {
 		if (!item || !item?.channelId) return;
@@ -365,12 +361,12 @@ const ForwardMessageScreen = () => {
 				<View style={styles.containerMessage}>
 					<View style={styles.containerMessageForward}>
 						<View style={styles.messageContentContainer}>
-							{!!message?.content?.t && (
+							{!!selectedMessage?.content?.t && (
 								<View style={{ flexDirection: 'row' }}>
-									<DmListItemLastMessage content={message.content} emojiOnForward={isOnlyContainEmoji} />
+									<DmListItemLastMessage content={selectedMessage.content} emojiOnForward={isOnlyContainEmoji} />
 								</View>
 							)}
-							{message?.content?.embed && <Text style={styles.titleText}>{message?.content?.embed?.[0]?.title}</Text>}
+							{selectedMessage?.content?.embed && <Text style={styles.titleText}>{selectedMessage?.content?.embed?.[0]?.title}</Text>}
 							{messageAttachments?.images?.length > 0 && (
 								<View style={styles.row}>
 									<MezonIconCDN icon={IconCDN.imageIcon} color={themeValue.textDisabled} height={size.s_16} width={size.s_16} />

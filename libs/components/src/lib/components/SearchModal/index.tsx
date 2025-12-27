@@ -54,58 +54,33 @@ function SearchModal({ onClose }: SearchModalProps) {
 	const [searchText, setSearchText] = useState('');
 
 	const debouncedSetSearchText = useMemo(() => debounce((value) => setSearchText(value), 200), []);
-
-	const listGroup = useMemo(
-		() => dmGroupChatList.filter((groupChat) => groupChat.type === ChannelType.CHANNEL_TYPE_GROUP && groupChat.active === 1),
-		[dmGroupChatList]
-	);
-
-	const listDM = useMemo(
-		() =>
-			dmGroupChatList.filter(
-				(groupChat) => groupChat.type === ChannelType.CHANNEL_TYPE_DM && groupChat.channel_avatar && groupChat.active === 1
-			),
-		[dmGroupChatList]
-	);
-
+	const checkListDM = useRef(new Set<string>());
 	const listDirectSearch = useMemo(() => {
-		const listDMSearch = listDM?.length
-			? listDM.map((itemDM: DirectEntity) => {
-					return {
-						id: itemDM?.user_ids?.[0] ?? '',
+		const listDmSearchMap: SearchItemProps[] = [];
+		if (dmGroupChatList.length) {
+			dmGroupChatList.map((itemDM: DirectEntity) => {
+				if (itemDM.active === 1) {
+					listDmSearchMap.push({
+						id: itemDM.channel_id,
 						name: itemDM?.usernames?.toString() ?? '',
 						displayName: itemDM.channel_label,
-						avatarUser: itemDM?.avatars?.[0] ?? '',
-						idDM: itemDM?.id ?? '',
+						avatarUser: itemDM.type === ChannelType.CHANNEL_TYPE_DM ? (itemDM?.avatars?.[0] ?? '') : itemDM?.channel_avatar,
+						idDM: itemDM?.user_ids?.[0] ?? '',
 						lastSentTimeStamp: itemDM.last_sent_message?.timestamp_seconds,
 						typeChat: TypeSearch.Dm_Type,
-						type: ChannelType.CHANNEL_TYPE_DM,
+						type: itemDM.type,
 						count_messsage_unread: itemDM.count_mess_unread,
-						lastSeenTimeStamp: Number(itemDM?.last_seen_message?.timestamp_seconds || 0),
-						member: itemDM.user_ids && itemDM.user_ids[0]
-					};
-				})
-			: [];
-		const listGroupSearch = listGroup.length
-			? listGroup.map((itemGr: DirectEntity) => {
-					return {
-						id: itemGr?.channel_id ?? '',
-						name: itemGr.usernames?.toString() ?? '',
-						displayName: itemGr.channel_label,
-						avatarUser: itemGr?.channel_avatar || 'assets/images/avatar-group.png',
-						idDM: itemGr?.id ?? '',
-						lastSentTimeStamp: itemGr.last_sent_message?.timestamp_seconds,
-						type: ChannelType.CHANNEL_TYPE_GROUP,
-						typeChat: TypeSearch.Dm_Type,
-						count_messsage_unread: itemGr.count_mess_unread,
-						lastSeenTimeStamp: Number(itemGr?.last_seen_message?.timestamp_seconds || 0)
-					};
-				})
-			: [];
-		const listSearch = [...listDMSearch, ...listGroupSearch];
-		const addPropsIntoSearchList = addAttributesSearchList(listSearch, Object.values(allUsesInAllClansEntities) as any);
+						lastSeenTimeStamp: Number(itemDM?.last_seen_message?.timestamp_seconds || 0)
+					});
+				}
+				if (itemDM.type === ChannelType.CHANNEL_TYPE_DM && itemDM?.user_ids?.[0]) {
+					checkListDM.current?.add(itemDM?.user_ids?.[0]);
+				}
+			});
+		}
+		const addPropsIntoSearchList = addAttributesSearchList(listDmSearchMap, Object.values(allUsesInAllClansEntities) as any);
 		return addPropsIntoSearchList;
-	}, [accountId, listDM, listGroup, allUsesInAllClansEntities]);
+	}, [accountId, dmGroupChatList, allUsesInAllClansEntities]);
 	const listChannelSearch = useMemo(() => {
 		const list = listChannels.map((item) => {
 			return {
@@ -129,28 +104,25 @@ function SearchModal({ onClose }: SearchModalProps) {
 		return list;
 	}, [listChannels]);
 
-	const findFilterDm = (id: string) => {
-		const dm = listDirectSearch.find((item) => item.id === id);
-		return dm ? dm.idDM : undefined;
-	};
-
 	const listMemberSearch = useMemo(() => {
 		const list: SearchItemProps[] = [];
 
 		for (const userId in allUsesInAllClansEntities) {
 			const user = allUsesInAllClansEntities[userId];
-			list.push({
-				id: user?.id ?? '',
-				prioritizeName: allClanUsersEntities[user?.id]?.clan_nick ?? user?.display_name ?? '',
-				name: user?.username ?? '',
-				avatarUser: user?.avatar_url ?? '',
-				displayName: user?.display_name ?? '',
-				lastSentTimeStamp: '0',
-				idDM: findFilterDm(user?.id),
-				typeChat: TypeSearch.Dm_Type,
-				type: ChannelType.CHANNEL_TYPE_DM,
-				searchName: (user.list_nick_names || []).join('.')
-			});
+			if (!checkListDM.current?.has(user?.id)) {
+				list.push({
+					id: user?.id ?? '',
+					prioritizeName: allClanUsersEntities[user?.id]?.clan_nick ?? user?.display_name ?? '',
+					name: user?.username ?? '',
+					avatarUser: user?.avatar_url ?? '',
+					displayName: user?.display_name ?? '',
+					lastSentTimeStamp: '0',
+					idDM: user?.id,
+					typeChat: TypeSearch.Dm_Type,
+					type: ChannelType.CHANNEL_TYPE_DM,
+					searchName: (user.list_nick_names || []).join('.')
+				});
+			}
 		}
 		return list as SearchItemProps[];
 	}, [allClanUsersEntities, allUsesInAllClansEntities]);
@@ -163,8 +135,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 	}, [searchText]);
 
 	const totalLists = useMemo(() => {
-		const filterDmWithoutIdDM = listMemberSearch.filter((item) => item.idDM === undefined);
-		const list = filterDmWithoutIdDM.concat(listChannelSearch, listDirectSearch);
+		const list = listMemberSearch.concat(listChannelSearch, listDirectSearch);
 		const sortedList = list.slice().sort((a: any, b: any) => b.lastSentTimeStamp - a.lastSentTimeStamp);
 		return sortedList;
 	}, [listMemberSearch, listChannelSearch, listDirectSearch, allUsesInAllClansEntities, accountId]);
@@ -211,7 +182,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 		if (listDirectSearch.length > 0) {
 			for (let i = listDirectSearch.length - 1; i >= 0; i--) {
 				const itemDMId = listDirectSearch[i]?.idDM || '';
-				const existsInPrevious = previous.some((item) => item?.id === listDirectSearch[i]?.idDM);
+				const existsInPrevious = previous.some((item) => item?.idDM === listDirectSearch[i]?.idDM);
 				if (previousChannels.map((item) => item.channelId).includes(itemDMId) && !existsInPrevious) {
 					previous.unshift(listDirectSearch[i]);
 				}
@@ -236,18 +207,18 @@ function SearchModal({ onClose }: SearchModalProps) {
 
 	const handleSelectMem = useCallback(
 		async (user: SearchItemProps) => {
-			const foundDirect = listDirectSearch.find((item) => item.id === user.id);
+			const foundDirect = listDirectSearch.find((item) => item.idDM === user.id);
 			if (foundDirect !== undefined) {
 				dispatch(
 					channelsActions.setPreviousChannels({
 						clanId: '0',
-						channelId: foundDirect.idDM || ''
+						channelId: foundDirect.id || ''
 					})
 				);
 				dispatch(directActions.openDirectMessage({ channelId: foundDirect.idDM || '', clanId: '0' }));
 				const result = await dispatch(
 					directActions.joinDirectMessage({
-						directMessageId: foundDirect.idDM ?? '',
+						directMessageId: foundDirect.id ?? '',
 						channelName: '',
 						type: foundDirect?.type ?? ChannelType.CHANNEL_TYPE_DM,
 						noCache: true
@@ -257,7 +228,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 					navigate(toDmGroupPageFromMainApp(foundDirect.idDM ?? '', user?.type ?? ChannelType.CHANNEL_TYPE_DM));
 				}
 			} else {
-				const response = await createDirectMessageWithUser(user.id || '', user.displayName || user.name, user.name, user.avatarUser);
+				const response = await createDirectMessageWithUser(user.idDM || '', user.displayName || user.name, user.name, user.avatarUser);
 				if (response.channel_id) {
 					const directChat = toDmGroupPageFromMainApp(response.channel_id, Number(response.type));
 					navigate(directChat);
@@ -311,12 +282,12 @@ function SearchModal({ onClose }: SearchModalProps) {
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className=" relative z-10 !w-[640px] px-6 py-4 rounded-[6px] shadow-shadowBorder bg-modal-theme">
+			<div className="relative z-10 mx-4 md:!w-[640px] px-6 py-4 rounded-[6px] shadow-shadowBorder bg-modal-theme">
 				<div className="flex flex-col">
 					<InputField
 						type="text"
 						placeholder={t('searchModal.placeholder')}
-						className="py-[18px] text-[16px] mt-2 mb-[15px] bg-input-secondary rounded-lg text-theme-message border-theme-primary"
+						className="py-[12px] md:py-[18px] text-[16px] mt-2 mb-[15px] bg-input-secondary rounded-lg text-theme-message border-theme-primary"
 						onChange={(e) => debouncedSetSearchText(e.target.value)}
 						autoFocus
 					/>

@@ -11,6 +11,7 @@ interface IChatMessageLeftAreaProps {
 	isAvailableSending: boolean;
 	modeKeyBoardBottomSheet: string;
 	handleKeyboardBottomSheetMode: (mode: string) => void;
+	hiddenAdvanceFunc?: boolean;
 }
 
 export interface IChatMessageLeftAreaRef {
@@ -19,7 +20,7 @@ export interface IChatMessageLeftAreaRef {
 
 export const ChatMessageLeftArea = memo(
 	forwardRef<IChatMessageLeftAreaRef, IChatMessageLeftAreaProps>(
-		({ isAvailableSending, modeKeyBoardBottomSheet, handleKeyboardBottomSheetMode }, ref) => {
+		({ isAvailableSending, modeKeyBoardBottomSheet, handleKeyboardBottomSheetMode, hiddenAdvanceFunc = false }, ref) => {
 			const { themeValue } = useTheme();
 			const styles = style(themeValue);
 			const [isShowAttachControl, setIsShowAttachControl] = useState<boolean>(false);
@@ -47,7 +48,9 @@ export const ChatMessageLeftArea = memo(
 					) : (
 						<Fragment>
 							<AttachmentSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />
-							<AdvancedFunctionSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />
+							{!hiddenAdvanceFunc && (
+								<AdvancedFunctionSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />
+							)}
 						</Fragment>
 					)}
 				</View>

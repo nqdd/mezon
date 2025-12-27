@@ -56,6 +56,18 @@
 			"limitImageSize": "Kích thước hình ảnh phải nhỏ hơn {{size}}MB"
 		}
 	},
+	"clanTemplateModal": {
+		"title": "Tạo Clan của bạn",
+		"description": "Clan của bạn là nơi bạn giao lưu với bạn bè của mình. Hãy tạo Clan của riêng bạn và bắt đầu trò chuyện.",
+		"createMyOwn": "Tạo mẫu riêng",
+		"startFromTemplate": "Bắt đầu từ một mẫu",
+		"gamingTemplate": "Trò chơi",
+		"friendsTemplate": "Bạn bè",
+		"studyGroupTemplate": "Nhóm học tập",
+		"schoolClubTemplate": "Câu lạc bộ trường học",
+		"localCommunityTemplate": "Cộng đồng địa phương",
+		"artistsCreatorsTemplate": "Nghệ sĩ & Nhà sáng tạo"
+	},
 	"limitModal": {
 		"title": "Đã đạt giới hạn!",
 		"message": "Bạn đã tham gia 50 clan. Bạn cần rời khỏi một clan trước khi có thể tham gia hoặc tạo clan khác.",

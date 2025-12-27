@@ -1,12 +1,14 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
+import { selectFirstMessageEntityTopic, selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
+import { safeJSONParse } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import MezonAvatar from '../../../../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
+import ImageNative from '../../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { EmbedMessage } from '../../EmbedMessage';
 import { MessageAttachment } from '../../MessageAttachment';
@@ -22,10 +24,22 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'common']);
-	const firstMessage = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+	const firstMessageEntity = useAppSelector((state) => selectFirstMessageEntityTopic(state));
+	const firstMessageByChannel = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+
+	const firstMessage = useMemo(() => {
+		if (firstMessageByChannel) {
+			return firstMessageByChannel;
+		}
+		return firstMessageEntity;
+	}, [firstMessageByChannel, firstMessageEntity]);
 
 	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(firstMessage?.sender_id || '');
 	const userRolesClan = useColorsRoleById(firstMessage?.sender_id || '');
+
+	const senderUsername = useMemo(() => {
+		return firstMessage?.user?.username || firstMessage?.username || '';
+	}, [firstMessage?.user?.username, firstMessage?.username]);
 
 	const colorSenderName = useMemo(() => {
 		return (
@@ -50,9 +64,18 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 			</View>
 			{firstMessage && (
 				<View style={styles.userInfo}>
-					<MezonAvatar avatarUrl={priorityAvatar} username={namePriority || firstMessage?.display_name || ''} />
+					<View style={styles.avatarWrapper}>
+						<MezonClanAvatar alt={senderUsername} image={priorityAvatar} />
+					</View>
+
 					<View>
-						<Text style={[styles.name, { color: colorSenderName }]}>{namePriority || firstMessage?.display_name || ''}</Text>
+						<View style={styles.nameWrapper}>
+							<Text style={[styles.name, { color: colorSenderName }]}>{namePriority || firstMessage?.display_name || ''}</Text>
+
+							{userRolesClan?.highestPermissionRoleIcon && (
+								<ImageNative url={userRolesClan.highestPermissionRoleIcon} style={styles.roleIcon} resizeMode={'contain'} />
+							)}
+						</View>
 						{firstMessage?.create_time && <Text style={styles.dateText}>{convertTimeString(firstMessage.create_time as string, t)}</Text>}
 					</View>
 				</View>
@@ -61,7 +84,9 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 				<ScrollView>
 					<RenderTextMarkdownContent
 						content={{
-							...(firstMessage?.content || {}),
+							...(typeof firstMessage?.content === 'string'
+								? safeJSONParse(firstMessage?.content || '{}')
+								: firstMessage?.content || {}),
 							mentions: firstMessage?.mentions || []
 						}}
 						translate={t}
@@ -69,16 +94,26 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 					/>
 					{firstMessage?.attachments?.length > 0 && (
 						<MessageAttachment
-							attachments={firstMessage?.attachments || []}
+							attachments={
+								typeof firstMessage?.attachments === 'string'
+									? safeJSONParse(firstMessage?.attachments || '[]')
+									: firstMessage?.attachments || []
+							}
 							clanId={firstMessage?.clan_id || ''}
 							channelId={firstMessage?.channel_id || ''}
+							messageCreatTime={firstMessage?.create_time}
+							senderId={firstMessage?.sender_id}
 						/>
 					)}
 					{!!firstMessage?.content?.embed?.[0] && (
 						<EmbedMessage
 							message_id={firstMessage?.id || ''}
 							channel_id={firstMessage?.channel_id || ''}
-							embed={firstMessage.content.embed[0]}
+							embed={
+								typeof firstMessage?.content?.embed === 'string'
+									? safeJSONParse(firstMessage?.content || '{}')?.embed?.[0]
+									: firstMessage?.content?.embed?.[0]
+							}
 							key={`message_embed_${firstMessage?.channel_id}_${firstMessage?.id}`}
 						/>
 					)}

@@ -46,6 +46,7 @@ import {
 	selectNotifiSettingsEntitiesById,
 	selectOpenVoiceCall,
 	selectSession,
+	selectStatusInVoice,
 	selectStatusMenu,
 	selectUpdateDmGroupError,
 	selectUpdateDmGroupLoading,
@@ -191,6 +192,7 @@ const TopBarChannelText = memo(() => {
 		return '';
 	}, [isChannelPath, isGuidePath, isMemberPath, t]);
 	const userStatus = useMemberStatus(currentDmGroup?.user_ids?.[0] || '');
+	const checkInvoice = useSelector((state) => selectStatusInVoice(state, currentDmGroup?.user_ids?.[0] || ''));
 
 	return (
 		<>
@@ -206,7 +208,7 @@ const TopBarChannelText = memo(() => {
 						{!!channelType && (
 							<>
 								{channelParent && (
-									<div className="flex gap-1 items-center truncate max-sbm:hidden" onClick={handleNavigateToParent}>
+									<div className="flex gap-1 items-center truncate max-sbm:hidden cursor-pointer" onClick={handleNavigateToParent}>
 										<ChannelTopbarLabel
 											isPrivate={!!channelParent?.channel_private}
 											label={channelParent?.channel_label || ''}
@@ -228,7 +230,7 @@ const TopBarChannelText = memo(() => {
 
 				{currentClanId === '0' && (
 					<div
-						className="flex w-full items-center gap-3 flex-1 overflow-hidden relative"
+						className=" h-9 flex items-center gap-3 flex-1 overflow-hidden relative"
 						data-e2e={generateE2eId(`chat.direct_message.header.left_container`)}
 					>
 						<DmTopbarAvatar
@@ -252,7 +254,14 @@ const TopBarChannelText = memo(() => {
 							title={currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP ? t('tooltips.clickToEdit') : channelDmGroupLabel}
 							data-e2e={generateE2eId(`chat.direct_message.chat_item.namegroup`)}
 						>
-							<span className="truncate flex-1 min-w-0">{channelDmGroupLabel}</span>
+							<div className="flex flex-col justify-center">
+								<span className="truncate min-w-0 h-4 leading-4">{channelDmGroupLabel}</span>
+								{!!checkInvoice && currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
+									<span className="truncate min-w-0 h-4 text-xs flex gap-1 items-center">
+										<Icons.Speaker className="text-green-500 !w-3 !h-3" /> {t('invoice')}
+									</span>
+								)}
+							</div>
 							{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
 								<svg
 									className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0"

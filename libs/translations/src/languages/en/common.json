@@ -477,5 +477,10 @@
 	"poll": "Poll",
 	"ephemeral": "Ephemeral",
 	"threads": "Threads",
-	"anonymous": "Anonymous"
+	"anonymous": "Anonymous",
+	"copy": "Copy",
+	"forward": "Forward",
+	"share": "Share",
+	"download": "Download",
+	"jumpToMessage": "Jump to Message"
 }

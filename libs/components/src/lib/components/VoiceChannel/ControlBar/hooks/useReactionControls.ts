@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useSendReaction } from '../../MyVideoConference/Reaction/useSendReaction';
 
 export function useReactionControls() {
-	const { sendEmojiReaction, sendSoundReaction } = useSendReaction();
+	const { sendEmojiReaction, sendSoundReaction, sendRaisingHand } = useSendReaction();
 	const currentChannelId = useSelector(selectCurrentChannelId);
 
 	const [showEmojiPanel, setShowEmojiPanel] = useState(false);
@@ -57,6 +57,7 @@ export function useReactionControls() {
 		showSoundPanel,
 		setShowSoundPanel,
 		handleEmojiSelect,
-		handleSoundSelect
+		handleSoundSelect,
+		sendRaisingHand
 	};
 }

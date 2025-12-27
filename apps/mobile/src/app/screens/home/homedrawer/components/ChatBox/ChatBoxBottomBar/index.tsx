@@ -17,9 +17,11 @@ import {
 	getStore,
 	referencesActions,
 	selectAllChannels,
-	selectAllHashtagDm,
+	selectAllChannelsByUser,
 	selectAnonymousMode,
 	selectCurrentChannelId,
+	selectCurrentClanId,
+	selectCurrentClanPreventAnonymous,
 	selectCurrentDM,
 	threadsActions,
 	useAppDispatch
@@ -41,11 +43,17 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
-import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
+import {
+	SlashCommandMessage
+} from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
+import {
+	removeBackticks,
+	resetCachedChatbox,
+	resetCachedMessageActionNeedToResolve
+} from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
@@ -96,6 +104,7 @@ interface IChatInputProps {
 	onDeleteMessageActionNeedToResolve?: () => void;
 	isPublic: boolean;
 	topicChannelId?: string;
+	hiddenAdvanceFunc?: boolean;
 }
 
 interface IEphemeralTargetUserInfo {
@@ -162,7 +171,8 @@ export const ChatBoxBottomBar = memo(
 		messageAction,
 		onDeleteMessageActionNeedToResolve,
 		isPublic = false,
-		topicChannelId = ''
+		topicChannelId = '',
+		hiddenAdvanceFunc = false
 	}: IChatInputProps) => {
 		const { themeValue } = useTheme();
 		const dispatch = useAppDispatch();
@@ -182,7 +192,9 @@ export const ChatBoxBottomBar = memo(
 			display: ''
 		});
 		const [isShowOptionPaste, setIsShowOptionPaste] = useState(false);
-		const anonymousMode = useSelector(selectAnonymousMode);
+		const currentClanId = useSelector(selectCurrentClanId);
+		const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentClanId));
+		const currentClanPreventAnonymous = useSelector(selectCurrentClanPreventAnonymous);
 
 		const inputRef = useRef<TextInput>(null);
 		const cursorPositionRef = useRef(0);
@@ -198,8 +210,12 @@ export const ChatBoxBottomBar = memo(
 		const lastTap = useRef<number>(0);
 		const currentChannelKey = useMemo(() => topicChannelId || channelId, [topicChannelId, channelId]);
 		const showAnonymousIcon = useMemo(
-			() => mode !== ChannelStreamMode.STREAM_MODE_DM && mode !== ChannelStreamMode.STREAM_MODE_GROUP && anonymousMode,
-			[mode, anonymousMode]
+			() =>
+				mode !== ChannelStreamMode.STREAM_MODE_DM &&
+				mode !== ChannelStreamMode.STREAM_MODE_GROUP &&
+				anonymousMode &&
+				!currentClanPreventAnonymous,
+			[mode, anonymousMode, currentClanPreventAnonymous]
 		);
 		const inputTriggersConfig = useMemo(() => {
 			const isDM = [ChannelStreamMode.STREAM_MODE_GROUP].includes(mode);
@@ -314,7 +330,7 @@ export const ChatBoxBottomBar = memo(
 				inputRef && inputRef.current && inputRef.current.focus();
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 					isShow: false,
-					mode: ''
+					mode: mode || ''
 				});
 			}
 		}, []);
@@ -382,9 +398,9 @@ export const ChatBoxBottomBar = memo(
 						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 						// @ts-expect-error
 						const listChannel = selectAllChannels(store.getState() as RootState);
-						const listHashtagDm = selectAllHashtagDm(store.getState() as RootState);
+						const listChannelHashtagDm = selectAllChannelsByUser(store.getState() as RootState);
 						const channelLabel = channelName?.slice?.(2, -1);
-						const channelInfo = getChannelHashtag(listHashtagDm, listChannel, mode, channelLabel);
+						const channelInfo = getChannelHashtag(listChannelHashtagDm, listChannel, mode, channelLabel);
 
 						mentionBeforeHashtagCount++;
 
@@ -559,7 +575,7 @@ export const ChatBoxBottomBar = memo(
 			setModeKeyBoardBottomSheet('text');
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, {
 				isShow: false,
-				mode: ''
+				mode: 'text'
 			});
 		}, []);
 
@@ -754,6 +770,7 @@ export const ChatBoxBottomBar = memo(
 						isAvailableSending={textChange?.length > 0}
 						modeKeyBoardBottomSheet={modeKeyBoardBottomSheet}
 						handleKeyboardBottomSheetMode={handleKeyboardBottomSheetMode}
+						hiddenAdvanceFunc={hiddenAdvanceFunc}
 					/>
 					<RecordMessageProcessing />
 					<View style={styles.inputWrapper}>
@@ -824,7 +841,7 @@ export const ChatBoxBottomBar = memo(
 							voiceLinkRoomOnMessage={voiceLinkRoomList}
 							messageAction={messageAction}
 							clearInputAfterSendMessage={onSendSuccess}
-							anonymousMode={anonymousMode}
+							anonymousMode={anonymousMode && !currentClanPreventAnonymous}
 							ephemeralTargetUserId={ephemeralTargetUserInfo?.id}
 							currentTopicId={topicChannelId}
 						/>
@@ -834,7 +851,7 @@ export const ChatBoxBottomBar = memo(
 					textChange={textChange}
 					mode={mode}
 					channelId={channelId}
-					anonymousMode={anonymousMode}
+					anonymousMode={anonymousMode && !currentClanPreventAnonymous}
 					isPublic={isPublic}
 					topicChannelId={topicChannelId || ''}
 				/>

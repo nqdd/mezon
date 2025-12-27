@@ -167,7 +167,7 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 						offset: [0, 10],
 						points: ['br']
 					}}
-					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!left-auto max-md:!top-auto max-md:!transform-none max-md:!min-w-full "
+					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!min-w-full "
 				>
 					<div className="capitalize ml-[1px] text-theme-primary">
 						<ItemStatus

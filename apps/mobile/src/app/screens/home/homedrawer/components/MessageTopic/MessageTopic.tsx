@@ -1,10 +1,11 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
 import { selectLatestMessageId, selectMemberClanByUserId, topicsActions, useAppDispatch } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonClanAvatar from '../../../../../componentUI/MezonClanAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
@@ -25,6 +26,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 	const replyCount = lastTopicMessageId ? (BigInt(lastTopicMessageId) >> BigInt(22)) - BASE_SEED_GID : 0;
 
 	const handleOpenTopic = () => {
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET, { isShow: false, mode: 'force' });
 		dispatch(topicsActions.setCurrentTopicId(message?.content?.tp || ''));
 		dispatch(topicsActions.setInitTopicMessageId(message?.id || ''));
 		navigation.navigate(APP_SCREEN.MESSAGES.STACK, {
@@ -45,7 +47,7 @@ const MessageTopic = ({ message }: { message: MessagesEntity }) => {
 		<View style={styles.outerWrapper}>
 			<TouchableOpacity onPress={handleOpenTopic} style={styles.container}>
 				<View style={styles.avatarWrapper}>
-					<MezonClanAvatar alt={topicCreator?.user?.username || ''} image={priorityCreatorAvatar} />
+					<MezonClanAvatar alt={topicCreator?.user?.username || ''} image={priorityCreatorAvatar} customFontSizeAvatarCharacter={size.h8} />
 				</View>
 				<Text style={styles.repliesText}>{t('creator')}</Text>
 				<Text style={styles.dateMessageBox}>{t('viewTopic')}</Text>

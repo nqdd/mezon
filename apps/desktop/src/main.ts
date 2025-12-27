@@ -6,6 +6,7 @@ import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import App from './app/app';
 import {
 	ACTION_SHOW_IMAGE,
+	CLEAR_SCREEN_SOURCES_CACHE,
 	CLOSE_APP,
 	CLOSE_IMAGE_WINDOW,
 	DOWNLOAD_FILE,
@@ -13,6 +14,7 @@ import {
 	IMAGE_WINDOW_TITLE_BAR_ACTION,
 	LAUNCH_APP_WINDOW,
 	LOAD_MORE_ATTACHMENTS,
+	LOAD_MORE_SCREEN_SOURCES,
 	MAC_WINDOWS_ACTION,
 	MAXIMIZE_WINDOW,
 	MINIMIZE_WINDOW,
@@ -109,14 +111,73 @@ ipcMain.handle(DOWNLOAD_FILE, async (event, { url, defaultFileName }) => {
 	}
 });
 
-ipcMain.handle(REQUEST_PERMISSION_SCREEN, async (_event, source) => {
-	const sources = await desktopCapturer.getSources({ types: [source], thumbnailSize: { width: 272, height: 136 }, fetchWindowIcons: true });
-	return sources.map((src) => ({
+const screenSourcesCache = new Map<string, Array<{ id: string; name: string; thumbnail: string; icon: string }>>();
+
+const INITIAL_BATCH_SIZE = 12;
+const LOAD_MORE_BATCH_SIZE = 8;
+
+ipcMain.handle(REQUEST_PERMISSION_SCREEN, async (_event, source: string) => {
+	const sourceType = source === 'screen' ? 'screen' : 'window';
+	const cacheKey = sourceType;
+
+	const cached = screenSourcesCache.get(cacheKey);
+	if (cached) {
+		return {
+			sources: cached.slice(0, INITIAL_BATCH_SIZE),
+			total: cached.length,
+			hasMore: cached.length > INITIAL_BATCH_SIZE
+		};
+	}
+
+	const thumbnailSize = sourceType === 'screen' ? { width: 272, height: 136 } : { width: 150, height: 90 };
+	const sources = await desktopCapturer.getSources({
+		types: [sourceType],
+		thumbnailSize,
+		fetchWindowIcons: false
+	});
+
+	const processedSources = sources.map((src) => ({
 		id: src.id,
 		name: src.name,
 		thumbnail: src.thumbnail.toDataURL(),
-		icon: src.appIcon?.toDataURL()
+		icon: ''
 	}));
+
+	screenSourcesCache.set(cacheKey, processedSources);
+
+	return {
+		sources: processedSources.slice(0, INITIAL_BATCH_SIZE),
+		total: processedSources.length,
+		hasMore: processedSources.length > INITIAL_BATCH_SIZE
+	};
+});
+
+ipcMain.handle(LOAD_MORE_SCREEN_SOURCES, async (_event, source: string, offset: number) => {
+	const sourceType = source === 'screen' ? 'screen' : 'window';
+	const cacheKey = sourceType;
+
+	const cached = screenSourcesCache.get(cacheKey);
+	if (!cached) {
+		return { sources: [], hasMore: false };
+	}
+
+	const nextBatch = cached.slice(offset, offset + LOAD_MORE_BATCH_SIZE);
+	const hasMore = offset + nextBatch.length < cached.length;
+
+	return {
+		sources: nextBatch,
+		hasMore
+	};
+});
+
+ipcMain.handle(CLEAR_SCREEN_SOURCES_CACHE, async (_event, source?: string) => {
+	if (source) {
+		const sourceType = source === 'screen' ? 'screen' : 'window';
+		screenSourcesCache.delete(sourceType);
+	} else {
+		screenSourcesCache.clear();
+	}
+	return { success: true };
 });
 
 ipcMain.handle(SENDER_ID, () => {

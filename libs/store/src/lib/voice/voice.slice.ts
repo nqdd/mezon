@@ -17,6 +17,10 @@ export interface VoiceEntity extends IVoice {
 	id: string; // Primary ID
 }
 
+export interface InVoiceInfor {
+	clanId: string;
+	channelId: string;
+}
 export interface VoiceState extends EntityState<VoiceEntity, string> {
 	voiceInfo: IvoiceInfo | null;
 	loadingStatus: LoadingStatus;
@@ -42,7 +46,7 @@ export interface VoiceState extends EntityState<VoiceEntity, string> {
 	openPopOut?: boolean;
 	openChatBox?: boolean;
 	externalGroup?: boolean;
-	listInVoiceStatus: Record<string, string>;
+	listInVoiceStatus: Record<string, InVoiceInfor>;
 	screenSource?: {
 		id: string;
 		audio: boolean;
@@ -216,7 +220,10 @@ export const voiceSlice = createSlice({
 
 			voiceAdapter.upsertOne(state, normalizedVoice);
 			if (normalizedVoice.user_id) {
-				state.listInVoiceStatus[normalizedVoice.user_id] = normalizedVoice.voice_channel_id;
+				state.listInVoiceStatus[normalizedVoice.user_id] = {
+					clanId: normalizedVoice.clan_id,
+					channelId: normalizedVoice.voice_channel_id
+				};
 			}
 		},
 		remove: (state, action: PayloadAction<VoiceLeavedEvent>) => {
@@ -228,21 +235,22 @@ export const voiceSlice = createSlice({
 			} else {
 				voiceAdapter.removeOne(state, voice.id);
 			}
-			delete state.listInVoiceStatus[voice.voice_user_id];
+
+			const entitiesAfter = voiceAdapter.getSelectors().selectAll(state);
+			const userStillInVoice = entitiesAfter.some((entity) => entity.user_id === voice.voice_user_id);
+			if (!userStillInVoice) {
+				delete state.listInVoiceStatus[voice.voice_user_id];
+			}
 		},
 		removeFromClanInvoice: (state, action: PayloadAction<string>) => {
 			const userId = action.payload;
-			const listUser = voiceAdapter.getSelectors().selectAll(state);
-			const keyRemove = listUser
-				.filter((user) => {
-					return user.user_id === userId;
-				})
-				.map((user) => user.id);
-
-			if (keyRemove.length > 0) {
-				voiceAdapter.removeMany(state, keyRemove);
+			const entitiesOfUser = voiceAdapter
+				.getSelectors()
+				.selectAll(state)
+				.filter((entity) => entity.user_id === userId);
+			if (entitiesOfUser.length === 0) {
+				delete state.listInVoiceStatus[userId];
 			}
-			delete state.listInVoiceStatus[userId];
 		},
 		voiceEnded: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;
@@ -369,7 +377,7 @@ export const voiceSlice = createSlice({
 		removeInVoiceInChannel: (state, action: PayloadAction<string>) => {
 			const channelId = action.payload;
 			for (const key in state.listInVoiceStatus) {
-				if (state.listInVoiceStatus[key] === channelId) {
+				if (state.listInVoiceStatus[key].channelId === channelId) {
 					delete state.listInVoiceStatus[key];
 				}
 			}
@@ -389,7 +397,10 @@ export const voiceSlice = createSlice({
 					state.listInVoiceStatus = {};
 					const members: VoiceEntity[] = users.map((channelRes) => {
 						if (channelRes.user_id && channelRes?.id) {
-							state.listInVoiceStatus[channelRes.user_id] = channelRes.channel_id || '';
+							state.listInVoiceStatus[channelRes.user_id] = {
+								channelId: channelRes.channel_id || '',
+								clanId
+							};
 						}
 						return {
 							user_id: channelRes.user_id || '',
@@ -482,7 +493,7 @@ export const selectStatusInVoice = createSelector(
 
 export const selectAlreadyInVoice = createSelector(
 	[getVoiceState, (state, userId: string) => userId, (_, __, channelId: string) => channelId],
-	(state, userId, channelId) => state.listInVoiceStatus[userId] === channelId
+	(state, userId, channelId) => state.listInVoiceStatus[userId].channelId === channelId
 );
 
 export const selectVoiceJoined = createSelector(getVoiceState, (state) => state.isJoined);
