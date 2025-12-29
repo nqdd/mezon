@@ -11,6 +11,7 @@ import {
 import { Icons } from '@mezon/ui';
 import { createImgproxyUrl } from '@mezon/utils';
 import isElectron from 'is-electron';
+import { ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -174,14 +175,11 @@ const ItemHistory = ({
 	const navigate = useNavigate();
 	const logo = useMemo(() => {
 		if (!clan) {
+			const avatar = channelDM.type === ChannelType.CHANNEL_TYPE_GROUP ? channelDM?.channel_avatar : channelDM?.avatars?.[0];
 			return (
 				<img
 					className="w-6 aspect-square rounded-md"
-					src={
-						logoCustom
-							? createImgproxyUrl(logoCustom, { width: 24, height: 24, resizeType: 'fit' })
-							: 'assets/images/mezon-logo-black.svg'
-					}
+					src={avatar ? createImgproxyUrl(avatar, { width: 24, height: 24, resizeType: 'fit' }) : 'assets/images/mezon-logo-black.svg'}
 				/>
 			);
 		}
