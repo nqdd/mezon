@@ -43,13 +43,17 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 	}
 
 	const [timeSetReset, setTimeSetReset] = useState<string>(getTimeResetLabel(time_reset, t));
+	const [resetTimerStatus, setResetTimerStatus] = useState<number>(time_reset);
+	const [noClearStatus, setNoClearStatus] = useState<boolean>(false);
+	const [customStatus, setCustomStatus] = useState<string>(status ?? '');
 
 	const setStatusTimer = useCallback(
 		(minutes: number, noClear: boolean, option: string) => {
 			setTimeSetReset(option);
 			if (noClear) {
-				setNoClearStatus(noClear);
+				setNoClearStatus(true);
 			} else {
+				setNoClearStatus(false);
 				if (option === t('timeOptions.today')) {
 					const now = new Date();
 					const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -62,10 +66,6 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 		[t]
 	);
 	const currentClanId = useSelector(selectCurrentClanId);
-
-	const [resetTimerStatus, setResetTimerStatus] = useState<number>(time_reset);
-	const [noClearStatus, setNoClearStatus] = useState<boolean>(false);
-	const [customStatus, setCustomStatus] = useState<string>(status ?? '');
 
 	const handleSaveCustomStatus = () => {
 		dispatch(
