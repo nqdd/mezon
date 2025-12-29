@@ -1,5 +1,6 @@
 import { channelMembersActions, selectCurrentClanId, useAppDispatch, userClanProfileActions } from '@mezon/store';
 import { Icons, Menu } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ReactElement, ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -43,13 +44,17 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 	}
 
 	const [timeSetReset, setTimeSetReset] = useState<string>(getTimeResetLabel(time_reset, t));
+	const [resetTimerStatus, setResetTimerStatus] = useState<number>(time_reset);
+	const [noClearStatus, setNoClearStatus] = useState<boolean>(false);
+	const [customStatus, setCustomStatus] = useState<string>(status ?? '');
 
 	const setStatusTimer = useCallback(
 		(minutes: number, noClear: boolean, option: string) => {
 			setTimeSetReset(option);
 			if (noClear) {
-				setNoClearStatus(noClear);
+				setNoClearStatus(true);
 			} else {
+				setNoClearStatus(false);
 				if (option === t('timeOptions.today')) {
 					const now = new Date();
 					const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -62,10 +67,6 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 		[t]
 	);
 	const currentClanId = useSelector(selectCurrentClanId);
-
-	const [resetTimerStatus, setResetTimerStatus] = useState<number>(time_reset);
-	const [noClearStatus, setNoClearStatus] = useState<boolean>(false);
-	const [customStatus, setCustomStatus] = useState<string>(status ?? '');
 
 	const handleSaveCustomStatus = () => {
 		dispatch(
@@ -118,7 +119,7 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 
 	return (
 		<ModalLayout onClose={onClose}>
-			<div className="bg-theme-setting-primary pt-4 rounded w-[90%] md:w-[440px] ">
+			<div className="bg-theme-setting-primary pt-4 rounded w-[90%] md:w-[440px] " data-e2e={generateE2eId('short_profile.modal.custom_status')}>
 				<div>
 					<h1 className="text-theme-primary-active text-xl font-semibold text-center">{t('title')}</h1>
 				</div>
@@ -135,6 +136,7 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 							maxLength={128}
 							autoFocus
 							onChange={handleChangeCustomStatus}
+							data-e2e={generateE2eId('short_profile.modal.custom_status.input')}
 						/>
 					</div>
 					<div className="px-4">
@@ -149,13 +151,19 @@ const ModalCustomStatus = ({ name, status, onClose, time_reset = 0 }: ModalCusto
 						</Menu>
 					</div>
 					<div className="flex justify-end p-4 gap-2 rounded-b-theme-primary ">
-						<button className="py-2 h-10 px-4 rounded-lg  hover:underline text-theme-primary" type="button" onClick={onClose}>
+						<button
+							className="py-2 h-10 px-4 rounded-lg  hover:underline text-theme-primary"
+							type="button"
+							onClick={onClose}
+							data-e2e={generateE2eId('short_profile.modal.custom_status.button.cancel')}
+						>
 							{t('buttons.cancel')}
 						</button>
 						<button
 							className="py-2 h-10 px-4 rounded-lg text-white !bg-[#5265ec] hover:!bg-[#4654c0]"
 							type="button"
 							onClick={handleSaveCustomStatus}
+							data-e2e={generateE2eId('short_profile.modal.custom_status.button.save')}
 						>
 							{t('buttons.save')}
 						</button>
