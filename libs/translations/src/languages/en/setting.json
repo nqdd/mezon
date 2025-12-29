@@ -13,6 +13,12 @@
 		"QRScan": "Scan QR Code",
 		"MyQRCode": "My QR Code"
 	},
+	"deviceSettings": {
+		"description1": "Here are all the devices that are currently logged in with your account. You can log out of each one individually ",
+		"description2": "If you see an entry you don’t recognise, log out of that device and change your account password immediately.",
+		"currentDevice": "Current Device",
+		"otherDevices": "Other Devices"
+	},
 	"paymentSettings": {
 		"title": "Payment Settings",
 		"restoreSubscription": "Restore Subscription"

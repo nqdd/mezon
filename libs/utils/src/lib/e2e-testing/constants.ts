@@ -594,6 +594,9 @@ export const DATA_E2E_IDENTIFIER = {
 			tab_account: '',
 			info: ''
 		},
+		devices: {
+			tab_devices: ''
+		},
 		profile: {
 			button_setting: '',
 			tab_profile: '',

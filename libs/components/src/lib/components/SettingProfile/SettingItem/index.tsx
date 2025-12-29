@@ -50,6 +50,18 @@ const SettingItem = ({ onItemClick, initSetting }: { onItemClick?: (settingName:
 				>
 					{t('setting:accountSettings.account')}
 				</button>
+
+				<br />
+				<button
+					className={`p-2 pl-2 ml-[-8px] font-medium ${selectedButton === 'Devices' ? 'bg-button-secondary text-theme-primary-active bg-item-theme' : 'text-theme-primary'} mt-1 w-[170px] text-left rounded-[5px]`}
+					onClick={() => {
+						handleButtonClick('Devices');
+						onItemClick && onItemClick('Devices');
+					}}
+					data-e2e={generateE2eId(`user_setting.devices.tab_devices`)}
+				>
+					{t('setting:accountSettings.device')}
+				</button>
 				<br />
 				<button
 					className={`p-2 pl-2 ml-[-8px] font-medium ${selectedButton === 'Profiles' ? 'bg-button-secondary text-theme-primary-active bg-item-theme' : 'text-theme-primary'} mt-1 w-[170px] text-left rounded-[5px]`}
