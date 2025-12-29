@@ -161,7 +161,7 @@ const ChannelMainContentText = ({ channelId, canSendMessage }: ChannelMainConten
 			? ChannelStreamMode.STREAM_MODE_CHANNEL
 			: ChannelStreamMode.STREAM_MODE_THREAD;
 
-	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState<boolean | null>(false);
+	const [canSendMessageDelayed, setCanSendMessageDelayed] = useState<boolean | null>(null);
 	const isAppChannel = currentChannel?.type === ChannelType.CHANNEL_TYPE_APP;
 
 	const currentClanId = useSelector(selectCurrentClanId);
