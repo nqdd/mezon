@@ -208,6 +208,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 	const handleSelectMem = useCallback(
 		async (user: SearchItemProps) => {
 			const foundDirect = listDirectSearch.find((item) => item.idDM === user.id);
+			dispatch(appActions.setIsShowSettingFooterStatus(false));
 			if (foundDirect !== undefined) {
 				dispatch(
 					channelsActions.setPreviousChannels({
@@ -243,7 +244,7 @@ function SearchModal({ onClose }: SearchModalProps) {
 			if (!channel?.id) {
 				return;
 			}
-
+			dispatch(appActions.setIsShowSettingFooterStatus(false));
 			dispatch(categoriesActions.setCtrlKSelectedChannelId(channel?.id ?? ''));
 			const channelUrl = toChannelPage(channel?.id ?? '', channel?.clanId ?? '');
 			dispatch(categoriesActions.setCtrlKFocusChannel({ id: channel?.id, parentId: channel?.parent_id ?? '' }));
