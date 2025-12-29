@@ -23,19 +23,20 @@ import {
 	selectCurrentClanId,
 	selectCurrentClanPreventAnonymous,
 	selectCurrentDM,
+	selectIsShowCreateTopic,
 	threadsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import type { IHashtagOnMessage, IMentionOnMessage, MentionDataProps } from '@mezon/utils';
 import { MIN_THRESHOLD_CHARS } from '@mezon/utils';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 // eslint-disable-next-line
 import { useMezon } from '@mezon/transport';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, Platform, StyleSheet, TextInput, View } from 'react-native';
+import { DeviceEventEmitter, EmitterSubscription, Platform, StyleSheet, TextInput, View } from 'react-native';
 import type { TriggersConfig } from 'react-native-controlled-mentions';
 import { useMentions } from 'react-native-controlled-mentions';
 import RNFS from 'react-native-fs';
@@ -43,17 +44,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
-import {
-	SlashCommandMessage
-} from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
+import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
-import {
-	removeBackticks,
-	resetCachedChatbox,
-	resetCachedMessageActionNeedToResolve
-} from '../../../../../../utils/helpers';
+import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
 import type { IMessageActionNeedToResolve } from '../../../types';
 import AttachmentPreview from '../../AttachmentPreview';
@@ -95,6 +90,9 @@ export const triggersConfig: TriggersConfig<'mention' | 'hashtag' | 'emoji' | 's
 		isInsertSpaceAfterMention: true
 	}
 };
+
+let glowbalEmojiPicked: EmitterSubscription | null = null;
+let activeInstanceId: string | null = null;
 
 interface IChatInputProps {
 	mode: ChannelStreamMode;
@@ -195,11 +193,13 @@ export const ChatBoxBottomBar = memo(
 		const currentClanId = useSelector(selectCurrentClanId);
 		const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentClanId));
 		const currentClanPreventAnonymous = useSelector(selectCurrentClanPreventAnonymous);
+		const isCreateTopic = useSelector(selectIsShowCreateTopic);
 
 		const inputRef = useRef<TextInput>(null);
 		const cursorPositionRef = useRef(0);
 		const convertRef = useRef(false);
 		const textValueInputRef = useRef<string>('');
+		const textChangeInputRef = useRef<string>('');
 		const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 		const mentionsOnMessage = useRef<IMentionOnMessage[]>([]);
 		const hashtagsOnMessage = useRef<IHashtagOnMessage[]>([]);
@@ -208,6 +208,7 @@ export const ChatBoxBottomBar = memo(
 		const isLongPressed = useRef(false);
 		const isDoublePressed = useRef(false);
 		const lastTap = useRef<number>(0);
+		const instanceIdRef = useRef(`panel-keyboard-${Date.now()}-${Math.random()}`);
 		const currentChannelKey = useMemo(() => topicChannelId || channelId, [topicChannelId, channelId]);
 		const showAnonymousIcon = useMemo(
 			() =>
@@ -261,18 +262,15 @@ export const ChatBoxBottomBar = memo(
 			textValueInputRef.current = convertMentionsToText(allCachedMessage?.[topicChannelId || channelId] || '');
 		};
 
-		const handleEventAfterEmojiPicked = useCallback(
-			async (shortName: string) => {
-				let textFormat;
-				if (!textValueInputRef?.current?.length && !textChange.length) {
-					textFormat = shortName?.toString();
-				} else {
-					textFormat = `${textChange?.endsWith(' ') ? textChange : `${textChange} `}${shortName?.toString()}`;
-				}
-				await handleTextInputChange(`${textFormat} `);
-			},
-			[textChange]
-		);
+		const handleEventAfterEmojiPicked = useCallback(async (shortName: string) => {
+			let textFormat;
+			if (!textChangeInputRef?.current?.length) {
+				textFormat = shortName?.toString();
+			} else {
+				textFormat = `${textChangeInputRef?.current?.endsWith(' ') ? textChangeInputRef?.current : `${textChangeInputRef?.current} `}${shortName?.toString()}`;
+			}
+			await handleTextInputChange(`${textFormat} `);
+		}, []);
 
 		const handleActionFromAdvanced = useCallback(async (action: string) => {
 			if (action === 'ephemeral') {
@@ -297,6 +295,7 @@ export const ChatBoxBottomBar = memo(
 
 		const onSendSuccess = useCallback(() => {
 			textValueInputRef.current = '';
+			textChangeInputRef.current = '';
 			setTextChange('');
 			setMentionTextValue('');
 			setIsEphemeralMode(false);
@@ -347,10 +346,12 @@ export const ChatBoxBottomBar = memo(
 					convertRef.current = true;
 					await onConvertToFiles(text);
 					textValueInputRef.current = '';
+					textChangeInputRef.current = '';
 					setTextChange('');
 					return;
 				}
 				setTextChange(text);
+				textChangeInputRef.current = text;
 				textValueInputRef.current = text;
 				if (!text || text === '') {
 					setMentionTextValue('');
@@ -444,6 +445,7 @@ export const ChatBoxBottomBar = memo(
 				setTextChange('');
 				setMentionTextValue('');
 				textValueInputRef.current = '';
+				textChangeInputRef.current = '';
 				mentionsOnMessage.current = [];
 			}
 		}, []);
@@ -599,13 +601,13 @@ export const ChatBoxBottomBar = memo(
 		}, []);
 
 		useEffect(() => {
-			if (channelId) {
+			if (channelId && !isCreateTopic) {
 				setMessageFromCache();
 			}
 			DeviceEventEmitter.addListener(ActionEmitEvent.ON_SET_LIST_MENTION_DATA, ({ data }: { data: MentionDataProps[] }) => {
 				setListMentions(data);
 			});
-		}, [channelId]);
+		}, [channelId, isCreateTopic]);
 
 		useEffect(() => {
 			if (messageActionNeedToResolve !== null) {
@@ -622,16 +624,35 @@ export const ChatBoxBottomBar = memo(
 			const clearTextInputListener = DeviceEventEmitter.addListener(ActionEmitEvent.CLEAR_TEXT_INPUT, () => {
 				textValueInputRef.current = '';
 			});
-			const addEmojiPickedListener = DeviceEventEmitter.addListener(ActionEmitEvent.ADD_EMOJI_PICKED, (emoji) => {
-				if (emoji?.channelId === channelId || emoji?.channelId === topicChannelId) {
-					handleEventAfterEmojiPicked(emoji.shortName);
-				}
-			});
 			return () => {
 				clearTextInputListener.remove();
-				addEmojiPickedListener.remove();
 			};
 		}, [channelId, handleEventAfterEmojiPicked, topicChannelId]);
+
+		useFocusEffect(
+			useCallback(() => {
+				const currentInstanceId = instanceIdRef.current;
+				if (glowbalEmojiPicked) {
+					glowbalEmojiPicked.remove();
+					glowbalEmojiPicked = null;
+				}
+
+				activeInstanceId = currentInstanceId;
+				glowbalEmojiPicked = DeviceEventEmitter.addListener(ActionEmitEvent.ADD_EMOJI_PICKED, (emoji) => {
+					if (activeInstanceId === currentInstanceId) {
+						handleEventAfterEmojiPicked(emoji.shortName);
+					}
+				});
+				return () => {
+					if (activeInstanceId === currentInstanceId) {
+						if (glowbalEmojiPicked) {
+							glowbalEmojiPicked.remove();
+							glowbalEmojiPicked = null;
+						}
+					}
+				};
+			}, [handleEventAfterEmojiPicked])
+		);
 
 		useEffect(() => {
 			const sendActionFromAdvancedListener = DeviceEventEmitter.addListener(
@@ -734,6 +755,7 @@ export const ChatBoxBottomBar = memo(
 				setTextChange('@');
 				setMentionTextValue('@');
 				textValueInputRef.current = '@';
+				textChangeInputRef.current = '@';
 				mentionsOnMessage.current = [];
 			} else {
 				if (command.display && command.description) {
