@@ -1,7 +1,7 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 /* eslint-disable no-console */
 import { useChannelMembers, useChatSending, useDirect, usePermissionChecker, useSendInviteMessage } from '@mezon/core';
-import { ActionEmitEvent, STORAGE_MY_USER_ID, formatContentEditMessage, load } from '@mezon/mobile-components';
+import { ActionEmitEvent, formatContentEditMessage, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
@@ -35,13 +35,13 @@ import {
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
 	EPermission,
-	FORWARD_MESSAGE_TIME,
-	TOKEN_TO_AMOUNT,
-	ThreadStatus,
-	TypeMessage,
 	formatMoney,
+	FORWARD_MESSAGE_TIME,
 	isPublicChannel,
-	sleep
+	sleep,
+	ThreadStatus,
+	TOKEN_TO_AMOUNT,
+	TypeMessage
 } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
@@ -54,13 +54,18 @@ import Share from 'react-native-share';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../../src/app/constants/icon_cdn';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
+import { IconCDN } from '../../../../../constants/icon_cdn';
 import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { getMessageActions } from '../../constants';
 import { EMessageActionType } from '../../enums';
-import type { IConfirmActionPayload, IMessageAction, IMessageActionNeedToResolve, IReplyBottomSheet } from '../../types/message.interface';
+import type {
+	IConfirmActionPayload,
+	IMessageAction,
+	IMessageActionNeedToResolve,
+	IReplyBottomSheet
+} from '../../types/message.interface';
 import { ConfirmPinMessageModal } from '../ConfirmPinMessageModal';
 import EmojiSelector from '../EmojiPicker/EmojiSelector';
 import type { IReactionMessageProps } from '../MessageReaction';
@@ -86,7 +91,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 	const currentChannel = useSelector(selectCurrentChannel);
 	const currentDmGroup = useSelector(selectDmGroupCurrent(currentDmId ?? ''));
 	const currentTopicId = useSelector(selectCurrentTopicId);
-	const anonymousMode = useSelector(selectAnonymousMode);
+	const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentChannel?.clan_id));
 	const navigation = useNavigation<any>();
 	const { createDirectMessageWithUser } = useDirect();
 	const { sendInviteMessage } = useSendInviteMessage();

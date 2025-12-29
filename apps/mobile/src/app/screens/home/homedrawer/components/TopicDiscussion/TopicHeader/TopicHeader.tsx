@@ -1,7 +1,8 @@
 import { useGetPriorityNameFromUserClan } from '@mezon/core';
 import { size, useColorsRoleById, useTheme } from '@mezon/mobile-ui';
-import { selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
+import { selectFirstMessageEntityTopic, selectFirstMessageOfCurrentTopic, useAppSelector } from '@mezon/store-mobile';
 import { DEFAULT_MESSAGE_CREATOR_NAME_DISPLAY_COLOR, convertTimeString } from '@mezon/utils';
+import { safeJSONParse } from 'mezon-js';
 import { memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, Text, View } from 'react-native';
@@ -23,7 +24,15 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const { t } = useTranslation(['message', 'common']);
-	const firstMessage = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+	const firstMessageEntity = useAppSelector((state) => selectFirstMessageEntityTopic(state));
+	const firstMessageByChannel = useAppSelector((state) => selectFirstMessageOfCurrentTopic(state, currentChannelId || ''));
+
+	const firstMessage = useMemo(() => {
+		if (firstMessageByChannel) {
+			return firstMessageByChannel;
+		}
+		return firstMessageEntity;
+	}, [firstMessageByChannel, firstMessageEntity]);
 
 	const { priorityAvatar, namePriority } = useGetPriorityNameFromUserClan(firstMessage?.sender_id || '');
 	const userRolesClan = useColorsRoleById(firstMessage?.sender_id || '');
@@ -75,7 +84,9 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 				<ScrollView>
 					<RenderTextMarkdownContent
 						content={{
-							...(firstMessage?.content || {}),
+							...(typeof firstMessage?.content === 'string'
+								? safeJSONParse(firstMessage?.content || '{}')
+								: firstMessage?.content || {}),
 							mentions: firstMessage?.mentions || []
 						}}
 						translate={t}
@@ -83,16 +94,26 @@ const TopicHeader = memo(({ currentChannelId, handleBack }: TopicHeaderProps) =>
 					/>
 					{firstMessage?.attachments?.length > 0 && (
 						<MessageAttachment
-							attachments={firstMessage?.attachments || []}
+							attachments={
+								typeof firstMessage?.attachments === 'string'
+									? safeJSONParse(firstMessage?.attachments || '[]')
+									: firstMessage?.attachments || []
+							}
 							clanId={firstMessage?.clan_id || ''}
 							channelId={firstMessage?.channel_id || ''}
+							messageCreatTime={firstMessage?.create_time}
+							senderId={firstMessage?.sender_id}
 						/>
 					)}
 					{!!firstMessage?.content?.embed?.[0] && (
 						<EmbedMessage
 							message_id={firstMessage?.id || ''}
 							channel_id={firstMessage?.channel_id || ''}
-							embed={firstMessage.content.embed[0]}
+							embed={
+								typeof firstMessage?.content?.embed === 'string'
+									? safeJSONParse(firstMessage?.content || '{}')?.embed?.[0]
+									: firstMessage?.content?.embed?.[0]
+							}
 							key={`message_embed_${firstMessage?.channel_id}_${firstMessage?.id}`}
 						/>
 					)}

@@ -5,9 +5,9 @@ import {
 	selectCountWalletLedger,
 	selectDetailTransaction,
 	selectTransactionHistory,
+	transactionHistoryActions,
 	useAppDispatch,
-	useAppSelector,
-	walletLedgerActions
+	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { formatBalanceToString } from '@mezon/utils';
@@ -57,13 +57,13 @@ const TransactionHistory = ({ onClose }: IProps) => {
 		async (filter: FilterType, page = 1, isLoadMore = false) => {
 			isLoadMore ? setIsLoadingMore(true) : setIsLoading(true);
 			try {
-				const lastItem = currentData[currentData.length - 1];
+				const lastItem = page === 1 ? null : currentData[currentData.length - 1];
 				await dispatch(
 					fetchLoadMoreTransaction({
 						address: walletAddress || '',
 						filter: API_FILTER_PARAMS[filter],
-						timeStamp: page === 1 ? undefined : new Date(lastItem?.transaction_timestamp * 1000).toISOString(),
-						lastHash: page === 1 ? undefined : lastItem?.hash
+						timeStamp: lastItem ? new Date(lastItem?.transaction_timestamp * 1000).toISOString() : undefined,
+						lastHash: lastItem?.hash
 					})
 				);
 			} catch (error) {
@@ -77,7 +77,7 @@ const TransactionHistory = ({ onClose }: IProps) => {
 
 	const refreshData = () => {
 		setCurrentPage(1);
-		dispatch(walletLedgerActions.resetWalletLedger());
+		dispatch(transactionHistoryActions.resetTransactionHistory());
 		fetchTransactions(activeFilter);
 	};
 
@@ -91,6 +91,7 @@ const TransactionHistory = ({ onClose }: IProps) => {
 
 	useEffect(() => {
 		fetchTransactions(activeFilter, 1);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [activeFilter]);
 
 	// Infinite scroll handler
@@ -174,10 +175,9 @@ const TransactionHistory = ({ onClose }: IProps) => {
 
 	const handleFilterChange = (filter: FilterType) => {
 		if (activeFilter !== filter) {
-			setActiveFilter(filter);
+			dispatch(transactionHistoryActions.resetTransactionHistory());
 			setCurrentPage(1);
-			// Reset wallet ledger data when changing filters
-			dispatch(walletLedgerActions.resetWalletLedger());
+			setActiveFilter(filter);
 		}
 	};
 

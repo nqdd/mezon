@@ -164,7 +164,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		handleChannelSelection(channel);
 	}, []);
 
-	const sendToDM = async (dataSend: { text: any; links: any[] }) => {
+	const sendToDM = async (dataSend: { text: any; links: any[] }, attachments: any) => {
 		try {
 			const store = await getStoreAsync();
 			await store.dispatch(
@@ -186,7 +186,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 					mk: dataSend.links || []
 				},
 				[],
-				getAttachmentUnique(attachmentUpload) || [],
+				attachments,
 				[]
 			);
 		} catch (e) {
@@ -194,7 +194,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 		}
 	};
 
-	const sendToChannel = async (dataSend: { text: any; links: any[] }) => {
+	const sendToChannel = async (dataSend: { text: any; links: any[] }, attachments: any) => {
 		const clanIdStore = selectCurrentClanId(store.getState());
 		const isPublic = channelSelected ? isPublicChannel(channelSelected) : false;
 		const isDiffClan = clanIdStore !== channelSelected?.clan_id;
@@ -245,7 +245,7 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 				mk: dataSend.links || []
 			},
 			[], //mentions
-			getAttachmentUnique(attachmentUpload) || [], //attachments
+			attachments, //attachments
 			[], //references
 			false, //anonymous
 			false //mentionEveryone
@@ -290,11 +290,17 @@ export const Sharing = ({ data, topUserSuggestionId, onClose }: ISharing) => {
 			text: dataText,
 			links
 		};
+		const attachments = getAttachmentUnique(attachmentUpload) || [];
+		if (!attachments?.length && !dataSend?.text && !dataSend?.links?.length) {
+			alert(t('empty'));
+			setIsLoading(false);
+			return;
+		}
 		// Send to DM message
 		if (channelSelected.type === ChannelType.CHANNEL_TYPE_GROUP || channelSelected.type === ChannelType.CHANNEL_TYPE_DM) {
-			await sendToDM(dataSend);
+			await sendToDM(dataSend, attachments);
 		} else {
-			await sendToChannel(dataSend);
+			await sendToChannel(dataSend, attachments);
 		}
 		setIsLoading(false);
 		onCloseSharing(true);

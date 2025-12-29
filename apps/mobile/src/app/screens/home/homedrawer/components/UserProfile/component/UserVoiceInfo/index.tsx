@@ -1,11 +1,11 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectChannelById, selectStatusInVoice } from '@mezon/store-mobile';
-import MezonIconCDN from 'apps/mobile/src/app/componentUI/MezonIconCDN';
-import { IconCDN } from 'apps/mobile/src/app/constants/icon_cdn';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import MezonIconCDN from '../../../../../../../componentUI/MezonIconCDN';
+import { IconCDN } from '../../../../../../../constants/icon_cdn';
 import { style } from './styles';
 
 export const UserVoiceInfo = ({ userId }) => {
@@ -13,7 +13,7 @@ export const UserVoiceInfo = ({ userId }) => {
 	const styles = style(themeValue, false);
 	const { t } = useTranslation(['userProfile']);
 	const inVoiceUser = useSelector((state) => selectStatusInVoice(state, userId));
-	const voiceChannel = useSelector((state) => selectChannelById(state, inVoiceUser));
+	const voiceChannel = useSelector((state) => selectChannelById(state, inVoiceUser?.channelId));
 	const navigateToChannelVoice = async () => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel: voiceChannel });
 	};
