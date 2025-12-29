@@ -54,7 +54,7 @@ export const RenderHeaderModal = memo(
 			} else {
 				return selectMemberClanByUserId(store.getState(), imageSelected?.uploader as string);
 			}
-		}, [imageSelected?.channelId, imageSelected?.clanId, imageSelected?.uploader]);
+		}, [imageSelected]);
 		const onClose = () => {
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		};
