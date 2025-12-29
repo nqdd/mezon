@@ -134,16 +134,17 @@ const AuditLog = ({ currentClanId }: AuditLogProps) => {
 
 	return (
 		<div className="mt-[48px] overflow-hidden ">
-			<div className="flex items-center justify-between">
-				<h2 className="text-xl text-theme-primary-active font-semibold  flex">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<h2 className="text-xl text-theme-primary-active font-semibold flex">
 					<div>{t('title')}</div>
 				</h2>
-				<div className="flex gap-4 items-center ">
+				<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
 					<div className="relative">
-						<div onClick={handleSearchMemberClick} className="flex items-center gap-3  w-full text-[13px] line-clamp-1 break-all">
+						<div onClick={handleSearchMemberClick} className="flex items-center gap-3 w-full text-[13px] line-clamp-1 break-all">
 							<div className="max-sm:hidden">{t('filterByUser')}</div>
-							<div className="flex items-center gap-1 cursor-pointer">
-								<div className=" one-line">
+							<div className="flex items-center gap-1 cursor-pointer bg-input-theme border border-theme-primary rounded-lg px-3 py-2 sm:px-0 sm:py-0 sm:bg-transparent sm:border-0">
+								<div className="sm:hidden text-sm font-medium">{t('filterByUser')}:</div>
+								<div className="one-line">
 									{userFilter && userFilter.username !== UserAuditLog.ALL_USER_AUDIT ? userFilter.username : t('all')}
 								</div>
 								<Icons.ArrowDown />
@@ -166,8 +167,9 @@ const AuditLog = ({ currentClanId }: AuditLogProps) => {
 					<div className="relative">
 						<div onClick={handleSearchActionClick} className="flex items-center gap-3 w-full text-[13px] line-clamp-1 break-all">
 							<div className="max-sm:hidden">{t('filterByAction')}</div>
-							<div className="flex items-center gap-1 cursor-pointer">
-								<div className=" one-line">{getTranslatedActionName(actionFilter)}</div>
+							<div className="flex items-center gap-1 cursor-pointer bg-input-theme border border-theme-primary rounded-lg px-3 py-2 sm:px-0 sm:py-0 sm:bg-transparent sm:border-0">
+								<div className="sm:hidden text-sm font-medium">{t('filterByAction')}:</div>
+								<div className="one-line">{getTranslatedActionName(actionFilter)}</div>
 								<Icons.ArrowDown />
 							</div>
 						</div>
@@ -192,9 +194,7 @@ const AuditLog = ({ currentClanId }: AuditLogProps) => {
 							value={selectedDate.split('-').reverse().join('-')}
 							onChange={handleDateChange}
 							max={maxDate}
-							className=" 
-							bg-input-theme  focus:outline-none focus:ring-0 border-theme-primary rounded-lg p-2
-							transition ease-in-out duration-200"
+							className="w-full sm:w-auto bg-input-theme focus:outline-none focus:ring-0 border-theme-primary rounded-lg p-2 sm:p-2 transition ease-in-out duration-200"
 						/>
 					</div>
 				</div>
