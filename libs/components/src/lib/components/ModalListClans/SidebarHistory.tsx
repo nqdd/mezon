@@ -1,13 +1,5 @@
 import { useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
-import {
-	appActions,
-	selectChannelsEntitiesByClanId,
-	selectClanById,
-	selectDirectMessageEntities,
-	selectHistory,
-	selectLogoCustom,
-	useAppSelector
-} from '@mezon/store';
+import { appActions, selectChannelsEntitiesByClanId, selectClanById, selectDirectMessageEntities, selectHistory, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { createImgproxyUrl } from '@mezon/utils';
 import isElectron from 'is-electron';
@@ -170,7 +162,6 @@ const ItemHistory = ({
 	const channelDM = useAppSelector(selectDirectMessageEntities)?.[channelId];
 	const channelClan = useAppSelector((state) => selectChannelsEntitiesByClanId(state, clanId))[channelId];
 	const clan = useSelector(selectClanById(clanId));
-	const logoCustom = useAppSelector(selectLogoCustom);
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const logo = useMemo(() => {
@@ -189,7 +180,7 @@ const ItemHistory = ({
 		}
 
 		return <div className="h-6 aspect-square flex items-center justify-center bg-theme-primary uppercase rounded-md">{clan.clan_name?.[0]}</div>;
-	}, [clan, logoCustom]);
+	}, [clan]);
 
 	const handleClickHistory = () => {
 		dispatch(appActions.setCurrentHistory(index));
