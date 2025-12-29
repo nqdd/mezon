@@ -23,7 +23,6 @@ import {
 	selectCurrentClanId,
 	selectCurrentClanPreventAnonymous,
 	selectCurrentDM,
-	selectIsShowCreateTopic,
 	threadsActions,
 	useAppDispatch
 } from '@mezon/store-mobile';
@@ -193,7 +192,6 @@ export const ChatBoxBottomBar = memo(
 		const currentClanId = useSelector(selectCurrentClanId);
 		const anonymousMode = useSelector((state) => selectAnonymousMode(state, currentClanId));
 		const currentClanPreventAnonymous = useSelector(selectCurrentClanPreventAnonymous);
-		const isCreateTopic = useSelector(selectIsShowCreateTopic);
 
 		const inputRef = useRef<TextInput>(null);
 		const cursorPositionRef = useRef(0);
@@ -601,13 +599,13 @@ export const ChatBoxBottomBar = memo(
 		}, []);
 
 		useEffect(() => {
-			if (channelId && !isCreateTopic) {
+			if (channelId) {
 				setMessageFromCache();
 			}
 			DeviceEventEmitter.addListener(ActionEmitEvent.ON_SET_LIST_MENTION_DATA, ({ data }: { data: MentionDataProps[] }) => {
 				setListMentions(data);
 			});
-		}, [channelId, isCreateTopic]);
+		}, [channelId]);
 
 		useEffect(() => {
 			if (messageActionNeedToResolve !== null) {
