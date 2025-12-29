@@ -1,4 +1,4 @@
-import { useChannels, useMenu } from '@mezon/core';
+import { toChannelPage, useChannels, useMenu } from '@mezon/core';
 import {
 	ETypeMission,
 	FAVORITE_CATEGORY_ID,
@@ -26,7 +26,7 @@ import React, { memo, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
 import type { IChannelLinkPermission } from '../ChannelList/CategorizedChannels';
 import SettingChannel from '../ChannelSetting';
@@ -86,6 +86,7 @@ const ChannelLinkComponent = ({
 	const { hasAdminPermission, hasClanPermission, hasChannelManagePermission, isClanOwner } = permissions;
 	const dispatch = useAppDispatch();
 	const channelLinkRef = useRef<HTMLAnchorElement | null>(null);
+	const navigate = useNavigate();
 	const coords = useRef<Coords>({
 		mouseX: 0,
 		mouseY: 0,
@@ -132,7 +133,13 @@ const ChannelLinkComponent = ({
 	};
 
 	const currentMission = useSelector((state) => selectCurrentMission(state, clanId as string));
-	const handleClick = () => {
+	const handleClick = (e: React.MouseEvent) => {
+		if (e.shiftKey || e.ctrlKey || e.metaKey) {
+			e.preventDefault();
+			e.stopPropagation();
+			const link = toChannelPage(channel.id, clanId as string);
+			navigate(link);
+		}
 		const store = getStore();
 		const isChannelApp = channel.type === ChannelType.CHANNEL_TYPE_APP;
 		const appIsOpening = selectToCheckAppIsOpening(store.getState(), channel.channel_id as string);
