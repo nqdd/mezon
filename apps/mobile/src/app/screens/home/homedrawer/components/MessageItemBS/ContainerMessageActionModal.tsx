@@ -1,7 +1,7 @@
 /* eslint-disable @nx/enforce-module-boundaries */
 /* eslint-disable no-console */
 import { useChannelMembers, useChatSending, useDirect, usePermissionChecker, useSendInviteMessage } from '@mezon/core';
-import { ActionEmitEvent, formatContentEditMessage, load, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
+import { ActionEmitEvent, STORAGE_MY_USER_ID, formatContentEditMessage, load } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import {
 	appActions,
@@ -35,13 +35,13 @@ import {
 	EMOJI_GIVE_COFFEE,
 	EOverriddenPermission,
 	EPermission,
-	formatMoney,
 	FORWARD_MESSAGE_TIME,
-	isPublicChannel,
-	sleep,
-	ThreadStatus,
 	TOKEN_TO_AMOUNT,
-	TypeMessage
+	ThreadStatus,
+	TypeMessage,
+	formatMoney,
+	isPublicChannel,
+	sleep
 } from '@mezon/utils';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation } from '@react-navigation/native';
@@ -60,16 +60,12 @@ import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import { getMessageActions } from '../../constants';
 import { EMessageActionType } from '../../enums';
-import type {
-	IConfirmActionPayload,
-	IMessageAction,
-	IMessageActionNeedToResolve,
-	IReplyBottomSheet
-} from '../../types/message.interface';
+import type { IConfirmActionPayload, IMessageAction, IMessageActionNeedToResolve, IReplyBottomSheet } from '../../types/message.interface';
 import { ConfirmPinMessageModal } from '../ConfirmPinMessageModal';
 import EmojiSelector from '../EmojiPicker/EmojiSelector';
 import type { IReactionMessageProps } from '../MessageReaction';
 import { QuickMenuModal } from '../QuickMenuModal';
+import { ReportMessageModal } from '../ReportMessageModal';
 import { RecentEmojiMessageAction } from './RecentEmojiMessageAction';
 import { style } from './styles';
 
@@ -207,6 +203,13 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_BOTTOM_SHEET, { isDismiss: true });
 	};
+
+	const handleActionReportMessage = useCallback(() => {
+		const data = {
+			children: <ReportMessageModal messageId={message?.id} />
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [message?.id]);
 
 	const handleActionGiveACoffee = async () => {
 		try {
@@ -622,6 +625,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			case EMessageActionType.ShareImage:
 				handleActionShareImage();
 				break;
+			case EMessageActionType.Report:
+				handleActionReportMessage();
+				break;
 			default:
 				break;
 		}
@@ -669,6 +675,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 				return <MezonIconCDN icon={IconCDN.imageIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 			case EMessageActionType.ShareImage:
 				return <MezonIconCDN icon={IconCDN.shareIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+			case EMessageActionType.Report:
+				return <MezonIconCDN icon={IconCDN.redFlag} width={size.s_14} height={size.s_14} color={baseColor.red} />;
 			default:
 				return <View />;
 		}
@@ -700,6 +708,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			message?.code === TypeMessage.MessageBuzz ||
 			anonymousMode;
 		const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
+		const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 		const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
 		const isHideActionMedia =
 			message?.attachments?.length === 0 ||
@@ -738,7 +747,9 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 
 		let availableMessageActions: IMessageAction[] = [];
 		if (isMyMessage) {
-			availableMessageActions = getMessageActions(t).filter((action) => !listOfActionShouldHide.includes(action.type));
+			availableMessageActions = getMessageActions(t).filter(
+				(action) => ![...listOfActionOnlyOtherMessage, ...listOfActionShouldHide].includes(action.type)
+			);
 		} else {
 			availableMessageActions = getMessageActions(t).filter(
 				(action) => ![...listOfActionOnlyMyMessage, ...listOfActionShouldHide].includes(action.type)
@@ -760,7 +771,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 			EMessageActionType.Reply,
 			EMessageActionType.CreateThread
 		];
-		const warningActionList = [EMessageActionType.DeleteMessage];
+		const warningActionList = [EMessageActionType.Report, EMessageActionType.DeleteMessage];
 
 		return {
 			frequent: availableMessageActions.filter((action) => frequentActionList.includes(action.type)),
@@ -775,7 +786,8 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		message?.code,
 		message?.topic_id,
 		message?.channel_id,
-		message?.attachments,
+		message.attachments,
+		message?.content?.fwd,
 		message?.content?.embed,
 		message?.id,
 		currentTopicId,
@@ -784,16 +796,16 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		isCanManageThread,
 		isCanManageChannel,
 		isClanOwner,
-		currentChannel?.parent_id,
+		currentChannel?.type,
 		isAllowDelMessage,
 		canSendMessage,
 		currentChannelId,
-		currentTopicId,
 		isMessageSystem,
+		anonymousMode,
 		isAnonymous,
 		messagePosition,
-		allMessageIds,
 		allMessagesEntities,
+		allMessageIds,
 		t
 	]);
 
