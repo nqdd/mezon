@@ -200,7 +200,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 								)}
 							</div>
 						))}
-					{raisingList.length && (
+					{!!raisingList.length && (
 						<div className="absolute w-40 right-2 top-[68px] flex flex-col gap-1">
 							{raisingList.map((item) => (
 								<div className="w-40 h-9 bg-white rounded-full right-2 flex gap-2 items-center justify-center p-1" key={item.id}>

@@ -91,8 +91,8 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 	};
 
 	return (
-		<div className="flex flex-row flex-1 justify-end">
-			<div className="w-[220px] py-[60px] pl-5 pr-[6px]">
+		<div className="flex flex-row flex-1 justify-end max-sbm:justify-start">
+			<div className="w-[220px] pt-[80px] pb-[60px] sbm:py-[60px] pl-5 pr-5">
 				<p className=" pl-[10px] pb-[6px] font-bold text-sm tracking-wider uppercase truncate text-theme-primary-active">{currentClanName}</p>
 				{sideBarListItemWithPermissions.map((sidebarItem, index) => (
 					<div
@@ -100,7 +100,10 @@ const SettingSidebar = ({ onClickItem, handleMenu, currentSetting, setIsShowDele
 						className={`${sidebarItem.listItem.length > 0 ? 'mt-[5px] border-b-theme-primary' : ''}`}
 					>
 						{sidebarItem.title && sidebarItem.listItem.length > 0 && (
-							<p className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase ">
+							<p
+								className="select-none font-semibold px-[10px] py-[4px] text-xs uppercase "
+								data-e2e={generateE2eId(`clan_page.settings.sidebar.title`)}
+							>
 								{getTranslatedSectionTitle(sidebarItem.title)}
 							</p>
 						)}
