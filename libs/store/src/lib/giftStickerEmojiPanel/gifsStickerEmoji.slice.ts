@@ -26,6 +26,9 @@ export const gifsStickersEmojisSlice = createSlice({
 	reducers: {
 		setSubPanelActive: (state, action: PayloadAction<SubPanelName>) => {
 			state.subPanelActive = action.payload;
+			if (action.payload === SubPanelName.NONE) {
+				state.valueInputToCheckHandleSearchState = '';
+			}
 		},
 		setValueInputSearch: (state, action) => {
 			state.valueInputToCheckHandleSearchState = action.payload;
