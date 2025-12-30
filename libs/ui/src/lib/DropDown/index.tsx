@@ -1,7 +1,8 @@
-import { AlignType } from '@rc-component/trigger';
+import type { AlignType } from '@rc-component/trigger';
 import RcDropdown from 'rc-dropdown';
 // import 'rc-dropdown/assets/index.css';
-import { createContext, JSXElementConstructor, ReactElement, ReactNode, useContext } from 'react';
+import type { JSXElementConstructor, ReactElement, ReactNode } from 'react';
+import { createContext, useContext } from 'react';
 import { Item } from './Dropdown.Content';
 import './rc-dropdown.scss';
 
@@ -49,12 +50,22 @@ export function useDropdownMenuContext(): DropdownMenuContextValue {
 	return context;
 }
 
-const Dropdown = ({ children, className, placement, holdOnClick = false, menu, trigger = 'click', onVisibleChange, visible, align }: MenuProps) => {
+const Dropdown = ({
+	children,
+	className,
+	placement = 'bottomRight',
+	holdOnClick = false,
+	menu,
+	trigger = 'click',
+	onVisibleChange,
+	visible,
+	align
+}: MenuProps) => {
 	return (
 		<RcDropdown
 			trigger={trigger}
 			overlay={menu}
-			placement={'bottomRight'}
+			placement={placement}
 			overlayClassName={`text-theme-message bg-[var(--theme-setting-nav)]  rounded-lg ${className}`}
 			minOverlayWidthMatchTrigger
 			autoDestroy={true}
