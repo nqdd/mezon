@@ -1,7 +1,8 @@
-import { Attributes, Fonts, Metrics, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { Fonts, Metrics, ThemeModeBase, baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
-export const style = (colors: Attributes) =>
+export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 	StyleSheet.create({
 		channelListLink: {
 			display: 'flex',
@@ -13,8 +14,22 @@ export const style = (colors: Attributes) =>
 
 		channelListItemActive: {
 			borderRadius: size.s_10
-			// borderWidth: 1,
-			// borderColor: colors.border
+		},
+
+		channelListItemContainer: {
+			zIndex: 1,
+			backgroundColor: themeBasic === ThemeModeBase.LIGHT ? colors.secondaryWeight : colors.secondaryLight
+		},
+
+		channelListItemWrapper: {
+			backgroundColor: themeBasic === ThemeModeBase.LIGHT ? colors.secondaryWeight : colors.secondaryLight,
+			shadowColor: colors.primary,
+			shadowOffset: { width: 0, height: 2 },
+			shadowOpacity: 0.25,
+			shadowRadius: 3.84,
+			elevation: 5,
+			zIndex: 1,
+			borderRadius: size.s_10
 		},
 
 		channelListItem: {

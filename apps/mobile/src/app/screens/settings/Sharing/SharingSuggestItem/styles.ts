@@ -1,4 +1,5 @@
-import { Attributes, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
@@ -6,7 +7,7 @@ export const style = (colors: Attributes) =>
 		itemSuggestion: {
 			paddingVertical: size.s_10,
 			flexDirection: 'row',
-			gap: size.s_18,
+			gap: size.s_16,
 			alignItems: 'center'
 		},
 		titleSuggestion: {
@@ -14,8 +15,9 @@ export const style = (colors: Attributes) =>
 			color: colors.text
 		},
 		avatarImage: {
-			width: size.s_24,
-			height: size.s_24,
-			borderRadius: 50
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_30,
+			overflow: 'hidden'
 		}
 	});
