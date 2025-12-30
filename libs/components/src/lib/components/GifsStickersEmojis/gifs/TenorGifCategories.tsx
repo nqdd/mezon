@@ -107,12 +107,16 @@ function TenorGifCategories({ channelOrDirect, mode, onClose, isTopic = false }:
 						dataToRenderGifs.map((gif: any, index: number) => (
 							<div
 								key={gif.id}
-								className={`order-${index} overflow-hidden cursor-pointer`}
+								className={`order-${index} overflow-hidden cursor-pointer flex items-center justify-center bg-bgIconLight rounded-lg`}
 								onClick={() => handleClickGif(gif.media_formats.gif.url)}
 								role="button"
 								data-e2e={generateE2eId('mention.popover.gifs.item')}
 							>
-								<img src={gif.media_formats.gif.url} alt={gif.media_formats.gif.url} className="w-full h-auto" />
+								<img
+									src={gif.media_formats.gif.url}
+									alt={gif.media_formats.gif.url}
+									className="w-full h-auto object-contain max-h-full"
+								/>
 							</div>
 						))}
 				</div>

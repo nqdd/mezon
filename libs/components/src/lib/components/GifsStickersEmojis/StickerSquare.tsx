@@ -314,14 +314,14 @@ const StickerPanel: React.FC<IStickerPanelProps> = ({ stickerList, onClickSticke
 							const isItemPendingUnlock = !!(sticker.id && pendingUnlockItemMap[sticker.id]);
 							return (
 								<div
-									className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center rounded-lg cursor-pointer"
+									className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center justify-center rounded-lg cursor-pointer bg-bgIconLight"
 									key={sticker.id}
 									onMouseEnter={() => setPlaceHolderInput(sticker.shortname || '')}
 								>
 									<img
 										src={sticker.url ? sticker.url : `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp`}
 										alt="sticker"
-										className={`w-full h-full aspect-square object-cover  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
+										className={`w-full h-full aspect-square object-contain  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
 										onClick={() => {
 											if (!sticker.forSale || sticker.url) {
 												onClickSticker(sticker);
