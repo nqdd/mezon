@@ -1,6 +1,6 @@
 import type { ApiMediaExtendedPreview, ApiPhoto, IMediaDimensions, ObserveFn } from '@mezon/utils';
 import { MIN_MEDIA_HEIGHT, SHOW_POSITION, buildClassName, calculateMediaDimensions, createImgproxyUrl, useIsIntersecting } from '@mezon/utils';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMessageContextMenu } from '../ContextMenu';
 
 const loadedMediaUrls = new Map<string, boolean>();
@@ -187,6 +187,10 @@ const Photo = <T,>({
 	const displayWidth = forcedWidth || width || 150;
 	const displayHeight = height || 150;
 
+	const isGif = useMemo(() => {
+		return photo?.url?.endsWith('.gif') || photo?.url?.includes('.gif');
+	}, [photo?.url]);
+
 	const handleContextMenu = useCallback((e: React.MouseEvent<HTMLImageElement>) => {
 		setImageURL(photo?.url ?? '');
 		setPositionShow(SHOW_POSITION.NONE);
@@ -209,7 +213,7 @@ const Photo = <T,>({
 				<img
 					onContextMenu={handleContextMenu}
 					src={fullMediaData}
-					className={`max-w-full max-h-full w-full h-full block object-cover absolute bottom-0 left-0 z-[1] rounded overflow-hidden cursor-pointer`}
+					className={`max-w-full max-h-full w-full h-full block ${isGif ? 'object-contain' : 'object-cover'} absolute bottom-0 left-0 z-[1] rounded overflow-hidden cursor-pointer`}
 					alt=""
 					style={{ width: displayWidth }}
 					draggable={!isProtected}

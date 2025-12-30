@@ -16,9 +16,11 @@ import {
 	selectRemoteVideo,
 	selectSignalingDataByUserId,
 	selectStatusMenu,
+	selectVoiceJoined,
 	toastActions,
 	useAppDispatch,
-	useAppSelector
+	useAppSelector,
+	voiceActions
 } from '@mezon/store';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { Icons, Menu } from '@mezon/ui';
@@ -59,6 +61,7 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 	const [activeVideo, setActiveVideo] = useState<'local' | 'remote' | null>(null);
 	const isJoinedCall = useSelector(selectJoinedCall);
 	const otherCall = useSelector(selectOtherCall);
+	const isVoiceJoined = useSelector(selectVoiceJoined);
 	const isInChannelCalled = useMemo(() => {
 		const isSignalDataOffer = signalingData?.[0]?.signalingData?.data_type === WebrtcSignalingType.WEBRTC_SDP_OFFER;
 		if (!isSignalDataOffer && !isInCall) {
@@ -143,6 +146,12 @@ const DmCalling = forwardRef<{ triggerCall: (isVideoCall?: boolean, isAnswer?: b
 		dispatch(DMCallActions.setIsInCall(true));
 		dispatch(audioCallActions.setIsRingTone(false));
 		dispatch(DMCallActions.setIsShowMeetDM(isVideoCall));
+
+		if (isAnswer && isVoiceJoined) {
+			dispatch(voiceActions.setShowMicrophone(false));
+			dispatch(voiceActions.setShowCamera(false));
+		}
+
 		await startCall(isVideoCall, isAnswer);
 	};
 
