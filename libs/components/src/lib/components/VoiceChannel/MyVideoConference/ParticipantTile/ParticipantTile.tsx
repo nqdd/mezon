@@ -88,9 +88,23 @@ export const ParticipantTile: (props: ParticipantTileProps & React.RefAttributes
 ) {
 	const trackReference = useEnsureTrackRef(trackRef);
 
+	const isMicrophoneEnabled = useMemo(() => {
+		const participant = trackReference.participant;
+		const microphoneTrack = participant.getTrackPublication(Track.Source.Microphone);
+		if (!microphoneTrack) {
+			return false;
+		}
+		if (microphoneTrack.track) {
+			return !microphoneTrack.track.isMuted && !microphoneTrack.isMuted;
+		}
+		return !microphoneTrack.isMuted && microphoneTrack.isSubscribed;
+	}, [trackReference.participant]);
+
+	const shouldDisableSpeakingIndicator = disableSpeakingIndicator || !isMicrophoneEnabled;
+
 	const { elementProps } = useParticipantTile<HTMLDivElement>({
 		htmlProps,
-		disableSpeakingIndicator,
+		disableSpeakingIndicator: shouldDisableSpeakingIndicator,
 		onParticipantClick,
 		trackRef: trackReference
 	});
