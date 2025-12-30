@@ -203,7 +203,9 @@ const UserProfileModalInner = ({
 						<div className="flex-1 bg-theme-setting-primary rounded-lg shadow-shadowInbox">
 							<ProfileTabs activeTab={activeTab} onActiveTabChange={handleActiveTabChange} />
 							<div className="p-4 text-theme-primary	">
-								{activeTab === typeTab.ABOUT_ME && <AboutMe createTime={userById?.user?.create_time || user?.create_time_seconds} />}
+								{activeTab === typeTab.ABOUT_ME && (
+									<AboutMe userId={userId} createTime={userById?.user?.create_time || user?.create_time_seconds} />
+								)}
 								{activeTab === typeTab.ACTIVITY && <Activity />}
 								{activeTab === typeTab.MUTUAL_FRIENDS && <MutualFriends />}
 								{activeTab === typeTab.MUTUAL_SERVERS && <MutualServers />}

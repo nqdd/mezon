@@ -174,7 +174,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 					<div className="flex justify-between items-center">
 						<div>
 							<h4 className="uppercase font-bold text-xs mb-1">{t('email')}</h4>
-							<p>{userProfile?.email ? `***************@${userProfile?.email.split('@')[1]}` : t('email')}</p>
+							<p>{userProfile?.email ? `***************@${userProfile.email.split('@')[1] || ''}` : t('email')}</p>
 						</div>
 						{!userProfile?.email ? (
 							<div

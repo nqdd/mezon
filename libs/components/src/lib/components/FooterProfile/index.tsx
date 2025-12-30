@@ -313,7 +313,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 
 	return (
 		<div
-			className={`fixed md:bottom-3 bottom-3 md:left-[12px] left-2 right-2 border border-theme-primary rounded-xl shadow-lg bg-theme-surface min-h-14 w-auto md:w-widthProfile z-10 overflow-hidden px-2 md:px-3 ${
+			className={`fixed md:bottom-3 bottom-3 md:left-[12px] left-2 right-2 border border-theme-primary rounded-xl shadow-lg bg-theme-surface min-h-14 w-auto md:w-widthProfile z-10 overflow-hidden  ${
 				statusMenu ? 'sbm:!w-widthProfile' : 'hidden'
 			} sbm:block `}
 			id="clan-footer"
@@ -353,7 +353,10 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							>
 								{name}
 							</p>
-							<p className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]">
+							<p
+								className="text-[11px] text-left line-clamp-1 leading-[14px] truncate max-w-[150px] max-sbm:max-w-[100px]"
+								data-e2e={generateE2eId('footer_profile.user_status')}
+							>
 								{userCustomStatus}
 							</p>
 						</div>
