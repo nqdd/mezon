@@ -1,21 +1,27 @@
-import { useChannels } from '@mezon/core';
+import { toChannelPage, useChannels, useMenu } from '@mezon/core';
 import {
+	appActions,
 	notificationSettingActions,
+	referencesActions,
 	selectBuzzStateByChannelId,
+	selectCloseMenu,
 	selectEventsByChannelId,
 	selectIsUnreadChannelById,
+	threadsActions,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { IChannel, generateE2eId } from '@mezon/utils';
+import type { IChannel } from '@mezon/utils';
+import { generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useImperativeHandle, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BuzzBadge from '../BuzzBadge';
-import { Coords, classes } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
+import { classes } from '../ChannelLink';
 import SettingChannel from '../ChannelSetting';
 import EventSchedule from '../EventSchedule';
 import ModalConfirm from '../ModalConfirm';
@@ -25,14 +31,14 @@ type ThreadLinkProps = {
 	thread: IChannel;
 	hasLine: boolean;
 	isActive: boolean;
-	handleClick: (thread: IChannel) => void;
+	currentChannelId: string;
 };
 
 export type ThreadLinkRef = {
 	scrollToIntoView: (options?: ScrollIntoViewOptions) => void;
 };
 
-const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, hasLine, isActive, handleClick }: ThreadLinkProps, ref) => {
+const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, hasLine, isActive, currentChannelId }: ThreadLinkProps, ref) => {
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadChannelById(state, thread.id));
 	const numberNotification = thread.count_mess_unread ? thread.count_mess_unread : 0;
 	const panelRef = useRef<HTMLDivElement | null>(null);
@@ -102,6 +108,28 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 		return <SettingChannel onClose={closeSettingModal} channel={thread} />;
 	}, [thread.channel_label]);
 
+	const closeMenu = useAppSelector(selectCloseMenu);
+	const { setStatusMenu } = useMenu();
+	const navigate = useNavigate();
+	const handleClickLink = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, thread: IChannel) => {
+		if (e.shiftKey || e.ctrlKey || e.metaKey) {
+			e.preventDefault();
+			e.stopPropagation();
+			const link = toChannelPage(thread.id, thread.clan_id as string);
+			navigate(link);
+		}
+		dispatch(referencesActions.setOpenEditMessageState(false));
+		if (currentChannelId === thread.parent_id) {
+			dispatch(threadsActions.setIsShowCreateThread({ channelId: thread.parent_id as string, isShowCreateThread: false }));
+		}
+		if (closeMenu) {
+			setStatusMenu(false);
+		}
+		dispatch(threadsActions.setOpenThreadMessageState(false));
+		dispatch(threadsActions.setValueThread(null));
+		dispatch(appActions.setIsShowCanvas(false));
+	};
+
 	return (
 		<div
 			id={thread.id}
@@ -121,8 +149,8 @@ const ThreadLink = React.forwardRef<ThreadLinkRef, ThreadLinkProps>(({ thread, h
 				to={channelPath}
 				key={thread.channel_id}
 				className={`${classes[state]} ml-10 w-full leading-[24px] rounded-lg font-medium text-theme-primary-hover  text-[16px] max-w-full one-line ${isActive || isUnReadChannel || numberNotification > 0 ? 'dark:font-medium font-semibold text-theme-primary-active ' : ' '} ${isActive ? 'bg-item-hover text-theme-primary-active bg-item-theme' : 'text-theme-primary'}`}
-				onClick={() => {
-					handleClick(thread);
+				onClick={(e) => {
+					handleClickLink(e, thread);
 				}}
 			>
 				<div className="flex items-center gap-2">
