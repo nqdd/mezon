@@ -30,8 +30,8 @@ export const PermissionItem = memo(({ permission, status, onPermissionStatusChan
 		},
 		{
 			icon: (color: string) => <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={color} />,
-			activeBackground: baseColor.gray,
-			color: baseColor.gray,
+			activeBackground: baseColor.green,
+			color: baseColor.green,
 			type: EPermissionStatus.Allow
 		}
 	];
@@ -52,17 +52,24 @@ export const PermissionItem = memo(({ permission, status, onPermissionStatusChan
 	};
 
 	return (
-		<View style={styles.container}>
+		<View>
 			<View style={styles.headerRow}>
 				<Text style={styles.titleText}>{getPermissionTitle(slug)}</Text>
 				<View style={styles.optionRow}>
-					{permissionOptionList?.map((option) => {
-						const { activeBackground, icon, type, color } = option;
-						const isActive = status === type;
+					{permissionOptionList?.map((option, index) => {
 						return (
-							<TouchableOpacity key={type.toString()} onPress={() => onPermissionStatusChange(permission?.id, type)}>
-								<View style={[styles.optionButton, { backgroundColor: isActive ? activeBackground : themeValue.primary }]}>
-									{icon(isActive ? 'white' : color)}
+							<TouchableOpacity
+								style={index !== permissionOptionList.length - 1 && styles.optionButtonContainer}
+								key={option.type.toString()}
+								onPress={() => onPermissionStatusChange(permission?.id, option.type)}
+							>
+								<View
+									style={[
+										styles.optionButton,
+										{ backgroundColor: status === option.type ? option.activeBackground : themeValue.primary }
+									]}
+								>
+									{option.icon(status === option.type ? baseColor.white : option.color)}
 								</View>
 							</TouchableOpacity>
 						);
