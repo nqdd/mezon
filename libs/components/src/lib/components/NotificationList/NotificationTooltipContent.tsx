@@ -139,7 +139,7 @@ export function NotificationTooltipContent({ onCloseTooltip }: NotificationToolt
 					</div>
 				</div>
 				<div className="flex flex-row border-b-theme-primary">
-					<div className="flex flex-row gap-4 py-3 w-[90%]">
+					<div className="flex flex-row gap-4 py-3 w-full">
 						{tabDataNotify.map((tab, index: number) => {
 							return (
 								<div key={index}>
