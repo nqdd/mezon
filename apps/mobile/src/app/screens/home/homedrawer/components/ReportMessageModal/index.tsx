@@ -21,28 +21,8 @@ enum EReportCategory {
 	ABUSE_OR_HARASSMENT = 'ABUSE_OR_HARASSMENT',
 	SPAM = 'SPAM',
 	HARMFUL_MISINFORMATION_OR_GLORIFYING_VIOLENCE = 'HARMFUL_MISINFORMATION_OR_GLORIFYING_VIOLENCE',
-	EXPOSING_PRIVATE_IDENTIFYING_INFORMATION = 'EXPOSING_PRIVATE_IDENTIFYING_INFORMATION',
-	OTHERS = 'OTHERS'
+	EXPOSING_PRIVATE_IDENTIFYING_INFORMATION = 'EXPOSING_PRIVATE_IDENTIFYING_INFORMATION'
 }
-//mock data
-const reportOptionList: IReportOption[] = [
-	{
-		title: 'Spam',
-		type: EReportCategory.SPAM
-	},
-	{
-		title: 'Abuse or harassment',
-		type: EReportCategory.ABUSE_OR_HARASSMENT
-	},
-	{
-		title: 'Harmful misinformation or glorifying violence',
-		type: EReportCategory.HARMFUL_MISINFORMATION_OR_GLORIFYING_VIOLENCE
-	},
-	{
-		title: 'Exposing private identifying information',
-		type: EReportCategory.EXPOSING_PRIVATE_IDENTIFYING_INFORMATION
-	}
-];
 
 type ReportMessageModalProps = {
 	messageId: string;

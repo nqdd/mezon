@@ -748,11 +748,11 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		let availableMessageActions: IMessageAction[] = [];
 		if (isMyMessage) {
 			availableMessageActions = getMessageActions(t).filter(
-				(action) => ![...listOfActionOnlyOtherMessage, ...listOfActionShouldHide].includes(action.type)
+				(action) => ![...(listOfActionOnlyOtherMessage ?? []), ...(listOfActionShouldHide ?? [])]?.includes(action.type)
 			);
 		} else {
 			availableMessageActions = getMessageActions(t).filter(
-				(action) => ![...listOfActionOnlyMyMessage, ...listOfActionShouldHide].includes(action.type)
+				(action) => ![...(listOfActionOnlyMyMessage ?? []), ...(listOfActionShouldHide ?? [])]?.includes(action.type)
 			);
 		}
 		const mediaList =
@@ -786,7 +786,7 @@ export const ContainerMessageActionModal = React.memo((props: IReplyBottomSheet)
 		message?.code,
 		message?.topic_id,
 		message?.channel_id,
-		message.attachments,
+		message?.attachments,
 		message?.content?.fwd,
 		message?.content?.embed,
 		message?.id,
