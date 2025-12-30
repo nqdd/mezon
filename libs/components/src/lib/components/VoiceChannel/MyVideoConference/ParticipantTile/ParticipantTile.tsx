@@ -26,7 +26,7 @@ import type { Participant, Room } from 'livekit-client';
 import { ConnectionQuality, Track } from 'livekit-client';
 import { safeJSONParse } from 'mezon-js';
 import type { PropsWithChildren } from 'react';
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useMemo } from 'react';
 import { AvatarImage } from '../../../AvatarImage/AvatarImage';
 import type { ActiveSoundReaction } from '../Reaction/types';
 import { FocusToggle } from './FocusToggle';
@@ -265,12 +265,7 @@ export interface ConnectionQualityIndicatorProps extends React.HTMLAttributes<HT
 
 export const ConnectionQualityIndicator = React.forwardRef<HTMLDivElement, ConnectionQualityIndicatorProps>(
 	function ConnectionQualityIndicator(props, ref) {
-		const { quality: rawQuality } = useConnectionQualityIndicator(props);
-		const [quality, setQuality] = useState(rawQuality);
-
-		React.useEffect(() => {
-			setQuality(rawQuality);
-		}, [rawQuality]);
+		const { quality } = useConnectionQualityIndicator(props);
 
 		return (
 			<div ref={ref} className="bg-[#00000080] p-[5px] rounded-md">
