@@ -5,7 +5,8 @@
 		"confirm": "Yes",
 		"cancel": "No",
 		"titleLeaveClan": "Leave clan",
-		"descriptionLeaveClan": "Please confirm if you would like to leave {{currentClan}}? You won't be able to re-join this clan unless you are re-invited."
+		"descriptionLeaveClan": "Please confirm if you would like to leave {{currentClan}}? You won't be able to re-join this clan unless you are re-invited.",
+		"error": "An error occurred while trying to delete/leave the clan"
 	},
 	"confirmMessage": "Please confirm if you would like to delete this clan? This action cannot be undone.",
 	"enterClanName": "Enter clan name",
