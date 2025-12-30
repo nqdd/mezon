@@ -1,14 +1,14 @@
 {
-    "filterOptions": "Filter Options",
-    "users": "Users",
-    "channels": "Channels",
-    "all": "All",
-    "selectChannelPlaceholder": "Select a channel or category...",
-    "share": "Share",
-    "suggestions": "Suggestions",
-    "addCommentPlaceholder": "Add a Comment (Optional)",
-    "fileTooLarge": "File too large",
-    "fileSizeExceeded": "{{fileType}} size cannot exceed {{maxSize}}MB!",
-    "bannedChannel": "You are banned from channel {{channelName}}.",
-    "empty": "Data is empty"
+	"filterOptions": "Filter Options",
+	"users": "Users",
+	"channels": "Channels",
+	"all": "All",
+	"selectChannelPlaceholder": "Select a channel or user...",
+	"share": "Share",
+	"suggestions": "Suggestions",
+	"addCommentPlaceholder": "Add a Comment (Optional)",
+	"fileTooLarge": "File too large",
+	"fileSizeExceeded": "{{fileType}} size cannot exceed {{maxSize}}MB!",
+	"bannedChannel": "You are banned from channel {{channelName}}.",
+	"empty": "Data is empty"
 }

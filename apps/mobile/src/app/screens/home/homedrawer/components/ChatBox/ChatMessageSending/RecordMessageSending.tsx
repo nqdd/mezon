@@ -7,8 +7,9 @@ import { sleep } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DeviceEventEmitter, InteractionManager, Platform } from 'react-native';
+import { DeviceEventEmitter, InteractionManager, Linking, Platform } from 'react-native';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { Audio } from 'react-native-compressor';
 import RNFS from 'react-native-fs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { check, PERMISSIONS } from 'react-native-permissions';
@@ -16,6 +17,7 @@ import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
+import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { usePermission } from '../../../../../../hooks/useRequestPermission';
@@ -64,16 +66,29 @@ export const RecordMessageSending = memo(
 			fromTopic: isCreateTopic || !!currentTopicId
 		});
 
+		const showPermissionAlert = () => {
+			const data = {
+				children: (
+					<MezonConfirm
+						title={t('common:permissionNotification.microphonePermissionTitle')}
+						content={t('common:permissionNotification.microphonePermissionDesc')}
+						confirmText={t('common:openSettings')}
+						onConfirm={() => {
+							Linking.openSettings();
+							DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+						}}
+					/>
+				)
+			};
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+		};
+
 		const getPermissions = async () => {
 			try {
 				const granted = await requestMicrophonePermission();
 
 				if (!granted) {
-					Toast.show({
-						type: 'error',
-						text1: t('common:permissionNotification.permissionRequired'),
-						text2: t('common:permissionNotification.microphoneRequiredDesc')
-					});
+					showPermissionAlert();
 					return false;
 				}
 				return true;
@@ -93,12 +108,16 @@ export const RecordMessageSending = memo(
 				isLongPressed.value = true;
 				scale.value = withSpring(3, { damping: 10, stiffness: 100 });
 				hasTriggeredCancel.value = false;
-				const dirs = RNFetchBlob.fs.dirs;
-				const path = Platform.select({
-					android: `${dirs.CacheDir}/sound.mp3`
-				});
 				const audioRecorderPlayer = getAudioRecorderPlayer();
-				await audioRecorderPlayer.startRecorder(path);
+				if (Platform.OS === 'ios') {
+					// iOS: Let the library use default path for .m4a
+					await audioRecorderPlayer.startRecorder();
+				} else {
+					// Android: Use explicit .mp3 path
+					const dirs = RNFetchBlob.fs.dirs;
+					const path = `${dirs.CacheDir}/sound.mp3`;
+					await audioRecorderPlayer.startRecorder(path);
+				}
 				await sleep(300);
 				recordingStartTimeRef.current = Date.now();
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_RECORD_PROCESSING, { show: true });
@@ -144,7 +163,23 @@ export const RecordMessageSending = memo(
 
 				InteractionManager.runAfterInteractions(async () => {
 					try {
-						const attachments = await getAudioFileInfo(recordingUrl, durationInMs);
+						let finalRecordingUrl = recordingUrl;
+
+						// Convert m4a to mp3 for iOS
+						if (Platform.OS === 'ios') {
+							try {
+								const cleanPath = recordingUrl.replace(/^file:\/\//, '');
+								const result = await Audio.compress(cleanPath, {
+									bitrate: 128
+								});
+
+								finalRecordingUrl = result;
+							} catch (compressionError) {
+								console.error('Failed to convert audio to mp3:', compressionError);
+							}
+						}
+
+						const attachments = await getAudioFileInfo(finalRecordingUrl, durationInMs);
 						if (!attachments) return;
 						await sendMessage({ t: '' }, [], attachments, undefined, anonymousMode && !currentDmGroup, false, true);
 						setIsRecording(false);

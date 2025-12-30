@@ -1,6 +1,12 @@
 import { ChatContext } from '@mezon/core';
-import { load, save, setCurrentClanLoader, STORAGE_CLAN_ID, STORAGE_IS_DISABLE_LOAD_BACKGROUND, STORAGE_MY_USER_ID } from '@mezon/mobile-components';
-import type { FetchClansPayload } from '@mezon/store-mobile';
+import {
+	load,
+	save,
+	setCurrentClanLoader,
+	STORAGE_CLAN_ID,
+	STORAGE_IS_DISABLE_LOAD_BACKGROUND,
+	STORAGE_MY_USER_ID
+} from '@mezon/mobile-components';
 import {
 	accountActions,
 	appActions,
@@ -9,6 +15,7 @@ import {
 	directActions,
 	emojiSuggestionActions,
 	fcmActions,
+	FetchClansPayload,
 	friendsActions,
 	getStore,
 	gifsActions,
@@ -20,6 +27,7 @@ import {
 	selectDmGroupCurrentId,
 	selectIsFromFCMMobile,
 	selectIsLogin,
+	selectMessageIdsByChannelId,
 	selectSession,
 	settingClanStickerActions,
 	topicsActions,
@@ -27,6 +35,7 @@ import {
 	voiceActions,
 	walletActions
 } from '@mezon/store-mobile';
+import { LIMIT_MESSAGE } from '@mezon/utils';
 import { getAnalytics, logEvent, setAnalyticsCollectionEnabled } from '@react-native-firebase/analytics';
 import { getApp } from '@react-native-firebase/app';
 import { ChannelType, Session } from 'mezon-js';
@@ -119,6 +128,9 @@ const RootListener = () => {
 			const currentClanId = selectCurrentClanId(store.getState() as any);
 			dispatch(appActions.setLoadingMainMobile(false));
 			if (currentChannelId) {
+				const messageIds = selectMessageIdsByChannelId(store.getState(), currentChannelId);
+				if (messageIds?.length > LIMIT_MESSAGE) return;
+
 				dispatch(
 					messagesActions.fetchMessages({
 						channelId: currentChannelId,

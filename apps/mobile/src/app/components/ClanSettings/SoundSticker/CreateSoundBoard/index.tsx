@@ -1,5 +1,5 @@
 import { Fonts, useTheme } from '@mezon/mobile-ui';
-import { MediaType, appActions, selectCurrentClanId, soundEffectActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
+import { appActions, MediaType, selectCurrentClanId, soundEffectActions, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { handleUploadEmoticon, useMezon } from '@mezon/transport';
 import { pick, types } from '@react-native-documents/picker';
 import { Snowflake } from '@theinternetfolks/snowflake';
@@ -14,7 +14,7 @@ import MezonIconCDN from '../../../../componentUI/MezonIconCDN';
 import MezonInput from '../../../../componentUI/MezonInput';
 import { IconCDN } from '../../../../constants/icon_cdn';
 import type { APP_SCREEN, MenuClanScreenProps } from '../../../../navigation/ScreenTypes';
-import RenderAudioChat from '../../../../screens/home/homedrawer/components/RenderAudioChat/RenderAudioChat';
+import RenderAudioChat from '../../../../screens/home/homedrawer/components/RenderAudioChat';
 import { CLAN_MEDIA_NAME_REGEX, MAX_NAME_LENGTH, MIN_NAME_LENGTH } from '../../Emoji/EmojiPreview';
 import { style } from './styles';
 

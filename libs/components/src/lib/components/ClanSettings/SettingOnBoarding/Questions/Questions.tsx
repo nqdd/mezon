@@ -56,41 +56,47 @@ const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps)
 	}, [checkQuestionValid, setOpenModalSaveChanges]);
 
 	return (
-		<div className="flex flex-col gap-8">
+		<div className="flex flex-col gap-4 md:gap-8 overflow-x-hidden">
 			<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
-				<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary" />
+				<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary flex-shrink-0" />
 				<div className="font-semibold text-theme-primary">{t('buttons.back').toUpperCase()}</div>
 			</div>
-			<div className="flex flex-col gap-6">
+			<div className="flex flex-col gap-4 md:gap-6 overflow-x-hidden">
 				<div className="flex flex-col gap-2">
-					<div className="text-[20px] text-theme-primary font-semibold">{t('questionsPage.title')}</div>
-					<div className="font-medium text-theme-primary">{t('questionsPage.description')}</div>
+					<div className="text-base md:text-[20px] text-theme-primary font-semibold">{t('questionsPage.title')}</div>
+					<div className="font-medium text-theme-primary text-sm md:text-base">{t('questionsPage.description')}</div>
 				</div>
-				<div>
+				<div className="overflow-x-hidden">
 					<div
-						className={`flex items-center justify-between gap-2 bg-theme-setting-nav py-3 px-4 ${showChannelNotAssigned ? 'rounded-t-xl' : 'rounded-xl'}`}
+						className={`flex items-center justify-between gap-2 bg-theme-setting-nav py-3 px-3 md:px-4 ${showChannelNotAssigned ? 'rounded-t-xl' : 'rounded-xl'} overflow-x-hidden`}
 					>
-						<div className="text-[12px] font-semibold text-theme-primary-active">{t('questionsPage.noChannelsMissing')}</div>
-						<div className="flex items-center gap-3">
-							<div className="w-[120px] h-[6px] bg-gray-200 dark:bg-[#3b3d44] rounded-lg flex justify-start">
+						<div className="text-[11px] md:text-[12px] font-semibold text-theme-primary-active truncate flex-1 min-w-0">
+							{t('questionsPage.noChannelsMissing')}
+						</div>
+						<div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+							<div className="w-[80px] md:w-[120px] h-[6px] bg-gray-200 dark:bg-[#3b3d44] rounded-lg flex justify-start">
 								<div className="w-[70%] h-full rounded-lg bg-green-600" />
 							</div>
 							<div onClick={toggleChannelNotAssigned}>
-								<Icons.ArrowRight defaultSize={`${showChannelNotAssigned ? 'rotate-90' : '-rotate-90'} w-6 duration-200`} />
+								<Icons.ArrowRight defaultSize={`${showChannelNotAssigned ? 'rotate-90' : '-rotate-90'} w-5 md:w-6 duration-200`} />
 							</div>
 						</div>
 					</div>
 					{showChannelNotAssigned && (
-						<div className="bg-theme-setting-primary px-4 py-3 rounded-b-xl flex flex-col gap-5 duration-200 border border-gray-200 dark:border-transparent border-t-0">
-							<div className="uppercase font-semibold text-theme-primary-active">{t('questionsPage.channelNotAssigned')}</div>
-							<div className="tex-[12px] font-medium text-gray-600 dark:text-channelTextLabel">{t('questionsPage.noChannelsHere')}</div>
+						<div className="bg-theme-setting-primary px-3 md:px-4 py-3 rounded-b-xl flex flex-col gap-3 md:gap-5 duration-200 border border-gray-200 dark:border-transparent border-t-0 overflow-x-hidden">
+							<div className="uppercase font-semibold text-theme-primary-active text-xs md:text-sm">
+								{t('questionsPage.channelNotAssigned')}
+							</div>
+							<div className="text-[11px] md:text-[12px] font-medium text-gray-600 dark:text-channelTextLabel">
+								{t('questionsPage.noChannelsHere')}
+							</div>
 						</div>
 					)}
 				</div>
-				<div className="flex flex-col gap-5">
+				<div className="flex flex-col gap-4 md:gap-5 overflow-x-hidden">
 					<div className="flex flex-col gap-2 cursor-pointer">
-						<div className="text-[16px] text-theme-primary-active font-bold">{t('questionsPage.preJoinQuestions.title')}</div>
-						<div className="text-theme-primary">{t('questionsPage.preJoinQuestions.description')}</div>
+						<div className="text-sm md:text-[16px] text-theme-primary-active font-bold">{t('questionsPage.preJoinQuestions.title')}</div>
+						<div className="text-theme-primary text-sm md:text-base">{t('questionsPage.preJoinQuestions.description')}</div>
 						{onboardingByClan.question.map((question, index) => (
 							<QuestionItem key={question.id} question={question} index={index} />
 						))}
@@ -99,10 +105,10 @@ const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps)
 						))}
 						<div
 							onClick={handleAddPreJoinQuestion}
-							className="rounded-xl text-indigo-500 dark:text-[#949cf7] justify-center items-center p-4 border-2 border-gray-300 dark:border-[#4e5058] border-dashed font-medium flex gap-2 hover:border-indigo-400 dark:hover:border-[#7d808c] transition-colors"
+							className="rounded-xl text-indigo-500 dark:text-[#949cf7] justify-center items-center p-3 md:p-4 border-2 border-gray-300 dark:border-[#4e5058] border-dashed font-medium flex gap-2 hover:border-indigo-400 dark:hover:border-[#7d808c] transition-colors text-sm md:text-base"
 						>
-							<Icons.CirclePlusFill className="w-5" />
-							<div>{t('questionsPage.addQuestion')}</div>
+							<Icons.CirclePlusFill className="w-4 md:w-5 flex-shrink-0" />
+							<div className="break-words">{t('questionsPage.addQuestion')}</div>
 						</div>
 					</div>
 				</div>
@@ -258,15 +264,15 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 
 	return (
 		<div
-			className="flex flex-col gap-6 bg-white dark:bg-bgSecondary p-4 rounded-lg border border-gray-200 dark:border-transparent"
+			className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-bgSecondary p-3 md:p-4 rounded-lg border border-gray-200 dark:border-transparent overflow-x-hidden"
 			onClick={handleOpenWrap}
 		>
 			<div className="flex flex-col gap-2">
-				<div className="flex justify-between items-center">
-					<div className="uppercase text-xs font-medium text-gray-700 dark:text-channelTextLabel">
+				<div className="flex justify-between items-center gap-2">
+					<div className="uppercase text-[10px] md:text-xs font-medium text-gray-700 dark:text-channelTextLabel">
 						{t('questionsPage.questionNumber', { number: index + 1 })}
 					</div>
-					<div className="flex gap-2 items-center">
+					<div className="flex gap-2 items-center flex-shrink-0">
 						<div onClick={handleRemoveQuestion} className="text-gray-500 dark:text-white hover:text-red-500 dark:hover:text-red-400">
 							<Icons.TrashIcon className="w-4" />
 						</div>
@@ -278,25 +284,25 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 				{isExpanded ? (
 					<>
 						<input
-							className="text-[20px] bg-gray-100 dark:bg-bgTertiary text-gray-800 dark:text-white font-semibold outline-none focus:outline-indigo-500 dark:focus:outline-blue-500 rounded-lg p-[10px]"
+							className="text-base md:text-[20px] bg-gray-100 dark:bg-bgTertiary text-gray-800 dark:text-white font-semibold outline-none focus:outline-indigo-500 dark:focus:outline-blue-500 rounded-lg p-2 md:p-[10px] w-full"
 							type="text"
 							placeholder={t('questionsPage.enterQuestion')}
 							value={titleQuestion}
 							onChange={handleQuestionOnchange}
 						/>
-						{error && <p className="text-red-500">{error}</p>}
+						{error && <p className="text-red-500 text-sm">{error}</p>}
 					</>
 				) : (
-					<div className="text-gray-800 dark:text-white text-xl font-semibold truncate">{titleQuestion}</div>
+					<div className="text-gray-800 dark:text-white text-base md:text-xl font-semibold truncate">{titleQuestion}</div>
 				)}
 			</div>
 			{isExpanded && (
 				<>
 					<div className="flex flex-col gap-2">
-						<div className="text-gray-700 dark:text-channelTextLabel">
+						<div className="text-gray-700 dark:text-channelTextLabel text-sm md:text-base">
 							{t('questionsPage.availableAnswers', { count: answers.length })}
 						</div>
-						<div className="flex gap-1 gap-y-2 flex-wrap">
+						<div className="flex gap-1 gap-y-2 flex-wrap overflow-x-hidden">
 							{answers.map((answer, index) => (
 								<GuideItemLayout
 									onClick={() => handleOpenEditAnswer(index)}
@@ -304,20 +310,20 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 									icon={answer.emoji}
 									description={answer.description}
 									title={answer.title}
-									className={`w-fit min-h-6 rounded-xl hover:bg-transparent text-gray-800 dark:text-white justify-center items-center p-4 border-2 border-gray-300 dark:border-[#4e5058] hover:border-indigo-400 dark:hover:border-[#7d808c] font-medium flex gap-2 ${answer.description ? 'py-2' : ''}`}
+									className={`w-fit max-w-full min-h-6 rounded-xl hover:bg-transparent text-gray-800 dark:text-white justify-center items-center p-3 md:p-4 border-2 border-gray-300 dark:border-[#4e5058] hover:border-indigo-400 dark:hover:border-[#7d808c] font-medium flex gap-2 text-sm md:text-base ${answer.description ? 'py-2' : ''}`}
 								/>
 							))}
 							<GuideItemLayout
 								onClick={openPopupAnswer}
-								icon={<Icons.CirclePlusFill className="w-5" />}
+								icon={<Icons.CirclePlusFill className="w-4 md:w-5" />}
 								title={t('questionsPage.addAnswer')}
-								className="w-fit hover:bg-transparent rounded-xl text-gray-800 dark:text-white justify-center items-center p-4 border-2 border-gray-300 dark:border-[#4e5058] hover:border-indigo-400 dark:hover:border-[#7d808c] border-dashed font-medium flex gap-2"
+								className="w-fit max-w-full hover:bg-transparent rounded-xl text-gray-800 dark:text-white justify-center items-center p-3 md:p-4 border-2 border-gray-300 dark:border-[#4e5058] hover:border-indigo-400 dark:hover:border-[#7d808c] border-dashed font-medium flex gap-2 text-sm md:text-base"
 							/>
 						</div>
 					</div>
 					<div className="flex justify-end">
 						<div
-							className="rounded-md w-28 h-9 bg-indigo-500 hover:bg-indigo-600 dark:bg-primary dark:hover:bg-blue-600 text-white flex items-center font-semibold justify-center transition-colors cursor-pointer"
+							className="rounded-md w-24 md:w-28 h-8 md:h-9 bg-indigo-500 hover:bg-indigo-600 dark:bg-primary dark:hover:bg-blue-600 text-white flex items-center font-semibold justify-center transition-colors cursor-pointer text-sm md:text-base"
 							onClick={handleAddQuestion}
 						>
 							{t('buttons.save')}
@@ -370,11 +376,11 @@ const ModalAddAnswer = ({ closeAnswerPopup, index, setAnswer, titleQuestion, edi
 			onSave={handleSaveAnswer}
 		>
 			<>
-				<div className="absolute top-5 flex flex-col gap-2 w-[400px] ">
+				<div className="absolute top-5 flex flex-col gap-2 w-full max-w-[400px] px-4 md:px-0">
 					<div className="uppercase text-xs font-medium ">{t('questionsPage.questionNumber', { number: index + 1 })}</div>
-					<div className="text-xl  font-semibold truncate">{titleQuestion || t('questionsPage.questionPlaceholder')} ?</div>
+					<div className="text-base md:text-xl font-semibold break-words">{titleQuestion || t('questionsPage.questionPlaceholder')} ?</div>
 				</div>
-				<div className="pb-5 pt-10 flex flex-col gap-2">
+				<div className="pb-5 pt-10 flex flex-col gap-2 overflow-x-hidden">
 					<ControlInput
 						title={t('questionsPage.answerTitle')}
 						message={t('questionsPage.titleRequired')}

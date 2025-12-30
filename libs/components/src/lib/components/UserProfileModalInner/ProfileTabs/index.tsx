@@ -28,7 +28,7 @@ const ProfileTabs = ({ activeTab, onActiveTabChange }: ProfileTabsProps) => {
 					<li
 						key={tab.id}
 						onClick={() => handleClickTab(tab.id)}
-						className={`text-sm font-normal hover:border-white border-b-[1px] cursor-pointer ${activeTab === tab.id ? 'dark:border-white border-black' : 'border-transparent'}`}
+						className={`text-sm font-normal hover:border-white border-b-[1px] cursor-pointer ${activeTab === tab.id ? '' : 'border-transparent'}`}
 					>
 						{tab.name}
 					</li>

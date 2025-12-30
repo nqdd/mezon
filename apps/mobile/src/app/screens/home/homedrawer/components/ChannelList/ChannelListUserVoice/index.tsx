@@ -1,10 +1,10 @@
-import { size } from '@mezon/mobile-ui';
 import { selectStreamMembersByChannelId, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store-mobile';
-import { IChannel, IChannelMember } from '@mezon/utils';
+import type { IChannel, IChannelMember } from '@mezon/utils';
 import React, { memo, useMemo } from 'react';
 import { View } from 'react-native';
 import ChannelItem from '../ChannelItem';
 import UserVoiceItem from '../ChannelListUserVoiceItem';
+import { style } from './styles';
 
 interface IUserListVoiceChannelProps {
 	channelId: string;
@@ -14,7 +14,6 @@ interface IUserListVoiceChannelProps {
 	isActive?: boolean;
 }
 
-// Memoized UserVoiceItem wrapper
 const MemoizedUserVoiceItem = memo<{
 	userVoice: IChannelMember;
 	index: number;
@@ -25,6 +24,7 @@ const MemoizedUserVoiceItem = memo<{
 ));
 
 export default memo(function ChannelListUserVoice({ channelId, isCategoryExpanded, data, isUnRead, isActive }: IUserListVoiceChannelProps) {
+	const styles = style();
 	const voiceChannelMember = useAppSelector((state) => selectVoiceChannelMembersByChannelId(state, channelId));
 	const streamChannelMembers = useAppSelector((state) => selectStreamMembersByChannelId(state, channelId));
 
@@ -32,14 +32,13 @@ export default memo(function ChannelListUserVoice({ channelId, isCategoryExpande
 		return [...(voiceChannelMember || []), ...(streamChannelMembers || [])];
 	}, [voiceChannelMember, streamChannelMembers]);
 
-	// Early return if no members to show
 	if (!isCategoryExpanded && !combinedMembers.length) return <View />;
 
 	return (
 		<>
 			<ChannelItem data={data} isUnRead={isUnRead} isActive={isActive} />
 			{combinedMembers.length > 0 && (
-				<View style={[!isCategoryExpanded && { flexDirection: 'row', marginLeft: size.s_30 }]}>
+				<View style={[!isCategoryExpanded && styles.channelListUserVoiceWrapper]}>
 					{combinedMembers.map((member, index) => (
 						<MemoizedUserVoiceItem
 							key={`${index}_${member?.participant || member?.user_id}`}

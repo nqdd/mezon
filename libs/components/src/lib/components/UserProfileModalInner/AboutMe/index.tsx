@@ -1,12 +1,20 @@
+import { useUserById } from '@mezon/core';
+import { selectAllAccount } from '@mezon/store';
 import { formatDateI18n } from '@mezon/utils';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 
 type AboutMeProps = {
 	createTime?: string | number;
+	userId?: string;
 };
 
-const AboutMe = ({ createTime }: AboutMeProps) => {
+const AboutMe = ({ createTime, userId }: AboutMeProps) => {
 	const { t } = useTranslation('common');
+	const userProfile = useSelector(selectAllAccount);
+	const userById = useUserById(userId);
+	const checkUser = useMemo(() => userProfile?.user?.id === userId, [userId, userProfile?.user?.id]);
 
 	const formatCreateTime = () => {
 		if (!createTime) return '';
@@ -17,6 +25,9 @@ const AboutMe = ({ createTime }: AboutMeProps) => {
 	return (
 		<div className="flex flex-col gap-[20px]">
 			<div className="flex flex-col gap-2">
+				<p className="max-w-[400px] text-lg font-normal text-theme-primary break-words">
+					{checkUser ? userProfile?.user?.about_me : userById?.user?.about_me}
+				</p>
 				<p className="text-xs font-semibold text-theme-primary">{t('userProfile.memberSince')}</p>
 				<span className="text-sm font-normal text-theme-primary">{formatCreateTime()}</span>
 			</div>

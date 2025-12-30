@@ -5,7 +5,7 @@ import { ActivityIndicator, Linking, Text, TouchableOpacity, View } from 'react-
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { checkFileTypeImage, isAudio, isVideo } from '../../../../../utils/helpers';
-import RenderAudioChat from '../RenderAudioChat/RenderAudioChat';
+import RenderAudioChat from '../RenderAudioChat';
 import { RenderImageChat } from '../RenderImageChat';
 import { RenderVideoChat } from '../RenderVideoChat';
 import { style } from './styles';
