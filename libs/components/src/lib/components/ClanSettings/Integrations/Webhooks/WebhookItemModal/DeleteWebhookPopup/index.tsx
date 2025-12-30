@@ -46,7 +46,7 @@ const DeleteWebhookPopup = ({ webhookItem, currentChannel, closeShowPopup, isCla
 	return (
 		<div ref={modalRef} tabIndex={-1} className="fixed inset-0 flex items-center justify-center z-50">
 			<div className="fixed inset-0 bg-black opacity-80" />
-			<div className="relative z-10 w-[440px]">
+			<div className="relative z-10 w-[440px] px-4 md:px-0">
 				<div className="bg-theme-setting-primary pt-[16px] px-[16px]">
 					<div className=" text-[20px] font-semibold pb-[16px]">{t('webhooksEdit.deleteCaptionHook')}</div>
 					<div className=" pb-[20px]">{t('webhooksEdit.deleteWebhookConfirmation', { webhookName: webhookItem.webhook_name })}</div>

@@ -29,22 +29,24 @@ export const GuideItemLayout = ({
 }: GuideItemLayoutProps) => {
 	return (
 		<div
-			className={`p-4 flex items-start rounded-lg ${noNeedHover ? '' : 'bg-item-hover border-theme-primary bg-theme-setting-nav text-theme-primary-hover'} ${height ? height : 'h-full'} ${background} ${className}`}
+			className={`p-3 md:p-4 flex items-start rounded-lg ${noNeedHover ? '' : 'bg-item-hover border-theme-primary bg-theme-setting-nav text-theme-primary-hover'} ${height ? height : 'h-full'} ${background} ${className} overflow-x-hidden`}
 			style={{
 				gap
 			}}
 			onClick={onClick}
 		>
 			{icon && (
-				<div className="h-full flex items-center justify-center text-theme-primary">
-					<div className={`${hightLightIcon ? 'rounded-full w-12 aspect-square ' : ''}  flex items-center justify-center`}>{icon}</div>
+				<div className="h-full flex items-center justify-center text-theme-primary flex-shrink-0">
+					<div className={`${hightLightIcon ? 'rounded-full w-10 md:w-12 aspect-square ' : ''}  flex items-center justify-center`}>
+						{icon}
+					</div>
 				</div>
 			)}
-			<div className={`flex flex-1 text-base flex-col h-full justify-center text-theme-primary `}>
-				{title && <div className="font-bold text-theme-primary-active">{title}</div>}
-				{description && <div className="text-xs flex-1">{description}</div>}
+			<div className={`flex flex-1 text-sm md:text-base flex-col h-full justify-center text-theme-primary min-w-0`}>
+				{title && <div className="font-bold text-theme-primary-active break-words">{title}</div>}
+				{description && <div className="text-xs flex-1 break-words">{description}</div>}
 			</div>
-			{action && <div className="flex items-center h-full">{action}</div>}
+			{action && <div className="flex items-center h-full flex-shrink-0">{action}</div>}
 		</div>
 	);
 };

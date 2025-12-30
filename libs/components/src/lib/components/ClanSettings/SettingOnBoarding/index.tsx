@@ -156,7 +156,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 	}, [description, about, initialDescription, initialAbout]);
 
 	const renderOnboardingContent = () => (
-		<div className="text-theme-primary text-sm">
+		<div className="text-theme-primary text-sm overflow-x-hidden">
 			{currentPage === EOnboardingStep.MAIN && (
 				<MainIndex handleGoToPage={handleGoToPage} onCloseSetting={onClose} showOnboardingHighlight={showOnboardingHighlight} />
 			)}
@@ -165,9 +165,9 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			)}
 			{currentPage === EOnboardingStep.MISSION && (
 				<MemberProvider>
-					<div className="flex flex-col gap-8">
+					<div className="flex flex-col gap-4 md:gap-8 overflow-x-hidden">
 						<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
-							<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary" />
+							<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary flex-shrink-0" />
 							<div className="font-semibold text-theme-primary">{t('buttons.back')}</div>
 						</div>
 						<ClanGuideSetting setOpenModalSaveChanges={setOpenModalSaveChanges} />
@@ -182,16 +182,16 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			<>
 				<EnableOnboarding onEnable={handleEnableCommunity} />
 				{isModalOpen && (
-					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-						<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin  [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-[#5865F2] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-gray-200">
-							<div className="flex justify-between items-center mb-6">
-								<h3 className="text-xl font-semibold text-theme-primary-active">{t('modal.title')}</h3>
+					<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+						<div className="bg-theme-setting-primary w-full max-w-[800px] p-4 md:p-6 rounded-lg max-h-[80vh] overflow-y-auto overflow-x-hidden scrollbar-thin  [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-thumb]:bg-[#5865F2] [&::-webkit-scrollbar-thumb]:rounded-lg [&::-webkit-scrollbar-track]:bg-gray-200">
+							<div className="flex justify-between items-center mb-4 md:mb-6">
+								<h3 className="text-lg md:text-xl font-semibold text-theme-primary-active">{t('modal.title')}</h3>
 								<button onClick={() => setIsModalOpen(false)} className=" text-theme-primary text-theme-primary-hover ">
-									<Icons.CloseIcon className="w-6 h-6" />
+									<Icons.CloseIcon className="w-5 h-5 md:w-6 md:h-6" />
 								</button>
 							</div>
-							{renderOnboardingContent()}
-							<div className="flex justify-end gap-4 mt-6">
+							<div className="overflow-x-hidden">{renderOnboardingContent()}</div>
+							<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-4 md:mt-6">
 								<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
 									{t('buttons.cancel')}
 								</button>
@@ -220,16 +220,16 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 	return (
 		<>
 			{isModalOpen && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="bg-theme-setting-primary p-6 rounded-lg w-[800px] max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
-						<div className="flex justify-between items-center mb-6">
-							<h3 className="text-xl font-semibold text-theme-primary">{t('modal.title')}</h3>
+				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+					<div className="bg-theme-setting-primary w-full max-w-[800px] p-4 md:p-6 rounded-lg max-h-[80vh] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900">
+						<div className="flex justify-between items-center mb-4 md:mb-6">
+							<h3 className="text-lg md:text-xl font-semibold text-theme-primary">{t('modal.title')}</h3>
 							<button onClick={() => setIsModalOpen(false)} className=" bg-item-theme hover:text-white">
-								<Icons.CloseIcon className="w-6 h-6" />
+								<Icons.CloseIcon className="w-5 h-5 md:w-6 md:h-6" />
 							</button>
 						</div>
-						{renderOnboardingContent()}
-						<div className="flex justify-end gap-4 mt-6">
+						<div className="overflow-x-hidden">{renderOnboardingContent()}</div>
+						<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-4 md:mt-6">
 							<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
 								{t('buttons.cancel')}
 							</button>
@@ -253,20 +253,20 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 			)}
 
 			{isCommunityEnabled && (
-				<div className="text-theme-primary text-sm pb-10">
-					<div className="flex items-center justify-between p-4 bg-theme-setting-primary rounded-lg mb-6">
-						<div className="flex flex-col">
-							<h3 className="text-lg font-semibold text-theme-primary">{t('onboarding.title')}</h3>
-							<p className="text-sm text-theme-primary">{t('onboarding.featuresEnabled')}</p>
+				<div className="text-theme-primary text-sm pb-10 overflow-x-hidden">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 p-4 bg-theme-setting-primary rounded-lg mb-6">
+						<div className="flex flex-col flex-1 min-w-0">
+							<h3 className="text-base sm:text-lg font-semibold text-theme-primary">{t('onboarding.title')}</h3>
+							<p className="text-xs sm:text-sm text-theme-primary">{t('onboarding.featuresEnabled')}</p>
 						</div>
 						<button
 							onClick={() => toggleEnableStatus(false)}
-							className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
+							className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
 						>
 							{t('buttons.disable')}
 						</button>
 					</div>
-					{renderOnboardingContent()}
+					<div className="overflow-x-hidden">{renderOnboardingContent()}</div>
 					{!isModalOpen && openModalSaveChanges && (isDescriptionOrAboutChanged || checkCreateValidate) && (
 						<ModalSaveChanges onSave={handleCreateOnboarding} onReset={handleResetOnboarding} isLoading={isSaving} />
 					)}
@@ -298,18 +298,21 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 	};
 
 	return (
-		<div className="flex flex-col gap-6 flex-1">
+		<div className="flex flex-col gap-4 md:gap-6 flex-1 overflow-x-hidden">
 			<div className="flex flex-col gap-2">
-				<div className="text-[20px] text-theme-primary-active font-semibold">{t('onboarding.title')}</div>
-				<div className="font-medium text-theme-primary">
-					{t('onboarding.description')}
-					<p className="ml-3 inline-block cursor-pointer text-blue-500 hover:underline" onClick={openOnboardingPreviewMode}>
+				<div className="text-base md:text-[20px] text-theme-primary-active font-semibold">{t('onboarding.title')}</div>
+				<div className="font-medium text-theme-primary text-sm md:text-base">
+					<span className="block sm:inline">{t('onboarding.description')}</span>
+					<p
+						className="ml-0 sm:ml-3 mt-1 sm:mt-0 inline-block cursor-pointer text-blue-500 hover:underline"
+						onClick={openOnboardingPreviewMode}
+					>
 						{t('buttons.preview')}
 					</p>
 				</div>
 			</div>
 
-			<div className="text-theme-primary">
+			<div className="text-theme-primary overflow-x-hidden">
 				<GuideItemLayout
 					title={t('onboarding.enabledTitle')}
 					description={t('onboarding.enabledDescription')}
@@ -317,34 +320,34 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 					noNeedHover
 				/>
 
-				<div className="mx-4 border-t border-theme-primary text-theme-primary-hover" />
+				<div className="mx-2 md:mx-4 border-t border-theme-primary text-theme-primary-hover" />
 
 				<GuideItemLayout
 					hightLightIcon
-					icon={<Icons.People className="w-6 text-theme-primary" />}
+					icon={<Icons.People className="w-5 md:w-6 text-theme-primary flex-shrink-0" />}
 					title={t('questions.title')}
 					description={t('questions.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
 						<div
 							onClick={() => handleGoToPage(EOnboardingStep.QUESTION)}
-							className="px-3 py-2 flex gap-2 justify-center items-center rounded-lg btn-primary btn-primary-hover  cursor-pointer"
+							className="px-2 md:px-3 py-1.5 md:py-2 flex gap-1 md:gap-2 justify-center items-center rounded-lg btn-primary btn-primary-hover cursor-pointer whitespace-nowrap flex-shrink-0"
 						>
-							<div>{t('buttons.setup')}</div> <Icons.LongArrowRight className="w-3" />
+							<div className="text-xs md:text-sm">{t('buttons.setup')}</div> <Icons.LongArrowRight className="w-3 flex-shrink-0" />
 						</div>
 					}
 				/>
-				<div className="mx-4 border-t border-theme-primary text-theme-primary-hover" />
+				<div className="mx-2 md:mx-4 border-t border-theme-primary text-theme-primary-hover" />
 				<GuideItemLayout
 					hightLightIcon
-					icon={<Icons.GuideIcon defaultSize="w-6  " className="text-theme-primary" />}
+					icon={<Icons.GuideIcon defaultSize="w-5 md:w-6" className="text-theme-primary flex-shrink-0" />}
 					title={t('clanGuide.title')}
 					description={t('clanGuide.description')}
 					className={` rounded-none ${showOnboardingHighlight ? 'border-2 border-red-500' : ''}`}
 					action={
-						<div className="flex items-center gap-4">
+						<div className="flex items-center gap-2 md:gap-4">
 							<div
-								className="w-[60px] h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover  cursor-pointer"
+								className="w-[50px] md:w-[60px] h-[28px] md:h-[32px] flex justify-center items-center rounded-lg border-theme-primary bg-secondary-button-hover cursor-pointer text-xs md:text-sm flex-shrink-0"
 								onClick={() => handleGoToPage(EOnboardingStep.MISSION)}
 								data-e2e={generateE2eId('clan_page.settings.onboarding.button.clan_guide')}
 							>

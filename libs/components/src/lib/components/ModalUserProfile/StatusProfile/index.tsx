@@ -2,7 +2,7 @@ import { useAuth, useMemberStatus } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
 import { accountActions, giveCoffeeActions, useAppDispatch, useWallet, userClanProfileActions } from '@mezon/store';
 import { Icons, Menu } from '@mezon/ui';
-import { CURRENCY, EUserStatus, formatBalanceToString } from '@mezon/utils';
+import { CURRENCY, EUserStatus, formatBalanceToString, useAppLayout } from '@mezon/utils';
 import type { ReactElement, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,7 @@ type StatusProfileProps = {
 const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps) => {
 	const { t } = useTranslation(['userProfile', 'message']);
 	const dispatch = useAppDispatch();
+	const { isMobile } = useAppLayout();
 	const handleCustomStatus = () => {
 		dispatch(userClanProfileActions.setShowModalCustomStatus(true));
 	};
@@ -163,11 +164,19 @@ const StatusProfile = ({ userById, isDM, modalRef, onClose }: StatusProfileProps
 					trigger="click"
 					menu={menuStatus}
 					onVisibleChange={handleChangeVisible}
-					align={{
-						offset: [0, 10],
-						points: ['br']
-					}}
-					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!min-w-full "
+					placement={isMobile ? 'bottom' : undefined}
+					align={
+						isMobile
+							? {
+									offset: [0, 4],
+									points: ['tc', 'bc']
+								}
+							: {
+									offset: [0, 10],
+									points: ['br']
+								}
+					}
+					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!mx-auto "
 				>
 					<div className="capitalize ml-[1px] text-theme-primary">
 						<ItemStatus

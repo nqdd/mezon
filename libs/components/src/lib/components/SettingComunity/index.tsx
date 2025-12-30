@@ -369,7 +369,7 @@ const SettingComunity = ({
 	if (!isEnabled && isInitialEditing) {
 		return (
 			<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-				<div className="relative w-full max-w-lg bg-gradient-to-br from-white to-gray-50 dark:from-theme-setting-primary dark:to-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden max-h-[90vh] flex flex-col">
+				<div className="relative w-full max-w-lg bg-gradient-to-br from-white to-gray-50 dark:from-theme-setting-primary dark:to-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden max-h-[90vh] flex flex-col mt-14 md:mt-0">
 					<div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
 						<Button
 							className="absolute top-4 right-4 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
@@ -552,14 +552,14 @@ const SettingComunity = ({
 							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 							<div className="relative">
 								<div
-									className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
+									className={`flex items-center border md:border-2 rounded-lg md:rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-2 md:focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 								>
-									<span className="px-4 py-3 text-theme-primary opacity-75 border-r bg-item-theme rounded-l-xl">
+									<span className="px-2 py-2 text-xs md:px-4 md:py-3 md:text-base text-theme-primary opacity-75 border-r bg-item-theme rounded-l-lg md:rounded-l-xl whitespace-nowrap">
 										mezon.ai/clans/clan/
 									</span>
 									<input
 										type="text"
-										className="flex-1 px-4 py-3 bg-transparent text-theme-primary focus:outline-none rounded-r-xl"
+										className="flex-1 px-2 py-2 text-sm md:px-4 md:py-3 md:text-base bg-transparent text-theme-primary focus:outline-none rounded-r-lg md:rounded-r-xl"
 										value={vanityUrl}
 										onChange={handleChangeVanityUrl}
 										placeholder={t('communitySettings.vanityUrl.placeholder')}
@@ -568,10 +568,10 @@ const SettingComunity = ({
 									/>
 								</div>
 								{vanityUrl && (
-									<div className="mt-2 p-3 border border-blue-200 rounded-lg">
-										<p className="text-sm text-blue-700  flex items-center gap-1">
+									<div className="mt-2 p-2 md:p-3 border border-blue-200 rounded-lg">
+										<p className="text-xs md:text-sm text-blue-700 flex flex-col md:flex-row md:items-center gap-1">
 											<span className="font-medium">{t('communitySettings.vanityUrl.previewLabel')}</span>
-											<span className="truncate max-w-[300px] block">mezon.ai/clans/clan/{vanityUrl}</span>
+											<span className="truncate max-w-full md:max-w-[300px] block">mezon.ai/clans/clan/{vanityUrl}</span>
 										</p>
 									</div>
 								)}
@@ -782,14 +782,14 @@ const SettingComunity = ({
 							<p className="text-sm text-theme-primary opacity-75 mb-3">{t('communitySettings.vanityUrl.description')} </p>
 							<div className="relative">
 								<div
-									className={`flex items-center border-2 rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
+									className={`flex items-center border md:border-2 rounded-lg md:rounded-xl bg-theme-input focus-within:border-blue-400 dark:focus-within:border-blue-500 focus-within:ring-2 md:focus-within:ring-4 focus-within:ring-blue-100 dark:focus-within:ring-blue-900/30 transition-all duration-200 ${vanityUrlError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 								>
-									<span className="px-4 py-3 text-theme-primary opacity-75 border-r border-gray-300 bg-item-theme rounded-l-xl">
+									<span className="px-2 py-2 text-xs md:px-4 md:py-3 md:text-base text-theme-primary opacity-75 border-r border-gray-300 bg-item-theme rounded-l-lg md:rounded-l-xl whitespace-nowrap">
 										mezon.ai/clans/clan/
 									</span>
 									<input
 										type="text"
-										className="flex-1 px-4 py-3 bg-transparent text-theme-primary focus:outline-none rounded-r-xl"
+										className="flex-1 px-2 py-2 text-sm md:px-4 md:py-3 md:text-base bg-transparent text-theme-primary focus:outline-none rounded-r-lg md:rounded-r-xl"
 										value={vanityUrl}
 										onChange={handleChangeVanityUrl}
 										placeholder={t('communitySettings.vanityUrl.placeholder')}

@@ -64,6 +64,9 @@ const ClanSetting = (props: ModalSettingProps) => {
 
 	const handleSettingItemClick = (settingItem: ItemObjProps) => {
 		setCurrentSettingId(settingItem.id);
+		if (window.innerWidth < 768) {
+			setIsSidebarOpen(false);
+		}
 		if (settingItem.id === ItemSetting.INTEGRATIONS) {
 			if (canManageClan) {
 				dispatch(fetchClanWebhooks({ clanId: currentClanId }));
@@ -77,6 +80,10 @@ const ClanSetting = (props: ModalSettingProps) => {
 	const [menu, setMenu] = useState(true);
 	const closeMenu = useSelector(selectCloseMenu);
 	const [isShowDeletePopup, setIsShowDeletePopup] = useState<boolean>(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+	const handleMenuBtn = () => {
+		setIsSidebarOpen(!isSidebarOpen);
+	};
 	const currentClanId = useSelector(selectCurrentClanId) as string;
 	const currentClanName = useSelector(selectCurrentClanName);
 	const navigate = useNavigate();
@@ -125,22 +132,10 @@ const ClanSetting = (props: ModalSettingProps) => {
 		navigate('/mezon');
 	};
 	return (
-		<div ref={modalRef} tabIndex={-1} className="  flex fixed inset-0  w-screen z-30" data-e2e={generateE2eId('clan_page.settings')}>
-			<div className="flex flex-row w-screen">
-				<div className="z-50 h-fit absolute top-5 right-5 block sbm:hidden">
-					<div onClick={() => onClose()} className="rounded-full p-[10px] border-theme-primary">
-						<Icons.CloseButton className="w-4" />
-					</div>
-				</div>
-				<div className="z-50 h-fit absolute top-5 left-5 block sbm:hidden">
-					<button
-						className={`bg-[#AEAEAE] w-[30px] h-[30px] rounded-[50px] font-bold transform hover:scale-105 hover:bg-slate-400 transition duration-300 ease-in-out flex justify-center items-center ${menu ? 'rotate-90' : '-rotate-90'}`}
-						onClick={() => setMenu(!menu)}
-					>
-						<Icons.ArrowDown defaultFill="white" defaultSize="w-[20px] h-[30px]" />
-					</button>
-				</div>
-				<div className={`flex-col flex-1 bg-theme-setting-nav text-theme-primary ${closeMenu && !menu ? 'hidden' : 'flex'}`}>
+		<div ref={modalRef} tabIndex={-1} className="flex fixed inset-0 w-screen z-30" data-e2e={generateE2eId('clan_page.settings')}>
+			<div className="flex w-screen relative">
+				{isSidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-40 sbm:hidden" onClick={() => setIsSidebarOpen(false)} />}
+				<div className={`flex-col flex-1 bg-theme-setting-nav text-theme-primary ${closeMenu && !menu ? 'hidden' : 'flex'} max-sbm:hidden`}>
 					<SettingSidebar
 						onClickItem={handleSettingItemClick}
 						handleMenu={(value: boolean) => setMenu(value)}
@@ -149,14 +144,23 @@ const ClanSetting = (props: ModalSettingProps) => {
 					/>
 				</div>
 
+				{isSidebarOpen && (
+					<div className="fixed top-0 left-0 h-full max-w-[280px] bg-theme-setting-nav text-theme-primary z-[60] max-sbm:block sbm:hidden transform transition-transform duration-300 overflow-hidden">
+						<SettingSidebar
+							onClickItem={handleSettingItemClick}
+							handleMenu={(value: boolean) => setMenu(value)}
+							currentSetting={currentSettingId}
+							setIsShowDeletePopup={() => setIsShowDeletePopup(true)}
+						/>
+					</div>
+				)}
+
 				<div className="flex-3 bg-theme-setting-primary text-theme-primary overflow-y-auto hide-scrollbar">
 					<div className="flex flex-row flex-1 justify-start h-full">
-						<div className="w-[740px] pl-7 sbm:pl-10 pr-7">
+						<div className="w-full max-w-[740px] pl-4 pr-4 sbm:pl-10 sbm:pr-7 pt-[94px] sbm:pt-0">
 							<div className="relative max-h-full sbm:min-h-heightRolesEdit min-h-heightRolesEditMobile text-theme-primary">
 								{!(currentSetting?.id === ItemSetting.INTEGRATIONS || currentSetting?.id === ItemSetting.AUDIT_LOG) ? (
-									<h2 className="text-xl font-semibold mb-5 sbm:mt-[60px] mt-[10px] text-theme-primary-active">
-										{currentSetting?.name}
-									</h2>
+									<h2 className="text-xl font-semibold mb-5 sbm:mt-[60px] text-theme-primary-active">{currentSetting?.name}</h2>
 								) : (
 									''
 								)}
@@ -172,6 +176,23 @@ const ClanSetting = (props: ModalSettingProps) => {
 							/>
 						)}
 						<ExitSetting onClose={onClose} />
+					</div>
+				</div>
+				<div className="flex sbm:hidden fixed top-0 left-0 right-0 justify-between items-center z-[60] bg-theme-setting-primary pb-4 pt-4 px-4">
+					<div className="absolute inset-0 bg-gradient-to-b from-theme-setting-primary via-theme-setting-primary/95 to-transparent pointer-events-none" />
+					<div className="relative z-10">
+						{!isSidebarOpen ? (
+							<button className="text-theme-primary w-[30px] h-[30px] text-theme-primary-hover cursor-pointer" onClick={handleMenuBtn}>
+								<Icons.OpenMenu className="w-full h-full" />
+							</button>
+						) : (
+							<button className="text-theme-primary w-[30px] h-[30px] text-theme-primary-hover cursor-pointer" onClick={handleMenuBtn}>
+								<Icons.ArrowLeftCircleActive className="w-full h-full" />
+							</button>
+						)}
+					</div>
+					<div onClick={onClose} className="relative z-10 cursor-pointer">
+						<Icons.CloseIcon className="text-theme-primary w-[30px] h-[30px] text-theme-primary-hover" />
 					</div>
 				</div>
 				<div className="w-1 h-full"></div>
