@@ -273,7 +273,7 @@ export const accountSlice = createSlice({
 			}
 		},
 		updateUserStatus(state: AccountState, action: PayloadAction<string>) {
-			if (state.userProfile?.user?.status) {
+			if (state.userProfile?.user) {
 				try {
 					state.userProfile.user.status = action.payload;
 				} catch (error) {
