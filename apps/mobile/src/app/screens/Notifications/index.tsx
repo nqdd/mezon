@@ -9,6 +9,7 @@ import {
 	getStoreAsync,
 	messagesActions,
 	notificationActions,
+	selectClanById,
 	selectCurrentClanId,
 	selectNotificationClan,
 	selectNotificationForYou,
@@ -24,6 +25,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, DeviceEventEmitter, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -139,6 +141,12 @@ const Notifications = ({ navigation, route }) => {
 		async (notify: INotification, currentClanId: string, store: any, navigation: any): Promise<void> => {
 			return new Promise<void>((resolve) => {
 				requestAnimationFrame(async () => {
+					const state = store.getState();
+					const clanById = selectClanById(notify?.content?.clan_id || '')(state);
+					if (!clanById) {
+						Toast.show({ type: 'error', text1: t('unknowClan') });
+						return resolve();
+					}
 					const isTopic =
 						Number(notify?.content?.topic_id) !== 0 ||
 						notify?.content?.code === TypeMessage.Topic ||
