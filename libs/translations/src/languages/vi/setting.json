@@ -17,7 +17,16 @@
 		"description1": "Đây là tất cả các thiết bị đang đăng nhập vào tài khoản của bạn. Bạn có thể đăng xuất từng thiết bị",
 		"description2": "Nếu bạn nhìn thấy một lượt đăng nhập mà bạn không biết, hãy đăng xuất khỏi thiết bị đó và thay đổi mật khẩu tài khoản của bạn ngay lập tức.",
 		"currentDevice": "Thiết bị hiện tại",
-		"otherDevices": "Thiết bị khác"
+		"otherDevices": "Thiết bị khác",
+		"noDevices": "Không tìm thấy thiết bị",
+		"loggedIn": "Đăng nhập lúc",
+		"current": "Hiện tại",
+		"unknown": "Không xác định",
+		"platformIOS": "iOS",
+		"platformAndroid": "Android",
+		"platformDesktop": "Máy tính",
+		"platformWeb": "Web",
+		"removeDevice": "Đăng xuất khỏi thiết bị này"
 	},
 	"paymentSettings": {
 		"title": "Cài đặt thanh toán",
