@@ -43,12 +43,17 @@ const Webhooks = ({ allWebhooks, currentChannel, isClanSetting }: IWebhooksProps
 		dispatch(generateWebhook({ request: newWebhookReq, channelId: currentChannel?.channel_id as string, clanId, isClanSetting }));
 	};
 
+	const openWebhookLearnMore = () => {
+		window.open('https://mezon.ai/docs/en/developer/webhooks/channel-webhook', '_blank');
+	};
+
 	return (
 		<div className="pb-5">
-			<div className="font-semibold text-sm pt-5 text-theme-primary">
-				{t('webhookDescription')}
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer"> {t('learnMoreWebhook')}</b> {t('orTry')}{' '}
-				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('buildWebhook')}</b>
+			<div className="text-sm pt-5 text-theme-primary">
+				{t('webhookDescription')}{' '}
+				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer" onClick={openWebhookLearnMore}>
+					{t('learnMoreWebhook')}
+				</b>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			{allWebhooks?.length !== 0 ? (

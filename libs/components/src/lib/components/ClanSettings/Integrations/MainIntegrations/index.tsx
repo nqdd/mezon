@@ -10,10 +10,18 @@ interface IIntegrationProps {
 
 const MainIntegrations = ({ setIsOpenWebhooks, allWebhooks }: IIntegrationProps) => {
 	const { t } = useTranslation('integrations');
+
+	const openWebhookLearnMore = () => {
+		window.open('https://mezon.ai/docs/en/developer/webhooks/overview', '_blank');
+	};
+
 	return (
 		<>
 			<div className="text-sm pt-5 text-theme-primary">
-				{t('description')} <b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer">{t('learnMore')}</b>
+				{t('description')}{' '}
+				<b className="font-semibold text-[#00a8fc] hover:underline cursor-pointer" onClick={openWebhookLearnMore}>
+					{t('learnMore')}
+				</b>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />
 			<div

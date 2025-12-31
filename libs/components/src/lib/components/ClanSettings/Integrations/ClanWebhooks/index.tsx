@@ -42,7 +42,7 @@ const ClanWebhooks = ({ allClanWebhooks }: IClanWebhooksProps) => {
 	return (
 		<div className="pb-5">
 			<div className=" text-sm pt-5 flex flex-col text-theme-primary">
-				<span className="font-semibold">{t('clanWebhookDescription')}</span>
+				{t('clanWebhookDescription')}
 				<span className="font-semibold text-[#00a8fc]">{t('webhookTip')}</span>
 			</div>
 			<div className="border-b-theme-primary my-[32px]" />

@@ -225,7 +225,7 @@
 		"title": "Tổng quan",
 		"ageRestricted": {
 			"title": "Kênh hạn chế độ tuổi",
-			"description": "Người dùng sẽ cần xác nhận họ đủ tuổi hợp pháp để xem nội dung trong kênh này. Các kênh hạn chế độ tuổi được miễn trừ bộ lọc nội dung rõ ràng."
+			"description": "Người dùng sẽ cần xác nhận họ đủ tuổi hợp pháp để xem nội dung trong kênh này. Các kênh hạn chế độ tuổi được miễn trừ bộ lọc nội dung nhạy cảm."
 		},
 		"e2ee": {
 			"title": "Mã hóa đầu cuối",
