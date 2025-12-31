@@ -588,10 +588,18 @@ function MessageContextMenu({
 	const checkElementIsLink = elementTarget instanceof HTMLAnchorElement;
 
 	const urlImage = useMemo(() => {
-		if (imageSrc) {
+		if (message?.content?.embed && Array.isArray(message.content.embed)) {
+			for (const embed of message.content.embed) {
+				if (embed?.image?.url) {
+					return embed.image.url;
+				}
+			}
+		}
+		if (imageSrc && imageSrc !== SHOW_POSITION.NONE) {
 			return imageSrc;
-		} else return '';
-	}, [imageSrc]);
+		}
+		return '';
+	}, [imageSrc, message?.content?.embed]);
 
 	useMemo(() => {
 		if (isClickedEmoji) {
