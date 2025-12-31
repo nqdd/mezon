@@ -88,7 +88,11 @@
 		"submitDescription": "Khi gửi báo cáo này, bạn xác nhận thông tin là chính xác và được gửi với thiện ý. Vui lòng tuân thủ Quy định Cộng đồng và không gửi báo cáo sai sự thật hoặc trùng lặp.",
 		"submitReport": "Gửi báo cáo",
 		"cancel": "Hủy bỏ",
-		"reportSubmitted": "Đã gửi báo cáo"
+		"reportSubmitted": "Đã gửi báo cáo",
+		"spam": "Thư rác",
+		"harassment": "Lạm dụng hoặc quấy rối",
+		"violentContent": "Nội dung bạo lực hoặc thông tin sai lệch",
+		"private": "Tiết lộ thông tin cá nhân riêng tư"
 	},
 	"tapToSeeAttachment": "Nhấn để xem tệp đính kèm",
 	"clickToSeeAttachment": "Nhấn để xem tệp đính kèm",

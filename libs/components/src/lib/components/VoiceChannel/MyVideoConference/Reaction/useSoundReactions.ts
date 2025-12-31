@@ -1,6 +1,6 @@
 import { getStore, selectEntitesUserClans } from '@mezon/store';
-import { useCallback, useEffect, useState } from 'react';
-import { ActiveSoundReaction } from './types';
+import { useCallback, useState } from 'react';
+import type { ActiveSoundReaction } from './types';
 
 export function useSoundReactions() {
 	const [activeSoundReactions, setActiveSoundReactions] = useState<Map<string, ActiveSoundReaction>>(new Map());
@@ -10,46 +10,35 @@ export function useSoundReactions() {
 		const clanMembersEntities = selectEntitesUserClans(store.getState());
 
 		const userInfo = clanMembersEntities[participantId];
-		const username = userInfo?.user?.username || null;
-		if (!username) {
+		const userId = userInfo?.user?.id || null;
+		if (!userId) {
 			return;
 		}
 
 		setActiveSoundReactions((prev) => {
 			const newMap = new Map(prev);
-			const existing = newMap.get(username);
-			if (existing) {
-				clearTimeout(existing.timeoutId);
-			}
-			const timeoutId = setTimeout(() => {
-				setActiveSoundReactions((current) => {
-					const updatedMap = new Map(current);
-					updatedMap.delete(username);
-					return updatedMap;
-				});
-			}, 2000);
 
-			newMap.set(username, {
+			newMap.set(userId, {
 				participantId,
 				soundId,
-				timestamp: Date.now(),
-				timeoutId
+				timestamp: Date.now()
 			});
 
 			return newMap;
 		});
 	}, []);
 
-	useEffect(() => {
-		return () => {
-			activeSoundReactions.forEach((reaction) => {
-				clearTimeout(reaction.timeoutId);
-			});
-		};
-	}, []);
+	const removeActiveSoundParticipant = (userId: string) => {
+		setActiveSoundReactions((current) => {
+			const updatedMap = new Map(current);
+			updatedMap.delete(userId);
+			return updatedMap;
+		});
+	};
 
 	return {
 		activeSoundReactions,
-		handleSoundReaction
+		handleSoundReaction,
+		removeActiveSoundParticipant
 	};
 }

@@ -187,10 +187,10 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 			<div className="overflow-y-auto overflow-x-hidden hide-scrollbar h-[25rem] rounded md:ml-2 ">
 				<div
 					className="w-11 max-sm:gap-x-1
-				flex flex-col max-sm:flex-row max-sm:justify-end max-sbm:justify-start gap-y-1
-				max-sm:w-full max-sbm:w-11 bg-item-theme pt-1
-				px-1 md:items-start pb-1  max-sbm:flex-col
-				items-center min-h-[25rem] rounded-tl-lg rounded-tr-lg"
+                flex flex-col max-sm:flex-row max-sm:justify-end max-sbm:justify-start gap-y-1
+                max-sm:w-full max-sbm:w-11 bg-item-theme pt-1
+                px-1 md:items-start pb-1  max-sbm:flex-col
+                items-center min-h-[25rem] rounded-tl-lg rounded-tr-lg"
 				>
 					{categoryLogo.map((avt) => (
 						<button
@@ -256,11 +256,12 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 	const [isShowStickerList, setIsShowStickerList] = useState(categoryName === FOR_SALE_CATE ? false : true);
 	const currentClanName = useAppSelector(selectCurrentClanName);
 
-	const shouldTranslate = categoryName && PREDEFINED_EMOJI_CATEGORIES.includes(categoryName);
-
 	const handleToggleButton = () => {
 		setIsShowStickerList(!isShowStickerList);
 	};
+
+	const shouldTranslate = categoryName && PREDEFINED_EMOJI_CATEGORIES.includes(categoryName);
+	const displayCategoryName = shouldTranslate ? t(`emojiCategories.${categoryName}`) || categoryName : categoryName;
 
 	return (
 		<div>
@@ -283,11 +284,7 @@ const CategorizedStickers: React.FC<ICategorizedStickerProps> = ({ stickerList, 
 				)}
 
 				<p className={'ml-2 uppercase text-left truncate text-xs font-semibold'}>
-					{categoryName !== 'custom'
-						? shouldTranslate
-							? t(`emojiCategories.${categoryName}`) || categoryName
-							: categoryName
-						: currentClanName}
+					{categoryName !== 'custom' ? displayCategoryName : currentClanName}
 				</p>
 				<span className={`${isShowStickerList ? ' rotate-90' : ''}`}>
 					<Icons.ArrowRight defaultSize="w-4 h-4" />
@@ -314,14 +311,14 @@ const StickerPanel: React.FC<IStickerPanelProps> = ({ stickerList, onClickSticke
 							const isItemPendingUnlock = !!(sticker.id && pendingUnlockItemMap[sticker.id]);
 							return (
 								<div
-									className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center rounded-lg cursor-pointer"
+									className="group relative w-full h-full border border-bgHoverMember aspect-square overflow-hidden flex items-center justify-center rounded-lg cursor-pointer bg-bgIconLight"
 									key={sticker.id}
 									onMouseEnter={() => setPlaceHolderInput(sticker.shortname || '')}
 								>
 									<img
 										src={sticker.url ? sticker.url : `${process.env.NX_BASE_IMG_URL}/stickers/${sticker.id}.webp`}
 										alt="sticker"
-										className={`w-full h-full aspect-square object-cover  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
+										className={`w-full h-full aspect-square object-contain  hover:bg-bgLightModeButton ${sticker.id === '0' ? 'blur-sm' : ''}`}
 										onClick={() => {
 											if (!sticker.forSale || sticker.url) {
 												onClickSticker(sticker);
