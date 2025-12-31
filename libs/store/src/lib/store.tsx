@@ -56,7 +56,6 @@ import { popupForwardReducer } from './forwardMessage/forwardMessage.slice';
 import { galleryReducer } from './gallery/gallery.slice';
 import { gifsStickerEmojiReducer } from './giftStickerEmojiPanel/gifsStickerEmoji.slice';
 import { giveCoffeeReducer } from './giveCoffee/giveCoffee.slice';
-import { walletLedgerReducer } from './giveCoffee/historyTransaction.slice';
 import { EMBED_MESSAGE, embedReducer } from './messages/embedMessage.slice';
 import { channelCategorySettingReducer, defaultNotificationCategoryReducer } from './notificationSetting/notificationSettingCategory.slice';
 import { notificationSettingReducer } from './notificationSetting/notificationSettingChannel.slice';
@@ -357,7 +356,6 @@ const reducer = {
 	dmcall: DMCallReducer,
 	[E2EE_FEATURE_KEY]: e2eeReducer,
 	[EMBED_MESSAGE]: embedReducer,
-	walletLedger: walletLedgerReducer,
 	[CHANNEL_LIST_RENDER]: listChannelRenderReducer,
 	[COMPOSE_FEATURE_KEY]: persistedCompose,
 	groupCall: groupCallReducer,

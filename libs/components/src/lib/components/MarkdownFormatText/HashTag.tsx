@@ -1,33 +1,24 @@
-import { useAppNavigation, useTagById } from '@mezon/core';
-import type { ChannelsEntity } from '@mezon/store';
-import { categoriesActions, selectClanView, selectCurrentChannelType, selectThreadById, useAppDispatch, useAppSelector } from '@mezon/store';
+import { getTagById, useAppNavigation } from '@mezon/core';
+import { categoriesActions, selectClanView, selectCurrentChannelType, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ChannelType } from 'mezon-js';
 import { memo, useCallback } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import ModalUnknowChannel from './ModalUnknowChannel';
-
 type ChannelHashtagProps = {
 	channelHastagId: string;
 	isJumMessageEnabled: boolean;
 	isTokenClickAble: boolean;
-	channelOnLinkFound?: ChannelsEntity;
 };
 
-const ChannelHashtag = ({ channelHastagId, isJumMessageEnabled, isTokenClickAble, channelOnLinkFound }: ChannelHashtagProps) => {
+const ChannelHashtag = ({ channelHastagId, isJumMessageEnabled, isTokenClickAble }: ChannelHashtagProps) => {
 	const dispatch = useAppDispatch();
-	const tagId = channelHastagId?.slice(2, -1);
 	const isClanView = useSelector(selectClanView);
 	const { toChannelPage, navigate } = useAppNavigation();
 	const currentChannelType = useSelector(selectCurrentChannelType);
 
-	const channelById = useTagById(tagId);
-
-	let channel = channelOnLinkFound?.id ? channelOnLinkFound : channelById;
-
-	const thread = useAppSelector((state) => selectThreadById(state, tagId));
-	if (thread) channel = thread as ChannelsEntity;
+	const channel = getTagById(channelHastagId);
 
 	const handleClick = useCallback(() => {
 		if (!channel) return;

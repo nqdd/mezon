@@ -1,7 +1,6 @@
 import type { ChannelsEntity } from '@mezon/store';
 import {
 	getStore,
-	selectChannelByIdAndClanId,
 	selectClanView,
 	selectCurrentChannel,
 	selectCurrentDM,
@@ -10,7 +9,6 @@ import {
 	selectMemberDMByUserId,
 	selectMemberGroupByUserId,
 	selectSearchChannelById,
-	selectUserStatusById,
 	useAppSelector
 } from '@mezon/store';
 import type { ChannelMembersEntity } from '@mezon/utils';
@@ -28,16 +26,6 @@ export const useUserById = (userID: string | undefined): ChannelMembersEntity | 
 	});
 };
 
-export const useUserMetaById = (userID: string | undefined): any | undefined => {
-	return useAppSelector((state) => {
-		if (!userID) return undefined;
-		const isClanView = selectClanView(state);
-		return isClanView
-			? (selectUserStatusById(state, userID ?? '')?.status as string | undefined)
-			: (selectUserStatusById(state, userID as string)?.user_status as string | undefined);
-	});
-};
-
 export const useUserByUserId = (userID: string | undefined): ChannelMembersEntity | undefined => {
 	return useAppSelector((state) => {
 		if (!userID) return undefined;
@@ -48,17 +36,10 @@ export const useUserByUserId = (userID: string | undefined): ChannelMembersEntit
 	});
 };
 
-export const useTagById = (tagId: string | undefined): ChannelsEntity | undefined => {
-	return useAppSelector((state) => {
-		if (!tagId) return undefined;
-		return selectSearchChannelById(state, tagId) as unknown as ChannelsEntity;
-	});
-};
-
-export const getTagByIdOnStored = (clanId: string, tagId: string | undefined): ChannelsEntity | undefined => {
+export const getTagById = (tagId: string | undefined): ChannelsEntity | undefined => {
 	const store = getStore();
 	if (!tagId) return undefined;
-	return selectChannelByIdAndClanId(store.getState(), clanId, tagId);
+	return selectSearchChannelById(store.getState(), tagId);
 };
 
 export const useCurrentInbox = (): ChannelsEntity | null => {

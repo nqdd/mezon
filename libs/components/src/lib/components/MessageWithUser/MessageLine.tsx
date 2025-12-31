@@ -1,5 +1,4 @@
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { getTagByIdOnStored } from '@mezon/core';
 import { getStore, selectCanvasIdsByChannelId } from '@mezon/store';
 import type { IExtendedMessage } from '@mezon/utils';
 import { EBacktickType, ETokenMessage, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
@@ -261,7 +260,7 @@ export const MessageLine = ({
 						key={`hashtag-${s}-${messageId}`}
 						isTokenClickAble={isTokenClickAble}
 						isJumMessageEnabled={isJumMessageEnabled}
-						channelHastagId={`<#${element.channelid}>`}
+						channelHastagId={element.channelid || ''}
 					/>
 				);
 			} else if (
@@ -355,18 +354,14 @@ export const MessageLine = ({
 								/>
 							);
 						} else if (!isCanvas && contentHasChannelLink) {
-							const channelFound = getTagByIdOnStored(clanId, channelId);
-							if (channelId && channelFound?.id) {
-								componentToRender = (
-									<ChannelHashtag
-										channelOnLinkFound={channelFound}
-										key={`linkChannel${s}-${messageId}`}
-										isTokenClickAble={isTokenClickAble}
-										isJumMessageEnabled={isJumMessageEnabled}
-										channelHastagId={`<#${channelId}>`}
-									/>
-								);
-							}
+							componentToRender = (
+								<ChannelHashtag
+									key={`linkChannel${s}-${messageId}`}
+									isTokenClickAble={isTokenClickAble}
+									isJumMessageEnabled={isJumMessageEnabled}
+									channelHastagId={channelId}
+								/>
+							);
 						}
 						formattedContent.push(
 							componentToRender ?? (
