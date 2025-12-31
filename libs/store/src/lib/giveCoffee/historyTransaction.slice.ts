@@ -1,13 +1,12 @@
 import type { LoadingStatus } from '@mezon/utils';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ApiTransactionDetail, ApiWalletLedger } from 'mezon-js/api.gen';
+import type { ApiTransactionDetail } from 'mezon-js/api.gen';
 
 export const WALLET_LEDGER_FEATURE_KEY = 'walletLedger';
 
 export interface WalletLedgerState {
 	loadingStatus: LoadingStatus;
 	error?: string | null;
-	walletLedger?: ApiWalletLedger[] | null;
 	count?: number;
 	detailLedger?: ApiTransactionDetail | null;
 }
@@ -15,7 +14,6 @@ export interface WalletLedgerState {
 export const initialWalletLedgerState: WalletLedgerState = {
 	loadingStatus: 'not loaded',
 	error: null,
-	walletLedger: null,
 	detailLedger: null,
 	count: 0
 };
@@ -25,7 +23,6 @@ export const walletLedgerSlice = createSlice({
 	initialState: initialWalletLedgerState,
 	reducers: {
 		resetWalletLedger: (state) => {
-			state.walletLedger = null;
 			state.count = 0;
 		}
 	},
