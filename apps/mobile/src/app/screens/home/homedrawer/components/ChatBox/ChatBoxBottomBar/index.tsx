@@ -608,7 +608,11 @@ export const ChatBoxBottomBar = memo(
 		}, [channelId]);
 
 		useEffect(() => {
-			if (messageActionNeedToResolve !== null && messageActionNeedToResolve?.targetMessage?.channel_id === channelId) {
+			if (
+				messageActionNeedToResolve !== null &&
+				(messageActionNeedToResolve?.targetMessage?.channel_id === channelId ||
+					messageActionNeedToResolve?.targetMessage?.channel_id === topicChannelId)
+			) {
 				const { isStillShowKeyboard } = messageActionNeedToResolve;
 				if (!isStillShowKeyboard) {
 					resetInput();
@@ -616,7 +620,7 @@ export const ChatBoxBottomBar = memo(
 				handleMessageAction(messageActionNeedToResolve);
 				openKeyBoard();
 			}
-		}, [channelId, messageActionNeedToResolve]);
+		}, [channelId, messageActionNeedToResolve, topicChannelId]);
 
 		useEffect(() => {
 			const clearTextInputListener = DeviceEventEmitter.addListener(ActionEmitEvent.CLEAR_TEXT_INPUT, () => {
