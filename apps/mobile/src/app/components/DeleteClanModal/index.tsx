@@ -1,4 +1,3 @@
-import { useChannelMembersActions } from '@mezon/core';
 import { ActionEmitEvent, STORAGE_CHANNEL_CURRENT_CACHE, STORAGE_CLAN_ID, STORAGE_MY_USER_ID, load, remove, save } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import {
@@ -7,13 +6,13 @@ import {
 	selectAllClans,
 	selectCurrentClanId,
 	selectCurrentClanName,
-	selectCurrentVoiceChannelId,
 	useAppDispatch
 } from '@mezon/store-mobile';
 import { useNavigation } from '@react-navigation/native';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../componentUI/MezonConfirm';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
@@ -27,38 +26,38 @@ const DeleteClanModal = ({ isLeaveClan = false }: { isLeaveClan?: boolean }) => 
 	const clans = useSelector(selectAllClans);
 	const navigation = useNavigation<any>();
 	const { themeValue } = useTheme();
-	const { removeMemberClan } = useChannelMembersActions();
-	const currentChannelId = useSelector(selectCurrentVoiceChannelId);
 	const userId = useMemo(() => {
 		return load(STORAGE_MY_USER_ID);
 	}, []);
 
 	const onConfirm = async () => {
-		if (isLeaveClan) {
-			await removeMemberClan({
-				channelId: currentChannelId,
-				clanId: currentClanId,
-				userIds: [userId]
-			});
-		} else {
-			await dispatch(clansActions.deleteClan({ clanId: currentClanId || '' }));
-		}
-		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
-		const store = await getStoreAsync();
+		try {
+			if (isLeaveClan) {
+				await dispatch(clansActions.removeClanUsers({ clanId: currentClanId, userIds: [userId as string] }));
+			} else {
+				await dispatch(clansActions.deleteClan({ clanId: currentClanId || '' }));
+			}
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
+			const store = await getStoreAsync();
 
-		await remove(STORAGE_CHANNEL_CURRENT_CACHE);
-		const indexClanJoin = currentClanId === clans[0]?.clan_id ? 1 : 0;
-		if (clans?.length === 1) {
-			navigation.navigate(APP_SCREEN.HOME);
-			return;
-		}
-		if (clans?.[indexClanJoin]) {
-			navigation.navigate(APP_SCREEN.HOME);
-			store.dispatch(clansActions.joinClan({ clanId: clans?.[indexClanJoin]?.clan_id }));
-			store.dispatch(clansActions.changeCurrentClan({ clanId: clans[indexClanJoin]?.clan_id }));
-			save(STORAGE_CLAN_ID, clans?.[indexClanJoin]?.clan_id);
-		} else {
-			navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+			await remove(STORAGE_CHANNEL_CURRENT_CACHE);
+			const indexClanJoin = currentClanId === clans[0]?.clan_id ? 1 : 0;
+			if (clans?.length === 1) {
+				navigation.navigate(APP_SCREEN.HOME);
+				return;
+			}
+			if (clans?.[indexClanJoin]) {
+				navigation.navigate(APP_SCREEN.HOME);
+				store.dispatch(clansActions.joinClan({ clanId: clans?.[indexClanJoin]?.clan_id }));
+				store.dispatch(clansActions.changeCurrentClan({ clanId: clans[indexClanJoin]?.clan_id }));
+				save(STORAGE_CLAN_ID, clans?.[indexClanJoin]?.clan_id);
+			} else {
+				navigation.navigate(APP_SCREEN.MESSAGES.HOME);
+			}
+		} catch (error) {
+			console.error('Error deleting/leaving clan:', error);
+			Toast.show({ type: 'error', text2: t('deleteClanModal.error') });
+			DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 		}
 	};
 

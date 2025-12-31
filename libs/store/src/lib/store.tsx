@@ -17,7 +17,6 @@ import { directReducer } from './direct/direct.slice';
 import { emojiSuggestionReducer } from './emojiSuggestion/emojiSuggestion.slice';
 import { friendsReducer } from './friends/friend.slice';
 import { gifsReducer } from './giftStickerEmojiPanel/gifs.slice';
-import { gifsStickerEmojiReducer } from './giftStickerEmojiPanel/gifsStickerEmoji.slice';
 import { inviteReducer } from './invite/invite.slice';
 import { messagesReducer } from './messages/messages.slice';
 import { referencesReducer } from './messages/references.slice';
@@ -56,6 +55,7 @@ import { eventManagementReducer } from './eventManagement/eventManagement.slice'
 import { fcmReducer } from './fcm/fcm.slice';
 import { popupForwardReducer } from './forwardMessage/forwardMessage.slice';
 import { galleryReducer } from './gallery/gallery.slice';
+import { gifsStickerEmojiReducer } from './giftStickerEmojiPanel/gifsStickerEmoji.slice';
 import { giveCoffeeReducer } from './giveCoffee/giveCoffee.slice';
 import { walletLedgerReducer } from './giveCoffee/historyTransaction.slice';
 import { EMBED_MESSAGE, embedReducer } from './messages/embedMessage.slice';
@@ -222,15 +222,6 @@ const persistedDefaultNotiCatReducer = persistReducer(
 	defaultNotificationCategoryReducer
 );
 
-const persistedGifsStickerEmojiReducer = persistReducer(
-	{
-		key: 'gifsstickersemojis',
-		storage,
-		blacklist: ['subPanelActive']
-	},
-	gifsStickerEmojiReducer
-);
-
 const persistedChannelMetaReducer = persistReducer(
 	{
 		key: 'channelmeta',
@@ -352,7 +343,7 @@ const reducer = {
 	suggestionEmoji: persistedEmojiSuggestionReducer,
 	emojiRecent: persistedEmojiRecentReducer,
 	gifs: gifsReducer,
-	gifsStickersEmojis: persistedGifsStickerEmojiReducer,
+	gifsStickersEmojis: gifsStickerEmojiReducer,
 	dragAndDrop: dragAndDropReducer,
 	[ERRORS_FEATURE_KEY]: errorsReducer,
 	[TOASTS_FEATURE_KEY]: toastsReducer,

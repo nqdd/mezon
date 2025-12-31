@@ -5,7 +5,8 @@
     "confirm": "Có",
     "cancel": "Không",
      "titleLeaveClan": "Rời clan",
-    "descriptionLeaveClan": "Bạn có chắc chắn muốn rời khỏi {{currentClan}} không? Bạn sẽ không thể tham gia lại clan này trừ khi bạn được mời lại."
+    "descriptionLeaveClan": "Bạn có chắc chắn muốn rời khỏi {{currentClan}} không? Bạn sẽ không thể tham gia lại clan này trừ khi bạn được mời lại.",
+    "error": "Đã xảy ra lỗi khi cố gắng xóa/rời khỏi clan"
   },
   "confirmMessage": "Bạn có chắc chắn muốn xóa clan này không? Hành động này không thể hoàn tác.",
   "enterClanName": "Nhập tên clan",

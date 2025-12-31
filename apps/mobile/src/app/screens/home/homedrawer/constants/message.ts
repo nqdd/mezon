@@ -98,6 +98,11 @@ export const getMessageActions = (t: TFunction): IMessageAction[] => {
 			id: 20,
 			title: t('message:actions.quickMenu'),
 			type: EMessageActionType.QuickMenu
+		},
+		{
+			id: 13,
+			title: t('message:actions.report'),
+			type: EMessageActionType.Report
 		}
 	];
 };

@@ -42,9 +42,9 @@ export interface ActiveSoundReaction {
 	participantId: string;
 	soundId: string;
 	timestamp: number;
-	timeoutId: NodeJS.Timeout;
 }
 
 export interface ReactionCallHandlerProps {
 	onSoundReaction?: (participantId: string, soundId: string) => void;
+	onEndSound?: (userId: string) => void;
 }

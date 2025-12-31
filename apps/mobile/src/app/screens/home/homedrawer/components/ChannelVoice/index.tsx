@@ -3,7 +3,7 @@ import { AudioSession, LiveKitRoom, useConnectionState } from '@livekit/react-na
 import { size, useTheme } from '@mezon/mobile-ui';
 import { selectIsPiPMode, selectVoiceInfo, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store-mobile';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, BackHandler, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { AppState, BackHandler, Dimensions, NativeModules, Platform, StatusBar, StyleSheet, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { PERMISSIONS, request } from 'react-native-permissions';
 import { useSelector } from 'react-redux';
@@ -121,11 +121,30 @@ function ChannelVoice({
 	const channelId = useMemo(() => {
 		return voiceInfo?.channelId;
 	}, [voiceInfo]);
+	const [orientation, setOrientation] = useState<'Portrait' | 'Landscape'>('Portrait');
 
 	const { handleSoundReaction, activeSoundReactions } = useSoundReactions();
 	const clanId = useMemo(() => {
 		return voiceInfo?.clanId;
 	}, [voiceInfo]);
+
+	useEffect(() => {
+		const handleOrientationChange = (handler: { screen: any }) => {
+			const screen = handler?.screen;
+			const width = screen?.width;
+			const height = screen?.height;
+			if (width > height) {
+				StatusBar.setHidden(true, 'fade');
+			} else {
+				StatusBar.setHidden(false, 'fade');
+			}
+			setOrientation(width > height ? 'Landscape' : 'Portrait');
+		};
+		const subscription = Platform.OS === 'ios' ? Dimensions.addEventListener('change', handleOrientationChange) : null;
+		return () => {
+			subscription?.remove();
+		};
+	}, []);
 
 	const checkPermissions = async () => {
 		if (Platform.OS === 'android') {
@@ -242,7 +261,7 @@ function ChannelVoice({
 
 	return (
 		<View>
-			{isAnimationComplete && !focusedScreenShare && !isPiPMode && <StatusBarHeight />}
+			{isAnimationComplete && !focusedScreenShare && !isPiPMode && orientation !== 'Landscape' && <StatusBarHeight />}
 			<View
 				style={[
 					{

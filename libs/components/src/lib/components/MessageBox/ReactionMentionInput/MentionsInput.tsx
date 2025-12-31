@@ -101,11 +101,39 @@ interface ActiveMentionContext {
 }
 
 const prepareForRegExp = (html: string): string => {
-	return html
-		.replace(/(<br>|<br\s?\/>)/g, '\n')
-		.replace(/(&nbsp;|\u00A0)/g, ' ')
-		.replace(/(<div>|<\/div>)/gi, '')
-		.replace(/\n$/i, '');
+	const tempDiv = document.createElement('div');
+	tempDiv.innerHTML = html;
+	let textContent = tempDiv.textContent || tempDiv.innerText || '';
+	textContent = textContent.replace(/(&nbsp;|\u00A0)/g, ' ');
+	textContent = textContent.replace(/\n/g, ' ');
+	textContent = textContent.replace(/\n$/i, '');
+	return textContent;
+};
+
+const isSelectionInsideFormatTag = (container: HTMLElement): boolean => {
+	const formatTags = ['b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'code', 'pre'];
+
+	const selection = window.getSelection();
+	if (!selection || selection.rangeCount === 0) {
+		return false;
+	}
+
+	const range = selection.getRangeAt(0);
+	const node = range.commonAncestorContainer;
+
+	let current: Node | null = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+
+	while (current && current !== container) {
+		if (current.nodeType === Node.ELEMENT_NODE) {
+			const tagName = (current as Element).tagName.toLowerCase();
+			if (formatTags.includes(tagName)) {
+				return true;
+			}
+		}
+		current = current.parentNode;
+	}
+
+	return false;
 };
 
 const cleanWebkitNewLines = (html: string): string => {
@@ -502,6 +530,11 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 
 		const detectMention = useCallback(async () => {
 			if (!inputRef.current || mentionConfigs.length === 0 || !triggerRegex) {
+				setActiveMentionContext(null);
+				return;
+			}
+
+			if (isSelectionInsideFormatTag(inputRef.current)) {
 				setActiveMentionContext(null);
 				return;
 			}

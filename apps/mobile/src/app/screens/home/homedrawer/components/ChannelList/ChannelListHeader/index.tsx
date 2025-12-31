@@ -17,7 +17,7 @@ import { style } from './styles';
 
 const ChannelListHeader = () => {
 	const { themeValue } = useTheme();
-	const { t } = useTranslation(['clanMenu']);
+	const { t } = useTranslation(['clanMenu', 'common']);
 	const navigation = useNavigation<any>();
 	const styles = style(themeValue);
 	const members = useSelector(selectMembersClanCount);
@@ -95,7 +95,7 @@ const ChannelListHeader = () => {
 					</View>
 					<View style={styles.row}>
 						<Text numberOfLines={1} style={[styles.subTitle, { color: themeValue.textStrong }]}>
-							{`${members} ${t('info.members')}`}
+							{members === 1 ? `${members} ${t('common:member')}` : `${members} ${t('info.members')}`}
 						</Text>
 						{currentClanClanIsCommunity && <View style={styles.dot} />}
 						{currentClanClanIsCommunity && (

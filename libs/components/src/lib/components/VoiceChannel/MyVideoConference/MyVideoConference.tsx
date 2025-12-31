@@ -28,6 +28,7 @@ import { CarouselLayout } from './FocusLayout/CarouselLayout/CarouselLayout';
 import { FocusLayout, FocusLayoutContainer } from './FocusLayout/FocusLayoutContainer';
 import { GridLayout } from './GridLayout/GridLayout';
 import { useScreenSharePublisher } from './hooks/useScreenSharePublisher';
+import { VoiceTrackState } from './hooks/useVoiceTrackState';
 import { ParticipantTile } from './ParticipantTile/ParticipantTile';
 import { ReactionCallHandler } from './Reaction';
 import { useSoundReactions } from './Reaction/useSoundReactions';
@@ -65,7 +66,7 @@ export const MyVideoConference = memo(
 		url,
 		token
 	}: MyVideoConferenceProps) => {
-		const { activeSoundReactions, handleSoundReaction } = useSoundReactions();
+		const { activeSoundReactions, handleSoundReaction, removeActiveSoundParticipant } = useSoundReactions();
 		const lastAutoFocusedScreenShareTrack = useRef<TrackReferenceOrPlaceholder | null>(null);
 
 		const tracksFromHook = useTracks(
@@ -104,7 +105,6 @@ export const MyVideoConference = memo(
 			if (isFocusScreenShare) {
 				return tracks;
 			}
-
 			return tracks.filter((track) => !isEqualTrackRef(track, focusTrack));
 		}, [tracks, focusTrack]);
 		const [isShowMember, setIsShowMember] = useState<boolean>(true);
@@ -280,6 +280,7 @@ export const MyVideoConference = memo(
 		return (
 			<div className="lk-video-conference flex-1">
 				<DeepFilterNetInitializer />
+				<VoiceTrackState />
 				<ReactionCallHandler onSoundReaction={handleSoundReaction} />
 				<LayoutContextProvider value={layoutContext}>
 					<div className="lk-video-conference-inner relative bg-gray-100 dark:bg-black group">

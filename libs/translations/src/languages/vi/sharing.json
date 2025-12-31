@@ -1,14 +1,14 @@
 {
-    "filterOptions": "Tùy chọn lọc",
-    "users": "Người dùng",
-    "channels": "Kênh",
-    "all": "Tất cả",
-    "selectChannelPlaceholder": "Chọn một kênh hoặc danh mục...",
-    "share": "Chia sẻ",
-    "suggestions": "Gợi ý",
-    "addCommentPlaceholder": "Thêm bình luận (Tùy chọn)",
-    "fileTooLarge": "Tệp quá lớn",
-    "fileSizeExceeded": "{{fileType}} không thể vượt quá {{maxSize}}MB!",
-    "bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}.",
-    "empty": "Dữ liệu trống"
+	"filterOptions": "Tùy chọn lọc",
+	"users": "Người dùng",
+	"channels": "Kênh",
+	"all": "Tất cả",
+	"selectChannelPlaceholder": "Chọn một kênh hoặc người dùng...",
+	"share": "Chia sẻ",
+	"suggestions": "Gợi ý",
+	"addCommentPlaceholder": "Thêm bình luận (Tùy chọn)",
+	"fileTooLarge": "Tệp quá lớn",
+	"fileSizeExceeded": "{{fileType}} không thể vượt quá {{maxSize}}MB!",
+	"bannedChannel": "Bạn đã bị cấm trong kênh {{channelName}}.",
+	"empty": "Dữ liệu trống"
 }

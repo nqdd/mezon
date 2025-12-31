@@ -354,7 +354,14 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				<TouchableOpacity style={[styles.contentContainer, styles.imgList]} onPress={() => navigateToFriendScreen()}>
 					<Text style={styles.textTitle}>{t('yourFriend')}</Text>
 
-					<MezonAvatar avatarUrl="" username="" height={size.s_30} width={size.s_30} stacks={firstFriendImageList} />
+					<MezonAvatar
+						avatarUrl=""
+						username=""
+						height={size.s_30}
+						width={size.s_30}
+						stacks={firstFriendImageList}
+						customFontSizeAvatarCharacter={size.h6}
+					/>
 					<MezonIconCDN
 						icon={IconCDN.chevronSmallRightIcon}
 						width={size.s_18}

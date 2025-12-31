@@ -51,9 +51,11 @@ const ChannelHashtag = ({ channelHastagId, isJumMessageEnabled, isTokenClickAble
 	const isStreamingChannel = currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING;
 	const isThreadChannel = currentChannelType === ChannelType.CHANNEL_TYPE_THREAD;
 	const isAppChannel = currentChannelType === ChannelType.CHANNEL_TYPE_APP;
+	const isVoiceChannel = currentChannelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE;
 
 	const existHashtagAndChannelView = channelHastagId && !isClanView;
-	const isValidChannel = (isTextChannel || isStreamingChannel || isThreadChannel || existHashtagAndChannelView || isAppChannel) && channel;
+	const isValidChannel =
+		(isTextChannel || isStreamingChannel || isThreadChannel || isVoiceChannel || existHashtagAndChannelView || isAppChannel) && channel;
 
 	return channel ? (
 		isValidChannel ? (

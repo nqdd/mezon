@@ -1,6 +1,6 @@
 import type { IUserStatus } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import React from 'react';
+import { memo } from 'react';
 import type { ViewStyle } from 'react-native';
 import { Text, View } from 'react-native';
 import { UserStatus } from '../../components/UserStatus';
@@ -25,7 +25,7 @@ interface IMezonAvatarProps {
 	statusUserStyles?: ViewStyle;
 	customFontSizeAvatarCharacter?: number;
 }
-const MezonAvatar = React.memo((props: IMezonAvatarProps) => {
+const MezonAvatar = memo((props: IMezonAvatarProps) => {
 	const { themeValue } = useTheme();
 	const {
 		avatarUrl,
@@ -52,7 +52,12 @@ const MezonAvatar = React.memo((props: IMezonAvatarProps) => {
 				{stacks.map((user, idx) => {
 					return (
 						<View key={idx} style={[styles.imageContainer, styles.borderBoxImage, styles.sizedContainer, createPositionStyle(idx)]}>
-							<MezonClanAvatar alt={user.username} image={user.avatarUrl} lightMode />
+							<MezonClanAvatar
+								alt={user.username}
+								image={user.avatarUrl}
+								customFontSizeAvatarCharacter={customFontSizeAvatarCharacter}
+								lightMode
+							/>
 						</View>
 					);
 				})}

@@ -88,7 +88,11 @@
 		"submitDescription": "By submitting this report you confirm that it is truthful and made in good faith. Please follow our Community Guidelines and do not submit false or duplicate reports.",
 		"submitReport": "Submit Report",
 		"cancel": "Cancel",
-		"reportSubmitted": "Report submitted"
+		"reportSubmitted": "Report submitted",
+		"spam": "Spam",
+		"harassment": "Abuse or harassment",
+		"violentContent": "Harmful misinformation or glorifying violence",
+		"private": "Exposing private identifying information"
 	},
 	"tapToSeeAttachment": "Tap to see attachment",
 	"clickToSeeAttachment": "Click to see attachment",

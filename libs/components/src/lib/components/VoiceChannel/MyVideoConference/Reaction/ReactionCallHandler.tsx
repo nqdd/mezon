@@ -9,7 +9,7 @@ import type { DisplayedEmoji, DisplayedHand, ReactionCallHandlerProps } from './
 const MAX_EMOJIS_DISPLAYED = 20;
 const EMOJI_RATE_LIMIT_MS = 150;
 
-export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ onSoundReaction }) => {
+export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ onSoundReaction, onEndSound }) => {
 	const [displayedEmojis, setDisplayedEmojis] = useState<DisplayedEmoji[]>([]);
 	const [raisingList, setRaisingList] = useState<DisplayedHand[]>([]);
 	const timeoutsRef = useRef<Map<string, number>>(new Map());
@@ -38,7 +38,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 		};
 	}, []);
 
-	const playSound = useCallback((soundUrl: string, soundId: string) => {
+	const playSound = useCallback((soundUrl: string, soundId: string, senderId: string) => {
 		try {
 			let audio = audioRefs.current.get(soundId);
 			if (audio) {
@@ -48,6 +48,11 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 				audio = new Audio(soundUrl);
 				audio.volume = 0.3;
 				audioRefs.current.set(soundId, audio);
+				audio.onended = () => {
+					if (onEndSound) {
+						onEndSound(senderId);
+					}
+				};
 			}
 
 			audio.play().catch((error) => {
@@ -96,7 +101,7 @@ export const ReactionCallHandler: React.FC<ReactionCallHandlerProps> = memo(({ o
 						if (firstEmojiId.startsWith('sound:')) {
 							const soundUrl = firstEmojiId.replace('sound:', '');
 
-							playSound(soundUrl, soundUrl);
+							playSound(soundUrl, soundUrl, senderId);
 							if (onSoundReaction && senderId) {
 								onSoundReaction(senderId, soundUrl);
 							}

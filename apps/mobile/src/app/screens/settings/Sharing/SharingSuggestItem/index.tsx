@@ -3,18 +3,18 @@ import type { ClansEntity } from '@mezon/store-mobile';
 import { getStore, selectChannelById } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 import { memo, useMemo } from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Images from '../../../../../assets/Images';
-import MezonAvatar from '../../../../componentUI/MezonAvatar';
+import MezonClanAvatar from '../../../../componentUI/MezonClanAvatar';
 import { style } from './styles';
-
-type SharingSuggestItemProps = {
+interface ISharingSuggestItemProps {
 	item: any;
 	clans: Record<string, ClansEntity>;
 	onChooseItem: (item: any) => void;
-};
-const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestItemProps) => {
+}
+
+const SharingSuggestItem = memo(({ item, clans, onChooseItem }: ISharingSuggestItemProps) => {
 	const { themeValue } = useTheme();
 	const styles = style(themeValue);
 	const parentLabel = useMemo(() => {
@@ -24,41 +24,39 @@ const SharingSuggestItem = memo(({ item, clans, onChooseItem }: SharingSuggestIt
 		return parentChannel?.channel_label ? `(${parentChannel.channel_label})` : '';
 	}, [item?.parent_id]);
 
-	const isGroupDM = useMemo(() => item?.type === ChannelType.CHANNEL_TYPE_GROUP, [item?.type]);
-	const isAvatar = useMemo(() => item?.channel_avatar && !item?.channel_avatar?.includes('avatar-group.png'), [item?.channel_avatar]);
+	const shouldRenderDefaultAvatarGroup = useMemo(() => {
+		return item?.type === ChannelType.CHANNEL_TYPE_GROUP && item?.channel_avatar?.includes('avatar-group.png');
+	}, [item?.channel_avatar, item?.type]);
 
-	const handleChooseItem = () => {
-		onChooseItem(item);
-	};
+	const suggestionAvatar = useMemo(() => {
+		switch (item?.type) {
+			case ChannelType.CHANNEL_TYPE_DM:
+				return item?.avatars?.[0] || '';
 
-	const data = useMemo(() => {
-		if (item?.type === ChannelType.CHANNEL_TYPE_DM) {
-			return {
-				name: item?.channel_label,
-				avatarUrl: item?.avatars?.[0]
-			};
+			case ChannelType.CHANNEL_TYPE_GROUP:
+				return item?.channel_avatar || '';
+
+			default: {
+				return clans?.[item?.clan_id]?.logo || '';
+			}
 		}
+	}, [clans, item?.avatars, item?.channel_avatar, item?.clan_id, item?.type]);
 
-		if (item?.type === ChannelType.CHANNEL_TYPE_GROUP) {
-			return {
-				name: item?.channel_label,
-				avatarUrl: item?.channel_avatar
-			};
+	const suggestionUsername = useMemo(() => {
+		if (item?.type === ChannelType.CHANNEL_TYPE_DM || item?.type === ChannelType.CHANNEL_TYPE_GROUP) {
+			return item?.usernames?.[0] || '';
 		}
-
-		const clan = clans?.[item?.clan_id];
-		return {
-			name: clan?.clan_name,
-			avatarUrl: clan?.logo
-		};
-	}, [item, clans]);
+		return clans?.[item?.clan_id]?.clan_name || '';
+	}, [clans, item?.clan_id, item?.type, item?.usernames]);
 
 	return (
-		<TouchableOpacity style={styles.itemSuggestion} onPress={handleChooseItem}>
-			{isGroupDM && !isAvatar ? (
+		<TouchableOpacity style={styles.itemSuggestion} onPress={() => onChooseItem(item)}>
+			{shouldRenderDefaultAvatarGroup ? (
 				<FastImage source={Images.AVATAR_GROUP} style={styles.avatarImage} />
 			) : (
-				<MezonAvatar avatarUrl={data?.avatarUrl} username={data?.name} width={size.s_24} height={size.s_24} />
+				<View style={styles.avatarImage}>
+					<MezonClanAvatar image={suggestionAvatar} alt={suggestionUsername} customFontSizeAvatarCharacter={size.h5} />
+				</View>
 			)}
 			<Text style={styles.titleSuggestion} numberOfLines={1}>{`${item?.channel_label} ${parentLabel}`}</Text>
 		</TouchableOpacity>
