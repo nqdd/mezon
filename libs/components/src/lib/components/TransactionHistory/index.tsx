@@ -2,8 +2,8 @@ import {
 	fetchLoadMoreTransaction,
 	fetchTransactionDetail,
 	selectAddress,
-	selectCountWalletLedger,
 	selectDetailTransaction,
+	selectHasMore,
 	selectTransactionHistory,
 	useAppDispatch,
 	useAppSelector
@@ -22,7 +22,6 @@ import {
 	EMPTY_STATES,
 	FOOTERS,
 	HEADER,
-	LIMIT_WALLET,
 	TAB_LABELS,
 	TRANSACTION_FILTERS,
 	TRANSACTION_ITEM,
@@ -38,7 +37,6 @@ const TransactionHistory = ({ onClose }: IProps) => {
 	const dispatch = useAppDispatch();
 	const walletLedger = useAppSelector((state) => selectTransactionHistory(state));
 	const detailLedger = useAppSelector((state) => selectDetailTransaction(state));
-	const count = useAppSelector((state) => selectCountWalletLedger(state));
 	const walletAddress = useSelector(selectAddress);
 
 	const [currentPage, setCurrentPage] = useState(1);
@@ -51,7 +49,7 @@ const TransactionHistory = ({ onClose }: IProps) => {
 
 	const currentData = walletLedger || [];
 	const hasData = currentData.length > 0;
-	const hasMoreData = currentPage * LIMIT_WALLET < (count || 0);
+	const hasMoreData = useSelector(selectHasMore);
 
 	const fetchTransactions = useCallback(
 		async (filter: FilterType, page = 1, isLoadMore = false) => {
@@ -217,7 +215,7 @@ const TransactionHistory = ({ onClose }: IProps) => {
 						<div className="flex items-center gap-2 text-theme-primary">
 							<button onClick={refreshData} className="p-2 rounded-lg bg-item-theme-hover transition-colors">
 								<Icons.ReloadIcon
-									className={`w-5 h-5 
+									className={`w-5 h-5
 									 ${isLoading ? 'animate-spin' : ''}`}
 								/>
 							</button>
