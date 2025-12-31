@@ -361,7 +361,7 @@ const ItemEventManagement = (props: ItemEventManagementProps) => {
 					)}
 					{isPrivateEvent && (
 						<div className="flex gap-x-2 items-center">
-							<Icons.SpeakerLocked />
+							<Icons.Speaker />
 							{link ? (
 								<a href={link} target="_blank" rel="noopener noreferrer" className="cursor-pointer whitespace-normal break-words">
 									{t('eventCreator:eventDetail.privateRoom')}

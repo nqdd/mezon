@@ -188,7 +188,7 @@ const LocationModal = (props: LocationModalProps) => {
 
 				{displaySelectPrivate && (
 					<TitleOptionEvent
-						icon={<Icons.SpeakerLocked />}
+						icon={<Icons.Speaker />}
 						title={t('fields.channelType.privateEvent.title')}
 						desc={t('fields.channelType.privateEvent.description')}
 						choose={!!choicePrivateEvent}
