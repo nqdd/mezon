@@ -7,3 +7,14 @@ export enum Platform {
 	LINUX = 'Linux',
 	UNKNOWN = 'Unknown'
 }
+
+export const getPlatformLabel = (platform: string | undefined): string => {
+	if (!platform) return 'DESKTOP';
+	return platform.toUpperCase();
+};
+
+export const isMobilePlatform = (platform: string | undefined): boolean => {
+	if (!platform) return false;
+	const platformUpper = platform.toUpperCase();
+	return platformUpper === 'IOS' || platformUpper === 'ANDROID';
+};
