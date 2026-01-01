@@ -130,7 +130,7 @@
 		"channel": "channel:",
 		"clanEvent": "Clan Event",
 		"channelEvent": "Channel Event",
-		"privateEvent": "Private Event",
+		"privateEvent": "External Event",
 		"privateRoom": "External Meeting Room",
 		"newEvent": "New",
 		"share": "Share"

@@ -35,7 +35,7 @@
 				"description": "Kênh văn bản, liên kết bên ngoài hoặc địa điểm trực tiếp."
 			},
 			"privateEvent": {
-				"title": "Tạo sự kiện Bên ngoài",
+				"title": "Tạo sự kiện bên ngoài",
 				"description": "Người dùng có thể tham gia cuộc họp bằng liên kết mà không cần đăng nhập."
 			}
 		},
@@ -130,8 +130,8 @@
 		"channel": "kênh:",
 		"clanEvent": "Sự kiện Clan",
 		"channelEvent": "Sự kiện Kênh",
-		"privateEvent": "Sự kiện Riêng tư",
-		"privateRoom": "Phòng Họp Bên ngoài",
+		"privateEvent": "Sự kiện bên ngoài",
+		"privateRoom": "Phòng họp bên ngoài",
 		"newEvent": "Mới",
 		"share": "Chia sẻ"
 	},
