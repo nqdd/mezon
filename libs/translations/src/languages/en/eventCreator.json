@@ -35,8 +35,8 @@
 				"description": "Text channel, external link, or in-person location."
 			},
 			"privateEvent": {
-				"title": "Create Private Event",
-				"description": "Invite-only voice & video room!"
+				"title": "Create External Event",
+				"description": "Users can join the meeting by link without logging in."
 			}
 		},
 		"channel": {
@@ -121,7 +121,7 @@
 		"createdBy": "Created by {{username}}",
 		"inviteFriends": "Invite friends to event?",
 		"shareLink": "Share this link with others to grant access to this clan",
-		"onlyInvitedMembers": "Only invited members can join.",
+		"onlyInvitedMembers": "Users can join the meeting by link without logging in.",
 		"openLink": "Open Link",
 		"invite": "Invite",
 		"copyLink": "Copy Link",
@@ -130,8 +130,8 @@
 		"channel": "channel:",
 		"clanEvent": "Clan Event",
 		"channelEvent": "Channel Event",
-		"privateEvent": "Private Event",
-		"privateRoom": "Private Room",
+		"privateEvent": "External Event",
+		"privateRoom": "External Meeting Room",
 		"newEvent": "New",
 		"share": "Share"
 	},

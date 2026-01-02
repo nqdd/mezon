@@ -2,7 +2,7 @@ import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectCurrentTopicId } from '@mezon/store-mobile';
 import type { EmojiDataOptionals } from '@mezon/utils';
-import { TypeMessage, calculateTotalCount } from '@mezon/utils';
+import { calculateTotalCount, TypeMessage } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useCallback, useMemo } from 'react';
 import { DeviceEventEmitter, Keyboard, Pressable, View } from 'react-native';
@@ -108,8 +108,8 @@ export const MessageReactionWrapper = React.memo((props: IMessageReactionProps) 
 		<View style={[styles.reactionWrapper, styles.reactionSpace, isMessageSystem && { paddingTop: 0, marginLeft: size.s_40 }]}>
 			{!messageReactions?.length &&
 				!!message?.reactions?.length &&
-				message?.reactions?.map((i) => {
-					return <View style={[styles.imageReactionTemp]} />;
+				message?.reactions?.map((i, idx) => {
+					return <View key={`${idx}_reaction_temp`} style={[styles.imageReactionTemp]} />;
 				})}
 			{renderedReactions}
 

@@ -15,5 +15,4 @@ export { SoundReactionControl } from './SoundReactionControl';
 export { useControlBarPermissions } from './hooks/useControlBarPermissions';
 export { useNoiseSuppressionControl } from './hooks/useNoiseSuppressionControl';
 export { useReactionControls } from './hooks/useReactionControls';
-export { useTrackToggles } from './hooks/useTrackToggles';
 export { useViewControls } from './hooks/useViewControls';

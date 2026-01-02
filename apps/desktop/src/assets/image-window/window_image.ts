@@ -154,18 +154,14 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
   <div id="channel-label" class="channel-label">${escapeHtml(imageData.channelImagesData.channelLabel)}</div>
   <div class="image-view">
     <div class="selected-image-wrapper" id="selected-image-wrapper">
-      <div id="skeleton-main" class="skeleton skeleton-main" style="width: ${imageData.width}px; height: ${imageData.height}px; max-width: 100%; max-height: 100%;">
-        <svg class="skeleton-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"/>
-        </svg>
-      </div>
+
       <div class="navigation-buttons">
-        <button class="nav-button" id="prevImageBtn" title="Previous image (↑)">
+        <button class="nav-button" id="prevImageBtn" title="Previous image (↑ or ←)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <button class="nav-button" id="nextImageBtn" title="Next image (↓)">
+        <button class="nav-button" id="nextImageBtn" title="Next image (↓ or →)">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -311,20 +307,10 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
 		popupWindow.webContents.executeJavaScript(`
 	    const selectedMedia = document.getElementById('selectedMedia');
       const isVideo = selectedMedia && selectedMedia.tagName === 'VIDEO';
-      const skeletonMain = document.getElementById('skeleton-main');
       let skeletonTimer = null;
 
       const handleMediaLoaded = () => {
-        if (skeletonTimer) {
-          clearTimeout(skeletonTimer);
-          skeletonTimer = null;
-        }
-        if (skeletonMain) {
-          skeletonMain.classList.remove('visible');
-          setTimeout(() => {
-            skeletonMain.style.display = 'none';
-          }, 300);
-        }
+
         const currentMedia = document.getElementById('selectedMedia');
         if (currentMedia) {
           currentMedia.classList.remove('image-loading');
@@ -337,10 +323,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
           clearTimeout(skeletonTimer);
           skeletonTimer = null;
         }
-        if (skeletonMain) {
-          skeletonMain.classList.remove('visible');
-          skeletonMain.style.display = 'none';
-        }
+
         const currentMedia = document.getElementById('selectedMedia');
         if (currentMedia) {
           currentMedia.style.display = 'none';
@@ -367,14 +350,7 @@ function openImagePopup(imageData: ImageData, parentWindow: BrowserWindow = App.
         const shouldShowSkeleton = forceForImage || !currentIsVideo;
 
         if (shouldShowSkeleton) {
-          skeletonTimer = setTimeout(() => {
-            if (skeletonMain) {
-              skeletonMain.style.display = 'flex';
-              requestAnimationFrame(() => {
-                skeletonMain.classList.add('visible');
-              });
-            }
-          }, 300);
+
 
           if (currentMedia) {
             currentMedia.classList.add('image-loading');
@@ -1266,7 +1242,6 @@ export const scriptThumnails = (reversedImages: IAttachmentEntityWithUploader[],
 					if (isNewVideo !== wasVideo) {
 						const wrapper = document.getElementById('selected-image-wrapper');
 						if (wrapper) {
-							const skeleton = document.getElementById('skeleton-main');
 							const media = document.getElementById('selectedMedia');
 							const errorDiv = wrapper.querySelector('.image-error');
 							if (skeleton) skeleton.remove();
@@ -1274,28 +1249,7 @@ export const scriptThumnails = (reversedImages: IAttachmentEntityWithUploader[],
 							if (errorDiv) errorDiv.remove();
 
 							if (!isNewVideo) {
-								const newSkeleton = document.createElement('div');
-								newSkeleton.id = 'skeleton-main';
-								newSkeleton.className = 'skeleton skeleton-main';
-								if (imageData.width && imageData.height) {
-									newSkeleton.style.width = imageData.width + 'px';
-									newSkeleton.style.height = imageData.height + 'px';
-									newSkeleton.style.maxWidth = '100%';
-									newSkeleton.style.maxHeight = '100%';
-								}
-								const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-								iconSvg.setAttribute('class', 'skeleton-icon');
-								iconSvg.setAttribute('fill', 'none');
-								iconSvg.setAttribute('viewBox', '0 0 24 24');
-								const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-								path.setAttribute('stroke', 'currentColor');
-								path.setAttribute('stroke-linecap', 'round');
-								path.setAttribute('stroke-linejoin', 'round');
-								path.setAttribute('stroke-width', '2');
-								path.setAttribute('d', 'm3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z');
-								iconSvg.appendChild(path);
-								newSkeleton.appendChild(iconSvg);
-								wrapper.insertBefore(newSkeleton, wrapper.firstChild);
+
 							}
 
 							if (isNewVideo) {
@@ -1431,14 +1385,14 @@ export const scriptThumnails = (reversedImages: IAttachmentEntityWithUploader[],
 			   if (e.repeat) {
       return;
     }
-				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+				if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
 					e.preventDefault();
 					const currentIndex = window.thumbnailVirtualizer.findIndexById(currentItemId);
 					let newIndex = -1;
 
-					if (e.key === 'ArrowUp') {
+					if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
 						newIndex = currentIndex > 0 ? currentIndex - 1 : currentIndex;
-					} else if (e.key === 'ArrowDown') {
+					} else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
 						newIndex = currentIndex < imagesData.length - 1 ? currentIndex + 1 : currentIndex;
 					}
 

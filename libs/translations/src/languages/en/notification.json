@@ -40,5 +40,6 @@
     "ok": "OK"
   },
   "andYou": "and you",
-  "topicAndYou": "Topic and you"
+  "topicAndYou": "Topic and you",
+  "unknowClan": "You are not a member of this clan anymore"
 }

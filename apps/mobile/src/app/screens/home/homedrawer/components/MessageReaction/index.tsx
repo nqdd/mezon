@@ -3,7 +3,7 @@ import { selectMessageByMessageId, useAppSelector } from '@mezon/store-mobile';
 import React from 'react';
 import { View } from 'react-native';
 import { combineMessageReactions } from '../../../../../utils/helpers';
-import { IMessageReactionProps } from '../../types';
+import type { IMessageReactionProps } from '../../types';
 import { MessageReactionWrapper } from './MessageReactionWrapper';
 import { style } from './styles';
 
@@ -37,8 +37,8 @@ export const MessageAction = React.memo((props: IMessageReactionProps) => {
 		return (
 			<View style={[styles.reactionWrapper, styles.reactionSpace]}>
 				{!!message?.reactions?.length &&
-					message?.reactions?.map((i) => {
-						return <View style={[styles.imageReactionTemp]} />;
+					message?.reactions?.map((i, idx) => {
+						return <View key={`${idx}_emoji_temp`} style={[styles.imageReactionTemp]} />;
 					})}
 			</View>
 		);

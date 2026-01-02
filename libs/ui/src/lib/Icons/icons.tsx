@@ -5877,3 +5877,19 @@ export function PaintTray(props: React.HTMLAttributes<SVGElement>) {
 		</svg>
 	);
 }
+
+export function DeviceDesktopIcon(props: React.HTMLAttributes<SVGElement>) {
+	return (
+		<svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+			<path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z" />
+		</svg>
+	);
+}
+
+export function DeviceMobileIcon(props: React.HTMLAttributes<SVGElement>) {
+	return (
+		<svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+			<path d="M15.5 1h-8A2.5 2.5 0 0 0 5 3.5v17A2.5 2.5 0 0 0 7.5 23h8a2.5 2.5 0 0 0 2.5-2.5v-17A2.5 2.5 0 0 0 15.5 1zm-4 21c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4.5-4H7V4h9v14z" />
+		</svg>
+	);
+}
