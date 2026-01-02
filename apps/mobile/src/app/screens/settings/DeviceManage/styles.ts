@@ -6,8 +6,7 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			flex: 1,
-			backgroundColor: colors.primary,
-			paddingHorizontal: size.s_16
+			backgroundColor: colors.primary
 		},
 		description: {
 			marginBottom: size.s_8,
@@ -20,5 +19,17 @@ export const style = (colors: Attributes) =>
 			justifyContent: 'center',
 			alignItems: 'center',
 			paddingTop: size.s_10
+		},
+		padding: {
+			paddingHorizontal: size.s_16
+		},
+		noDevices: {
+			justifyContent: 'center',
+			alignItems: 'center',
+			fontSize: size.s_18,
+			color: colors.textDisabled,
+			width: '100%',
+			textAlign: 'center',
+			marginVertical: size.s_20
 		}
 	});
