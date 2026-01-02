@@ -2,7 +2,7 @@ import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import type { EmitterSubscription } from 'react-native';
 import { Animated, DeviceEventEmitter, Keyboard, Platform, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'react-native-linear-gradient';
@@ -42,55 +42,61 @@ const PanelKeyboard = React.memo((props: IProps) => {
 		const validHeight = Math.max(1, height);
 		return [validHeight, Platform.OS === 'ios' ? '95%' : '100%'];
 	}, [heightKeyboardShow]);
+	useFocusEffect(
+		React.useCallback(() => {
+			const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+			const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
-	useEffect(() => {
-		const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-		const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+			const handleKeyboardShow = (e: any) => {
+				const height = e?.endCoordinates?.height ? e?.endCoordinates?.height : Platform.OS === 'ios' ? 365 : 300;
+				const validHeight = Math.max(0, height);
+				if (heightKeyboardShowRef.current !== validHeight) {
+					heightKeyboardShowRef.current = validHeight;
+					setHeightKeyboardShow(validHeight);
+					if (
+						typeKeyboardBottomSheetRef.current !== 'advanced' &&
+						!!typeKeyboardBottomSheetRef?.current &&
+						typeKeyboardBottomSheetRef.current !== 'emoji' &&
+						typeKeyboardBottomSheetRef.current !== 'attachment'
+					) {
+						bottomPickerRef?.current?.dismiss();
+						bottomPickerRef?.current?.close();
+					}
 
-		const showSub = Keyboard.addListener(showEvent, (e) => {
-			const height = e?.endCoordinates?.height ?? 0;
-			const validHeight = Math.max(0, height);
-			heightKeyboardShowRef.current = validHeight;
-			setHeightKeyboardShow(validHeight);
-			if (
-				typeKeyboardBottomSheetRef.current !== 'advanced' &&
-				!!typeKeyboardBottomSheetRef?.current &&
-				typeKeyboardBottomSheetRef.current !== 'emoji' &&
-				typeKeyboardBottomSheetRef.current !== 'attachment'
-			) {
-				bottomPickerRef?.current?.dismiss();
-				bottomPickerRef?.current?.close();
-			}
+					Animated.timing(spacerHeightAnim, {
+						toValue: validHeight,
+						duration: 200,
+						useNativeDriver: false
+					}).start();
+				}
+			};
 
-			Animated.timing(spacerHeightAnim, {
-				toValue: validHeight,
-				duration: 200,
-				useNativeDriver: false
-			}).start();
-		});
+			const handleKeyboardHide = () => {
+				if (typeKeyboardBottomSheetRef.current !== 'text' && !!typeKeyboardBottomSheetRef?.current) {
+					return;
+				}
+				heightKeyboardShowRef.current = 0;
+				setHeightKeyboardShow(0);
+				Animated.timing(spacerHeightAnim, {
+					toValue: 0,
+					duration: 200,
+					useNativeDriver: false
+				}).start();
+			};
 
-		const hideSub = Keyboard.addListener(hideEvent, () => {
-			if (typeKeyboardBottomSheetRef.current !== 'text' && !!typeKeyboardBottomSheetRef?.current) {
-				return;
-			}
-			heightKeyboardShowRef.current = 0;
-			setHeightKeyboardShow(0);
-			Animated.timing(spacerHeightAnim, {
-				toValue: 0,
-				duration: 200,
-				useNativeDriver: false
-			}).start();
-		});
+			const showSub = Keyboard.addListener(showEvent, handleKeyboardShow);
+			const hideSub = Keyboard.addListener(hideEvent, handleKeyboardHide);
 
-		return () => {
-			showSub.remove();
-			hideSub.remove();
-		};
-	}, [spacerHeightAnim]);
+			return () => {
+				showSub.remove();
+				hideSub.remove();
+			};
+		}, [spacerHeightAnim])
+	);
 
 	const onShowKeyboardBottomSheet = useCallback(
 		async (isShow: boolean, type?: string) => {
-			const keyboardHeight = heightKeyboardShowRef.current ? heightKeyboardShowRef.current : Platform.OS === 'ios' ? 365 : 300;
+			const keyboardHeight = heightKeyboardShowRef.current ? heightKeyboardShowRef.current : Platform.OS === 'ios' ? 340 : 300;
 			const validHeight = Math.max(0, keyboardHeight);
 			if (type !== 'force') {
 				setTypeKeyboardBottomSheet(type);
@@ -106,7 +112,7 @@ const PanelKeyboard = React.memo((props: IProps) => {
 				}).start();
 				bottomPickerRef?.current?.present();
 				Keyboard.dismiss();
-			} else if (!isShow && typeKeyboardBottomSheetRef.current !== 'text' && (type !== 'text' || type === 'force')) {
+			} else if (!isShow && typeKeyboardBottomSheetRef.current !== 'text' && (type !== 'text' || type === 'force' || !type)) {
 				bottomPickerRef?.current?.dismiss();
 				bottomPickerRef?.current?.close();
 				Animated.timing(spacerHeightAnim, {
@@ -134,9 +140,9 @@ const PanelKeyboard = React.memo((props: IProps) => {
 
 			globalPanelKeyboardListener = DeviceEventEmitter.addListener(
 				ActionEmitEvent.ON_PANEL_KEYBOARD_BOTTOM_SHEET,
-				({ isShow = false, mode = '' }) => {
+				async ({ isShow = false, mode = '' }) => {
 					if (activeInstanceId === currentInstanceId) {
-						onShowKeyboardBottomSheet(isShow, mode as string);
+						await onShowKeyboardBottomSheet(isShow, mode as string);
 					}
 				}
 			);
@@ -154,8 +160,8 @@ const PanelKeyboard = React.memo((props: IProps) => {
 	);
 
 	const onClose = useCallback(
-		(isFocusKeyboard = true) => {
-			onShowKeyboardBottomSheet(false, 'force');
+		async (isFocusKeyboard = true) => {
+			await onShowKeyboardBottomSheet(false, 'force');
 			isFocusKeyboard && DeviceEventEmitter.emit(ActionEmitEvent.SHOW_KEYBOARD, {});
 		},
 		[onShowKeyboardBottomSheet]

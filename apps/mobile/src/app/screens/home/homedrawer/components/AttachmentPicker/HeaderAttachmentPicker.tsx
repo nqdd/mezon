@@ -246,8 +246,10 @@ const HeaderAttachmentPicker = ({ currentChannelId, onCancel, messageAction }: H
 					)
 				};
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
-			} catch (error) {
-				console.error(error);
+			} catch (error: any) {
+				if (error?.code === 1) {
+					openSettings();
+				}
 			}
 		} else {
 			console.error('Location permission denied');
