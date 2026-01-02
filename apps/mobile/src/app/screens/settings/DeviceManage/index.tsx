@@ -29,7 +29,7 @@ const DeviceManage = () => {
 			<View style={styles.padding}>
 				<Text style={styles.description}>{t('deviceSettings.description1')}</Text>
 				<Text style={styles.description}>{t('deviceSettings.description2')}</Text>
-				{loadingStatus === 'loading' && allDevices.length === 0 && (
+				{loadingStatus === 'loading' && !allDevices?.length && (
 					<View style={styles.containerLoading}>
 						<Flow color={themeValue.textDisabled} />
 					</View>
