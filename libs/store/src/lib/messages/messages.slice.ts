@@ -57,7 +57,7 @@ export const mapMessageChannelToEntity = (channelMess: ChannelMessage, lastSeenI
 		...channelMess,
 		isFirst: channelMess.code === EMessageCode.FIRST_MESSAGE,
 		creationTime: new Date(createTimeSeconds * 1000),
-		id: channelMess.id || channelMess.message_id || '',
+		id: channelMess.id || channelMess.message_id || '0',
 		date: new Date().toLocaleString(),
 		isAnonymous,
 		user: {
@@ -1269,7 +1269,7 @@ export const sendTypingUser = createAsyncThunk(
 	'messages/sendTypingUser',
 	async ({ clanId, channelId, mode, isPublic, username, topicId = '' }: SendMessageArgs, thunkAPI) => {
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-		const ack = mezon.socketRef.current?.writeMessageTyping(clanId, channelId, mode, isPublic, username, topicId || '0');
+		const ack = mezon.socketRef.current?.writeMessageTyping(clanId, channelId, mode, isPublic, username, topicId || undefined);
 		return ack;
 	}
 );
@@ -1401,6 +1401,7 @@ export const messagesSlice = createSlice({
 				case TypeMessage.AuditLog:
 				case TypeMessage.SendToken:
 				case TypeMessage.Ephemeral:
+				case TypeMessage.ShareContact:
 				case TypeMessage.Chat: {
 					if (topic_id !== '0' && topic_id) {
 						handleAddOneMessage({
