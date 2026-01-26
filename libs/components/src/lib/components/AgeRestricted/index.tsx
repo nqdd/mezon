@@ -26,7 +26,7 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 			userProfile?.user?.avatar_url || '',
 			userProfile?.user?.display_name || '',
 			userProfile?.user?.about_me || '',
-			dob,
+			new Date(dob).getTime() / 1000,
 			userProfile?.logo || ''
 		);
 	};
@@ -65,7 +65,7 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 		[t]
 	);
 	const years = useMemo(() => {
-		const currentYear = new Date().getFullYear();
+		const currentYear = new Date().getFullYear() - 1;
 		const startYear = currentYear - 120;
 		return Array.from({ length: currentYear - startYear + 1 }, (_, idx) => currentYear - idx);
 	}, []);
@@ -124,7 +124,7 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 		return (
 			<ModalLayout onClose={handleCloseModal}>
 				<div className="bg-theme-setting-primary  pt-4 rounded flex flex-col items-center text-theme-primary w-[550px]">
-					<img src={'/assets/images/cake.png'} alt="warning" width={200} height={200} />
+					<img src={'/assets/images/warning.svg'} alt="warning" width={200} height={200} />
 					<div className="text-center ml-6 mr-6">
 						<h2 className="text-2xl font-bold text-center mb-4 text-theme-primary-active">{t('confirmBirthdayTitle')}</h2>
 						<p>{t('confirmBirthdayMessage')}</p>
@@ -193,12 +193,12 @@ const AgeRestricted = ({ closeAgeRestricted }: { closeAgeRestricted: () => void 
 	}, [days, dob, months, selectedDay, selectedMonth, selectedYear, years]);
 
 	useEffect(() => {
-		if (!userProfile?.user?.dob || userProfile?.user?.dob === '0001-01-01T00:00:00Z') {
+		if (!userProfile?.user?.dob_seconds || userProfile?.user?.dob_seconds === 0) {
 			openModalConfirmAge();
 		} else {
 			closeModalConfirmAge();
 		}
-	}, [closeModalConfirmAge, openModalConfirmAge, userProfile?.user?.dob]);
+	}, [closeModalConfirmAge, openModalConfirmAge, userProfile?.user?.dob_seconds]);
 
 	return (
 		<div>
