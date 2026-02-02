@@ -1116,6 +1116,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 				description: ogpData?.description || '',
 				image: ogpData?.image || '',
 				title: ogpData?.title || '',
+				s: content.t?.length || 0,
 				e: (content.t?.length || 0) + 1,
 				type: EBacktickType.OGP_PREVIEW,
 				index: ogpData.index
@@ -1125,6 +1126,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 				mk
 			};
 		}
+
 		const res = await socket.writeChatMessage(
 			clanId,
 			channelId,
@@ -1139,9 +1141,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			'',
 			code
 		);
-		if (res) {
-			thunkAPI.dispatch(referencesActions.clearOgpData());
-		}
+		thunkAPI.dispatch(referencesActions.clearOgpData());
 
 		return res;
 	}
@@ -1750,7 +1750,7 @@ export const messagesSlice = createSlice({
 					updateReferenceMessage({
 						state,
 						channelId,
-						listMessageIds: referenced_message as string[]
+						deletedMessageId: messageId
 					});
 					handleRemoveOneMessage({ state, channelId, messageId });
 					break;
@@ -2451,29 +2451,38 @@ const handleRemoveOneMessage = ({ state, channelId, messageId }: { state: Messag
 	return channelMessagesAdapter.removeOne(channelEntity, messageId);
 };
 
-const updateReferenceMessage = ({ state, channelId, listMessageIds }: { state: MessagesState; channelId: string; listMessageIds: string[] }) => {
-	if (!listMessageIds || listMessageIds.length === 0) {
-		return;
-	}
-	const channelEntity = state.channelMessages[channelId];
-	const index = channelEntity.ids.indexOf(listMessageIds[0]);
-	if (index === -1) return;
+const updateReferenceMessage = ({ state, channelId, deletedMessageId }: { state: MessagesState; channelId: string; deletedMessageId: string }) => {
+	if (!deletedMessageId) return;
 
-	const listReferencesUpdate: Update<MessagesEntity, string>[] = listMessageIds.map((id) => {
-		return {
-			id,
-			changes: {
-				references: [
-					{
-						...(channelEntity.entities[id].references?.[0] as ApiMessageRef),
-						content: '{"t":"Original message was deleted"}',
-						message_ref_id: undefined
-					}
-				]
-			}
-		};
-	});
-	channelMessagesAdapter.updateMany(channelEntity, listReferencesUpdate);
+	const channelEntity = state.channelMessages[channelId];
+	if (!channelEntity?.entities) return;
+
+	const { entities, ids } = channelEntity;
+	const listReferencesUpdate: Update<MessagesEntity, string>[] = [];
+
+	for (const id of ids) {
+		const message = entities[id];
+		if (!message?.references?.[0]?.message_ref_id) continue;
+
+		if (message.references[0].message_ref_id === deletedMessageId) {
+			listReferencesUpdate.push({
+				id: id as string,
+				changes: {
+					references: [
+						{
+							...(message.references[0] as ApiMessageRef),
+							content: '{"t":"Original message was deleted"}',
+							message_ref_id: undefined
+						}
+					]
+				}
+			});
+		}
+	}
+
+	if (listReferencesUpdate.length) {
+		channelMessagesAdapter.updateMany(channelEntity, listReferencesUpdate);
+	}
 };
 
 const handleAddOneMessage = ({ state, channelId, adapterPayload }: { state: MessagesState; channelId: string; adapterPayload: MessagesEntity }) => {

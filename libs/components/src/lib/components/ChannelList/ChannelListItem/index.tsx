@@ -13,7 +13,7 @@ import {
 	selectVoiceChannelMembersByChannelId,
 	useAppSelector
 } from '@mezon/store';
-import type { ChannelThreads, IChannelMember } from '@mezon/utils';
+import type { ChannelThreads } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import AvatarGroup, { AvatarCount } from '../../Avatar/AvatarGroup';
 import type { ChannelLinkRef } from '../../ChannelLink';
@@ -75,36 +75,53 @@ const ChannelLinkContent: React.FC<ChannelLinkContentProps> = ({ channel, isActi
 	};
 
 	const hasUnread = useAppSelector((state) => selectIsUnreadThreadInChannel(state, channel.threadIds || []));
+	const isVoiceOrStreamingChannel =
+		channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE ||
+		channel.type === ChannelType.CHANNEL_TYPE_STREAMING ||
+		channel.type === ChannelType.CHANNEL_TYPE_APP;
+
+	const hasMembersInVoice = isVoiceOrStreamingChannel && channelMemberList.length > 0;
+
+	const shouldShowChannel =
+		isCategoryExpanded ||
+		isUnreadChannel ||
+		hasUnread ||
+		currentChannelId === channel.id ||
+		currentChannelParentId === channel.id ||
+		channel?.count_mess_unread ||
+		hasMembersInVoice;
+
 	const renderChannelContent = useMemo(() => {
-		if (
-			channel.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
-			channel.type !== ChannelType.CHANNEL_TYPE_STREAMING &&
-			channel.type !== ChannelType.CHANNEL_TYPE_APP &&
-			(isCategoryExpanded ||
-				isUnreadChannel ||
-				hasUnread ||
-				currentChannelId === channel.id ||
-				currentChannelParentId === channel.id ||
-				channel?.count_mess_unread)
-		) {
+		if (!shouldShowChannel) {
+			return null;
+		}
+
+		if (!isVoiceOrStreamingChannel) {
 			return <>{renderChannelLink()}</>;
 		}
 
 		return (
 			<>
 				{renderChannelLink()}
-				{channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE && (
-					<>
-						{isCategoryExpanded ? (
-							<UserListVoiceChannel channelId={channel.channel_id ?? ''} channelType={channel?.type} clanId={channel.clan_id || ''} />
-						) : (
-							<CollapsedMemberList channelId={channel.channel_id ?? ''} channelType={channel?.type} clanId={channel.clan_id || ''} />
-						)}
-					</>
+				{isCategoryExpanded ? (
+					<UserListVoiceChannel channelId={channel.channel_id ?? ''} channelType={channel?.type} clanId={channel.clan_id || ''} />
+				) : (
+					channelMemberList.length > 0 && (
+						<CollapsedMemberList channelId={channel.channel_id ?? ''} channelType={channel?.type} clanId={channel.clan_id || ''} />
+					)
 				)}
 			</>
 		);
-	}, [channel.type, channel.threads, channel.channel_id, isCategoryExpanded, channelMemberList, renderChannelLink]);
+	}, [
+		shouldShowChannel,
+		isVoiceOrStreamingChannel,
+		isCategoryExpanded,
+		channel.channel_id,
+		channel.type,
+		channel.clan_id,
+		channelMemberList.length,
+		renderChannelLink
+	]);
 
 	return <>{renderChannelContent} </>;
 };
@@ -125,8 +142,8 @@ const CollapsedMemberList = ({ channelId, clanId, channelType }: ICollapsedMembe
 	}, [channelType, voiceChannelMembers, streamChannelMembers]);
 	return (
 		<AvatarGroup className={'px-6'}>
-			{[...channelMemberList].slice(0, 5).map((member, index) => (
-				<AvatarUserShort id={member.user_id || ''} key={(member.user_id || '') + index} />
+			{[...channelMemberList].slice(0, 5).map((id, index) => (
+				<AvatarUserShort id={id || ''} key={(id || '') + index} />
 			))}
 			{channelMemberList && channelMemberList.length > 5 && (
 				<AvatarCount number={channelMemberList?.length - 5 > 99 ? 99 : channelMemberList?.length - 5} />
@@ -154,10 +171,10 @@ function UserListVoiceChannel({ channelId, channelType, clanId }: UserListVoiceC
 		return null;
 	}
 
-	return channelMemberList?.map((item: IChannelMember) => {
+	return channelMemberList?.map((id) => {
 		return (
-			<div key={item.id} className={'mt-[1px]'}>
-				<UserListItem user={item} />
+			<div key={id} className={'mt-[1px]'}>
+				<UserListItem id={id} />
 			</div>
 		);
 	});
