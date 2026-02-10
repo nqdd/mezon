@@ -168,7 +168,9 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 					<div className="flex flex-col gap-4 md:gap-8 overflow-x-hidden">
 						<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
 							<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary flex-shrink-0" />
-							<div className="font-semibold text-theme-primary">{t('buttons.back')}</div>
+							<div className="font-semibold text-theme-primary" data-e2e={generateE2eId('clan_page.settings.onboarding.button.back')}>
+								{t('buttons.back')}
+							</div>
 						</div>
 						<ClanGuideSetting setOpenModalSaveChanges={setOpenModalSaveChanges} />
 					</div>
@@ -192,13 +194,19 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 							</div>
 							<div className="overflow-x-hidden">{renderOnboardingContent()}</div>
 							<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-4 md:mt-6">
-								<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
+								<button
+									onClick={() => setIsModalOpen(false)}
+									className="px-4 py-2 rounded-md hover:underline"
+									disabled={isSaving}
+									data-e2e={generateE2eId('clan_page.settings.onboarding.button.cancel')}
+								>
 									{t('buttons.cancel')}
 								</button>
 								<button
 									onClick={handleConfirm}
 									className="px-4 py-2 rounded-lg btn-primary btn-primary-hover flex items-center justify-center min-w-[100px]"
 									disabled={isSaving}
+									data-e2e={generateE2eId('clan_page.settings.onboarding.button.save_all')}
 								>
 									{isSaving ? (
 										<>
@@ -230,13 +238,19 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 						</div>
 						<div className="overflow-x-hidden">{renderOnboardingContent()}</div>
 						<div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-4 md:mt-6">
-							<button onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md hover:underline" disabled={isSaving}>
+							<button
+								onClick={() => setIsModalOpen(false)}
+								className="px-4 py-2 rounded-md hover:underline"
+								disabled={isSaving}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.cancel')}
+							>
 								{t('buttons.cancel')}
 							</button>
 							<button
 								onClick={handleConfirm}
 								className="px-4 py-2 rounded-lg btn-primary btn-primary-hover flex items-center justify-center min-w-[100px]"
 								disabled={isSaving}
+								data-e2e={generateE2eId('clan_page.settings.onboarding.button.save_all')}
 							>
 								{isSaving ? (
 									<>
@@ -262,6 +276,7 @@ const SettingOnBoarding = ({ onClose }: { onClose?: () => void }) => {
 						<button
 							onClick={() => toggleEnableStatus(false)}
 							className="px-4 py-2 rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors whitespace-nowrap"
+							data-e2e={generateE2eId('clan_page.settings.onboarding.button.disable_onboarding')}
 						>
 							{t('buttons.disable')}
 						</button>
@@ -306,6 +321,7 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 					<p
 						className="ml-0 sm:ml-3 mt-1 sm:mt-0 inline-block cursor-pointer text-blue-500 hover:underline"
 						onClick={openOnboardingPreviewMode}
+						data-e2e={generateE2eId('clan_page.settings.onboarding.button.open_preview_mode')}
 					>
 						{t('buttons.preview')}
 					</p>
@@ -333,7 +349,10 @@ const MainIndex = ({ handleGoToPage, onCloseSetting, showOnboardingHighlight }: 
 							onClick={() => handleGoToPage(EOnboardingStep.QUESTION)}
 							className="px-2 md:px-3 py-1.5 md:py-2 flex gap-1 md:gap-2 justify-center items-center rounded-lg btn-primary btn-primary-hover cursor-pointer whitespace-nowrap flex-shrink-0"
 						>
-							<div className="text-xs md:text-sm">{t('buttons.setup')}</div> <Icons.LongArrowRight className="w-3 flex-shrink-0" />
+							<div className="text-xs md:text-sm" data-e2e={generateE2eId('clan_page.settings.onboarding.button.setup_question')}>
+								{t('buttons.setup')}
+							</div>{' '}
+							<Icons.LongArrowRight className="w-3 flex-shrink-0" />
 						</div>
 					}
 				/>

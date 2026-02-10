@@ -343,7 +343,7 @@ function FooterProfile({ name, status, avatar, userId, isDM }: FooterProfileProp
 							srcImgProxy={createImgproxyUrl(avatar ?? '')}
 							src={avatar}
 						/>
-						<div className="absolute top-5 left-5">
+						<div className="absolute top-5 left-5" data-e2e={generateE2eId('icon.profile_status')}>
 							<UserStatusIconDM status={userStatus as EUserStatus} />
 						</div>
 						<div className="flex flex-col overflow-hidden flex-1">

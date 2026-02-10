@@ -1,6 +1,6 @@
 import { useUserById } from '@mezon/core';
 import { selectAllAccount } from '@mezon/store';
-import { formatDateI18n } from '@mezon/utils';
+import { formatDateI18n, generateE2eId } from '@mezon/utils';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -25,7 +25,7 @@ const AboutMe = ({ createTime, userId }: AboutMeProps) => {
 	return (
 		<div className="flex flex-col gap-[20px]">
 			<div className="flex flex-col gap-2">
-				<p className="max-w-[400px] text-sm font-normal text-theme-primary break-words">
+				<p className="max-w-[400px] text-sm font-normal text-theme-primary break-words" data-e2e={generateE2eId('full_profile.about_me')}>
 					{checkUser ? userProfile?.user?.about_me : userById?.user?.about_me}
 				</p>
 				<p className="text-xs font-semibold text-theme-primary">{t('userProfile.memberSince')}</p>

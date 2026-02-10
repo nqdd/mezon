@@ -13,7 +13,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IEmbedProps } from '@mezon/utils';
-import { IMessageTypeCallLog, createImgproxyUrl } from '@mezon/utils';
+import { IMessageTypeCallLog, createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -182,7 +182,10 @@ const ShareContactCard = ({ embed }: ShareContactCardProps) => {
 	}
 
 	return (
-		<div className="w-[280px] rounded-xl overflow-hidden shadow-lg mt-2 border-color-primary border">
+		<div
+			className="w-[280px] rounded-xl overflow-hidden shadow-lg mt-2 border-color-primary border"
+			data-e2e={generateE2eId('chat.share_contact')}
+		>
 			<div className=" bg-theme-primary p-4">
 				<div className="flex items-center gap-3">
 					<div className="relative">
@@ -198,8 +201,15 @@ const ShareContactCard = ({ embed }: ShareContactCardProps) => {
 						</div>
 					</div>
 					<div className="flex-1 min-w-0">
-						<p className="text-theme-primary-active font-semibold text-base truncate">{displayName || username}</p>
-						<p className="text-theme-primary text-sm truncate">@{username}</p>
+						<p
+							className="text-theme-primary-active font-semibold text-base truncate"
+							data-e2e={generateE2eId('chat.share_contact.display_name')}
+						>
+							{displayName || username}
+						</p>
+						<p className="text-theme-primary text-sm truncate" data-e2e={generateE2eId('chat.share_contact.username')}>
+							@{username}
+						</p>
 					</div>
 				</div>
 			</div>
@@ -209,6 +219,7 @@ const ShareContactCard = ({ embed }: ShareContactCardProps) => {
 					onClick={handleCall}
 					disabled={isInCall}
 					className={`flex-1 py-3 flex text-theme-primary-hover items-center bg-secondary-button-hover justify-center gap-2 text-theme-primary text-sm font-medium  transition-colors ${isInCall ? 'opacity-50 cursor-not-allowed' : ''}`}
+					data-e2e={generateE2eId('chat.share_contact.button.call')}
 				>
 					<Icons.IconPhoneDM defaultSize="size-4" />
 					<span>{t('card.call')}</span>
@@ -216,6 +227,7 @@ const ShareContactCard = ({ embed }: ShareContactCardProps) => {
 				<button
 					onClick={handleMessage}
 					className="flex-1 py-3 text-theme-primary-hover flex items-center bg-secondary-button-hover justify-center gap-2 text-theme-primary text-sm font-medium transition-colors"
+					data-e2e={generateE2eId('chat.share_contact.button.message')}
 				>
 					<Icons.Chat defaultSize="size-4" />
 					<span>{t('card.message')}</span>

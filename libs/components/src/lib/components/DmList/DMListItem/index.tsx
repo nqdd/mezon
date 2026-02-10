@@ -186,6 +186,7 @@ const DmInvoiceProfile = memo(({ userId, directId, status, name }: { userId: str
 		<>
 			<div
 				className={`rounded-full absolute left-5 -bottom-[3px] p-[3px] inline-flex items-center justify-center gap-1 text-sm text-theme-primary`}
+				data-e2e={generateE2eId('icon.profile_status')}
 			>
 				<UserStatusIconClan channelId={directId} userId={userId} status={status} />
 			</div>
@@ -195,7 +196,10 @@ const DmInvoiceProfile = memo(({ userId, directId, status, name }: { userId: str
 					{name}
 				</span>
 				{!!checkUserInvoice && (
-					<p className="opacity-60 text-theme-primary text-xs text-start flex gap-[2px] items-center">
+					<p
+						className="opacity-60 text-theme-primary text-xs text-start flex gap-[2px] items-center"
+						data-e2e={generateE2eId(`chat.direct_message.chat_item.in_voice_status`)}
+					>
 						<Icons.Speaker className="text-green-500 !w-[10px] !h-[10px]" /> {t('inVoice')}
 					</p>
 				)}

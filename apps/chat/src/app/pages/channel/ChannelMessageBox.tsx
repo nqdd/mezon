@@ -16,7 +16,7 @@ import {
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IMessageSendPayload, ThreadValue } from '@mezon/utils';
-import { DONE_ONBOARDING_STATUS, blankReferenceObj } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS, blankReferenceObj, generateE2eId } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiChannelDescription, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
 import { memo, useCallback, useMemo, useRef } from 'react';
@@ -110,7 +110,7 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 				mode={mode}
 			/>
 			{anonymousMode && (
-				<div className="absolute -top-3 -right-3 rotate-45 anonymousAnimation">
+				<div className="absolute -top-3 -right-3 rotate-45 anonymousAnimation" data-e2e={generateE2eId('chat.anonymous')}>
 					<Icons.HatIcon defaultSize="w-7 h-7  " />
 				</div>
 			)}

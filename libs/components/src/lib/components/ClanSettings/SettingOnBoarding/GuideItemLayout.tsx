@@ -1,3 +1,4 @@
+import { generateE2eId } from '@mezon/utils';
 import type { ReactNode } from 'react';
 
 type GuideItemLayoutProps = {
@@ -34,6 +35,7 @@ export const GuideItemLayout = ({
 				gap
 			}}
 			onClick={onClick}
+			data-e2e={generateE2eId('button.base')}
 		>
 			{icon && (
 				<div className="h-full flex items-center justify-center text-theme-primary flex-shrink-0">
@@ -43,10 +45,22 @@ export const GuideItemLayout = ({
 				</div>
 			)}
 			<div className={`flex flex-1 text-sm md:text-base flex-col h-full justify-center text-theme-primary min-w-0`}>
-				{title && <div className="font-bold text-theme-primary-active break-words">{title}</div>}
-				{description && <div className="text-xs flex-1 break-words">{description}</div>}
+				{title && (
+					<div className="font-bold text-theme-primary-active break-words" data-e2e={generateE2eId('onboarding.clan_guide_page.title')}>
+						{title}
+					</div>
+				)}
+				{description && (
+					<div className="text-xs flex-1 break-words" data-e2e={generateE2eId('onboarding.clan_guide_page.description')}>
+						{description}
+					</div>
+				)}
 			</div>
-			{action && <div className="flex items-center h-full flex-shrink-0">{action}</div>}
+			{action && (
+				<div className="flex items-center h-full flex-shrink-0" data-e2e={generateE2eId('onboarding.clan_guide_page.action')}>
+					{action}
+				</div>
+			)}
 		</div>
 	);
 };
