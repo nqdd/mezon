@@ -2,7 +2,7 @@ import { AvatarImage } from '@mezon/components';
 import { useAuth } from '@mezon/core';
 import { selectCurrentClanName, selectMemberClanByUserId, useAppSelector } from '@mezon/store';
 import { Button, ButtonLoading, Icons, Modal } from '@mezon/ui';
-import type { ChannelMembersEntity } from '@mezon/utils';
+import { generateE2eId, type ChannelMembersEntity } from '@mezon/utils';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -30,7 +30,10 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 	};
 	return (
 		<Modal onClose={onClose} showModal title={t('title')}>
-			<div className="flex flex-col gap-6 p-3 items-center text-theme-primary">
+			<div
+				className="flex flex-col gap-6 p-3 items-center text-theme-primary"
+				data-e2e={generateE2eId('clan_page.member_list.transfer_owner_modal')}
+			>
 				<div className=" text-base ">
 					{t('description', {
 						clanName: currentClanName,
@@ -73,6 +76,7 @@ const TransferOwnerModal = ({ onClose, member, onClick }: TransferOwnerProps) =>
 						checked={checkedTransfer}
 						className="w-3 h-3 rounded-md pr-4"
 						onChange={handleCheckInput}
+						data-e2e={generateE2eId('clan_page.member_list.transfer_owner_modal.input.confirm_transfer')}
 					/>
 					<label htmlFor="confirm-transfer" className="ml-2">
 						{t('confirmation', { memberName: member?.clan_nick || member.user?.display_name || member?.user?.username })}

@@ -1,11 +1,12 @@
 import { useAppNavigation, useAuth, useDirect, useEscapeKeyClose, useOnClickOutside } from '@mezon/core';
 import { selectCurrentClanCreatorId } from '@mezon/store';
-import { ChannelMembersEntity } from '@mezon/utils';
+import type { ChannelMembersEntity } from '@mezon/utils';
+import { generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Coords } from '../ChannelLink';
+import type { Coords } from '../ChannelLink';
 import GroupPanelMember from './GroupPanelMember';
 import ItemPanelMember from './ItemPanelMember';
 
@@ -79,6 +80,7 @@ const PanelMemberTable = ({ coords, member, onClose, onOpenProfile, kichMember, 
 				e.stopPropagation();
 				onClose();
 			}}
+			data-e2e={generateE2eId('clan_page.member_list.actions')}
 		>
 			<GroupPanelMember>
 				<ItemPanelMember children={t('profile')} onClick={handleOpenProfile} />

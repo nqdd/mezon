@@ -59,7 +59,10 @@ export const BaseMemberProfile = ({ id, user, userMeta, username, avatar, isOwne
 						srcImgProxy={createImgproxyUrl(avatar ?? '')}
 						src={avatar}
 					/>
-					<div className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
+					<div
+						className="rounded-full right-[-4px] absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary"
+						data-e2e={generateE2eId('icon.profile_status')}
+					>
 						<UserStatusIconClan
 							channelId={currentChannelID || (currentDmId as string) || ''}
 							userId={user.id}
@@ -96,7 +99,7 @@ export function ClanUserName({ name, userId, isOwner }: { name: string; userId: 
 			</span>
 
 			{isOwner && (
-				<button className="w-[14px] text-center h-[14px] pt-[4px]">
+				<button className="w-[14px] text-center h-[14px] pt-[4px]" data-e2e={generateE2eId('icon.owner')}>
 					<Icons.OwnerIcon />
 				</button>
 			)}

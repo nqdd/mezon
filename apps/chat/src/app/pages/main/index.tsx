@@ -628,7 +628,11 @@ const PreviewOnboardingMode = () => {
 		<div className="fixed z-50 top-0 left-0 w-screen  bg-theme-setting-primary flex px-4 py-2 h-12 items-center justify-center ">
 			<div className="absolute cursor-pointer bg-item-theme-hover left-6 px-2 flex gap-1 border-2 py-1 items-center justify-center  border-theme-primary rounded bg-transparent">
 				<Icons.LeftArrowIcon className="fill-theme-primary-active text-theme-primary-active" />
-				<p className="text-theme-primary-active text-xs font-medium" onClick={handleClosePreview}>
+				<p
+					className="text-theme-primary-active text-xs font-medium"
+					onClick={handleClosePreview}
+					data-e2e={generateE2eId('clan_page.settings.onboarding.button.close_preview_mode')}
+				>
 					{t('closePreviewMode')}
 				</p>
 			</div>

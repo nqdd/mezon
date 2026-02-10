@@ -19,7 +19,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { DONE_ONBOARDING_STATUS, titleMission } from '@mezon/utils';
+import { DONE_ONBOARDING_STATUS, generateE2eId, titleMission } from '@mezon/utils';
 import type { ApiOnboardingItem } from 'mezon-js/api.gen';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -93,7 +93,9 @@ function GuideBody() {
 			<div className="flex gap-6">
 				<div className="flex-1 flex flex-col gap-2">
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">{t('guide.questions')}</p>
+						<p className="p-2 text-xl font-bold " data-e2e={generateE2eId('onboarding.clan_guide_page.label')}>
+							{t('guide.questions')}
+						</p>
 						<div className=" flex flex-col gap-2 rounded-lg relative shadow-sm dark:shadow-none">
 							{onboardingItem?.question.length > 0 ? (
 								<>
@@ -122,7 +124,9 @@ function GuideBody() {
 						</div>
 					</div>
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">{t('guide.resources')}</p>
+						<p className="p-2 text-xl font-bold " data-e2e={generateE2eId('onboarding.clan_guide_page.label')}>
+							{t('guide.resources')}
+						</p>
 						{onboardingItem?.rule?.length > 0 ? (
 							onboardingItem.rule.map((rule) => (
 								<GuideItemLayout
@@ -166,7 +170,9 @@ function GuideBody() {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						<p className="p-2 text-xl font-bold ">{t('guide.missions')} </p>
+						<p className="p-2 text-xl font-bold " data-e2e={generateE2eId('onboarding.clan_guide_page.label')}>
+							{t('guide.missions')}{' '}
+						</p>
 						{onboardingItem?.mission?.length > 0 ? (
 							onboardingItem.mission.map((mission, index) => (
 								<GuideItemMission
@@ -270,7 +276,9 @@ const QuestionItems = ({ question }: { question: ApiOnboardingItem }) => {
 	);
 	return (
 		<div className="w-full p-4 flex flex-col gap-2 bg-white dark:bg-transparent">
-			<p className="text-theme-primary-active font-semibold">{question.title}</p>
+			<p className="text-theme-primary-active font-semibold" data-e2e={generateE2eId('onboarding.clan_guide_page.question')}>
+				{question.title}
+			</p>
 			<div className="flex flex-wrap gap-2 flex-1">
 				{question.answers &&
 					question.answers.map((answer, index) => (

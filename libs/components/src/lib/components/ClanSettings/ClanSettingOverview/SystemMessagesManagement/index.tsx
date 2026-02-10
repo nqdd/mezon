@@ -176,6 +176,7 @@ export const ToggleItem: React.FC<ToggleItemProps> = ({ label, value, handleTogg
 					type="checkbox"
 					checked={value}
 					onChange={(e) => handleToggle(e.target.checked)}
+					data-e2e={generateE2eId('input.base')}
 				/>
 			</div>
 		</div>

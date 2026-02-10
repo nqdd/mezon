@@ -26,7 +26,11 @@ const SettingItem = ({ name, active, onClick, handleMenu, setting }: SettingItem
 			}}
 			data-e2e={generateE2eId('clan_page.settings.sidebar.item')}
 		>
-			{setting?.id === 'on-boarding' && <div className="absolute top-[4px] right-[8px] ">{currentClanIsOnboarding ? 'ON' : 'OFF'}</div>}
+			{setting?.id === 'on-boarding' && (
+				<div className="absolute top-[4px] right-[8px] " data-e2e={generateE2eId('clan_page.settings.sidebar.onboarding_status')}>
+					{currentClanIsOnboarding ? 'ON' : 'OFF'}
+				</div>
+			)}
 			{name}
 		</button>
 	);

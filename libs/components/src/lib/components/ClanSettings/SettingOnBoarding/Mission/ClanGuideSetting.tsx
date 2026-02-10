@@ -107,7 +107,10 @@ function ClanGuideSetting({ setOpenModalSaveChanges }: ClanGuideSettingProps = {
 						onClick={openModalAddTask}
 						className="flex items-center justify-center p-4 md:p-4 text-primary text-base md:text-base gap-1 border-dashed border-2 border-gray-400 dark:border-channelTextLabel rounded-md bg-item-theme-hover transition-colors"
 					>
-						<Icons.AddIcon className="w-4 h-4 flex-shrink-0" /> <span className="break-words">{t('clanGuideSetting.addTask')}</span>
+						<Icons.AddIcon className="w-4 h-4 flex-shrink-0" />{' '}
+						<span className="break-words" data-e2e={generateE2eId('clan_page.settings.onboarding.button.add_task')}>
+							{t('clanGuideSetting.addTask')}
+						</span>
 					</button>
 				</div>
 
