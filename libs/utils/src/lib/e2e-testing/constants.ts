@@ -182,6 +182,8 @@ export const DATA_E2E_IDENTIFIER = {
 				display_name: '',
 				username: ''
 			},
+			member_since: '',
+			join_mezon: '',
 			role_settings: {
 				add_role: {
 					button: '',
@@ -388,8 +390,12 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			community: {
 				button: {
-					enable_community: ''
-				}
+					enable_community: '',
+					save: ''
+				},
+				description: '',
+				about: '',
+				vanity_url: ''
 			},
 			emoji: {
 				upload: ''
@@ -999,7 +1005,8 @@ export const DATA_E2E_IDENTIFIER = {
 		friend_pending: ''
 	},
 	full_profile: {
-		about_me: ''
+		about_me: '',
+		member_since: ''
 	}
 };
 type DotNestedKeys<T> = T extends object

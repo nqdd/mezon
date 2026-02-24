@@ -29,7 +29,9 @@ const AboutMe = ({ createTime, userId }: AboutMeProps) => {
 					{checkUser ? userProfile?.user?.about_me : userById?.user?.about_me}
 				</p>
 				<p className="text-xs font-semibold text-theme-primary">{t('userProfile.memberSince')}</p>
-				<span className="text-sm font-normal text-theme-primary">{formatCreateTime()}</span>
+				<span className="text-sm font-normal text-theme-primary" data-e2e={generateE2eId('full_profile.member_since')}>
+					{formatCreateTime()}
+				</span>
 			</div>
 		</div>
 	);

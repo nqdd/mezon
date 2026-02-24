@@ -215,12 +215,14 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 				</div>
 			</div>
 			<div className="flex-1 p-1 text-center">
-				<span className="text-xs  font-medium uppercase">
+				<span className="text-xs  font-medium uppercase" data-e2e={generateE2eId('clan_page.member_list.member_since')}>
 					{clanJoinTime ? formatDistance(clanJoinTime as string, new Date(), { addSuffix: true }) : '-'}
 				</span>
 			</div>
 			<div className="flex-1 p-1 text-center">
-				<span className="text-xs  font-medium uppercase">{mezonJoinTime ? `${mezonJoinTime} ago` : '-'}</span>
+				<span className="text-xs  font-medium uppercase" data-e2e={generateE2eId('clan_page.member_list.join_mezon')}>
+					{mezonJoinTime ? `${mezonJoinTime} ago` : '-'}
+				</span>
 			</div>
 			<div className="flex-2 p-1 text-center">
 				<span className={'inline-flex items-center'}>
