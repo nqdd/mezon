@@ -464,7 +464,7 @@ const SettingComunity = ({
 									{'*'}
 								</span>
 							</label>
-							<div className="relative">
+							<div className="relative" data-e2e={generateE2eId('clan_page.settings.community.description')}>
 								<TextArea
 									className={`w-full border-2 rounded-xl p-4 bg-theme-input text-theme-primary focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base ${descError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 									rows={5}
@@ -507,7 +507,7 @@ const SettingComunity = ({
 								</span>
 							</label>
 
-							<div className="relative">
+							<div className="relative" data-e2e={generateE2eId('clan_page.settings.community.about')}>
 								<TextArea
 									className={`w-full border-2 rounded-xl p-4 bg-theme-input text-theme-primary focus:border-blue-400 dark:focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all duration-200 resize-none text-base ${aboutError ? 'border-red-500' : 'border-gray-200 dark:border-gray-600'}`}
 									rows={5}
@@ -565,6 +565,7 @@ const SettingComunity = ({
 										placeholder={t('communitySettings.vanityUrl.placeholder')}
 										onBlur={handleBlurVanityUrl}
 										maxLength={50}
+										data-e2e={generateE2eId('clan_page.settings.community.vanity_url')}
 									/>
 								</div>
 								{vanityUrl && (
@@ -579,7 +580,10 @@ const SettingComunity = ({
 							</div>
 						</div>
 
-						<div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+						<div
+							className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700"
+							data-e2e={generateE2eId('clan_page.settings.community.button.save')}
+						>
 							<Button
 								onClick={handleConfirmEnable}
 								disabled={isSaving}
