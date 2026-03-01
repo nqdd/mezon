@@ -17,25 +17,13 @@ const GeneralInformation = () => {
 	const { sessionRef, clientRef } = useMezon();
 	const appId = useParams().applicationId as string;
 	const appDetail = useSelector(selectAppDetail);
-	const dispatch = useAppDispatch();
 
 	const [appLogoUrl, setAppLogoUrl] = useState(appDetail.applogo);
 	const appLogoRef = useRef<HTMLInputElement>(null);
-	const [hasChanges, setHasChanges] = useState(false);
 
 	useEffect(() => {
 		setAppLogoUrl(appDetail.applogo);
-		setHasChanges(false);
 	}, [appId, appDetail.applogo]);
-
-	useEffect(() => {
-		setHasChanges(appLogoUrl !== appDetail.applogo);
-	}, [appLogoUrl, appDetail.applogo]);
-
-	const handleResetChange = () => {
-		setAppLogoUrl(appDetail.applogo);
-		setHasChanges(false);
-	};
 
 	const handleChooseFile = (e: ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
@@ -52,19 +40,6 @@ const GeneralInformation = () => {
 
 	const handleClearLogo = () => {
 		setAppLogoUrl('');
-	};
-
-	const handleEditApp = async () => {
-		const updateRequest: MezonUpdateAppBody = {};
-
-		if (appLogoUrl !== appDetail.applogo) {
-			updateRequest.applogo = appLogoUrl;
-		}
-
-		if (Object.keys(updateRequest).length === 0) return;
-
-		await dispatch(editApplication({ request: updateRequest, appId }));
-		setHasChanges(false);
 	};
 
 	return (
@@ -118,8 +93,7 @@ const GeneralInformation = () => {
 						)}
 					</div>
 				</div>
-				<AppDetailRight appDetail={appDetail} appId={appId as string} />
-				{hasChanges && <ModalSaveChanges onReset={handleResetChange} onSave={handleEditApp} />}
+				<AppDetailRight appDetail={appDetail} appId={appId as string} appLogoUrl={appLogoUrl} setAppLogoUrl={setAppLogoUrl} />
 			</div>
 		</div>
 	);
@@ -128,9 +102,11 @@ const GeneralInformation = () => {
 interface IAppDetailRightProps {
 	appDetail: ApiApp;
 	appId: string;
+	appLogoUrl: string | undefined;
+	setAppLogoUrl: (url: string | undefined) => void;
 }
 
-const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
+const AppDetailRight = ({ appDetail, appId, appLogoUrl, setAppLogoUrl }: IAppDetailRightProps) => {
 	const { t } = useTranslation('adminApplication');
 	const [changeName, setChangeName] = useState(appDetail.appname);
 	const [changeUrl, setChangeUrl] = useState(appDetail.app_url);
@@ -147,20 +123,26 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 	const [nameChanged, setNameChanged] = useState(false);
 	const [urlChanged, setUrlChanged] = useState(false);
 	const [aboutChanged, setAboutChanged] = useState(false);
+	const [logoChanged, setLogoChanged] = useState(false);
 
 	const [shadowModified, setShadowModified] = useState(false);
 
 	const updateSaveChangeState = useCallback(() => {
-		if (nameChanged || urlChanged || aboutChanged) {
+		if (nameChanged || urlChanged || aboutChanged || logoChanged || shadowModified) {
 			setOpenSaveChange(true);
 		} else {
 			setOpenSaveChange(false);
 		}
-	}, [nameChanged, urlChanged, aboutChanged]);
+	}, [nameChanged, urlChanged, aboutChanged, logoChanged, shadowModified]);
 
 	useEffect(() => {
 		updateSaveChangeState();
-	}, [nameChanged, urlChanged, aboutChanged, updateSaveChangeState]);
+	}, [nameChanged, urlChanged, aboutChanged, logoChanged, updateSaveChangeState]);
+
+	useEffect(() => {
+		const isLogoChanged = appLogoUrl !== appDetail.applogo;
+		setLogoChanged(isLogoChanged);
+	}, [appLogoUrl, appDetail.applogo]);
 
 	useEffect(() => {
 		const savedToken = localStorage.getItem(`app_token_${appId}`);
@@ -175,18 +157,17 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 		setChangeUrl(appDetail.app_url);
 		setChangeAboutApp(appDetail.about);
 
-		if (!shadowModified) {
-			let isShadow = false;
-			if (appDetail.is_shadow === true) {
-				isShadow = true;
-			}
-			setChangeBotShadow(isShadow);
+		let isShadow = false;
+		if (appDetail.is_shadow === true) {
+			isShadow = true;
 		}
+		setChangeBotShadow(isShadow);
 
 		setNameChanged(false);
 		setUrlChanged(false);
 		setAboutChanged(false);
-	}, [appDetail, shadowModified]);
+		setShadowModified(false);
+	}, [appDetail]);
 
 	const toggleDeletePopup = () => {
 		setIsShowDeletePopup(!isShowDeletePopup);
@@ -232,6 +213,7 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 		setChangeName(appDetail.appname);
 		setChangeUrl(appDetail.app_url);
 		setChangeAboutApp(appDetail.about);
+		setAppLogoUrl(appDetail.applogo);
 
 		let isShadow = false;
 		if (appDetail.is_shadow === true) {
@@ -244,12 +226,17 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 		setNameChanged(false);
 		setUrlChanged(false);
 		setAboutChanged(false);
+		setLogoChanged(false);
 
 		setOpenSaveChange(false);
 	};
 
 	const handleEditAppOrBot = async () => {
 		const updateRequest: MezonUpdateAppBody = {};
+
+		if (appLogoUrl !== appDetail.applogo) {
+			updateRequest.applogo = appLogoUrl;
+		}
 
 		if (changeName !== appDetail.appname) {
 			updateRequest.appname = changeName;
@@ -263,7 +250,9 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 			updateRequest.about = changeAboutApp;
 		}
 
-		(updateRequest as MezonUpdateAppBody & { is_shadow: string }).is_shadow = changeBotShadow ? 'true' : 'false';
+		if (shadowModified) {
+			(updateRequest as MezonUpdateAppBody & { is_shadow: string }).is_shadow = changeBotShadow ? 'true' : 'false';
+		}
 
 		if (Object.keys(updateRequest).length === 0) return;
 
@@ -276,6 +265,8 @@ const AppDetailRight = ({ appDetail, appId }: IAppDetailRightProps) => {
 		setNameChanged(false);
 		setUrlChanged(false);
 		setAboutChanged(false);
+		setLogoChanged(false);
+		setShadowModified(false);
 		setOpenSaveChange(false);
 	};
 
