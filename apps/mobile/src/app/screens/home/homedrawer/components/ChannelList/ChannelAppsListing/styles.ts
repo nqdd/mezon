@@ -7,7 +7,7 @@ export const style = (colors: Attributes) =>
 		container: {
 			width: '100%',
 			zIndex: 1,
-			marginVertical: size.s_4
+			marginTop: size.s_4
 		},
 		containerAll: {
 			flex: 1,
@@ -27,17 +27,18 @@ export const style = (colors: Attributes) =>
 		},
 		listContent: {
 			marginTop: size.s_6,
-			paddingHorizontal: size.s_12
+			paddingRight: size.s_12
 		},
 		itemContainer: {
 			width: size.s_40,
-			marginRight: size.s_10
+			marginRight: size.s_20
 		},
 		itemLogo: {
 			width: size.s_40,
 			height: size.s_40,
-			borderRadius: size.s_8,
+			borderRadius: size.s_20,
 			marginBottom: size.s_2,
+			backgroundColor: colors.primary,
 			borderWidth: 0.5,
 			borderColor: 'transparent',
 			justifyContent: 'center',
@@ -49,16 +50,16 @@ export const style = (colors: Attributes) =>
 			borderColor: colors.textDisabled
 		},
 		itemIcon: {
-			width: size.s_30,
-			height: size.s_30,
+			width: size.s_24,
+			height: size.s_24,
 			borderRadius: size.s_6,
 			justifyContent: 'center',
 			alignItems: 'center',
 			overflow: 'hidden'
 		},
 		itemIconImg: {
-			width: size.s_30,
-			height: size.s_30
+			width: size.s_24,
+			height: size.s_24
 		},
 		itemName: {
 			fontSize: size.s_10,
@@ -73,7 +74,6 @@ export const style = (colors: Attributes) =>
 		channelListHeader: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			marginHorizontal: size.s_8,
 			justifyContent: 'space-between'
 		},
 		channelListHeaderItem: {
@@ -88,6 +88,88 @@ export const style = (colors: Attributes) =>
 			color: colors.text,
 			marginRight: size.s_16,
 			flexShrink: 1
+		},
+		sectionContent: {
+			width: '100%',
+			paddingTop: size.s_4,
+			paddingHorizontal: size.s_4
+		},
+		compactCardWrapper: {
+			width: '100%'
+		},
+		compactCardContainer: {
+			width: '95%',
+			height: size.s_42,
+			flexDirection: 'row',
+			alignItems: 'center',
+			backgroundColor: colors.secondaryLight,
+			borderRadius: size.s_12,
+			paddingLeft: size.s_8,
+			paddingRight: size.s_16,
+			marginBottom: size.s_8,
+			borderWidth: 1,
+			borderColor: colors.border
+		},
+		compactCardContent: {
+			flex: 1,
+			flexDirection: 'row',
+			alignItems: 'center',
+			marginRight: size.s_8,
+			minWidth: 0
+		},
+		compactCardLogo: {
+			width: size.s_30,
+			height: size.s_30,
+			borderRadius: size.s_10,
+			justifyContent: 'center',
+			alignItems: 'center',
+			overflow: 'hidden',
+			marginRight: size.s_8
+		},
+		compactCardInfo: {
+			flex: 1,
+			justifyContent: 'center',
+			minWidth: 0
+		},
+		compactCardName: {
+			fontSize: size.s_14,
+			fontWeight: '600',
+			color: colors.textStrong
+		},
+		compactCardDescription: {
+			fontSize: size.s_12,
+			color: colors.text,
+			lineHeight: size.s_16
+		},
+		appItemStatusDot: {
+			width: size.s_8,
+			height: size.s_8,
+			borderRadius: size.s_4,
+			backgroundColor: baseColor.green
+		},
+		integrateCardContainer: {
+			width: '100%',
+			flexDirection: 'row',
+			alignItems: 'center',
+			justifyContent: 'center',
+			minHeight: size.s_60,
+			borderRadius: size.s_12,
+			padding: size.s_12,
+			marginBottom: size.s_8,
+			borderWidth: 2,
+			borderStyle: 'dashed',
+			borderColor: colors.border,
+			backgroundColor: 'transparent'
+		},
+		integrateCardContent: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			gap: size.s_8
+		},
+		integrateCardText: {
+			fontSize: size.s_14,
+			fontWeight: '600',
+			color: colors.text
 		},
 		header: {
 			flexDirection: 'row',

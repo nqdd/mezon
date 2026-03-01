@@ -3,7 +3,7 @@ import { size, useTheme } from '@mezon/mobile-ui';
 import { useAppSelector } from '@mezon/store';
 import { channelAppActions, selectAppChannelById, useAppDispatch } from '@mezon/store-mobile';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, { clamp, runOnJS, useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
@@ -213,7 +213,7 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 							start={{ x: 1, y: 0 }}
 							end={{ x: 0, y: 0 }}
 							colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-							style={[StyleSheet.absoluteFillObject]}
+							style={[StyleSheet.absoluteFill]}
 						/>
 					)}
 
@@ -222,7 +222,13 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 					</TouchableOpacity>
 					<Text style={styles.title}>{appChannel?.app_name}</Text>
 					<TouchableOpacity onPress={hideHeader} style={styles.toggleButton}>
-						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_16} width={size.s_16} color={themeValue.text} />
+						<MezonIconCDN
+							icon={IconCDN.chevronDownSmallIcon}
+							height={size.s_20}
+							width={size.s_20}
+							color={themeValue.text}
+							customStyle={styles.bubbleButton}
+						/>
 					</TouchableOpacity>
 				</Animated.View>
 				<GestureDetector gesture={gesture}>
@@ -249,23 +255,23 @@ const ChannelAppScreen = ({ navigation, route }: { navigation: any; route: any }
 							bubbleAnimatedStyle
 						]}
 					>
-						<MezonIconCDN
-							icon={IconCDN.chevronDownSmallIcon}
-							height={size.s_24}
-							width={size.s_24}
-							color={themeValue.text}
-							customStyle={styles.bubbleButton}
-						/>
+						<MezonIconCDN icon={IconCDN.chevronDownSmallIcon} height={size.s_24} width={size.s_24} color={themeValue.text} />
 					</Animated.View>
 				</GestureDetector>
-				<WebviewBase
-					url={uri}
-					incognito={true}
-					style={styles.container}
-					javaScriptEnabled={true}
-					nestedScrollEnabled={true}
-					onGoBack={onClose}
-				/>
+				{uri ? (
+					<WebviewBase
+						url={uri}
+						incognito={true}
+						style={styles.container}
+						javaScriptEnabled={true}
+						nestedScrollEnabled={true}
+						onGoBack={onClose}
+					/>
+				) : (
+					<View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+						<ActivityIndicator size="large" color={themeValue.text} />
+					</View>
+				)}
 			</GestureHandlerRootView>
 		</View>
 	);

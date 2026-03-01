@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { BackHandler, DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../componentUI/MobileIcons';
 import { useSendSignaling } from '../../../components/CallingGroupModal';
 import ImageNative from '../../../components/ImageNative';
 import { MemberInvoiceStatus } from '../../../components/MemberStatus/MemberInvoiceStatus';
@@ -255,7 +256,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					title: 'quickReaction',
 					content: t('quickReaction.title'),
 					value: OptionChannelHeader.QuickReaction,
-					icon: <MezonIconCDN icon={IconCDN.reactionIcon} color={themeValue.text} height={size.s_18} width={size.s_18} />
+					icon: <Icons.EmojiIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 				},
 				{
 					title: 'removeQuickReaction',
@@ -267,7 +268,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					title: 'buzz',
 					content: 'Buzz',
 					value: OptionChannelHeader.Buzz,
-					icon: <MezonIconCDN icon={IconCDN.buzz} color={themeValue.text} height={size.s_18} width={size.s_18} />
+					icon: <Icons.BuzzIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 				}
 			].filter((item) => {
 				if (item.value === OptionChannelHeader.RemoveQuickReaction && !hasQuickReaction) return false;
@@ -388,12 +389,12 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 							<>
 								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall()}>
-										<MezonIconCDN icon={IconCDN.phoneCallIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+										<Icons.CallIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 									</TouchableOpacity>
 								)}
 								{!isTypeDMGroup && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall(true)}>
-										<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+										<Icons.VideoCallIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 									</TouchableOpacity>
 								)}
 							</>

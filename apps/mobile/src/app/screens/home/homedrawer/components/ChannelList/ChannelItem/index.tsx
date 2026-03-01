@@ -1,10 +1,10 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
+import { selectIsChannelMuted, useAppSelector } from '@mezon/store-mobile';
 import type { IChannel } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import { memo, useCallback, useMemo } from 'react';
-import { DeviceEventEmitter, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import React, { memo, useCallback, useMemo } from 'react';
+import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import BuzzBadge from '../../../../../../components/BuzzBadge/BuzzBadge';
 import ChannelMenu from '../../ChannelMenu';
 import { ChannelBadgeUnread } from '../ChannelBadgeUnread';
@@ -17,16 +17,18 @@ interface IChannelItemProps {
 	data: IChannel;
 	isUnRead?: boolean;
 	isActive?: boolean;
+	isVoiceActive?: boolean;
+	isFirstThread?: boolean;
 }
 
-function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
+function ChannelItem({ data, isUnRead, isActive, isVoiceActive, isFirstThread }: IChannelItemProps) {
 	const { themeValue, themeBasic } = useTheme();
 	const styles = style(themeValue, themeBasic);
 	const countMessageUnread = Number(data?.count_mess_unread) || 0;
-
 	const isUnReadChannel = useMemo(() => {
 		return isUnRead || countMessageUnread > 0;
 	}, [isUnRead, countMessageUnread]);
+	const isChannelMuted = useAppSelector((state) => selectIsChannelMuted(state, data?.clan_id ?? '', data?.channel_id ?? ''));
 
 	const onPress = useCallback(() => {
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_CHANNEL_ROUTER, { channel: data });
@@ -41,29 +43,21 @@ function ChannelItem({ data, isUnRead, isActive }: IChannelItemProps) {
 	}, [data]);
 
 	if (data?.type === ChannelType.CHANNEL_TYPE_THREAD) {
-		return <ChannelListThreadItem thread={data} isActive={isActive} onLongPress={onLongPress} />;
+		return <ChannelListThreadItem thread={data} isActive={isActive} onLongPress={onLongPress} isFirstThread={isFirstThread} />;
 	}
 
 	return (
-		<View style={[styles.channelListItemContainer, isActive && styles.channelListItemActive]}>
+		<View style={[styles.channelListItemContainer, isChannelMuted && !isActive && { opacity: 0.6 }, isActive && styles.channelListItemActive]}>
 			<TouchableOpacity
 				activeOpacity={0.7}
 				onPress={onPress}
 				onLongPress={onLongPress}
-				style={[styles.channelListLink, isActive && styles.channelListItemWrapper]}
+				style={[styles.channelListLink, isChannelMuted && !isActive && { opacity: 0.6 }, isActive && styles.channelListItemWrapper]}
 			>
-				{!isActive && (
-					<LinearGradient
-						start={{ x: 1, y: 0 }}
-						end={{ x: 0, y: 0 }}
-						colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
-						style={[StyleSheet.absoluteFillObject]}
-					/>
-				)}
 				<View style={[styles.channelListItem]}>
 					{isUnReadChannel && <View style={styles.dotIsNew} />}
 
-					<ChannelStatusIcon channel={data} isUnRead={isUnReadChannel} />
+					<ChannelStatusIcon channel={data} isUnRead={isUnReadChannel} isVoiceActive={isVoiceActive} />
 					<EventBadge clanId={data?.clan_id} channelId={data?.channel_id} />
 					<Text style={[styles.channelListItemTitle, isUnReadChannel && styles.channelListItemTitleActive]} numberOfLines={1}>
 						{data?.channel_label || ''}
@@ -83,6 +77,7 @@ export default memo(ChannelItem, (prevProps, nextProps) => {
 		prevProps?.data?.channel_id === nextProps?.data?.channel_id &&
 		prevProps?.data?.count_mess_unread === nextProps?.data?.count_mess_unread &&
 		prevProps?.isUnRead === nextProps?.isUnRead &&
-		prevProps?.isActive === nextProps?.isActive
+		prevProps?.isActive === nextProps?.isActive &&
+		prevProps?.isVoiceActive === nextProps?.isVoiceActive
 	);
 });

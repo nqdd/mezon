@@ -1,3 +1,4 @@
+import { ActionEmitEvent } from '@mezon/mobile-components';
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { ChannelTimeline, ChannelTimelineAttachment } from '@mezon/store-mobile';
 import {
@@ -13,9 +14,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
 	ActivityIndicator,
+	DeviceEventEmitter,
 	FlatList,
 	Image,
-	Modal,
 	NativeModules,
 	Platform,
 	Pressable,
@@ -27,6 +28,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { Icons } from '../../componentUI/MobileIcons';
 import ImageNative from '../../components/ImageNative';
 import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -81,17 +83,16 @@ const MediaHighlightsTimeline: React.FC = () => {
 
 	const currentYear = new Date().getFullYear();
 	const [selectedYear, setSelectedYear] = useState(currentYear);
-	const [showYearPicker, setShowYearPicker] = useState(false);
 
 	const rawEvents = useAppSelector((state) => selectChannelMediaByChannelId(state, channelId));
 	const events = useMemo(
 		() =>
 			[...rawEvents]
 				.filter((e) => {
-					if (!e.create_time_seconds) return true;
-					return new Date(e.create_time_seconds * 1000)?.getFullYear() === Number(selectedYear);
+					if (!e.start_time_seconds) return true;
+					return new Date(e.start_time_seconds * 1000)?.getFullYear() === Number(selectedYear);
 				})
-				.sort((a, b) => (b.create_time_seconds || 0) - (a.create_time_seconds || 0)),
+				.sort((a, b) => (a.start_time_seconds || 0) - (b.start_time_seconds || 0)),
 		[rawEvents, selectedYear]
 	);
 	const loadingStatus = useAppSelector(selectChannelMediaLoadingStatus);
@@ -168,14 +169,49 @@ const MediaHighlightsTimeline: React.FC = () => {
 		navigation.navigate(APP_SCREEN.CREATE_MILESTONE, { channelId, clanId });
 	};
 
-	const handleOpenCalendar = useCallback(() => {
-		setShowYearPicker(true);
-	}, []);
-
 	const handleSelectYear = useCallback((year: number) => {
 		setSelectedYear(year);
-		setShowYearPicker(false);
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true });
 	}, []);
+
+	const handleOpenCalendar = useCallback(() => {
+		const data = {
+			children: (
+				<Pressable
+					style={internalStyles.overlay}
+					onPress={() => DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: true })}
+				>
+					<View style={[internalStyles.yearPickerContainer, { backgroundColor: themeValue.secondary }]}>
+						<Text style={[internalStyles.yearPickerTitle, { color: themeValue.textStrong }]}>{t('mediaHighlights.selectYear')}</Text>
+						<FlatList
+							data={yearList}
+							keyExtractor={(item) => String(item)}
+							showsVerticalScrollIndicator={false}
+							style={internalStyles.yearList}
+							renderItem={({ item: year }) => (
+								<TouchableOpacity
+									style={[internalStyles.yearItem, year === selectedYear && internalStyles.yearItemSelected]}
+									onPress={() => handleSelectYear(year)}
+									activeOpacity={0.7}
+								>
+									<Text
+										style={[
+											internalStyles.yearText,
+											{ color: themeValue.text },
+											year === selectedYear && internalStyles.yearTextSelected
+										]}
+									>
+										{year}
+									</Text>
+								</TouchableOpacity>
+							)}
+						/>
+					</View>
+				</Pressable>
+			)
+		};
+		DeviceEventEmitter.emit(ActionEmitEvent.ON_TRIGGER_MODAL, { isDismiss: false, data });
+	}, [yearList, selectedYear, handleSelectYear, themeValue, t]);
 
 	const renderMediaItem = useCallback((media: { proxyUrl: string; originalUrl: string; isVideo: boolean; fileUrl: string }, style: any) => {
 		if (media.isVideo) {
@@ -321,7 +357,7 @@ const MediaHighlightsTimeline: React.FC = () => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			<View style={styles.header}>
 				<TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -338,7 +374,7 @@ const MediaHighlightsTimeline: React.FC = () => {
 				</View>
 				<View style={styles.headerRight}>
 					<TouchableOpacity onPress={handleOpenCalendar}>
-						<MezonIconCDN icon={IconCDN.calendarIcon} width={size.s_24} height={size.s_24} color={themeValue.textStrong} />
+						<Icons.EventIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -379,38 +415,6 @@ const MediaHighlightsTimeline: React.FC = () => {
 					</TouchableOpacity>
 				</View>
 			)}
-
-			{/* Year Picker Modal */}
-			<Modal visible={showYearPicker} transparent animationType="fade" onRequestClose={() => setShowYearPicker(false)}>
-				<Pressable style={internalStyles.overlay} onPress={() => setShowYearPicker(false)}>
-					<View style={[internalStyles.yearPickerContainer, { backgroundColor: themeValue.secondary }]}>
-						<Text style={[internalStyles.yearPickerTitle, { color: themeValue.textStrong }]}>{t('mediaHighlights.selectYear')}</Text>
-						<FlatList
-							data={yearList}
-							keyExtractor={(item) => String(item)}
-							showsVerticalScrollIndicator={false}
-							style={internalStyles.yearList}
-							renderItem={({ item: year }) => (
-								<TouchableOpacity
-									style={[internalStyles.yearItem, year === selectedYear && internalStyles.yearItemSelected]}
-									onPress={() => handleSelectYear(year)}
-									activeOpacity={0.7}
-								>
-									<Text
-										style={[
-											internalStyles.yearText,
-											{ color: themeValue.text },
-											year === selectedYear && internalStyles.yearTextSelected
-										]}
-									>
-										{year}
-									</Text>
-								</TouchableOpacity>
-							)}
-						/>
-					</View>
-				</Pressable>
-			</Modal>
 		</View>
 	);
 };
@@ -460,7 +464,7 @@ const internalStyles = StyleSheet.create({
 
 const videoStyles = StyleSheet.create({
 	playOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(0, 0, 0, 0.25)',

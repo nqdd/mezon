@@ -27,6 +27,12 @@ const UpdateUserName = () => {
 
 	const { t, i18n } = useTranslation(['common']);
 	const isFormValid = userName?.length >= 1;
+	const sanitizedUserName = userName
+		? userName
+				.normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '')
+				.replace(/[\s\p{P}]/gu, '')
+		: '';
 
 	const checkOrientation = () => {
 		const { width, height } = Dimensions.get('screen');
@@ -53,7 +59,7 @@ const UpdateUserName = () => {
 		try {
 			setIsError(false);
 			setIsLoading(true);
-			const responseSession: any = await updateUserName(userName);
+			const responseSession: any = await updateUserName(sanitizedUserName);
 			if (responseSession?.token) {
 				dispatch(accountActions.getUserProfile({ noCache: true }));
 				dispatch(appActions.setIsShowUpdateUsername(false));
@@ -80,7 +86,7 @@ const UpdateUserName = () => {
 
 	return (
 		<ScrollView contentContainerStyle={styles.container} bounces={false} keyboardShouldPersistTaps={'handled'}>
-			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFillObject]} />
+			<LinearGradient colors={['#f0edfd', '#beb5f8', '#9774fa']} style={[StyleSheet.absoluteFill]} />
 
 			<KeyboardAvoidingView
 				style={styles.keyboardAvoidingView}
@@ -109,6 +115,11 @@ const UpdateUserName = () => {
 								/>
 							</View>
 						</View>
+						<View style={styles.usernamePreviewContainer}>
+							{sanitizedUserName ? (
+								<Text style={styles.usernamePreview}>{t('updateUsername.usernamePreview', { username: sanitizedUserName })}</Text>
+							) : null}
+						</View>
 						<View style={styles.errorContainer}>{isError && <ErrorInput errorMessage={t('updateUsername.errorDuplicate')} />}</View>
 					</View>
 
@@ -127,7 +138,7 @@ const UpdateUserName = () => {
 								start={{ x: 0, y: 0 }}
 								end={{ x: 1, y: 0 }}
 								colors={['#501794', '#3E70A1']}
-								style={[StyleSheet.absoluteFillObject]}
+								style={[StyleSheet.absoluteFill]}
 							/>
 						)}
 					</TouchableOpacity>

@@ -1,8 +1,12 @@
-import { Attributes, baseColor, size, verticalScale } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size, verticalScale } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
+		container: {
+			backgroundColor: colors.primary
+		},
 		wrapperLogo: {
 			alignSelf: 'center',
 			paddingVertical: size.s_6,
@@ -44,7 +48,8 @@ export const style = (colors: Attributes) =>
 		separatorLine: {
 			width: '60%',
 			marginTop: size.s_6,
-			alignSelf: 'center'
+			alignSelf: 'center',
+			backgroundColor: colors.white
 		},
 		focusDirectMessage: {
 			backgroundColor: baseColor.azureBlue,

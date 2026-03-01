@@ -55,6 +55,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
+import { Icons } from '../../../../../componentUI/MobileIcons';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
@@ -62,6 +63,7 @@ import { ConfirmReLoginModal } from '../../../../profile/SendToken/ConfirmReLogi
 import { getMessageActions } from '../../constants';
 import { EMessageActionType } from '../../enums';
 import type { IConfirmActionPayload, IMessageAction, IMessageActionNeedToResolve } from '../../types/message.interface';
+import { SENDER_AVATAR_PREFIX, SENDER_NAME_PREFIX } from '../ChannelVoice/CallReactionHandler';
 import { ConfirmPinMessageModal } from '../ConfirmPinMessageModal';
 import EmojiSelector from '../EmojiPicker/EmojiSelector';
 import type { IReactionMessageProps } from '../MessageReaction';
@@ -77,10 +79,11 @@ interface IContainerMessageActionModalProps {
 	senderDisplayName?: string;
 	channelId?: string;
 	onEmojiSelected?: (emojiId: string, shortname: string) => void;
+	clanId?: string;
 }
 
 export const ContainerMessageActionModal = React.memo(
-	({ message, mode, isOnlyEmojiPicker = false, senderDisplayName = '', channelId, onEmojiSelected }: IContainerMessageActionModalProps) => {
+	({ message, mode, isOnlyEmojiPicker = false, senderDisplayName = '', channelId, onEmojiSelected, clanId }: IContainerMessageActionModalProps) => {
 		const { themeValue } = useTheme();
 		const styles = style(themeValue);
 		const dispatch = useAppDispatch();
@@ -647,7 +650,7 @@ export const ContainerMessageActionModal = React.memo(
 				case EMessageActionType.ForwardAllMessages:
 					return <MezonIconCDN icon={IconCDN.forwardAllIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 				case EMessageActionType.CreateThread:
-					return <MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+					return <Icons.ThreadIcon color={themeValue.text} width={size.s_20} height={size.s_20} />;
 				case EMessageActionType.CopyText:
 					return <MezonIconCDN icon={IconCDN.copyIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 				case EMessageActionType.DeleteMessage:
@@ -897,7 +900,7 @@ export const ContainerMessageActionModal = React.memo(
 		};
 
 		const onSelectEmoji = useCallback(
-			async (emoji_id: string, emoij: string) => {
+			async (emoji_id: string, emoij: string, displayName?: string, avatarUrl?: string) => {
 				if (onEmojiSelected) {
 					onEmojiSelected(emoji_id, emoij);
 					return;
@@ -905,19 +908,22 @@ export const ContainerMessageActionModal = React.memo(
 
 				if (!message && isOnlyEmojiPicker) {
 					if (!socketRef.current || !channelId) return;
-					await socketRef.current.writeVoiceReaction([emoji_id], channelId);
+					await socketRef.current.writeVoiceReaction(
+						[emoji_id, `${SENDER_NAME_PREFIX}${displayName || ''}`, `${SENDER_AVATAR_PREFIX}${avatarUrl || ''}`],
+						channelId
+					);
 					return;
 				}
 				await handleReact(mode ?? ChannelStreamMode.STREAM_MODE_CHANNEL, message?.id, emoji_id, emoij);
 			},
-			[channelId, handleReact, isOnlyEmojiPicker, message, mode, socketRef, onEmojiSelected]
+			[onEmojiSelected, message, isOnlyEmojiPicker, handleReact, mode, socketRef, channelId]
 		);
 
 		return (
 			<View style={[styles.bottomSheetWrapper, { backgroundColor: themeValue.primary }]}>
 				{isOnlyEmojiPicker ? (
 					<View style={styles.emojiPickerContainer}>
-						<EmojiSelector onSelected={onSelectEmoji} isReactMessage />
+						<EmojiSelector onSelected={onSelectEmoji} isReactMessage currentChannelId={channelId || ''} clanId={clanId || ''} />
 					</View>
 				) : (
 					renderMessageItemActions()

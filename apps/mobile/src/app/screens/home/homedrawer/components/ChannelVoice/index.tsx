@@ -280,7 +280,7 @@ function ChannelVoice({
 					start={{ x: 1, y: 0 }}
 					end={{ x: 0, y: 0 }}
 					colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-					style={[StyleSheet.absoluteFillObject]}
+					style={[StyleSheet.absoluteFill]}
 				/>
 				<LiveKitRoom
 					serverUrl={serverUrl}
@@ -296,6 +296,7 @@ function ChannelVoice({
 						onPressMinimizeRoom={onPressMinimizeRoom}
 						isGroupCall={isGroupCall}
 						isShow={isAnimationComplete && !focusedScreenShare && !isPiPMode}
+						clanId={clanId}
 					/>
 					<ConnectionMonitor />
 					{!isGroupCall && !isPiPMode && isAnimationComplete && (

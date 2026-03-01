@@ -18,8 +18,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import MezonConfirm from '../../../../../../componentUI/MezonConfirm';
-import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../constants/icon_cdn';
+import { Icons } from '../../../../../../componentUI/MobileIcons';
 import { usePermission } from '../../../../../../hooks/useRequestPermission';
 import { style } from '../ChatBoxBottomBar/style';
 
@@ -47,9 +46,12 @@ export const RecordMessageSending = memo(
 		const startTime = useSharedValue(0);
 		const { requestMicrophonePermission } = usePermission();
 		const { t } = useTranslation(['recordChatMessage', 'common']);
-		const audioRecorderPlayerRef = useRef<AudioRecorderPlayer | null>(null);
+		const audioRecorderPlayerRef = useRef<typeof AudioRecorderPlayer | null>(null);
 		const recordingStartTimeRef = useRef<number>(0);
 		const recordingDurationRef = useRef<number>(0);
+		const isRecordingActiveRef = useRef(false);
+		const stopAfterStartRef = useRef(false);
+		const nativeRecordStartTimeRef = useRef<number>(0);
 
 		const showHoldToRecordHint = useCallback(() => {
 			Toast.show({
@@ -62,7 +64,7 @@ export const RecordMessageSending = memo(
 
 		const getAudioRecorderPlayer = useCallback(() => {
 			if (!audioRecorderPlayerRef.current) {
-				audioRecorderPlayerRef.current = new AudioRecorderPlayer();
+				audioRecorderPlayerRef.current = AudioRecorderPlayer;
 			}
 			return audioRecorderPlayerRef.current;
 		}, []);
@@ -112,6 +114,7 @@ export const RecordMessageSending = memo(
 
 		const startRecording = async () => {
 			try {
+				stopAfterStartRef.current = false;
 				const checkStatusPermission = await check(Platform.OS === 'ios' ? PERMISSIONS.IOS.MICROPHONE : PERMISSIONS.ANDROID.RECORD_AUDIO);
 				const isPermissionGranted = await getPermissions();
 				if (!isPermissionGranted || checkStatusPermission !== 'granted') {
@@ -130,11 +133,23 @@ export const RecordMessageSending = memo(
 					const path = `${dirs.CacheDir}/sound.mp3`;
 					await audioRecorderPlayer.startRecorder(path);
 				}
+				nativeRecordStartTimeRef.current = Date.now();
+				isRecordingActiveRef.current = true;
+				if (stopAfterStartRef.current) {
+					stopAfterStartRef.current = false;
+					isRecordingActiveRef.current = false;
+					await audioRecorderPlayerRef.current?.stopRecorder();
+					setIsRecording(false);
+					DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_RECORD_PROCESSING, { show: false });
+					return;
+				}
+
 				await sleep(300);
 				recordingStartTimeRef.current = Date.now();
 				DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_RECORD_PROCESSING, { show: true });
 				setIsRecording(true);
 			} catch (error) {
+				isRecordingActiveRef.current = false;
 				console.error('Failed to start recording:', error);
 			}
 		};
@@ -165,7 +180,21 @@ export const RecordMessageSending = memo(
 		}, []);
 
 		const stopRecording = useCallback(async () => {
+			if (!isRecordingActiveRef.current) {
+				stopAfterStartRef.current = true;
+				return;
+			}
+			isRecordingActiveRef.current = false;
+
 			try {
+				if (Platform.OS === 'android') {
+					const elapsed = Date.now() - nativeRecordStartTimeRef.current;
+					const MIN_RECORD_MS = 500;
+					if (elapsed < MIN_RECORD_MS) {
+						await sleep(MIN_RECORD_MS - elapsed);
+					}
+				}
+
 				const recordingUrl = await audioRecorderPlayerRef?.current?.stopRecorder();
 				if (!recordingUrl) return;
 
@@ -223,7 +252,12 @@ export const RecordMessageSending = memo(
 		}, [anonymousMode, currentDmGroup, getAudioFileInfo, sendMessage, t]);
 
 		const cancelRecording = async () => {
-			await audioRecorderPlayerRef?.current?.stopRecorder();
+			if (isRecordingActiveRef.current) {
+				isRecordingActiveRef.current = false;
+				await audioRecorderPlayerRef?.current?.stopRecorder();
+			} else {
+				stopAfterStartRef.current = true;
+			}
 			audioRecorderPlayerRef?.current?.removeRecordBackListener();
 			setIsRecording(false);
 			DeviceEventEmitter.emit(ActionEmitEvent.ON_SHOW_RECORD_PROCESSING, { show: false });
@@ -231,7 +265,10 @@ export const RecordMessageSending = memo(
 
 		useEffect(() => {
 			return () => {
-				audioRecorderPlayerRef?.current?.stopRecorder();
+				if (isRecordingActiveRef.current) {
+					isRecordingActiveRef.current = false;
+					audioRecorderPlayerRef?.current?.stopRecorder();
+				}
 				audioRecorderPlayerRef?.current?.removeRecordBackListener();
 			};
 		}, []);
@@ -240,7 +277,7 @@ export const RecordMessageSending = memo(
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
 			transform: [{ translateX: translateX.value }, { scale: scale.value }],
-			backgroundColor: isRecording ? baseColor.blurple : isLongPressed.value ? themeValue.tertiary : themeValue.tertiary
+			backgroundColor: isRecording ? baseColor.blurple : isLongPressed.value ? themeValue.secondaryLight : themeValue.secondaryLight
 		}));
 
 		const longPressGesture = Gesture.LongPress()
@@ -294,7 +331,7 @@ export const RecordMessageSending = memo(
 		return (
 			<GestureDetector gesture={composedGesture}>
 				<Animated.View style={[styles.btnIcon, styles.iconVoice, animatedStyle]}>
-					<MezonIconCDN icon={IconCDN.microphoneIcon} width={size.s_18} height={size.s_18} color={themeValue.textStrong} />
+					<Icons.MicIcon color={themeValue.text} width={size.s_24} height={size.s_24} />
 				</Animated.View>
 			</GestureDetector>
 		);

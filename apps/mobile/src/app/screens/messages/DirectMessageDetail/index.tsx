@@ -30,7 +30,7 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 		dispatch(topicsActions.setCurrentTopicId(''));
 		// When the screen is focused, socket disconnect or some case, we want to fetch the DM group if it is not already available
 		if (!currentDmGroup?.channel_id) {
-			dispatch(directActions.fetchDirectMessage({ noCache: true }));
+			dispatch(directActions.fetchDirectMessage({ noCache: true, isMobile: true }));
 		}
 	}, [currentDmGroup?.channel_id, dispatch]);
 
@@ -42,10 +42,11 @@ export const DirectMessageDetailScreen = ({ route }: { route: any }) => {
 		<View style={{ flex: 1 }}>
 			<StatusBarHeight />
 			<LinearGradient
-				start={{ x: 1, y: 0 }}
+				start={{ x: 0, y: 1 }}
 				end={{ x: 0, y: 0 }}
-				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.primary]}
+				locations={[0, 0.6]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			<DirectMessageDetailListener dmType={dmType} directMessageId={directMessageId} />
 			<HeaderDirectMessage from={from} styles={styles} themeValue={themeValue} directMessageId={directMessageId} isBlocked={isBlocked} />

@@ -162,7 +162,7 @@ const Notifications = ({ navigation, route }) => {
 						notify?.content?.mode === ChannelStreamMode.STREAM_MODE_DM ||
 						notify?.content?.mode === ChannelStreamMode.STREAM_MODE_GROUP
 					) {
-						promises.push(store.dispatch(directActions.fetchDirectMessage({})));
+						promises.push(store.dispatch(directActions.fetchDirectMessage({ noCache: true, isMobile: true })));
 						promises.push(store.dispatch(directActions.setDmGroupCurrentId(notify?.content?.channel_id)));
 					} else {
 						if (isTopic) {
@@ -429,7 +429,7 @@ const Notifications = ({ navigation, route }) => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			<View>
 				{isTabletLandscape && (

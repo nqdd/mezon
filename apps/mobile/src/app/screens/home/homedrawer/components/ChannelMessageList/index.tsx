@@ -1,8 +1,8 @@
 import { ELoadMoreDirection } from '@mezon/chat-scroll';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { MessagesEntity } from '@mezon/store-mobile';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Keyboard, Platform, View } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { Keyboard, Platform, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import { FlatList } from 'react-native-gesture-handler';
 import { style } from './styles';
@@ -16,12 +16,18 @@ interface IChannelListMessageProps {
 	isLoadMoreBottom: boolean;
 	lastSeenMessageId?: string;
 	initialScrollIndex?: number;
-	savedScrollOffset?: number;
 }
+
+const VIEWABILITY_CONFIG = {
+	minimumViewTime: 0,
+	viewAreaCoveragePercentThreshold: 0,
+	itemVisiblePercentThreshold: 0,
+	waitForInteraction: false
+};
 
 export const ViewLoadMore = ({ isLoadMoreTop = false }: { isLoadMoreTop?: boolean }) => {
 	const { themeValue } = useTheme();
-	const styles = style(themeValue);
+	const styles = useMemo(() => style(themeValue), [themeValue]);
 
 	return (
 		<View style={[styles.wrapperLoadMore, isLoadMoreTop ? { top: 0 } : { bottom: 0 }]}>
@@ -39,20 +45,15 @@ const ChannelListMessage = React.memo(
 		onLoadMore,
 		isLoadMoreBottom,
 		lastSeenMessageId: _lastSeenMessageId,
-		initialScrollIndex,
-		savedScrollOffset
+		initialScrollIndex
 	}: IChannelListMessageProps) => {
 		const { themeValue } = useTheme();
-		const styles = style(themeValue);
+		const styles = useMemo(() => style(themeValue), [themeValue]);
 		const keyExtractor = useCallback((message: MessagesEntity) => `${message?.id}_${message?.channel_id}`, []);
 		const initialScrollIndexRef = useRef(initialScrollIndex);
-		const savedScrollOffsetRef = useRef(savedScrollOffset);
 		const needsInitialScroll = initialScrollIndexRef.current !== undefined && initialScrollIndexRef.current > 0;
-		const needsRestoreScroll = !needsInitialScroll && savedScrollOffsetRef.current !== undefined && savedScrollOffsetRef.current > 0;
-		const needsDelayedScroll = needsInitialScroll || needsRestoreScroll;
+		const needsDelayedScroll = needsInitialScroll;
 		const hasScrolled = useRef(false);
-		const [isReady, setIsReady] = useState(!needsDelayedScroll);
-		const opacityAnim = useRef(new Animated.Value(needsDelayedScroll ? 0 : 1)).current;
 
 		const isCannotLoadMore = useMemo(() => {
 			const lastMessage = messages?.[messages?.length - 1];
@@ -65,12 +66,9 @@ const ChannelListMessage = React.memo(
 			}
 		}, [messages?.length, isCannotLoadMore, onLoadMore]);
 
-		const showList = useCallback(() => {
-			if (!isReady) {
-				setIsReady(true);
-				opacityAnim.setValue(1);
-			}
-		}, [isReady, opacityAnim]);
+		const handleScrollBeginDrag = useCallback(() => {
+			Keyboard.dismiss();
+		}, []);
 
 		const handleLayout = useCallback(() => {
 			if (!needsDelayedScroll || hasScrolled.current) {
@@ -80,41 +78,21 @@ const ChannelListMessage = React.memo(
 			hasScrolled.current = true;
 
 			requestAnimationFrame(() => {
-				requestAnimationFrame(() => {
-					if (flatListRef.current) {
-						if (needsInitialScroll) {
-							const targetIndex = initialScrollIndexRef.current || 0;
-							if (targetIndex > 0) {
-								flatListRef.current.scrollToIndex({
-									index: targetIndex,
-									animated: false,
-									viewPosition: 0.5
-								});
-							}
-						} else if (needsRestoreScroll) {
-							flatListRef.current.scrollToOffset({
-								offset: savedScrollOffsetRef.current,
-								animated: false
-							});
-						}
+				if (flatListRef.current && needsInitialScroll) {
+					const targetIndex = initialScrollIndexRef.current || 0;
+					if (targetIndex > 0) {
+						flatListRef.current.scrollToIndex({
+							index: targetIndex,
+							animated: false,
+							viewPosition: 0.5
+						});
 					}
-					showList();
-				});
+				}
 			});
-		}, [needsDelayedScroll, needsInitialScroll, needsRestoreScroll, flatListRef, showList]);
-
-		useEffect(() => {
-			if (!needsDelayedScroll || isReady) return;
-
-			const timeout = setTimeout(() => {
-				showList();
-			}, 300);
-
-			return () => clearTimeout(timeout);
-		}, [needsDelayedScroll, isReady, showList]);
+		}, [needsDelayedScroll, needsInitialScroll, flatListRef]);
 
 		return (
-			<Animated.View style={{ flex: 1, opacity: opacityAnim }}>
+			<View style={{ flex: 1 }}>
 				<FlatList
 					data={messages}
 					renderItem={renderItem}
@@ -136,15 +114,8 @@ const ChannelListMessage = React.memo(
 					keyboardShouldPersistTaps={'handled'}
 					keyboardDismissMode={'interactive'}
 					onEndReached={handleEndReached}
-					onScrollBeginDrag={() => {
-						Keyboard.dismiss();
-					}}
-					viewabilityConfig={{
-						minimumViewTime: 0,
-						viewAreaCoveragePercentThreshold: 0,
-						itemVisiblePercentThreshold: 0,
-						waitForInteraction: false
-					}}
+					onScrollBeginDrag={handleScrollBeginDrag}
+					viewabilityConfig={VIEWABILITY_CONFIG}
 					contentInsetAdjustmentBehavior="automatic"
 					onLayout={handleLayout}
 					onScrollToIndexFailed={(info) => {
@@ -162,15 +133,11 @@ const ChannelListMessage = React.memo(
 										viewPosition: 0.5
 									});
 								}
-								showList();
 							});
-						} else {
-							showList();
 						}
 					}}
-					disableVirtualization={Platform.OS === 'ios'}
 				/>
-			</Animated.View>
+			</View>
 		);
 	}
 );
