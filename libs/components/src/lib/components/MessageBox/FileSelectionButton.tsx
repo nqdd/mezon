@@ -6,7 +6,7 @@ import { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api.gen';
 import { useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
-import CreatePollModal from './CreatePollModal';
+import CreatePollModal, { type PollData } from './CreatePollModal';
 import FileSelectionModal from './FileSelectionModal';
 
 export type FileSelectionButtonProps = {
@@ -82,13 +82,22 @@ function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
 		setIsModalOpen(false);
 	};
 
-	const handleSubmitPoll = async (pollData: { question: string; answers: string[]; duration: string; allowMultipleAnswers: boolean }) => {
+	const handleSubmitPoll = async (pollData: PollData) => {
 		try {
 			const durationLabel = DURATION_OPTIONS.find((opt) => opt.value === pollData.duration)?.label || '24 hours';
 
-			// Format poll as text message
+			// Build emoji metadata
+			const emojiMetadata = [];
+			if (pollData.questionEmojiId) {
+				emojiMetadata.push(`q:${pollData.questionEmojiId}`);
+			}
+			if (pollData.answerEmojiIds && pollData.answerEmojiIds.length > 0) {
+				emojiMetadata.push(`a:${pollData.answerEmojiIds.join(',')}`);
+			}
+
+			const emojiLine = emojiMetadata.length > 0 ? `\n🔖 ${emojiMetadata.join('|')}` : '';
 			const pollContent = {
-				t: `📊 **${pollData.question}**\n\n${pollData.answers.map((answer, idx) => `${idx + 1}. ${answer}`).join('\n')}\n\n⏱️ Duration: ${durationLabel}\n${pollData.allowMultipleAnswers ? '☑️ Multiple answers allowed' : '🔘 Single answer only'}`
+				t: `📊 **${pollData.question}**\n\n${pollData.answers.map((answer, idx) => `${idx + 1}. ${answer}`).join('\n')}\n\n⏱️ Duration: ${durationLabel}\n${pollData.allowMultipleAnswers ? '☑️ Multiple answers allowed' : '🔘 Single answer only'}${emojiLine}`
 			};
 
 			// Send poll message

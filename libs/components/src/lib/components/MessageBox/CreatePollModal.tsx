@@ -11,7 +11,9 @@ export type CreatePollModalProps = {
 
 export type PollData = {
 	question: string;
+	questionEmojiId?: string;
 	answers: string[];
+	answerEmojiIds?: string[];
 	duration: string;
 	allowMultipleAnswers: boolean;
 };
@@ -29,6 +31,8 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const [question, setQuestion] = useState('');
+	const [questionEmojiId, setQuestionEmojiId] = useState('');
+	const [showQuestionEmojiPicker, setShowQuestionEmojiPicker] = useState(false);
 	const [answers, setAnswers] = useState(['', '']);
 	const [answerEmojiIds, setAnswerEmojiIds] = useState(['', '']);
 	const [emojiPickerIndex, setEmojiPickerIndex] = useState<number | null>(null);
@@ -64,6 +68,17 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 
 	const handleToggleEmojiPicker = (index: number) => {
 		setEmojiPickerIndex((current) => (current === index ? null : index));
+		setShowQuestionEmojiPicker(false);
+	};
+
+	const handleToggleQuestionEmojiPicker = () => {
+		setShowQuestionEmojiPicker((current) => !current);
+		setEmojiPickerIndex(null);
+	};
+
+	const handleSelectQuestionEmoji = (emojiId: string) => {
+		setQuestionEmojiId(emojiId);
+		setShowQuestionEmojiPicker(false);
 	};
 
 	const handleSelectAnswerEmoji = (emojiId: string) => {
@@ -76,9 +91,13 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 
 	const handlePost = () => {
 		if (question.trim() && answers.some((a) => a.trim())) {
+			const filteredAnswers = answers.filter((a) => a.trim());
+			const filteredEmojiIds = answerEmojiIds.filter((_, i) => answers[i].trim());
 			onSubmit?.({
 				question,
-				answers: answers.filter((a) => a.trim()),
+				questionEmojiId: questionEmojiId || undefined,
+				answers: filteredAnswers,
+				answerEmojiIds: filteredEmojiIds.some((id) => id) ? filteredEmojiIds : undefined,
 				duration,
 				allowMultipleAnswers
 			});
@@ -111,14 +130,39 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 						{/* Question */}
 						<div>
 							<label className="block text-sm font-semibold mb-2 text-theme-primary">Question</label>
-							<input
-								type="text"
-								value={question}
-								onChange={(e) => setQuestion(e.target.value.slice(0, 300))}
-								placeholder="What question do you want to ask?"
-								className="w-full px-3 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input"
-								maxLength={300}
-							/>
+							<div className="relative">
+								<button
+									type="button"
+									onClick={handleToggleQuestionEmojiPicker}
+									className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-primary hover:text-theme-primary-active hover:brightness-200 transition-all z-10"
+								>
+									{questionEmojiId ? (
+										<img src={getSrcEmoji(questionEmojiId)} alt="Selected emoji" className="w-5 h-5 object-contain" />
+									) : (
+										<Icons.SmilingFace className="w-5 h-5" />
+									)}
+								</button>
+
+								<input
+									type="text"
+									value={question}
+									onChange={(e) => setQuestion(e.target.value.slice(0, 300))}
+									placeholder="What question do you want to ask?"
+									className="w-full pl-11 pr-3 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input"
+									maxLength={300}
+								/>
+
+								{showQuestionEmojiPicker && (
+									<div className="absolute left-0 top-full mt-2 z-[60] w-[420px] max-w-[calc(100vw-3rem)] rounded-lg border border-theme-primary bg-theme-setting-primary shadow-xl">
+										<EmojiSuggestionProvider>
+											<EmojiRolePanel
+												onEmojiSelect={(emojiId) => handleSelectQuestionEmoji(emojiId)}
+												onClose={() => setShowQuestionEmojiPicker(false)}
+											/>
+										</EmojiSuggestionProvider>
+									</div>
+								)}
+							</div>
 							<div className="mt-1 text-right text-xs text-theme-primary">{question.length} / 300</div>
 						</div>
 

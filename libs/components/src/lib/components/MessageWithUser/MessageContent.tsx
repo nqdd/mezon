@@ -183,7 +183,6 @@ const MessageText = ({
 
 	const hasLinkMarkdown = !!linkFromMarkdown;
 
-	// Check if message is a poll
 	const pollData = displayLine ? parsePollData(displayLine) : null;
 
 	return (
@@ -192,7 +191,9 @@ const MessageText = ({
 			{pollData ? (
 				<PollMessage
 					question={pollData.question}
+					questionEmojiId={pollData.questionEmojiId}
 					answers={pollData.answers}
+					answerEmojiIds={pollData.answerEmojiIds}
 					duration={pollData.duration}
 					allowMultipleAnswers={pollData.allowMultipleAnswers}
 					messageId={message.id}

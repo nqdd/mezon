@@ -1,14 +1,17 @@
+import { getSrcEmoji } from '@mezon/utils';
 import { useMemo, useState } from 'react';
 
 export type PollMessageProps = {
 	question: string;
+	questionEmojiId?: string;
 	answers: string[];
+	answerEmojiIds?: string[];
 	duration: string;
 	allowMultipleAnswers: boolean;
 	messageId?: string;
 };
 
-export const PollMessage = ({ question, answers, duration, allowMultipleAnswers }: PollMessageProps) => {
+export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds, duration, allowMultipleAnswers }: PollMessageProps) => {
 	const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
 	const [hasVoted, setHasVoted] = useState(false);
 	const [showResults, setShowResults] = useState(false);
@@ -64,7 +67,12 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers 
 		<div className="block w-full">
 			<div className="max-w-[420px] rounded bg-item-theme p-3 border-theme-primary">
 				{/* Question */}
-				<h3 className="text-[15px] font-semibold text-theme-primary mb-1">{question}</h3>
+				<div className="flex items-center gap-2 mb-1">
+					{questionEmojiId && (
+						<img src={getSrcEmoji(questionEmojiId)} alt="Question emoji" className="w-5 h-5 object-contain flex-shrink-0" />
+					)}
+					<h3 className="text-[15px] font-semibold text-theme-primary">{question}</h3>
+				</div>
 
 				{/* Subtitle */}
 				<p className="text-xs text-theme-primary mb-3">{allowMultipleAnswers ? 'Select one or more answers' : 'Select one answer'}</p>
@@ -75,6 +83,7 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers 
 						const voteCount = voteCounts[index];
 						const percentage = getPercentage(voteCount);
 						const isVoted = votedAnswers.includes(index);
+						const answerEmoji = answerEmojiIds?.[index];
 
 						return (
 							<div
@@ -83,19 +92,24 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers 
 								className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
 									shouldShowResults
 										? isVoted
-											? 'bg-[var(--button-theme-primary)] cursor-default'
-											: 'bg-[var(--bg-item-hover)] cursor-default'
+											? '[background:var(--button-theme-primary)] cursor-default'
+											: '[background:var(--bg-item-hover)] cursor-default'
 										: selectedAnswers.includes(index)
-											? 'bg-[var(--bg-active-member-channel)] cursor-pointer'
-											: 'bg-[var(--bg-item-hover)] hover:bg-[var(--bg-active-member-channel)] cursor-pointer'
+											? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+											: '[background:var(--bg-item-hover)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
 								}`}
 							>
-								<span className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary-active' : 'text-theme-primary'}`}>
-									{answer}
-								</span>
+								<div className="flex items-center gap-2">
+									{answerEmoji && (
+										<img src={getSrcEmoji(answerEmoji)} alt="Answer emoji" className="w-5 h-5 object-contain flex-shrink-0" />
+									)}
+									<span className={`text-sm font-medium ${hasVoted && isVoted ? 'text-white' : 'text-theme-primary'}`}>
+										{answer}
+									</span>
+								</div>
 								<div className="flex items-center gap-3">
 									{shouldShowResults && (
-										<span className={`text-xs font-semibold ${isVoted ? 'text-theme-primary-active' : 'text-theme-primary'}`}>
+										<span className={`text-xs font-semibold ${isVoted ? 'text-white' : 'text-theme-primary'}`}>
 											{voteCount} {voteCount === 1 ? 'vote' : 'votes'} {percentage}%
 										</span>
 									)}
@@ -108,7 +122,7 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers 
 											}`}
 										>
 											{selectedAnswers.includes(index) && (
-												<svg className="w-3 h-3 text-theme-primary-active" viewBox="0 0 12 12" fill="none">
+												<svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
 													<path
 														d="M2 6L5 9L10 3"
 														stroke="currentColor"
@@ -121,8 +135,8 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers 
 										</div>
 									)}
 									{hasVoted && isVoted && (
-										<div className="w-5 h-5 rounded bg-[var(--text-secondary)] flex items-center justify-center flex-shrink-0">
-											<svg className="w-3 h-3 text-[var(--button-theme-primary)]" viewBox="0 0 12 12" fill="none">
+										<div className="w-5 h-5 rounded bg-white flex items-center justify-center flex-shrink-0">
+											<svg className="w-3 h-3 text-blue-500" viewBox="0 0 12 12" fill="none">
 												<path
 													d="M2 6L5 9L10 3"
 													stroke="currentColor"
