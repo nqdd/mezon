@@ -277,7 +277,7 @@ export const RecordMessageSending = memo(
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-expect-error
 			transform: [{ translateX: translateX.value }, { scale: scale.value }],
-			backgroundColor: isRecording ? baseColor.blurple : isLongPressed.value ? themeValue.secondaryLight : themeValue.secondaryLight
+			backgroundColor: isRecording ? baseColor.blurple : isLongPressed.value ? themeValue.tertiary : themeValue.tertiary
 		}));
 
 		const longPressGesture = Gesture.LongPress()

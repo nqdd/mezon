@@ -1,9 +1,9 @@
-import { size, useTheme } from '@mezon/mobile-ui';
+import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import { selectHiddenBottomTabMobile, useAppSelector } from '@mezon/store-mobile';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React, { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Platform } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { Icons } from '../../componentUI/MobileIcons';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import Notifications from '../../screens/Notifications';
@@ -12,6 +12,7 @@ import MessagesScreen from '../../screens/messages/MessagesScreen';
 import MessagesScreenTablet from '../../screens/messages/MessagesScreenTablet';
 import ProfileScreen from '../../screens/profile/ProfileScreen';
 import { APP_SCREEN } from '../ScreenTypes';
+import { styles } from './styles';
 
 const TabStack = createBottomTabNavigator();
 
@@ -37,7 +38,8 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 					backgroundColor: themeValue.primary,
 					borderTopColor: themeValue.border
 				},
-				tabBarActiveTintColor: themeValue.textStrong,
+				tabBarShowLabel: false,
+				tabBarActiveTintColor: baseColor.white,
 				tabBarInactiveTintColor: themeValue.textDisabled
 			}}
 			initialRouteName={isLastActiveTabDm ? APP_SCREEN.MESSAGES.HOME : APP_SCREEN.HOME}
@@ -48,8 +50,16 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 				options={{
 					headerShown: false,
 					title: 'Clans',
-					tabBarLabelStyle: { fontWeight: '600', top: -size.s_2 },
-					tabBarIcon: ({ color }) => <Icons.ClansIcon color={color} width={size.s_24} height={size.s_24} />
+					tabBarIcon: ({ color, focused }) => (
+						<View style={[styles.tabBarIconContainer, { backgroundColor: focused ? '#717aef' : 'transparent' }]}>
+							{focused ? (
+								<Icons.ChannelSelectIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							) : (
+								<Icons.ClansIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							)}
+							<Text style={[{ color }, styles.tabBarText]}>{'Clans'}</Text>
+						</View>
+					)
 				}}
 			/>
 			<TabStack.Screen
@@ -58,8 +68,16 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 				options={{
 					headerShown: false,
 					title: t('navigationTabs.messages'),
-					tabBarLabelStyle: { fontWeight: '600', top: -size.s_2 },
-					tabBarIcon: ({ color }) => <Icons.MessagesIcon color={color} width={size.s_24} height={size.s_24} />
+					tabBarIcon: ({ color, focused }) => (
+						<View style={[styles.tabBarIconContainer, { backgroundColor: focused ? '#717aef' : 'transparent' }]}>
+							{focused ? (
+								<Icons.MassagesSelectIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							) : (
+								<Icons.MessagesIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							)}
+							<Text style={[{ color }, styles.tabBarText]}>{t('navigationTabs.messages')}</Text>
+						</View>
+					)
 				}}
 			/>
 			<TabStack.Screen
@@ -68,8 +86,16 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 				options={{
 					headerShown: false,
 					title: t('navigationTabs.notifications'),
-					tabBarLabelStyle: { fontWeight: '600', top: -size.s_2 },
-					tabBarIcon: ({ color }) => <Icons.NoitificationIcon color={color} width={size.s_24} height={size.s_24} />
+					tabBarIcon: ({ color, focused }) => (
+						<View style={[styles.tabBarIconContainer, { backgroundColor: focused ? '#717aef' : 'transparent' }]}>
+							{focused ? (
+								<Icons.NoitificationSelectedIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							) : (
+								<Icons.NoitificationIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							)}
+							<Text style={[{ color }, styles.tabBarText]}>{t('navigationTabs.notifications')}</Text>
+						</View>
+					)
 				}}
 			/>
 			<TabStack.Screen
@@ -78,8 +104,16 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 				options={{
 					headerShown: false,
 					title: t('navigationTabs.profile'),
-					tabBarLabelStyle: { fontWeight: '600', top: -size.s_2 },
-					tabBarIcon: ({ color }) => <Icons.ProfileIcon color={color} width={size.s_24} height={size.s_24} />
+					tabBarIcon: ({ color, focused }) => (
+						<View style={[styles.tabBarIconContainer, { backgroundColor: focused ? '#717aef' : 'transparent' }]}>
+							{focused ? (
+								<Icons.ProfileSelectedIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							) : (
+								<Icons.ProfileIcon color={baseColor.white} width={size.s_24} height={size.s_24} />
+							)}
+							<Text style={[{ color }, styles.tabBarText]}>{t('navigationTabs.profile')}</Text>
+						</View>
+					)
 				}}
 			/>
 		</TabStack.Navigator>

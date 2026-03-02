@@ -34,7 +34,7 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 		channelListItem: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			paddingVertical: size.s_10,
+			paddingVertical: size.s_8,
 			borderRadius: 5,
 			flex: 1,
 			paddingLeft: 20
