@@ -12,7 +12,7 @@ const fs = require('fs');
 
 const envFile = process.env.ENV_FILE || '.env';
 const envPath = path.resolve(__dirname, envFile);
-let envVars = {};
+const envVars = {};
 
 if (fs.existsSync(envPath)) {
 	const envConfig = dotenv.config({ path: envPath });
@@ -26,6 +26,7 @@ if (fs.existsSync(envPath)) {
 }
 
 envVars['process.env.NODE_ENV'] = JSON.stringify(process.env.NODE_ENV || 'development');
+envVars['process.env.BABEL_ENV'] = JSON.stringify(process.env.BABEL_ENV || '');
 
 const EXTERNALS_SCRIPTS = [];
 
