@@ -66,7 +66,7 @@ export const style = (colors: Attributes) =>
 		renderContentContainer: {
 			flexDirection: 'row',
 			alignItems: 'center',
-			height: size.s_50,
+			height: size.s_42,
 			gap: size.s_6,
 			justifyContent: 'center'
 		},

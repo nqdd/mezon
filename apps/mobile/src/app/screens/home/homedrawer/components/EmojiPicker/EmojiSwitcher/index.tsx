@@ -43,7 +43,7 @@ function EmojiSwitcher({ mode: _mode, onChange }: IProps) {
 		<View>
 			<TouchableOpacity onPress={onPickerPress}>
 				{mode !== 'emoji' ? (
-					<Icons.EmojiIcon color={themeValue.text} width={size.s_40} height={size.s_40} />
+					<Icons.EmojiIcon color={themeValue.text} width={size.s_24} height={size.s_24} />
 				) : (
 					<MezonIconCDN icon={IconCDN.keyboardIcon} width={size.s_22} height={size.s_22} color={themeValue.text} />
 				)}

@@ -13,6 +13,6 @@ export const style = (colors: Attributes) =>
 			borderRadius: size.s_40,
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: colors.secondaryLight
+			backgroundColor: colors.tertiary
 		}
 	});

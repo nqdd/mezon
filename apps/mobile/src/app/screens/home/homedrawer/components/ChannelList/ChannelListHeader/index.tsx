@@ -83,8 +83,9 @@ const ChannelListHeader = () => {
 		<View style={styles.container}>
 			<LinearGradient
 				start={{ x: 0, y: 1 }}
-				end={{ x: 0, y: 0 }}
-				colors={[themeValue?.primaryGradiant || themeValue.secondary, themeValue?.primaryGradiant || themeValue.primary]}
+				end={{ x: 1, y: 0 }}
+				colors={[themeValue.secondary, themeValue.primaryGradiant || themeValue.secondary]}
+				locations={[0.7, 1]}
 				style={[StyleSheet.absoluteFill]}
 			/>
 			{!!clanName && (

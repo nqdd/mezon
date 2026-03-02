@@ -99,7 +99,7 @@ export const style = (colors: Attributes) =>
 			height: size.s_34,
 			marginLeft: size.s_6,
 			borderRadius: size.s_30,
-			backgroundColor: colors.primary,
+			backgroundColor: colors.tertiary,
 			alignItems: 'center',
 			justifyContent: 'center'
 		},
