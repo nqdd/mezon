@@ -28,6 +28,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { Icons } from '../../componentUI/MobileIcons';
 import ImageNative from '../../components/ImageNative';
 import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import { IconCDN } from '../../constants/icon_cdn';
@@ -88,10 +89,10 @@ const MediaHighlightsTimeline: React.FC = () => {
 		() =>
 			[...rawEvents]
 				.filter((e) => {
-					if (!e.create_time_seconds) return true;
-					return new Date(e.create_time_seconds * 1000)?.getFullYear() === Number(selectedYear);
+					if (!e.start_time_seconds) return true;
+					return new Date(e.start_time_seconds * 1000)?.getFullYear() === Number(selectedYear);
 				})
-				.sort((a, b) => (b.create_time_seconds || 0) - (a.create_time_seconds || 0)),
+				.sort((a, b) => (a.start_time_seconds || 0) - (b.start_time_seconds || 0)),
 		[rawEvents, selectedYear]
 	);
 	const loadingStatus = useAppSelector(selectChannelMediaLoadingStatus);
@@ -356,7 +357,7 @@ const MediaHighlightsTimeline: React.FC = () => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			<View style={styles.header}>
 				<TouchableOpacity onPress={handleBack} style={styles.backButton}>
@@ -373,7 +374,7 @@ const MediaHighlightsTimeline: React.FC = () => {
 				</View>
 				<View style={styles.headerRight}>
 					<TouchableOpacity onPress={handleOpenCalendar}>
-						<MezonIconCDN icon={IconCDN.calendarIcon} width={size.s_24} height={size.s_24} color={themeValue.textStrong} />
+						<Icons.EventIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 					</TouchableOpacity>
 				</View>
 			</View>
@@ -463,7 +464,7 @@ const internalStyles = StyleSheet.create({
 
 const videoStyles = StyleSheet.create({
 	playOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(0, 0, 0, 0.25)',

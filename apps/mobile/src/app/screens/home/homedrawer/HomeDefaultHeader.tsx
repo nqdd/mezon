@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../componentUI/MobileIcons';
 import { IconCDN } from '../../../constants/icon_cdn';
 import useStatusMuteChannel from '../../../hooks/useStatusMuteChannel';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
@@ -93,7 +94,7 @@ const HomeDefaultHeader = React.memo(
 						title: 'quickReaction',
 						content: t('common:quickReaction.title'),
 						value: OptionChannelHeader.QuickReaction,
-						icon: <MezonIconCDN icon={IconCDN.reactionIcon} color={themeValue.text} height={size.s_18} width={size.s_18} />
+						icon: <Icons.EmojiIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 					},
 					{
 						title: 'removeQuickReaction',
@@ -105,13 +106,13 @@ const HomeDefaultHeader = React.memo(
 						title: 'anonymous',
 						content: anonymousMode ? t('turnOffAnonymous') : t('turnOnAnonymous'),
 						value: OptionChannelHeader.Anonymous,
-						icon: <MezonIconCDN icon={IconCDN.anonymous} color={themeValue.text} height={size.s_18} width={size.s_18} />
+						icon: <Icons.AnonymousIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 					},
 					{
 						title: 'buzz',
 						content: 'Buzz',
 						value: OptionChannelHeader.Buzz,
-						icon: <MezonIconCDN icon={IconCDN.buzz} color={themeValue.text} height={size.s_18} width={size.s_18} />
+						icon: <Icons.BuzzIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 					}
 				].filter((item) => {
 					if (item.value === OptionChannelHeader.Buzz && isBanned) return false;
@@ -240,11 +241,11 @@ const HomeDefaultHeader = React.memo(
 
 		const renderChannelIcon = () => {
 			if (currentChannel?.channel_private === ChannelStatusEnum.isPrivate && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				return <MezonIconCDN icon={IconCDN.threadLockIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.ThreadIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (!!currentChannel?.channel_label && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				return <MezonIconCDN icon={IconCDN.threadIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.ThreadIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (
@@ -252,22 +253,22 @@ const HomeDefaultHeader = React.memo(
 				currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL &&
 				!isAgeRestrictedChannel
 			) {
-				return <MezonIconCDN icon={IconCDN.channelTextLock} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.ClansLockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (currentChannel?.channel_private !== ChannelStatusEnum.isPrivate && currentChannel?.type === ChannelType.CHANNEL_TYPE_STREAMING) {
-				return <MezonIconCDN icon={IconCDN.channelStream} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.VideoCallIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (currentChannel?.channel_private !== ChannelStatusEnum.isPrivate && currentChannel?.type === ChannelType.CHANNEL_TYPE_APP) {
-				return <MezonIconCDN icon={IconCDN.channelApp} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.ChannelappIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel) {
-				return <MezonIconCDN icon={IconCDN.channelTextWarning} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+				return <Icons.ClansLockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
-			return <MezonIconCDN icon={IconCDN.channelText} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />;
+			return <Icons.ClansOpenIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 		};
 
 		return (
@@ -311,17 +312,17 @@ const HomeDefaultHeader = React.memo(
 				)}
 				{!!currentChannel?.channel_label && !!Number(currentChannel?.parent_id) ? (
 					<TouchableOpacity style={styles.iconBell} onPress={() => openBottomSheet()}>
-						<NotificationBell color={themeValue.textStrong} />
+						<Icons.NoitificationIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 					</TouchableOpacity>
 				) : currentChannel ? (
 					<TouchableOpacity style={styles.iconBell} onPress={() => navigateToSearchPage()}>
-						<MezonIconCDN icon={IconCDN.magnifyingIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+						<Icons.SearchIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 					</TouchableOpacity>
 				) : (
 					<View />
 				)}
 				<TouchableOpacity style={styles.iconBell} onPress={() => navigateToChannelHighlight()}>
-					<MezonIconCDN icon={IconCDN.clockIcon} height={size.s_20} width={size.s_20} color={themeValue.text} />
+					<Icons.ClockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 				<View style={styles.headerTooltipContainer}>
 					<HeaderTooltip onPressOption={onPressOption} options={headerOptions} />

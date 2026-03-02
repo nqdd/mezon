@@ -17,8 +17,7 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 		},
 
 		channelListItemContainer: {
-			zIndex: 1,
-			backgroundColor: themeBasic === ThemeModeBase.LIGHT ? colors.secondaryWeight : colors.secondaryLight
+			zIndex: 1
 		},
 
 		channelListItemWrapper: {
@@ -52,7 +51,7 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 
 		channelListItemTitle: {
 			fontSize: size.medium,
-			fontWeight: '600',
+			fontWeight: '400',
 			marginLeft: size.s_10,
 			color: colors.channelNormal,
 			maxWidth: '80%'

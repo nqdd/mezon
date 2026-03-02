@@ -28,6 +28,7 @@ import { openPicker } from 'react-native-image-crop-picker';
 import LinearGradient from 'react-native-linear-gradient';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { Icons } from '../../componentUI/MobileIcons';
 import { EventImageViewer } from '../../components/EventImageViewer';
 import ImageNative from '../../components/ImageNative';
 import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
@@ -390,7 +391,7 @@ const AlbumDetail: React.FC = () => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			{/* Header */}
 			<View style={styles.header}>
@@ -402,7 +403,7 @@ const AlbumDetail: React.FC = () => {
 						{title || t('albumDetail.eventDetails')}
 					</Text>
 					<View style={styles.dateContainer}>
-						<MezonIconCDN icon={IconCDN.calendarIcon} width={size.s_14} height={size.s_14} color={themeValue.text} />
+						<Icons.EventIcon color={themeValue.text} width={size.s_14} height={size.s_14} />
 						<Text style={styles.headerDate}>{date || t('albumDetail.date')}</Text>
 					</View>
 				</View>
@@ -584,7 +585,7 @@ const editStyles = StyleSheet.create({
 
 const videoStyles = StyleSheet.create({
 	playIconOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
 		margin: size.s_8,
@@ -592,7 +593,7 @@ const videoStyles = StyleSheet.create({
 		backgroundColor: 'rgba(0, 0, 0, 0.2)'
 	},
 	playIconOverlayLarge: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(0, 0, 0, 0.2)'
