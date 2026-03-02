@@ -134,9 +134,7 @@ const FriendsPage = () => {
 			return normalizedUsername.includes(normalizedSearchText) || normalizedDisplayName.includes(normalizedSearchText);
 		})
 		.sort((start, next) => {
-			const nameStart = (start.user?.display_name || start.user?.username) ?? '';
-			const nameNext = (next.user?.display_name || next.user?.username) ?? '';
-			return nameStart.localeCompare(nameNext);
+			return (next?.state || 0) - (start?.state || 0);
 		});
 
 	const getEmptyStateMessage = (tab: string) => {
