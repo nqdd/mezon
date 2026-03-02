@@ -1,6 +1,6 @@
 import { convertTimestampToTimeAgo } from '@mezon/mobile-components';
 import { useTheme } from '@mezon/mobile-ui';
-import { selectChannelById, selectClanById, selectUserById, useAppSelector } from '@mezon/store-mobile';
+import { selectChannelById, selectClanById, selectMemberClanByUserId, selectMemberDMByUserId, useAppSelector } from '@mezon/store-mobile';
 import type { IMentionOnMessage } from '@mezon/utils';
 import { safeJSONParse } from 'mezon-js';
 import { memo, useMemo } from 'react';
@@ -66,18 +66,19 @@ const NotificationMentionItem = memo(({ notify, onLongPressNotify, onPressNotify
 	const channelInfo = useAppSelector((state) => selectChannelById(state, notify?.content?.channel_id || '0'));
 	const data = parseObject(notify?.content);
 	const clan = useAppSelector(selectClanById(notify?.content?.clan_id as string));
-	const user = useAppSelector((state) => selectUserById(state as any, notify?.sender_id ?? ''));
+	const memberClan = useAppSelector((state) => selectMemberClanByUserId(state as any, notify?.sender_id ?? ''));
+	const memberDM = useAppSelector((state) => selectMemberDMByUserId(state as any, notify?.sender_id ?? ''));
 	const messageTimeDifference = convertTimestampToTimeAgo(data?.create_time_seconds);
 
 	const subjectText = useMemo(() => {
 		return clan?.clan_name && channelInfo?.channel_label
 			? `(${clan.clan_name}) - ${channelInfo.channel_label}`
-			: notify?.content?.display_name || notify?.content?.username || ''
+			: notify?.content?.display_name || notify?.content?.username || '';
 	}, [clan?.clan_name, channelInfo?.channel_label, notify?.content?.display_name, notify?.content?.username]);
 
 	const priorityAvatar = useMemo(() => {
-		return notify?.content?.avatar || user?.avatar_url || '';
-	}, [notify?.content?.avatar, user?.avatar_url]);
+		return notify?.content?.avatar || memberClan?.user?.avatar_url || memberDM?.avatar_url || '';
+	}, [memberClan?.user?.avatar_url, memberDM?.avatar_url, notify?.content?.avatar]);
 
 	const attachmentItem: attacmentNotifyItem = useMemo(() => {
 		return notify?.content?.attachment_link
@@ -117,7 +118,10 @@ const NotificationMentionItem = memo(({ notify, onLongPressNotify, onPressNotify
 			<View style={styles.notifyContainer}>
 				<View style={styles.notifyHeader}>
 					<View style={styles.boxImage}>
-						<MezonClanAvatar image={priorityAvatar} alt={clan?.clan_name || notify?.content?.display_name || notify?.content?.username || ''} />
+						<MezonClanAvatar
+							image={priorityAvatar}
+							alt={clan?.clan_name || notify?.content?.display_name || notify?.content?.username || ''}
+						/>
 					</View>
 					<View style={styles.notifyContent}>
 						<Text numberOfLines={2} style={styles.notifyHeaderTitle}>
