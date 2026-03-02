@@ -35,7 +35,7 @@ const BottomNavigator = memo(({ isLastActiveTabDm = false }: { isLastActiveTabDm
 					paddingTop: size.s_2,
 					borderTopWidth: 1,
 					elevation: 0,
-					backgroundColor: themeValue.primary,
+					backgroundColor: themeValue.secondaryLight,
 					borderTopColor: themeValue.border
 				},
 				tabBarShowLabel: false,

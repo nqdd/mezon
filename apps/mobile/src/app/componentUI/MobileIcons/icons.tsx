@@ -59,7 +59,7 @@ export const AddFriendIcon = ({ width, height, color, ...props }: SvgProps) => (
 	</Svg>
 );
 
-export const ClansIcon = ({ width, height, ...props }: SvgProps) => (
+export const ClansIcon = ({ width, height, color, ...props }: SvgProps) => (
 	<Svg viewBox="0 0 153 154" width={width} height={height} {...props}>
 		<G>
 			<Path
@@ -68,7 +68,7 @@ export const ClansIcon = ({ width, height, ...props }: SvgProps) => (
 			/>
 			<Path
 				d="M 34.78 84.06 C27.32,81.15 22.10,76.38 18.87,69.56 C16.18,63.88 16.00,62.70 16.00,50.84 C16.00,38.49 16.08,38.02 19.27,31.84 C21.70,27.13 23.78,24.67 27.34,22.28 C33.99,17.81 37.68,17.01 51.59,17.01 C63.10,17.00 63.98,17.15 69.85,20.09 C75.97,23.14 79.01,26.22 82.63,33.00 C84.21,35.96 84.50,38.76 84.50,51.00 C84.50,65.20 84.44,65.61 81.53,70.86 C75.42,81.89 66.85,86.03 50.21,85.95 C42.26,85.92 38.28,85.43 34.78,84.06 Z"
-				fill="rgba(254,254,254,1)"
+				fill={color || 'rgba(254,254,254,1)'}
 			/>
 		</G>
 	</Svg>
@@ -172,7 +172,7 @@ export const LogoIcon = ({ width, height, ...props }: SvgProps) => (
 	</Svg>
 );
 
-export const MessagesIcon = ({ width, height, ...props }: SvgProps) => (
+export const MessagesIcon = ({ width, height, color, ...props }: SvgProps) => (
 	<Svg viewBox="0 0 158 157" width={width} height={height} {...props}>
 		<G>
 			<Path
@@ -185,17 +185,17 @@ export const MessagesIcon = ({ width, height, ...props }: SvgProps) => (
 			/>
 			<Path
 				d="M 86.62 65.42 C87.64,63.13 88.33,60.87 88.62,58.75 C88.97,56.14 89.65,54.00 90.13,54.00 C90.61,54.00 91.00,50.40 91.00,46.00 C91.00,41.60 90.61,38.00 90.13,38.00 C89.65,38.00 88.97,35.86 88.62,33.25 C87.79,27.06 84.10,20.80 78.79,15.42 C83.71,20.36 87.27,26.05 88.47,31.75 C88.85,33.54 89.57,35.00 90.08,35.00 C90.59,35.00 91.00,39.95 91.00,46.00 C91.00,52.05 90.60,57.00 90.12,57.00 C89.63,57.00 88.74,58.96 88.14,61.35 C87.83,62.59 87.31,63.97 86.62,65.42 ZM 0.00 92.00 L 25.25 91.97 C52.05,91.94 58.65,91.11 67.51,86.12 C58.81,91.30 50.70,92.00 24.92,92.00 L 0.00 92.00 ZM 74.26 81.46 C75.52,80.39 76.73,79.26 77.88,78.06 C76.68,79.35 75.45,80.50 74.26,81.46 Z"
-				fill="rgba(197,194,206,1)"
+				fill={color || 'rgba(197,194,206,1)'}
 			/>
 			<Path
 				d="M 0.00 65.11 C0.00,40.99 0.21,37.54 2.01,31.70 C4.58,23.39 11.15,14.44 18.59,9.11 C25.24,4.34 37.78,-0.01 44.80,0.01 C64.27,0.06 86.41,16.86 88.62,33.25 C88.97,35.86 89.65,38.00 90.13,38.00 C90.61,38.00 91.00,41.60 91.00,46.00 C91.00,50.40 90.61,54.00 90.13,54.00 C89.65,54.00 88.97,56.14 88.62,58.75 C87.39,67.89 78.58,79.65 68.56,85.52 C59.14,91.04 53.10,91.94 25.25,91.97 L 0.00 92.00 L 0.00 65.11 Z"
-				fill="rgba(254,254,254,1)"
+				fill={color || 'rgba(197,194,206,1)'}
 			/>
 		</G>
 	</Svg>
 );
 
-export const NoitificationIcon = ({ width, height, ...props }: SvgProps) => (
+export const NoitificationIcon = ({ width, height, color, ...props }: SvgProps) => (
 	<Svg viewBox="0 0 154 148" width={width} height={height} {...props}>
 		<G>
 			<Path
@@ -208,7 +208,7 @@ export const NoitificationIcon = ({ width, height, ...props }: SvgProps) => (
 			/>
 			<Path
 				d="M 110.11 64.94 C101.40,61.85 94.75,56.03 90.19,47.50 C87.82,43.09 87.51,41.38 87.50,33.00 C87.50,24.07 87.71,23.12 90.93,17.17 C97.17,5.67 106.79,0.00 120.05,0.00 C130.16,0.00 137.05,2.87 143.94,9.94 C157.05,23.40 156.62,43.72 142.94,57.12 C133.57,66.31 121.84,69.11 110.11,64.94 Z"
-				fill="rgba(254,254,254,1)"
+				fill={color || 'rgba(254,254,254,1)'}
 			/>
 		</G>
 	</Svg>
@@ -240,7 +240,7 @@ export const OnlineIcon = ({ width, height, ...props }: SvgProps) => (
 	</Svg>
 );
 
-export const ProfileIcon = ({ width, height, ...props }: SvgProps) => (
+export const ProfileIcon = ({ width, height, color, ...props }: SvgProps) => (
 	<Svg viewBox="0 0 154 150" width={width} height={height} {...props}>
 		<G>
 			<Path
@@ -249,7 +249,7 @@ export const ProfileIcon = ({ width, height, ...props }: SvgProps) => (
 			/>
 			<Path
 				d="M 69.00 65.12 C59.71,62.07 51.20,54.62 47.18,46.00 C43.61,38.34 43.44,25.70 46.82,18.86 C50.39,11.65 55.48,6.42 62.18,3.07 C67.70,0.31 69.24,0.00 77.41,0.02 C87.21,0.05 91.82,1.47 98.47,6.55 C105.90,12.21 112.96,28.06 111.51,35.81 C109.33,47.42 102.45,57.26 92.86,62.48 C88.45,64.88 86.14,65.43 79.51,65.66 C75.11,65.82 70.38,65.57 69.00,65.12 Z"
-				fill="rgba(254,254,254,1)"
+				fill={color || 'rgba(254,254,254,1)'}
 			/>
 		</G>
 	</Svg>
