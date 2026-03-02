@@ -1,5 +1,13 @@
 import { getSrcEmoji } from '@mezon/utils';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { PollDetailModal } from './PollDetailModal';
+
+export type PollVoter = {
+	displayName: string;
+	username: string;
+	avatar?: string;
+};
 
 export type PollMessageProps = {
 	question: string;
@@ -9,14 +17,26 @@ export type PollMessageProps = {
 	duration: string;
 	allowMultipleAnswers: boolean;
 	messageId?: string;
+	votersByOption?: PollVoter[][];
 };
 
-export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds, duration, allowMultipleAnswers }: PollMessageProps) => {
+export const PollMessage = ({
+	question,
+	questionEmojiId,
+	answers,
+	answerEmojiIds,
+	duration,
+	allowMultipleAnswers,
+	votersByOption
+}: PollMessageProps) => {
+	const { t } = useTranslation('message');
 	const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
 	const [hasVoted, setHasVoted] = useState(false);
 	const [showResults, setShowResults] = useState(false);
 	const [votedAnswers, setVotedAnswers] = useState<number[]>([]);
 	const [voteCounts, setVoteCounts] = useState<number[]>(new Array(answers.length).fill(0));
+	const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+	const [detailModalSelectedIndex, setDetailModalSelectedIndex] = useState(0);
 	const canSelectAnswers = !hasVoted && !showResults;
 	const shouldShowResults = hasVoted || showResults;
 
@@ -28,7 +48,7 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 		if (allowMultipleAnswers) {
 			setSelectedAnswers((prev) => (prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]));
 		} else {
-			setSelectedAnswers([index]);
+			setSelectedAnswers((prev) => (prev.length === 1 && prev[0] === index ? [] : [index]));
 		}
 	};
 
@@ -46,7 +66,6 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 	};
 
 	const handleRemoveVote = () => {
-		// TODO: Send remove vote to backend
 		const newVoteCounts = [...voteCounts];
 		votedAnswers.forEach((index) => {
 			newVoteCounts[index] = Math.max(0, newVoteCounts[index] - 1);
@@ -63,19 +82,34 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 		return Math.round((count / totalVotes) * 100);
 	};
 
+	const openDetailModal = (optionIndex: number) => {
+		if (!shouldShowResults) return;
+		setDetailModalSelectedIndex(optionIndex);
+		setIsDetailModalOpen(true);
+	};
+
+	const handleRowClick = (index: number) => {
+		if (shouldShowResults) {
+			if (hasVoted) return;
+			openDetailModal(index);
+			return;
+		}
+		handleAnswerToggle(index);
+	};
+
 	return (
 		<div className="block w-full">
 			<div className="max-w-[420px] rounded bg-item-theme p-3 border-theme-primary">
 				{/* Question */}
 				<div className="flex items-center gap-2 mb-1">
 					{questionEmojiId && (
-						<img src={getSrcEmoji(questionEmojiId)} alt="Question emoji" className="w-5 h-5 object-contain flex-shrink-0" />
+						<img src={getSrcEmoji(questionEmojiId)} alt={t('poll.selectedEmoji')} className="w-5 h-5 object-contain flex-shrink-0" />
 					)}
 					<h3 className="text-[15px] font-semibold text-theme-primary">{question}</h3>
 				</div>
 
 				{/* Subtitle */}
-				<p className="text-xs text-theme-primary mb-3">{allowMultipleAnswers ? 'Select one or more answers' : 'Select one answer'}</p>
+				<p className="text-xs text-theme-primary mb-3">{allowMultipleAnswers ? t('poll.selectOneOrMore') : t('poll.selectOne')}</p>
 
 				{/* Answers */}
 				<div className="space-y-2 mb-3">
@@ -88,41 +122,51 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 						return (
 							<div
 								key={index}
-								onClick={() => handleAnswerToggle(index)}
+								onClick={shouldShowResults && hasVoted ? undefined : () => handleRowClick(index)}
 								className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
 									shouldShowResults
-										? isVoted
-											? '[background:var(--button-theme-primary)] cursor-default'
-											: '[background:var(--bg-item-hover)] cursor-default'
+										? hasVoted
+											? isVoted
+												? '[background:var(--bg-active-member-channel)] cursor-default'
+												: 'border-theme-primary cursor-default'
+											: isVoted
+												? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+												: 'border-theme-primary cursor-pointer'
 										: selectedAnswers.includes(index)
-											? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+											? '[background:var(--bg-item-hover)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
 											: '[background:var(--bg-item-hover)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
 								}`}
 							>
 								<div className="flex items-center gap-2">
 									{answerEmoji && (
-										<img src={getSrcEmoji(answerEmoji)} alt="Answer emoji" className="w-5 h-5 object-contain flex-shrink-0" />
+										<img
+											src={getSrcEmoji(answerEmoji)}
+											alt={t('poll.selectedEmoji')}
+											className="w-5 h-5 object-contain flex-shrink-0"
+										/>
 									)}
-									<span className={`text-sm font-medium ${hasVoted && isVoted ? 'text-white' : 'text-theme-primary'}`}>
+									<span
+										className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary' : 'text-theme-primary-active'} truncate`}
+									>
 										{answer}
 									</span>
 								</div>
 								<div className="flex items-center gap-3">
 									{shouldShowResults && (
-										<span className={`text-xs font-semibold ${isVoted ? 'text-white' : 'text-theme-primary'}`}>
-											{voteCount} {voteCount === 1 ? 'vote' : 'votes'} {percentage}%
+										<span className={`text-xs font-semibold ${isVoted ? 'text-theme-primary' : 'text-theme-primary-active'}`}>
+											{voteCount} {voteCount === 1 ? t('poll.votes') : t('poll.vote')} {percentage}%
 										</span>
 									)}
 									{canSelectAnswers && (
 										<div
 											className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
 												selectedAnswers.includes(index)
-													? 'border-[var(--button-theme-primary)] bg-[var(--button-theme-primary)]'
-													: 'border-theme-primary'
+													? 'border-[var(--text-theme-primary)] '
+													: 'border-[var(--text-theme-primary)]'
 											}`}
 										>
 											{selectedAnswers.includes(index) && (
-												<svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+												<svg className="w-3 h-3 text-theme-primary" viewBox="0 0 12 12" fill="none">
 													<path
 														d="M2 6L5 9L10 3"
 														stroke="currentColor"
@@ -135,8 +179,8 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 										</div>
 									)}
 									{hasVoted && isVoted && (
-										<div className="w-5 h-5 rounded bg-white flex items-center justify-center flex-shrink-0">
-											<svg className="w-3 h-3 text-blue-500" viewBox="0 0 12 12" fill="none">
+										<div className="w-5 h-5 rounded bg-theme-primary flex items-center justify-center flex-shrink-0">
+											<svg className="w-3 h-3 text-theme-primary-active" viewBox="0 0 12 12" fill="none">
 												<path
 													d="M2 6L5 9L10 3"
 													stroke="currentColor"
@@ -155,16 +199,39 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 
 				{/* Footer */}
 				<div className="flex items-center justify-between pt-1">
-					<span className="text-xs text-theme-muted">
-						{totalVotes} {totalVotes === 1 ? 'vote' : 'votes'} • {duration} left
+					<span
+						role={shouldShowResults ? 'button' : undefined}
+						tabIndex={shouldShowResults ? 0 : undefined}
+						onClick={
+							shouldShowResults
+								? (e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										openDetailModal(0);
+									}
+								: undefined
+						}
+						onKeyDown={
+							shouldShowResults
+								? (e) => {
+										if (e.key === 'Enter' || e.key === ' ') {
+											e.preventDefault();
+											openDetailModal(0);
+										}
+									}
+								: undefined
+						}
+						className={`text-xs text-theme-primary ${shouldShowResults ? 'cursor-pointer hover:underline' : ''}`}
+					>
+						{totalVotes} {totalVotes === 1 ? t('poll.vote') : t('poll.votes')} • {duration} {t('poll.left')}
 					</span>
 					<div className="flex gap-2">
 						{!hasVoted && (
 							<button
 								onClick={() => setShowResults((prev) => !prev)}
-								className="px-1 py-1.5 text-sm font-medium text-theme-primary hover:text-theme-primary-active rounded transition-colors"
+								className="px-1 py-1.5 text-sm font-medium border-theme-primary text-theme-primary hover:text-theme-primary-active rounded transition-colors"
 							>
-								{showResults ? 'Back to vote' : 'Show results'}
+								{showResults ? t('poll.backToVote') : t('poll.showResults')}
 							</button>
 						)}
 						{!hasVoted && !showResults && (
@@ -173,7 +240,7 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 								disabled={selectedAnswers.length === 0}
 								className="px-4 py-1.5 text-sm font-medium rounded transition-colors btn-primary btn-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
 							>
-								Vote
+								{t('poll.voteButton')}
 							</button>
 						)}
 						{hasVoted && (
@@ -181,12 +248,24 @@ export const PollMessage = ({ question, questionEmojiId, answers, answerEmojiIds
 								onClick={handleRemoveVote}
 								className="px-4 py-1.5 text-sm font-medium text-theme-primary rounded transition-colors border-theme-primary bg-button-secondary bg-secondary-button-hover"
 							>
-								Remove Vote
+								{t('poll.removeVote')}
 							</button>
 						)}
 					</div>
 				</div>
 			</div>
+
+			<PollDetailModal
+				open={isDetailModalOpen}
+				onClose={() => setIsDetailModalOpen(false)}
+				question={question}
+				answers={answers}
+				answerEmojiIds={answerEmojiIds}
+				voteCounts={voteCounts}
+				totalVotes={totalVotes}
+				votersByOption={votersByOption}
+				initialSelectedIndex={detailModalSelectedIndex}
+			/>
 		</div>
 	);
 };

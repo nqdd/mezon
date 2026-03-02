@@ -1,0 +1,151 @@
+import { useEscapeKeyClose } from '@mezon/core';
+import { Icons } from '@mezon/ui';
+import { createImgproxyUrl, getSrcEmoji } from '@mezon/utils';
+import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
+import { AvatarImage } from '../AvatarImage/AvatarImage';
+import type { PollVoter } from './PollMessage';
+
+export type PollDetailModalProps = {
+	open: boolean;
+	onClose: () => void;
+	question: string;
+	answers: string[];
+	answerEmojiIds?: string[];
+	voteCounts: number[];
+	totalVotes: number;
+	votersByOption?: PollVoter[][];
+	initialSelectedIndex?: number;
+};
+
+export const PollDetailModal = ({
+	open,
+	onClose,
+	question,
+	answers,
+	answerEmojiIds,
+	voteCounts,
+	totalVotes,
+	votersByOption,
+	initialSelectedIndex = 0
+}: PollDetailModalProps): ReactNode => {
+	const { t } = useTranslation('message');
+	const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
+	const modalRef = useRef<HTMLDivElement>(null);
+
+	useEscapeKeyClose(modalRef, onClose);
+
+	useEffect(() => {
+		if (open) setSelectedIndex(initialSelectedIndex);
+	}, [open, initialSelectedIndex]);
+
+	useEffect(() => {
+		if (!open) return;
+		const prev = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		return () => {
+			document.body.style.overflow = prev;
+		};
+	}, [open]);
+
+	if (!open) return null;
+
+	const detailVoters = votersByOption?.[selectedIndex] ?? [];
+
+	const modalContent = (
+		<>
+			<div className="fixed inset-0 z-50 bg-modal-overlay" onClick={onClose} />
+			<div
+				ref={modalRef}
+				tabIndex={-1}
+				className="fixed inset-0 z-50 flex items-center justify-center p-4"
+				onClick={(e) => e.stopPropagation()}
+			>
+				<div className="bg-theme-primary rounded-lg w-full min-w-[600px] min-h-[700px] max-w-[620px] shadow-xl flex flex-col max-h-[85vh] overflow-hidden">
+					<div className="border-b border-theme-primary p-4">
+						<div className="flex items-center justify-between gap-3 flex-shrink-0">
+							<h3 className="text-xl font-bold text-theme-primary-active truncate min-w-0 flex-1">{question}</h3>
+							<button
+								type="button"
+								onClick={onClose}
+								className="p-2 rounded-md border border-transparent text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover transition-colors"
+							>
+								<Icons.Close className="w-6 h-6" />
+							</button>
+						</div>
+
+						<div className="pt-2 flex-shrink-0">
+							<p className="text-xm text-theme-primary">
+								{totalVotes} {totalVotes === 1 ? t('poll.votes') : t('poll.vote')}
+							</p>
+						</div>
+					</div>
+
+					<div className="flex flex-1 min-h-0 py-4 border-theme-primary">
+						<div className="w-[35%] border-r-theme-primary flex flex-col overflow-hidden">
+							<div className="overflow-y-auto px-4">
+								{answers.map((answer, index) => {
+									const count = voteCounts[index];
+									const isSelected = selectedIndex === index;
+									const answerEmoji = answerEmojiIds?.[index];
+									return (
+										<button
+											key={index}
+											type="button"
+											onClick={() => setSelectedIndex(index)}
+											className={`w-full text-left bg-theme-primary flex mb-1 items-center gap-2 px-3 py-2.5 rounded transition-colors ${
+												isSelected
+													? 'text-theme-primary-active [background:var(--bg-active-member-channel)] transition-colors'
+													: 'text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover transition-colors'
+											}`}
+										>
+											{answerEmoji && (
+												<img src={getSrcEmoji(answerEmoji)} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
+											)}
+											<span className="text-lg font-medium truncate flex-1">{answer}</span>
+											<span className="text-xs text-theme-muted flex-shrink-0">({count})</span>
+										</button>
+									);
+								})}
+							</div>
+						</div>
+
+						<div className="flex-1 flex flex-col overflow-hidden">
+							<div className="overflow-y-auto p-3">
+								{detailVoters.length === 0 ? (
+									<p className="text-lg text-theme-primary">{t('poll.noVoterDetails')}</p>
+								) : (
+									<ul className="space-y-2">
+										{detailVoters.map((voter, i) => (
+											<li key={i} className="flex items-center gap-3">
+												<AvatarImage
+													alt={voter.displayName}
+													username={voter.username}
+													className="w-10 h-10 flex-shrink-0 rounded-full object-cover"
+													src={voter.avatar}
+													srcImgProxy={
+														voter.avatar
+															? createImgproxyUrl(voter.avatar, { width: 80, height: 80, resizeType: 'fit' })
+															: undefined
+													}
+												/>
+												<div className="min-w-0 flex-1">
+													<p className="text-sm font-medium text-theme-primary truncate">{voter.displayName}</p>
+													<p className="text-xs text-theme-muted truncate">{voter.username}</p>
+												</div>
+											</li>
+										))}
+									</ul>
+								)}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+
+	return createPortal(modalContent, document.body) as ReactNode;
+};

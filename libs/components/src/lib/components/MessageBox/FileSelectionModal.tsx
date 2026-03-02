@@ -1,6 +1,7 @@
 import { useEscapeKeyClose } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type FileSelectionModalProps = {
 	isOpen: boolean;
@@ -11,6 +12,7 @@ export type FileSelectionModalProps = {
 };
 
 function FileSelectionModal({ isOpen, onClose, onUploadFile, onCreatePoll, buttonRef: _buttonRef }: FileSelectionModalProps) {
+	const { t } = useTranslation('message');
 	const modalRef = useRef<HTMLDivElement>(null);
 	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 	useEscapeKeyClose(modalRef, onClose);
@@ -20,20 +22,24 @@ function FileSelectionModal({ isOpen, onClose, onUploadFile, onCreatePoll, butto
 	const menuItems = [
 		{
 			icon: <Icons.SelectFileIcon className="w-5 h-5" />,
-			label: 'Upload a File',
+			label: t('fileSelection.uploadFile'),
 			onClick: () => {
 				onUploadFile();
 				onClose();
 			}
 		},
-		{
-			icon: <Icons.CheckListIcon className="w-5 h-5" />,
-			label: 'Create Poll',
-			onClick: () => {
-				onCreatePoll?.();
-				onClose();
-			}
-		}
+		...(onCreatePoll
+			? [
+					{
+						icon: <Icons.CheckListIcon className="w-5 h-5" />,
+						label: t('fileSelection.createPoll'),
+						onClick: () => {
+							onCreatePoll();
+							onClose();
+						}
+					}
+				]
+			: [])
 	];
 
 	return (
@@ -46,7 +52,7 @@ function FileSelectionModal({ isOpen, onClose, onUploadFile, onCreatePoll, butto
 				className="absolute bottom-full mb-2 left-0 z-50 bg-theme-setting-primary rounded-lg shadow-xl min-w-[200px]"
 				onClick={(e) => e.stopPropagation()}
 			>
-				<div className="p-2">
+				<div className="p-2 bg-theme-primary rounded-lg">
 					{menuItems.map((item, index) => (
 						<button
 							key={index}

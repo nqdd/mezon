@@ -2,6 +2,7 @@ import { EmojiSuggestionProvider, useEscapeKeyClose } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import { getSrcEmoji } from '@mezon/utils';
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EmojiRolePanel } from '../EmojiPicker/EmojiRolePanel';
 
 export type CreatePollModalProps = {
@@ -19,15 +20,16 @@ export type PollData = {
 };
 
 const DURATION_OPTIONS = [
-	{ label: '1 hour', value: '1' },
-	{ label: '4 hours', value: '4' },
-	{ label: '8 hours', value: '8' },
-	{ label: '24 hours', value: '24' },
-	{ label: '3 days', value: '72' },
-	{ label: '1 week', value: '168' }
+	{ labelKey: 'poll.duration1Hour', value: '1' },
+	{ labelKey: 'poll.duration4Hours', value: '4' },
+	{ labelKey: 'poll.duration8Hours', value: '8' },
+	{ labelKey: 'poll.duration24Hours', value: '24' },
+	{ labelKey: 'poll.duration3Days', value: '72' },
+	{ labelKey: 'poll.duration1Week', value: '168' }
 ];
 
 function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
+	const { t } = useTranslation('message');
 	const modalRef = useRef<HTMLDivElement>(null);
 
 	const [question, setQuestion] = useState('');
@@ -115,7 +117,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 				<div className="bg-theme-primary rounded-lg w-full max-w-[480px] mx-4 shadow-xl">
 					{/* Header */}
 					<div className="flex items-center justify-between p-4">
-						<h2 className="text-xl font-semibold text-theme-primary-active">Create a Poll</h2>
+						<h2 className="text-xl font-semibold text-theme-primary-active">{t('poll.createTitle')}</h2>
 						<button
 							type="button"
 							onClick={onClose}
@@ -129,7 +131,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 					<div className="p-4 space-y-4">
 						{/* Question */}
 						<div>
-							<label className="block text-sm font-semibold mb-2 text-theme-primary">Question</label>
+							<label className="block text-sm font-semibold mb-2 text-theme-primary">{t('poll.question')}</label>
 							<div className="relative">
 								<button
 									type="button"
@@ -137,9 +139,9 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 									className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-primary hover:text-theme-primary-active hover:brightness-200 transition-all z-10"
 								>
 									{questionEmojiId ? (
-										<img src={getSrcEmoji(questionEmojiId)} alt="Selected emoji" className="w-5 h-5 object-contain" />
+										<img src={getSrcEmoji(questionEmojiId)} alt={t('poll.selectedEmoji')} className="w-5 h-5 object-contain" />
 									) : (
-										<Icons.SmilingFace className="w-5 h-5" />
+										<Icons.Smile className="w-5 h-5" />
 									)}
 								</button>
 
@@ -147,7 +149,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 									type="text"
 									value={question}
 									onChange={(e) => setQuestion(e.target.value.slice(0, 300))}
-									placeholder="What question do you want to ask?"
+									placeholder={t('poll.questionPlaceholder')}
 									className="w-full pl-11 pr-3 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input"
 									maxLength={300}
 								/>
@@ -168,7 +170,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 
 						{/* Answers */}
 						<div>
-							<label className="block text-sm font-semibold mb-2 text-theme-primary">Answers</label>
+							<label className="block text-sm font-semibold mb-2 text-theme-primary">{t('poll.answers')}</label>
 
 							<div className="space-y-2">
 								{answers.map((answer, index) => (
@@ -181,11 +183,11 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 											{answerEmojiIds[index] ? (
 												<img
 													src={getSrcEmoji(answerEmojiIds[index])}
-													alt="Selected emoji"
+													alt={t('poll.selectedEmoji')}
 													className="w-5 h-5 object-contain"
 												/>
 											) : (
-												<Icons.SmilingFace className="w-5 h-5" />
+												<Icons.Smile className="w-5 h-5" />
 											)}
 										</button>
 
@@ -193,7 +195,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 											type="text"
 											value={answer}
 											onChange={(e) => handleAnswerChange(index, e.target.value)}
-											placeholder="Type your answer"
+											placeholder={t('poll.answerPlaceholder')}
 											className="w-full pl-11 pr-11 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input"
 										/>
 
@@ -227,14 +229,14 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 									className="mt-2 flex items-center gap-2 text-sm text-theme-primary hover:text-theme-primary-active transition-colors"
 								>
 									<Icons.AddIcon className="w-4 h-4" />
-									Add another answer
+									{t('poll.addAnotherAnswer')}
 								</button>
 							)}
 						</div>
 
 						{/* Duration (Select) */}
 						<div>
-							<label className="block text-sm font-semibold mb-2 text-theme-primary-active">Duration</label>
+							<label className="block text-sm font-semibold mb-2 text-theme-primary-active">{t('poll.duration')}</label>
 
 							<div className="relative">
 								<select
@@ -248,7 +250,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 											value={option.value}
 											className="bg-theme-setting-primary text-theme-primary-active"
 										>
-											{option.label}
+											{t(option.labelKey)}
 										</option>
 									))}
 								</select>
@@ -271,7 +273,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 									className="w-5 h-5 rounded border-theme-primary accent-buttonPrimary cursor-pointer"
 								/>
 							</label>
-							<span className="mb-1 text-sm text-theme-primary-active">Allow Multiple Answers</span>
+							<span className="mb-1 text-sm text-theme-primary-active">{t('poll.allowMultipleAnswers')}</span>
 						</div>
 
 						<button
@@ -279,7 +281,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 							disabled={!question.trim() || !answers.some((a) => a.trim())}
 							className="px-6 py-2 rounded font-semibold transition-colors btn-primary btn-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
 						>
-							Post
+							{t('poll.post')}
 						</button>
 					</div>
 				</div>

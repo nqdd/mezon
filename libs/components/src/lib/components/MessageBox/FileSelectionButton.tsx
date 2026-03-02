@@ -1,5 +1,5 @@
-import { useChatSending, useDragAndDrop } from '@mezon/core';
-import { referencesActions, selectAttachmentByChannelId, selectChannelById, useAppDispatch, useAppSelector } from '@mezon/store';
+import { useDragAndDrop } from '@mezon/core';
+import { createChannelPoll, referencesActions, selectAttachmentByChannelId, selectChannelById, useAppDispatch, useAppSelector } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitReason, generateE2eId, processFile } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
@@ -11,18 +11,11 @@ import FileSelectionModal from './FileSelectionModal';
 
 export type FileSelectionButtonProps = {
 	currentChannelId: string;
+	mode?: number;
 };
 
-const DURATION_OPTIONS = [
-	{ label: '1 hour', value: '1' },
-	{ label: '4 hours', value: '4' },
-	{ label: '8 hours', value: '8' },
-	{ label: '24 hours', value: '24' },
-	{ label: '3 days', value: '72' },
-	{ label: '1 week', value: '168' }
-];
-
-function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
+function FileSelectionButton({ currentChannelId, mode }: FileSelectionButtonProps) {
+	const isDM = mode === ChannelStreamMode.STREAM_MODE_DM;
 	const dispatch = useAppDispatch();
 	const uploadedAttachmentsInChannel = useAppSelector((state) => selectAttachmentByChannelId(state, currentChannelId))?.files || [];
 	const currentChannel = useAppSelector((state) => selectChannelById(state, currentChannelId));
@@ -30,18 +23,6 @@ function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const buttonRef = useRef<HTMLDivElement>(null);
-
-	const mode =
-		currentChannel?.type === 1
-			? ChannelStreamMode.STREAM_MODE_THREAD
-			: currentChannel?.parrent_id !== '0'
-				? ChannelStreamMode.STREAM_MODE_THREAD
-				: ChannelStreamMode.STREAM_MODE_CHANNEL;
-
-	const { sendMessage } = useChatSending({
-		mode,
-		channelOrDirect: currentChannel
-	});
 
 	const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files) {
@@ -84,28 +65,32 @@ function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
 
 	const handleSubmitPoll = async (pollData: PollData) => {
 		try {
-			const durationLabel = DURATION_OPTIONS.find((opt) => opt.value === pollData.duration)?.label || '24 hours';
-
-			// Build emoji metadata
-			const emojiMetadata = [];
-			if (pollData.questionEmojiId) {
-				emojiMetadata.push(`q:${pollData.questionEmojiId}`);
-			}
-			if (pollData.answerEmojiIds && pollData.answerEmojiIds.length > 0) {
-				emojiMetadata.push(`a:${pollData.answerEmojiIds.join(',')}`);
+			if (!currentChannel) {
+				console.error('Current channel not found');
+				return;
 			}
 
-			const emojiLine = emojiMetadata.length > 0 ? `\n🔖 ${emojiMetadata.join('|')}` : '';
-			const pollContent = {
-				t: `📊 **${pollData.question}**\n\n${pollData.answers.map((answer, idx) => `${idx + 1}. ${answer}`).join('\n')}\n\n⏱️ Duration: ${durationLabel}\n${pollData.allowMultipleAnswers ? '☑️ Multiple answers allowed' : '🔘 Single answer only'}${emojiLine}`
-			};
+			const expireHours = parseInt(pollData.duration, 10);
+			const isPublic = !currentChannel.channel_private;
 
-			// Send poll message
-			await sendMessage(pollContent, [], [], []);
+			const mode = currentChannel.type === 1 ? 6 : currentChannel.parrent_id !== '0' ? 6 : 2;
+
+			await dispatch(
+				createChannelPoll({
+					channelId: currentChannelId,
+					clanId: currentChannel.clan_id || '0',
+					title: pollData.question,
+					options: pollData.answers,
+					mode,
+					isPublic,
+					expireHours,
+					allowMultipleAnswers: pollData.allowMultipleAnswers
+				})
+			).unwrap();
 
 			handleClosePollModal();
 		} catch (error) {
-			console.error('Failed to send poll:', error);
+			console.error('Failed to create poll:', error);
 		}
 	};
 
@@ -141,7 +126,7 @@ function FileSelectionButton({ currentChannelId }: FileSelectionButtonProps) {
 				isOpen={isModalOpen}
 				onClose={handleCloseModal}
 				onUploadFile={handleUploadFile}
-				onCreatePoll={handleOpenPollModal}
+				onCreatePoll={isDM ? undefined : handleOpenPollModal}
 				buttonRef={buttonRef}
 			/>
 		</div>
