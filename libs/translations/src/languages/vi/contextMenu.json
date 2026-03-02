@@ -44,7 +44,9 @@
 		"kick": "Đuổi",
 		"removeFromThread": "Xóa {{username}} khỏi chủ đề",
 		"shareContact": "Chia sẻ liên hệ này",
-		"unblock": "Bỏ chặn"
+		"unblock": "Bỏ chặn",
+		"unblockSuccess": "Bỏ chặn người dùng thành công",
+		"unblockFailed": "Không thể bỏ chặn người dùng"
 	},
 	"removeLogo": "Xóa logo",
 	"processing": "Đang xử lý...",

@@ -44,7 +44,9 @@
 		"kick": "Kick",
 		"removeFromThread": "Remove {{username}} from thread",
 		"shareContact": "Share This Contact",
-		"unblock": "Unblock"
+		"unblock": "Unblock",
+		"unblockSuccess": "Unblocked user successfully",
+		"unblockFailed": "Failed to unblock user"
 	},
 	"removeLogo": "Remove Logo",
 	"processing": "Processing...",

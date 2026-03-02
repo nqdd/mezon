@@ -354,9 +354,24 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 					openShareContactModal(user);
 				}
 			},
-			handleUnBlockFriend: () => {
+			handleUnBlockFriend: async () => {
 				if (user?.user?.username && user?.user?.id) {
-					unBlockFriend(user.user.username, user.user.id);
+					try {
+						await unBlockFriend(user.user.username, user.user.id);
+						dispatch(
+							toastActions.addToast({
+								message: t('member.unblockSuccess'),
+								type: 'success'
+							})
+						);
+					} catch (error) {
+						dispatch(
+							toastActions.addToast({
+								message: t('member.unblockFailed'),
+								type: 'error'
+							})
+						);
+					}
 				}
 			}
 		};

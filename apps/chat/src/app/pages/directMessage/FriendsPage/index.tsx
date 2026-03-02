@@ -94,7 +94,7 @@ const FriendsPage = () => {
 	};
 
 	const handleAddFriend = async () => {
-		const username = requestAddFriend?.usernames?.[0];
+		const username = requestAddFriend?.usernames?.[0] || requestAddFriend?.usernames;
 		if (!username) return;
 
 		const isBlocked = blockedUsers.some((u) => u.user?.username === requestAddFriend.usernames);
