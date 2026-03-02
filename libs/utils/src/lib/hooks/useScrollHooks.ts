@@ -16,17 +16,17 @@ export enum LoadMoreDirection {
 export const MESSAGE_LIST_SENSITIVE_AREA = 1500;
 
 const FAB_THRESHOLD = 200;
-const NOTCH_THRESHOLD = 200;
-const CONTAINER_HEIGHT_DEBOUNCE = 200;
+const NOTCH_THRESHOLD = 1;
+const SCROLL_TOOLS_DEBOUNCE = 100;
 const TOOLS_FREEZE_TIMEOUT = 350;
 
 export function useScrollHooks(
 	type: string,
 	containerRef: RefObject<HTMLDivElement>,
 	messageIds: string[],
-	getContainerHeight: Signal<number | undefined>,
+	_getContainerHeight: Signal<number | undefined>,
 	isViewportNewest: boolean,
-	isUnread: boolean,
+	_isUnread: boolean,
 	onScrollDownToggle: BooleanToVoidFunction,
 	onNotchToggle: BooleanToVoidFunction,
 	isReady: RefObject<boolean>,
@@ -36,8 +36,8 @@ export function useScrollHooks(
 		() =>
 			type === 'thread'
 				? [
-						debounce(() => loadViewportMessages({ direction: LoadMoreDirection.Backwards }), 300),
-						debounce(() => loadViewportMessages({ direction: LoadMoreDirection.Forwards }), 300)
+						debounce(() => loadViewportMessages({ direction: LoadMoreDirection.Backwards }), 1000, true, false),
+						debounce(() => loadViewportMessages({ direction: LoadMoreDirection.Forwards }), 1000, true, false)
 					]
 				: [],
 		[loadViewportMessages, messageIds]
@@ -47,18 +47,26 @@ export function useScrollHooks(
 	const forwardsTriggerRef = useRef<HTMLDivElement>(null);
 	const fabTriggerRef = useRef<HTMLDivElement>(null);
 
+	const toggleScrollToolsImmediate = useLastCallback((scrollDown: boolean, notch: boolean) => {
+		onScrollDownToggle(scrollDown);
+		onNotchToggle(notch);
+	});
+
+	const toggleScrollToolsDebounced = useMemo(
+		() => debounce(toggleScrollToolsImmediate, SCROLL_TOOLS_DEBOUNCE, true, false),
+		[toggleScrollToolsImmediate]
+	);
+
 	const toggleScrollTools = useLastCallback(() => {
 		if (!isReady.current) return;
 
 		if (!messageIds?.length) {
-			onScrollDownToggle(false);
-			onNotchToggle(false);
+			toggleScrollToolsImmediate(false, false);
 			return;
 		}
 
 		if (!isViewportNewest) {
-			onScrollDownToggle(true);
-			onNotchToggle(true);
+			toggleScrollToolsDebounced(true, true);
 			return;
 		}
 
@@ -68,16 +76,14 @@ export function useScrollHooks(
 
 		const { offsetHeight, scrollHeight, scrollTop } = container;
 
-		if (scrollTop === 0) return;
-
 		const fabOffsetTop = fabTrigger.offsetTop;
 		const scrollBottom = Math.round(fabOffsetTop - scrollTop - offsetHeight);
 		const isNearBottom = scrollBottom <= FAB_THRESHOLD;
+		const isAtBottom = scrollBottom <= NOTCH_THRESHOLD;
 
 		if (scrollHeight === 0) return;
 
-		onScrollDownToggle(!isNearBottom);
-		onNotchToggle(!isNearBottom);
+		toggleScrollToolsDebounced(!isNearBottom, !isAtBottom);
 	});
 
 	const { observe: observeIntersectionForHistory } = useIntersectionObserver(
@@ -144,6 +150,17 @@ export function useScrollHooks(
 			toggleScrollTools();
 		}
 	}, [isReady, toggleScrollTools]);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		container.addEventListener('scrollend', toggleScrollTools);
+
+		return () => {
+			container.removeEventListener('scrollend', toggleScrollTools);
+		};
+	}, [containerRef, toggleScrollTools]);
 
 	const freezeShortly = useLastCallback(() => {
 		freezeForFab();
