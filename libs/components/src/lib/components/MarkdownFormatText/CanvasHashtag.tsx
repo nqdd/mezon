@@ -1,5 +1,6 @@
 import { toChannelCanvas, useCustomNavigate } from '@mezon/core';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 
 interface CanvasHashtagProps {
 	clanId: string;
@@ -23,6 +24,7 @@ const CanvasHashtag = ({ clanId, channelId, canvasId, title, isTokenClickAble, i
 			className={`font-medium px-0.1 rounded-sm inline whitespace-nowrap !text-[#3297ff] dark:bg-[#3C4270] bg-[#D1E0FF] ${
 				!isJumMessageEnabled ? 'hover:bg-[#5865F2] hover:!text-white cursor-pointer' : 'hover:none cursor-text'
 			}`}
+			data-e2e={generateE2eId('message.hashtag.canvas')}
 		>
 			<Icons.CanvasIcon isWhite={false} defaultSize={`inline mt-[-0.2rem] w-4 h-4 ${isJumMessageEnabled ? 'mx-[-0.4rem]' : 'mr-0.5'}`} />
 			{title}
