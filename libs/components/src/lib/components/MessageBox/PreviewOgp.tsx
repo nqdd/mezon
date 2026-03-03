@@ -124,7 +124,7 @@ function PreviewOgp({ contextId }: PreviewOgpProps) {
 				console.error('Fetch OGP failed:', error);
 				setLoading(false);
 			}
-		}, 750);
+		}, 300);
 
 		return () => {
 			clearTimeout(timeoutId);
