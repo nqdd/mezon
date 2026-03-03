@@ -519,6 +519,10 @@ export const DATA_E2E_IDENTIFIER = {
 				input: {
 					title: '',
 					content: ''
+				},
+				button: {
+					save: '',
+					discard_changes: ''
 				}
 			}
 		},
@@ -987,7 +991,10 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	message: {
-		item: ''
+		item: '',
+		hashtag: {
+			canvas: ''
+		}
 	},
 	replied_message: {
 		item: '',
