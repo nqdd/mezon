@@ -6,10 +6,10 @@ import type { RemoteParticipant } from 'livekit-client';
 import { memo, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-export const AgentControl = memo(() => {
+export const AgentControl = memo(({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const [hasChannelPermission] = usePermissionChecker([EPermission.manageChannel]);
 
-	if (!hasChannelPermission) {
+	if (!hasChannelPermission && !isExternalCalling) {
 		return null;
 	}
 	return <ButtonAgent />;
