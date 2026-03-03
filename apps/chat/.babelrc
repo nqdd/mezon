@@ -10,14 +10,7 @@
 	"plugins": [],
 	"env": {
 		"remove-e2e": {
-			"plugins": [
-				[
-					"react-remove-properties",
-					{
-						"properties": ["data-e2e"]
-					}
-				]
-			]
+			"plugins": [["react-remove-properties", { "properties": ["data-e2e"] }]]
 		}
 	}
 }

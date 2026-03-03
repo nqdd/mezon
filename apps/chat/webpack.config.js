@@ -28,6 +28,7 @@ if (fs.existsSync(envPath)) {
 }
 
 envVars['process.env.NODE_ENV'] = JSON.stringify(process.env.NODE_ENV || 'development');
+envVars['process.env.BABEL_ENV'] = JSON.stringify(process.env.BABEL_ENV || '');
 envVars['process.env.APP_VERSION'] = JSON.stringify(APP_VERSION);
 
 envVars['__REACT_DEVTOOLS_GLOBAL_HOOK__'] = JSON.stringify('({ isDisabled: true })');
