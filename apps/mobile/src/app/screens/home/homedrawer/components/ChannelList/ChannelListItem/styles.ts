@@ -58,7 +58,8 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 		},
 
 		channelListItemTitleActive: {
-			color: colors.white
+			color: colors.white,
+			fontWeight: '500'
 		},
 
 		channelDotWrapper: {

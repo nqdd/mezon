@@ -241,7 +241,7 @@ const HomeDefaultHeader = React.memo(
 
 		const renderChannelIcon = () => {
 			if (currentChannel?.channel_private === ChannelStatusEnum.isPrivate && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				return <Icons.ThreadIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
+				return <Icons.ThreadLockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (!!currentChannel?.channel_label && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {

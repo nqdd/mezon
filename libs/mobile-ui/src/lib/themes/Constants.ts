@@ -83,7 +83,7 @@ export const themeColors: ThemeColor = {
 		border: '#2e2f34',
 		borderHighlight: '#27272f',
 		borderDim: '#2f2f37',
-		borderRadio: '#cacad2',
+		borderRadio: '#dadada',
 		text: '#CCCCCC',
 		textStrong: '#dfe0e4',
 		textDisabled: '#7b7b83',
