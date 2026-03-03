@@ -103,9 +103,13 @@ export const PollMessage = ({
 				{/* Question */}
 				<div className="flex items-center gap-2 mb-1">
 					{questionEmojiId && (
-						<img src={getSrcEmoji(questionEmojiId)} alt={t('poll.selectedEmoji')} className="w-5 h-5 object-contain flex-shrink-0" />
+						<img
+							src={getSrcEmoji(questionEmojiId)}
+							alt={t('poll.selectedEmoji')}
+							className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
+						/>
 					)}
-					<h3 className="text-[15px] font-semibold text-theme-primary">{question}</h3>
+					<h3 className="text-[15px] font-semibold text-theme-primary break-all flex-1 min-w-0">{question}</h3>
 				</div>
 
 				{/* Subtitle */}
@@ -123,64 +127,50 @@ export const PollMessage = ({
 							<div
 								key={index}
 								onClick={shouldShowResults && hasVoted ? undefined : () => handleRowClick(index)}
-								className={`flex items-center justify-between px-3 py-2.5 rounded transition-colors ${
+								className={`flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
 									shouldShowResults
 										? hasVoted
 											? isVoted
-												? '[background:var(--bg-active-member-channel)] cursor-default'
+												? '[background:var(--bg-active-member-channel)] cursor-default border-transparent'
 												: 'border-theme-primary cursor-default'
 											: isVoted
-												? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+												? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer border-transparent'
 												: 'border-theme-primary cursor-pointer'
 										: selectedAnswers.includes(index)
-											? '[background:var(--bg-item-hover)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
-											: '[background:var(--bg-item-hover)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+											? '[background:var(--bg-item-hover)] border-[var(--text-theme-primary)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
+											: '[background:var(--bg-item-hover)] border-transparent cursor-pointer'
 								}`}
 							>
-								<div className="flex items-center gap-2">
+								<div className="flex items-center gap-2 min-w-0 flex-1">
 									{answerEmoji && (
 										<img
 											src={getSrcEmoji(answerEmoji)}
 											alt={t('poll.selectedEmoji')}
-											className="w-5 h-5 object-contain flex-shrink-0"
+											className="w-5 h-5 object-contain flex-shrink-0 mt-0.5"
 										/>
 									)}
 									<span
-										className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary' : 'text-theme-primary-active'} truncate`}
+										className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary' : 'text-theme-primary-active'} break-all min-w-0 flex-1`}
 									>
 										{answer}
 									</span>
 								</div>
-								<div className="flex items-center gap-3">
+								<div className="flex items-center gap-3 flex-shrink-0 pl-2">
 									{shouldShowResults && (
 										<span className={`text-xs font-semibold ${isVoted ? 'text-theme-primary' : 'text-theme-primary-active'}`}>
-											{voteCount} {voteCount === 1 ? t('poll.votes') : t('poll.vote')} {percentage}%
+											{voteCount} {voteCount < 2 ? t('poll.vote') : t('poll.votes')} {percentage}%
 										</span>
 									)}
 									{canSelectAnswers && (
 										<div
-											className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-												selectedAnswers.includes(index)
-													? 'border-[var(--text-theme-primary)] '
-													: 'border-[var(--text-theme-primary)]'
-											}`}
+											className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 border-[var(--text-theme-primary)]`}
 										>
-											{selectedAnswers.includes(index) && (
-												<svg className="w-3 h-3 text-theme-primary" viewBox="0 0 12 12" fill="none">
-													<path
-														d="M2 6L5 9L10 3"
-														stroke="currentColor"
-														strokeWidth="2"
-														strokeLinecap="round"
-														strokeLinejoin="round"
-													/>
-												</svg>
-											)}
+											{selectedAnswers.includes(index) && <div className="w-2.5 h-2.5 rounded-full bg-theme-primary" />}
 										</div>
 									)}
 									{hasVoted && isVoted && (
-										<div className="w-5 h-5 rounded bg-theme-primary flex items-center justify-center flex-shrink-0">
-											<svg className="w-3 h-3 text-theme-primary-active" viewBox="0 0 12 12" fill="none">
+										<div className="w-5 h-5 rounded-full bg-theme-primary flex items-center justify-center flex-shrink-0">
+											<svg className="w-3 h-3 text-theme-primary" viewBox="0 0 12 12" fill="none">
 												<path
 													d="M2 6L5 9L10 3"
 													stroke="currentColor"
@@ -223,7 +213,7 @@ export const PollMessage = ({
 						}
 						className={`text-xs text-theme-primary ${shouldShowResults ? 'cursor-pointer hover:underline' : ''}`}
 					>
-						{totalVotes} {totalVotes === 1 ? t('poll.vote') : t('poll.votes')} • {duration} {t('poll.left')}
+						{totalVotes} {totalVotes < 2 ? t('poll.vote') : t('poll.votes')} • {duration} {t('poll.left')}
 					</span>
 					<div className="flex gap-2">
 						{!hasVoted && (

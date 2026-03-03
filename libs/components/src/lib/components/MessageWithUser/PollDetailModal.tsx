@@ -65,12 +65,12 @@ export const PollDetailModal = ({
 			>
 				<div className="bg-theme-primary rounded-lg w-full min-w-[600px] min-h-[700px] max-w-[620px] shadow-xl flex flex-col max-h-[85vh] overflow-hidden">
 					<div className="border-b border-theme-primary p-4">
-						<div className="flex items-center justify-between gap-3 flex-shrink-0">
-							<h3 className="text-xl font-bold text-theme-primary-active truncate min-w-0 flex-1">{question}</h3>
+						<div className="flex items-start justify-between gap-3 flex-shrink-0">
+							<h3 className="text-xl font-bold text-theme-primary-active break-all min-w-0 flex-1">{question}</h3>
 							<button
 								type="button"
 								onClick={onClose}
-								className="p-2 rounded-md border border-transparent text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover transition-colors"
+								className="p-2 rounded-md border border-transparent text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover transition-colors flex-shrink-0"
 							>
 								<Icons.Close className="w-6 h-6" />
 							</button>
@@ -78,7 +78,7 @@ export const PollDetailModal = ({
 
 						<div className="pt-2 flex-shrink-0">
 							<p className="text-xm text-theme-primary">
-								{totalVotes} {totalVotes === 1 ? t('poll.votes') : t('poll.vote')}
+								{totalVotes} {totalVotes < 2 ? t('poll.vote') : t('poll.votes')}
 							</p>
 						</div>
 					</div>
@@ -104,7 +104,7 @@ export const PollDetailModal = ({
 											{answerEmoji && (
 												<img src={getSrcEmoji(answerEmoji)} alt="" className="w-5 h-5 object-contain flex-shrink-0" />
 											)}
-											<span className="text-lg font-medium truncate flex-1">{answer}</span>
+											<span className="text-lg font-medium truncate flex-1 min-w-0">{answer}</span>
 											<span className="text-xs text-theme-muted flex-shrink-0">({count})</span>
 										</button>
 									);
@@ -133,7 +133,7 @@ export const PollDetailModal = ({
 												/>
 												<div className="min-w-0 flex-1">
 													<p className="text-sm font-medium text-theme-primary truncate">{voter.displayName}</p>
-													<p className="text-xs text-theme-muted truncate">{voter.username}</p>
+													<p className="text-xs text-theme-primary truncate">{voter.username}</p>
 												</div>
 											</li>
 										))}

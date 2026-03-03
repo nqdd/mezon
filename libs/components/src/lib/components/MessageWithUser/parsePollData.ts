@@ -37,14 +37,15 @@ export const parsePollData = (messageContent: string): ParsedPollData | null => 
 		const emojiLine = lines.find((line) => line.startsWith('🔖'));
 		if (emojiLine) {
 			const emojiData = emojiLine.replace('🔖', '').trim();
-			const parts = emojiData.split('|');
+			const parts = emojiData.split('|').map((p) => p.trim());
 
 			for (const part of parts) {
 				if (part.startsWith('q:')) {
 					questionEmojiId = part.substring(2).trim();
 				} else if (part.startsWith('a:')) {
 					const emojiStr = part.substring(2).trim();
-					answerEmojiIds = emojiStr.split(',').filter((e) => e);
+
+					answerEmojiIds = emojiStr.split(',').map((e) => e.trim());
 				}
 			}
 		}
