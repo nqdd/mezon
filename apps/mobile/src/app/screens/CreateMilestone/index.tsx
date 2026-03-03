@@ -33,6 +33,7 @@ import Toast from 'react-native-toast-message';
 import ImageNative from '../../components/ImageNative';
 import StatusBarHeight from '../../components/StatusBarHeight/StatusBarHeight';
 import MezonIconCDN from '../../componentUI/MezonIconCDN';
+import { Icons } from '../../componentUI/MobileIcons';
 import { IconCDN } from '../../constants/icon_cdn';
 import { styles as createStyles } from './styles';
 
@@ -72,7 +73,7 @@ const VideoThumbnailView: React.FC<{
 
 const videoStyles = StyleSheet.create({
 	playIconOverlay: {
-		...StyleSheet.absoluteFillObject,
+		...StyleSheet.absoluteFill,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: 'rgba(0, 0, 0, 0.25)',
@@ -354,7 +355,7 @@ const CreateMilestone: React.FC = () => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			{/* Header */}
 			<View style={styles.header}>
@@ -406,7 +407,7 @@ const CreateMilestone: React.FC = () => {
 							</View>
 							<TouchableOpacity onPress={openDatePicker} style={styles.dateInput}>
 								<Text style={[styles.dateText, { color: themeValue.text }]}>{formatDate(selectedDate)}</Text>
-								<MezonIconCDN icon={IconCDN.calendarIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />
+								<Icons.EventIcon color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
 						</View>
 

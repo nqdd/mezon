@@ -257,16 +257,16 @@ const InvitePreviewCard = ({ element, url }: InvitePreviewCardProps) => {
 
 	return (
 		<div className="flex flex-col gap-0.5 max-w-[350px]">
-			<div className="relative rounded-2xl overflow-hidden border dark:border-borderDivider border-borderDividerLight bg-bgLightSecondary dark:bg-bgTertiary">
-				<div className="h-[76px] relative overflow-hidden" style={{ background: 'var(--bg-primary)' }}>
+			<div className="relative rounded-2xl overflow-hidden border border-theme-primary bg-item-theme">
+				<div className="h-[76px] relative overflow-hidden bg-theme-setting-nav bg-theme-chat">
 					{banner ? <img src={banner} className="absolute inset-0 w-full h-full object-cover" alt="" /> : null}
 				</div>
-				<div className="absolute top-[40px] left-4 w-[72px] h-[72px] rounded-[22px] overflow-hidden border-4 dark:border-bgPrimary border-bgLightTertiary bg-bgLightMode dark:bg-bgSecondary shadow-lg">
+				<div className="absolute top-[40px] left-4 w-[72px] h-[72px] rounded-[22px] overflow-hidden border-4 border-theme-primary bg-theme-setting-primary shadow-lg">
 					<div className="w-full h-full">
 						{clanImage ? (
 							<img src={clanImage} alt={clanTitle} className="w-full h-full object-cover" />
 						) : (
-							<div className="w-full h-full flex items-center justify-center text-white text-3xl font-semibold select-none">
+							<div className="w-full h-full flex items-center justify-center text-theme-primary text-3xl font-semibold select-none shadow-md">
 								{clanInitial}
 							</div>
 						)}
@@ -274,16 +274,18 @@ const InvitePreviewCard = ({ element, url }: InvitePreviewCardProps) => {
 				</div>
 				<div className="px-4 pb-4 pt-10 cursor-pointer" onClick={onOpenInvitePage}>
 					<div className="flex items-center gap-2 min-w-0">
-						<p className="text-white pt-2 text-[18px] font-extrabold leading-none uppercase tracking-tight truncate">{clanTitle}</p>
+						<p className="text-theme-primary pt-2 text-[18px] font-extrabold leading-none uppercase tracking-tight truncate">
+							{clanTitle}
+						</p>
 						{isCommunityEnabled ? (
-							<span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#22c55e] text-white">
+							<span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#22c55e] text-theme-primary">
 								<Icons.CheckIcon className="w-3 h-3" />
 							</span>
 						) : null}
 					</div>
-					<div className="mt-2 flex items-center gap-2 text-[#c6c9d2] text-sm">
+					<div className="mt-2 flex items-center gap-2 text-theme-primary text-sm">
 						<span className="inline-flex items-center gap-1">
-							<span className="w-2 h-2 rounded-full bg-[#8a8f9b]" />
+							<span className="w-2 h-2 rounded-full text-theme-primary-active bg-[#22c55e]" />
 							{memberLabel}
 						</span>
 					</div>

@@ -10,7 +10,7 @@ import {
 	save,
 	STORAGE_KEY_TEMPORARY_INPUT_MESSAGES
 } from '@mezon/mobile-components';
-import { useTheme } from '@mezon/mobile-ui';
+import { size, useTheme } from '@mezon/mobile-ui';
 import type { RootState } from '@mezon/store-mobile';
 import {
 	emojiSuggestionActions,
@@ -45,8 +45,7 @@ import { useSelector } from 'react-redux';
 import { EmojiSuggestion, HashtagSuggestions, Suggestions } from '../../../../../../components/Suggestions';
 import { SlashCommandSuggestions } from '../../../../../../components/Suggestions/SlashCommandSuggestions';
 import { SlashCommandMessage } from '../../../../../../components/Suggestions/SlashCommandSuggestions/SlashCommandMessage';
-import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../constants/icon_cdn';
+import { Icons } from '../../../../../../componentUI/MobileIcons';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { removeBackticks, resetCachedChatbox, resetCachedMessageActionNeedToResolve } from '../../../../../../utils/helpers';
 import { EMessageActionType } from '../../../enums';
@@ -122,10 +121,10 @@ const DOUBLE_TAP_DELAY = 1000;
 const LONG_PRESS_DELAY = 300;
 const MemoizedGradient = memo(({ themeValue }: { themeValue: any }) => (
 	<LinearGradient
-		start={{ x: 1, y: 0 }}
+		start={{ x: 0, y: 1 }}
 		end={{ x: 0, y: 0 }}
 		colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-		style={[StyleSheet.absoluteFillObject]}
+		style={[StyleSheet.absoluteFill]}
 	/>
 ));
 MemoizedGradient.displayName = 'MemoizedGradient';
@@ -794,7 +793,6 @@ export const ChatBoxBottomBar = memo(
 
 		return (
 			<View style={styles.container}>
-				<MemoizedGradient themeValue={themeValue} />
 				<View style={[styles.suggestions]}>
 					<MemoizedGradient themeValue={themeValue} />
 					<SuggestionsPanel
@@ -864,12 +862,12 @@ export const ChatBoxBottomBar = memo(
 								onPressOut={handlePressOut}
 								contextMenuHidden={isShowOptionPaste}
 							/>
-							<View style={styles.iconEmoji}>
+							<View style={[styles.iconEmoji, modeKeyBoardBottomSheet === 'emoji' && { right: 10 }]}>
 								<EmojiSwitcher onChange={handleKeyboardBottomSheetMode} mode={modeKeyBoardBottomSheet} />
 							</View>
 							{showAnonymousIcon && (
 								<View style={styles.iconAnonymous}>
-									<MezonIconCDN icon={IconCDN.anonymous} color={themeValue.text} />
+									<Icons.AnonymousIcon color={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 								</View>
 							)}
 						</View>

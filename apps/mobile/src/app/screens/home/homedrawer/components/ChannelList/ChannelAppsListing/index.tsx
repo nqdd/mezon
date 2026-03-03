@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import type { ApiChannelAppResponse } from 'mezon-js/api.gen';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../../../../componentUI/MobileIcons';
 import ImageNative from '../../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
@@ -75,7 +75,7 @@ const ChannelAppsListing = () => {
 							<ImageNative url={item.app_logo} style={styles.appItemIcon} resizeMode="contain" />
 						) : (
 							<View style={[styles.appItemIcon, styles.appItemIconPlaceholder]}>
-								<MezonIconCDN icon={IconCDN.channelApp} width={size.s_28} height={size.s_28} color={themeValue.textDisabled} />
+								<Icons.ChannelappIcon color={themeValue.textDisabled} width={size.s_16} height={size.s_16} />
 							</View>
 						)}
 					</View>
@@ -105,12 +105,6 @@ const ChannelAppsListing = () => {
 
 	return (
 		<View style={[styles.container, styles.channelListSection]}>
-			<LinearGradient
-				start={{ x: 1, y: 0 }}
-				end={{ x: 0, y: 0 }}
-				colors={[themeValue.secondary, themeValue?.primaryGradiant || themeValue.secondary]}
-				style={[StyleSheet.absoluteFillObject]}
-			/>
 			{isCompactView && (
 				<TouchableOpacity activeOpacity={0.8} onPress={toggleExpand} style={styles.channelListHeader}>
 					<View style={styles.channelListHeaderItem}>

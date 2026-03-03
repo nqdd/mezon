@@ -29,8 +29,9 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../../../componentUI/MobileIcons';
 import ShareLocationConfirmModal from '../../../../../components/ShareLocationConfirmModal/ShareLocationConfirmModal';
-import { IconCDN } from '../../../../../constants/icon_cdn';
+import type { IconCDN } from '../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
 import type { EMessageActionType } from '../../enums';
 import { ConfirmBuzzMessageModal } from '../ConfirmBuzzMessage';
@@ -58,7 +59,7 @@ type FunctionActionId =
 type AdvancedFunctionItem = {
 	id: FunctionActionId;
 	label: string;
-	icon: IconCDN;
+	icon: IconCDN | React.ReactNode;
 	backgroundColor: string;
 	onPress?: () => void;
 };
@@ -120,13 +121,13 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 			(directMessageId || !anonymousMode) && {
 				id: 'location',
 				label: t('message:actions:location'),
-				icon: IconCDN.locationIcon,
+				icon: <Icons.LocationIcon color={baseColor.white} width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.LOCATION
 			},
 			{
 				id: 'pickFiles',
 				label: t('message:actions:files'),
-				icon: IconCDN.attachmentIcon,
+				icon: <Icons.FileIcon color={baseColor.white} width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.ATTACHMENT
 			},
 			!directMessageId &&
@@ -134,44 +135,44 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 				!currentTopicId && {
 					id: 'create_thread' as const,
 					label: t('common:threads'),
-					icon: IconCDN.threadPlusIcon,
+					icon: <Icons.ThreadPlusIcon width={size.s_24} height={size.s_24} />,
 					backgroundColor: FUNCTION_COLORS.THREAD
 				},
 			!directMessageId &&
 				!currentClanPreventAnonymous && {
 					id: 'anonymous' as const,
 					label: anonymousMode ? t('message:turnOffAnonymous') : t('common:anonymous'),
-					icon: IconCDN.anonymous,
+					icon: <Icons.AnonymousIcon width={size.s_24} height={size.s_24} />,
 					backgroundColor: FUNCTION_COLORS.ANONYMOUS
 				},
 			{
 				id: 'buzz',
 				label: 'Buzz',
-				icon: IconCDN.buzz,
+				icon: <Icons.BuzzIcon width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.BUZZ
 			},
 			!directMessageId && {
 				id: 'ephemeral' as const,
 				label: 'Ephemeral',
-				icon: IconCDN.bravePermission,
+				icon: <Icons.EphemeralIcon width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.EPHEMERAL
 			},
 			{
 				id: 'transfer_funds',
 				label: t('common:transferFunds'),
-				icon: IconCDN.transactionIcon,
+				icon: <Icons.TransferIcon color={baseColor.white} width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.TRANSFER
 			},
 			!directMessageId && {
 				id: 'poll' as const,
 				label: t('common:poll'),
-				icon: IconCDN.pollIcon,
+				icon: <Icons.PollIcon width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.POLL
 			},
 			(directMessageId || !anonymousMode) && {
 				id: 'share_contact',
 				label: t('common:shareContact'),
-				icon: IconCDN.businessIcon,
+				icon: <Icons.ShareContactIcon color={baseColor.white} width={size.s_24} height={size.s_24} />,
 				backgroundColor: FUNCTION_COLORS.SHARE_CONTACT
 			}
 		];
@@ -447,8 +448,12 @@ const AdvancedFunction = memo(({ onClose, currentChannelId, directMessageId, mes
 	const renderFunctionItem = useCallback(
 		(item: AdvancedFunctionItem) => (
 			<TouchableOpacity key={item.id} style={styles.functionItem} onPress={() => handleFunctionPress(item)} activeOpacity={0.7}>
-				<View style={[styles.iconContainer, { backgroundColor: item.backgroundColor }]}>
-					<MezonIconCDN icon={item.icon} width={size.s_22} height={size.s_22} color={baseColor.white} />
+				<View style={[styles.iconContainer]}>
+					{React.isValidElement(item.icon) ? (
+						item.icon
+					) : (
+						<MezonIconCDN icon={item.icon as IconCDN} width={size.s_22} height={size.s_22} color={baseColor.white} />
+					)}
 				</View>
 				<Text style={styles.label} numberOfLines={2}>
 					{item.label}

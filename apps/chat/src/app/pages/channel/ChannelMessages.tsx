@@ -46,14 +46,13 @@ import {
 	LoadMoreDirection,
 	animateScroll,
 	buildClassName,
-	debounce,
 	forceMeasure,
 	isAnimatingScroll,
 	isBackgroundModeActive,
 	requestForcedReflow,
 	requestMeasure,
+	requestMutation,
 	resetScroll,
-	toggleDisableHover,
 	useContainerHeight,
 	useLastCallback,
 	useLayoutEffectWithPrevDeps,
@@ -118,12 +117,6 @@ const MESSAGE_LIST_SLICE = 50;
 const MESSAGE_ANIMATION_DURATION = 500;
 const BOTTOM_THRESHOLD = 100;
 const BOTTOM_FOCUS_MARGIN = 20;
-const SCROLL_DEBOUNCE = 200;
-const WHEEL_DEBOUNCE = 100;
-
-const runDebouncedForScroll = debounce((cb) => cb(), SCROLL_DEBOUNCE, false);
-const runDebouncedForWheel = debounce((cb) => cb(), WHEEL_DEBOUNCE, false);
-
 const hasScrolledToUnreadMap = new Map<string, boolean>();
 
 const DMMessageWrapper = ({ channelId, children }: { channelId: string; children: React.ReactNode }) => {
@@ -187,7 +180,6 @@ function ChannelMessages({
 	const dataReferences = useAppSelector((state) => selectDataReferences(state, effectiveChannelId ?? ''));
 	const lastMessageId = lastMessage?.id;
 
-	const userActiveScroll = useRef<boolean>(false);
 	const dispatch = useAppDispatch();
 	const chatRef = useRef<HTMLDivElement | null>(null);
 
@@ -203,11 +195,7 @@ function ChannelMessages({
 	const lastSeenAtBottomRef = useRef<string | null>(null);
 	const isJumpingToPresentRef = useRef<boolean>(false);
 
-	const { setSafeTimeout, clearSafeTimeout } = useSafeTimeout();
-	const loadMoreResetTimeoutRef = useRef<number | null>(null);
-
 	useSyncEffect(() => {
-		userActiveScroll.current = false;
 		skipCalculateScroll.current = false;
 		anchorIdRef.current = null;
 		anchorTopRef.current = null;
@@ -358,48 +346,53 @@ function ChannelMessages({
 	const isLoadMore = useRef<boolean>(false);
 	const currentScrollDirection = useRef<ELoadMoreDirection | null>(null);
 	const isLoadingMoreBottomRef = useRef<boolean>(false);
+	const lastLoadMoreTimestampRef = useRef<number>(0);
+	const consecutiveLoadCountRef = useRef<number>(0);
 
 	const handleOnChange = useCallback(
 		async (direction: LoadMoreDirection) => {
-			if (!userActiveScroll.current) return;
 			if (isLoadMore.current || !chatRef.current?.scrollHeight) return;
+
+			const now = Date.now();
+			const elapsed = now - lastLoadMoreTimestampRef.current;
+
+			if (elapsed < 300) {
+				consecutiveLoadCountRef.current = Math.min(consecutiveLoadCountRef.current + 1, 3);
+			} else {
+				consecutiveLoadCountRef.current = 0;
+			}
+
+			const delay = consecutiveLoadCountRef.current * 333;
+
+			if (delay > 0) {
+				await new Promise((resolve) => setTimeout(resolve, delay));
+			}
+
+			if (isLoadMore.current) return;
+
+			lastLoadMoreTimestampRef.current = Date.now();
 
 			switch (direction) {
 				case LoadMoreDirection.Backwards:
 					currentScrollDirection.current = ELoadMoreDirection.top;
 					isLoadMore.current = true;
 					await loadMoreMessage(ELoadMoreDirection.top);
-					if (loadMoreResetTimeoutRef.current) {
-						clearSafeTimeout(loadMoreResetTimeoutRef.current);
-					}
-					loadMoreResetTimeoutRef.current = setSafeTimeout(() => {
-						isLoadMore.current = false;
-						loadMoreResetTimeoutRef.current = null;
-					}, 200);
+					isLoadMore.current = false;
 					break;
 				case LoadMoreDirection.Forwards:
 					currentScrollDirection.current = ELoadMoreDirection.bottom;
 					isLoadMore.current = true;
 					await loadMoreMessage(ELoadMoreDirection.bottom);
-					if (loadMoreResetTimeoutRef.current) {
-						clearSafeTimeout(loadMoreResetTimeoutRef.current);
-					}
-					loadMoreResetTimeoutRef.current = setSafeTimeout(() => {
-						isLoadMore.current = false;
-						loadMoreResetTimeoutRef.current = null;
-					}, 200);
+					isLoadMore.current = false;
 					break;
 			}
 		},
-		[loadMoreMessage, clearSafeTimeout, setSafeTimeout]
+		[loadMoreMessage]
 	);
 
 	const scrollToLastMessage = useCallback(() => {
-		if (userActiveScroll.current) {
-			userActiveScroll.current = false;
-			anchorIdRef.current = null;
-			anchorTopRef.current = null;
-		}
+		anchorIdRef.current = null;
+		anchorTopRef.current = null;
 
 		return new Promise((rs) => {
 			if (isLoadMore.current) return rs(true);
@@ -447,7 +440,6 @@ function ChannelMessages({
 						chatRef={chatRef}
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						isFirstJoinLoadRef={isFirstJoinLoadRef}
-						userActiveScroll={userActiveScroll}
 						isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -480,7 +472,6 @@ function ChannelMessages({
 						chatRef={chatRef}
 						isLoadingMoreBottomRef={isLoadingMoreBottomRef}
 						isFirstJoinLoadRef={isFirstJoinLoadRef}
-						userActiveScroll={userActiveScroll}
 						isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 						appearanceTheme={appearanceTheme}
 						lastMessageId={lastMessageId as string}
@@ -513,7 +504,6 @@ function ChannelMessages({
 				messageIds={messageIds}
 				chatRef={chatRef}
 				lastSeenAtBottomRef={lastSeenAtBottomRef}
-				userActiveScroll={userActiveScroll}
 				isScrollTopJustUpdatedRef={isScrollTopJustUpdatedRef}
 				isJumpingToPresentRef={isJumpingToPresentRef}
 				setAnchor={setAnchor}
@@ -533,7 +523,6 @@ const ScrollDownButton = memo(
 		messageIds,
 		chatRef,
 		lastSeenAtBottomRef,
-		userActiveScroll,
 		isScrollTopJustUpdatedRef,
 		isJumpingToPresentRef,
 		setAnchor
@@ -544,7 +533,6 @@ const ScrollDownButton = memo(
 		messageIds: string[];
 		chatRef: React.RefObject<HTMLDivElement>;
 		lastSeenAtBottomRef: React.MutableRefObject<string | null>;
-		userActiveScroll: React.MutableRefObject<boolean>;
 		isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
 		isJumpingToPresentRef: React.MutableRefObject<boolean>;
 		setAnchor: React.MutableRefObject<number | null>;
@@ -614,7 +602,6 @@ const ScrollDownButton = memo(
 
 				dispatch(messagesActions.jumToPresent({ channelId }));
 
-				userActiveScroll.current = false;
 				isScrollTopJustUpdatedRef.current = true;
 				animateScroll({
 					container: messagesContainer,
@@ -725,7 +712,6 @@ type ChatMessageListProps = {
 	chatRef: React.RefObject<HTMLDivElement>;
 	isLoadingMoreBottomRef: React.MutableRefObject<boolean>;
 	isFirstJoinLoadRef: React.MutableRefObject<boolean>;
-	userActiveScroll: React.MutableRefObject<boolean>;
 	isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
 	skipCalculateScroll: React.MutableRefObject<boolean>;
 	appearanceTheme: string;
@@ -756,7 +742,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		chatRef,
 		isLoadingMoreBottomRef,
 		isFirstJoinLoadRef,
-		userActiveScroll,
 		isScrollTopJustUpdatedRef,
 		appearanceTheme,
 		lastMessageId,
@@ -858,7 +843,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		useSyncEffect(() => {
 			if (idMessageToJump) {
-				userActiveScroll.current = false;
 				skipCalculateScroll.current = true;
 				anchorIdRef.current = null;
 				anchorTopRef.current = null;
@@ -934,35 +918,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					})
 				);
 			}
-		});
-
-		const handleScroll = useLastCallback(() => {
-			if (isScrollTopJustUpdatedRef.current) {
-				return;
-			}
-
-			if (!userActiveScroll.current) return;
-
-			const container = chatRef.current;
-
-			if (!container) {
-				return;
-			}
-
-			runDebouncedForScroll(() => {
-				requestAnimationFrame(() => {
-					if (isScrollTopJustUpdatedRef.current) {
-						return;
-					}
-					if (!userActiveScroll.current) return;
-
-					const { scrollTop } = container;
-
-					if (scrollTop < 1000 && messageIds.length > 0) {
-						onChange(LoadMoreDirection.Backwards);
-					}
-				});
-			});
 		});
 
 		useLayoutEffectWithPrevDeps(
@@ -1044,8 +999,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 					if (
 						isJumpingToPresentRef.current ||
-						(!isLoadingMoreBottomRef.current &&
-							((!isFirstJoinLoadRef.current && isAtBottom) || (userActiveScroll.current && isAtBottom))) ||
+						(!isLoadingMoreBottomRef.current && !isFirstJoinLoadRef.current && isAtBottom) ||
 						(user?.user?.id === lastMessage?.sender_id &&
 							lastMessage?.create_time_seconds &&
 							new Date().getTime() - lastMessage.create_time_seconds * 1000 < 1000)
@@ -1073,7 +1027,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					}
 
 					return () => {
-						userActiveScroll.current = false;
 						resetScroll(container, Math.ceil(newScrollTop));
 
 						if (message && shouldUpdateScrollPosition) {
@@ -1098,7 +1051,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		);
 
 		const rememberScrollPositionRef = useStateRef(() => {
-			if (!messageIds || !listItemElementsRef.current || !userActiveScroll.current) {
+			if (!messageIds || !listItemElementsRef.current || isFirstJoinLoadRef.current) {
 				return;
 			}
 
@@ -1136,7 +1089,6 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				const messageElement = chatRef.current?.querySelector(`#msg-${messageId}`);
 				if (messageElement) {
 					setAnchor.current = new Date().getTime();
-					userActiveScroll.current = false;
 					isScrollTopJustUpdatedRef.current = true;
 					messageElement.scrollIntoView({ behavior: 'auto', block: 'center' });
 					requestAnimationFrame(() => {
@@ -1162,17 +1114,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-		}, [
-			idMessageToJump,
-			effectiveChannelId,
-			clearSafeTimeout,
-			dispatch,
-			setSafeTimeout,
-			chatRef,
-			isScrollTopJustUpdatedRef,
-			setAnchor,
-			userActiveScroll
-		]);
+		}, [idMessageToJump, effectiveChannelId, clearSafeTimeout, dispatch, setSafeTimeout, chatRef, isScrollTopJustUpdatedRef, setAnchor]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);
 
@@ -1243,65 +1185,44 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 			isPrivate
 		]);
 
-		const scrollTimeoutId2 = useRef<NodeJS.Timeout | null>(null);
-
-		const handleWheel = useLastCallback(() => {
-			toggleDisableHover(chatRef.current, scrollTimeoutId2);
-			userActiveScroll.current = true;
-			skipCalculateScroll.current = false;
-			runDebouncedForWheel(() => {
-				requestAnimationFrame(() => {
-					if (!userActiveScroll.current) return;
-					updateScrollPosition();
-				});
-			});
-		});
-
-		const handleTouchStart = useLastCallback(() => {
-			userActiveScroll.current = true;
-			skipCalculateScroll.current = false;
-		});
-
-		const handleKeyboardEvent = useLastCallback((event: KeyboardEvent) => {
-			if (!chatRef.current?.contains(event.target as Node)) return;
-			if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-				userActiveScroll.current = true;
-				skipCalculateScroll.current = false;
-				handleWheel();
-			}
-		});
-
 		useEffect(() => {
-			document.addEventListener('keydown', handleKeyboardEvent);
-			return () => {
-				document.removeEventListener('keydown', handleKeyboardEvent);
-			};
-		}, [handleKeyboardEvent]);
+			const container = chatRef.current;
+			if (!container) return;
 
-		const handleTouchEnd = useLastCallback(() => {
-			runDebouncedForWheel(() => {
-				requestAnimationFrame(() => {
-					if (!userActiveScroll.current) return;
+			let isHoverDisabled = false;
+
+			const onScroll = () => {
+				if (!isHoverDisabled) {
+					isHoverDisabled = true;
+					requestMutation(() => {
+						container.classList.add('disable-hover');
+					});
+				}
+			};
+
+			const onScrollEnd = () => {
+				isHoverDisabled = false;
+				requestMutation(() => {
+					container.classList.remove('disable-hover');
+				});
+				requestMeasure(() => {
+					if (isScrollTopJustUpdatedRef.current) return;
 					updateScrollPosition();
 				});
-			});
-		});
+			};
+
+			container.addEventListener('scroll', onScroll);
+			container.addEventListener('scrollend', onScrollEnd);
+			return () => {
+				container.removeEventListener('scroll', onScroll);
+				container.removeEventListener('scrollend', onScrollEnd);
+			};
+		}, [chatRef, isScrollTopJustUpdatedRef, updateScrollPosition]);
 
 		return (
 			<div className="w-full h-full relative messages-container select-text bg-theme-chat ">
 				<StickyLoadingIndicator messageCount={messageIds?.length} />
-				<div
-					onScroll={handleScroll}
-					onWheelCapture={handleWheel}
-					onTouchStart={handleTouchStart}
-					onTouchEnd={handleTouchEnd}
-					onMouseDown={() => {
-						userActiveScroll.current = true;
-						skipCalculateScroll.current = false;
-					}}
-					ref={chatRef}
-					className={'messages-scroll outline-none w-full scroll-big'}
-				>
+				<div ref={chatRef} className={'messages-scroll outline-none w-full scroll-big'}>
 					<div className="messages-wrap flex flex-col min-h-full mt-auto justify-end">
 						{isTopic && firstMsgOfThisTopic && (
 							<div className={`fullBoxText relative group ${firstMsgOfThisTopic?.references?.[0]?.message_ref_id ? 'pt-3' : ''}`}>

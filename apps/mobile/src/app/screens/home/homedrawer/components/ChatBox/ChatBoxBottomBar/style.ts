@@ -6,7 +6,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			paddingHorizontal: size.s_2,
-			overflow: 'visible'
+			overflow: 'visible',
+			backgroundColor: colors.primary
 		},
 		wrapper: {
 			flexDirection: 'row',
@@ -28,7 +29,8 @@ export const style = (colors: Attributes) =>
 		},
 		iconEmoji: {
 			position: 'absolute',
-			right: 10
+			right: 8,
+			bottom: size.s_8
 		},
 		iconSend: {
 			marginLeft: size.s_6,
@@ -46,8 +48,8 @@ export const style = (colors: Attributes) =>
 		containerInput: {
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center',
-			paddingBottom: size.s_20,
+			alignItems: 'flex-end',
+			paddingBottom: size.s_10,
 			paddingTop: size.s_10,
 			paddingLeft: size.s_4
 		},
@@ -58,6 +60,7 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_6
 		},
 		input: {
+			minHeight: size.s_40,
 			alignItems: 'center',
 			flex: 1,
 			justifyContent: 'center'
