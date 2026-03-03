@@ -49,10 +49,17 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			fontWeight: 'bold'
 		},
 
+		headerComponent: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			marginHorizontal: size.s_18
+		},
+
 		btnAddFriendWrapper: {
 			flex: 1,
 			paddingVertical: size.s_16,
-			paddingRight: size.s_18
+			paddingLeft: size.s_18,
+			paddingRight: size.s_10
 		},
 		addFriend: {
 			flexDirection: 'row',
@@ -62,8 +69,6 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			justifyContent: 'center',
 			backgroundColor: colors.primary,
 			borderRadius: size.s_20,
-			borderWidth: 1,
-			borderColor: colors.border,
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_6
 		},
@@ -258,8 +263,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			height: size.s_36
 		},
 		btnSearchWrapper: {
-			paddingLeft: size.s_18,
-			paddingRight: size.s_10,
+			paddingRight: size.s_18,
 			paddingVertical: size.s_16
 		},
 		btnSearch: {
@@ -268,9 +272,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			height: size.s_42,
 			borderRadius: size.s_42,
 			alignItems: 'center',
-			justifyContent: 'center',
-			borderWidth: 1,
-			borderColor: colors.border
+			justifyContent: 'center'
 		},
 		wrapperItemActivity: {
 			flexDirection: 'row',
@@ -279,8 +281,6 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			paddingRight: size.s_10,
 			borderRadius: size.s_12,
 			backgroundColor: colors.primary,
-			borderColor: colors.secondaryLight,
-			borderWidth: 1,
 			maxWidth: size.s_220,
 			marginRight: size.s_10
 		},
@@ -326,8 +326,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			justifyContent: 'center',
 			borderRadius: size.s_20,
 			position: 'absolute',
-			right: -size.s_8,
-			top: -size.s_8,
+			right: size.s_12,
 			zIndex: 10
 		}
 	});

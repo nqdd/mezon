@@ -114,7 +114,7 @@ const ChannelListHeader = () => {
 			<View style={styles.navigationBar}>
 				<TouchableOpacity onPressIn={navigateToSearchPage} style={styles.wrapperSearch}>
 					<View style={styles.searchIcon}>
-						<Icons.SearchIcon color={themeValue.text} width={size.s_24} height={size.s_24} />
+						<Icons.SearchIcon color={themeValue.textDisabled} width={size.s_24} height={size.s_24} />
 					</View>
 
 					<Text style={styles.placeholderSearchBox}>{t('common.search')}</Text>
