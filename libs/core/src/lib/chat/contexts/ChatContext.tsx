@@ -844,7 +844,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 					}
 					if (!isMobile && directId === user.channel_id) {
-						navigate(`/chat/direct/friends`, true);
+						if (!channelId) {
+							navigate(`/chat/direct/friends`, true);
+						}
+						dispatch(directActions.setDmGroupCurrentId(null));
 					}
 					const threadToRemove =
 						user.channel_type === ChannelType.CHANNEL_TYPE_THREAD ? selectChannelById(currentState, user.channel_id) : null;

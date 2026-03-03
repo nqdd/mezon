@@ -655,7 +655,7 @@ export const directSlice = createSlice({
 				}
 			});
 		},
-		setDmGroupCurrentId: (state, action: PayloadAction<string>) => {
+		setDmGroupCurrentId: (state, action: PayloadAction<string | null>) => {
 			state.currentDirectMessageId = action.payload;
 		},
 		setDmGroupCurrentType: (state, action: PayloadAction<number>) => {
