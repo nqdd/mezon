@@ -100,7 +100,7 @@ const MessageModalImage = () => {
 					direction === 'before'
 						? currentAttachments?.[currentAttachments.length - 1]?.create_time_seconds
 						: currentAttachments?.[0]?.create_time_seconds;
-				const timestampNumber = timestamp ? Math.floor(new Date(timestamp).getTime() / 1000) : undefined;
+				const timestampNumber = timestamp ? Math.floor(Number(timestamp)) : undefined;
 
 				const clanId = currentClanId === '0' ? '0' : currentClanId;
 
