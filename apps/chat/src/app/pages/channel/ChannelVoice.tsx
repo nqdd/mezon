@@ -7,7 +7,6 @@ import {
 	appActions,
 	generateMeetToken,
 	getStore,
-	handleParticipantVoiceState,
 	selectCurrentChannelClanId,
 	selectCurrentChannelId,
 	selectCurrentChannelLabel,
@@ -28,7 +27,7 @@ import {
 } from '@mezon/store';
 
 import { MyVideoConference, PreJoinVoiceChannel } from '@mezon/components';
-import { ParticipantMeetState, isLinuxDesktop, isWindowsDesktop, useLastCallback } from '@mezon/utils';
+import { isLinuxDesktop, isWindowsDesktop, useLastCallback } from '@mezon/utils';
 import type { RoomConnectOptions } from 'livekit-client';
 import { Room } from 'livekit-client';
 import { ChannelType } from 'mezon-js';
@@ -188,23 +187,6 @@ const ChannelVoiceInner = () => {
 		}
 	}, [lowPowerMode]);
 
-	const participantMeetState = useCallback(
-		async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
-			if (!clanId || !channelId || !userProfile?.user?.id) return;
-
-			await dispatch(
-				handleParticipantVoiceState({
-					clan_id: clanId,
-					channel_id: channelId,
-					display_name: userProfile?.user?.display_name ?? '',
-					state,
-					room_name: self && state === ParticipantMeetState.LEAVE ? 'leave' : voiceInfo?.roomId || ''
-				})
-			);
-		},
-		[dispatch, userProfile, voiceInfo?.roomId]
-	);
-
 	const handleJoinRoom = useLastCallback(async () => {
 		try {
 			await room.disconnect();
@@ -245,7 +227,6 @@ const ChannelVoiceInner = () => {
 			).unwrap();
 
 			if (result) {
-				await participantMeetState(ParticipantMeetState.JOIN, currentChannelClanId as string, currentChannelId as string);
 				dispatch(voiceActions.setJoined(true));
 				dispatch(voiceActions.setToken(result));
 				dispatch(
@@ -286,8 +267,6 @@ const ChannelVoiceInner = () => {
 		}
 
 		isDisconnectingRef.current = false;
-
-		await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
 	});
 
 	const handleFullScreen = useCallback(() => {
