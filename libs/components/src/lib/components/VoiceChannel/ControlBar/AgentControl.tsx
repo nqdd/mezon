@@ -3,7 +3,7 @@ import { usePermissionChecker } from '@mezon/core';
 import { handleAddAgentToVoice, handleKichAgentFromVoice, selectVoiceInfo, useAppDispatch } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
 import type { RemoteParticipant } from 'livekit-client';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export const AgentControl = memo(({ isExternalCalling }: { isExternalCalling: boolean }) => {
@@ -19,9 +19,12 @@ const ButtonAgent = () => {
 	const room = useRoomContext();
 	const [onAgent, setOnAgent] = useState(false);
 	const currentVoice = useSelector(selectVoiceInfo);
+	const countRef = useRef(0);
+	const timerCount = useRef<NodeJS.Timeout | null>(null);
+	const [disable, setDisable] = useState(false);
 	const dispatch = useAppDispatch();
 	const handleAddAgent = () => {
-		if (!currentVoice) {
+		if (!currentVoice || disable) {
 			return;
 		}
 
@@ -62,10 +65,35 @@ const ButtonAgent = () => {
 			room.off?.('connected', onConnected);
 		};
 	}, [room]);
+
+	useEffect(() => {
+		if (countRef.current >= 10) {
+			setDisable(true);
+			if (timerCount.current) {
+				clearTimeout(timerCount.current);
+			}
+
+			timerCount.current = setTimeout(() => {
+				setDisable(false);
+				countRef.current = 0;
+			}, 20000);
+
+			return;
+		}
+
+		countRef.current = countRef.current + 1;
+
+		return () => {
+			if (timerCount.current) {
+				clearTimeout(timerCount.current);
+			}
+		};
+	}, [onAgent]);
+
 	return (
 		<div className="relative rounded-full bg-gray-300 dark:bg-black" onClick={handleAddAgent}>
 			<div
-				className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none bg-zinc-500 dark:bg-zinc-900 lk-button ${onAgent ? '!bg-blue-500 hover:!bg-blue-600' : ''}`}
+				className={`w-14 aspect-square max-md:w-10 max-md:p-2 !rounded-full flex justify-center items-center border-none dark:border-none bg-zinc-500 dark:bg-zinc-900 lk-button ${onAgent ? '!bg-blue-500 hover:!bg-blue-600' : ''} ${disable ? '!bg-slate-900 hover:!bg-slate-900 !cursor-default' : ''}`}
 			>
 				<svg
 					width="28px"
