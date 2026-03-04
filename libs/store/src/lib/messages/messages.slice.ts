@@ -1135,22 +1135,27 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		}
 
 		let res;
-		if (socketState.isConnected) {
-			res = await socket.writeChatMessage(
-				clanId,
-				channelId,
-				mode,
-				isPublic,
-				content,
-				mentions,
-				uploadedFiles,
-				references,
-				anonymous,
-				mentionEveryone,
-				'',
-				code
-			);
-		} else {
+
+		try {
+			if (socketState.isConnected) {
+				res = await socket.writeChatMessage(
+					clanId,
+					channelId,
+					mode,
+					isPublic,
+					content,
+					mentions,
+					uploadedFiles,
+					references,
+					anonymous,
+					mentionEveryone,
+					'',
+					code
+				);
+			} else {
+				throw new Error('Socket not connected');
+			}
+		} catch (err) {
 			res = await client.sendChannelMessage(
 				session,
 				clanId,
