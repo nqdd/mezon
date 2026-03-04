@@ -280,7 +280,7 @@ export function useChatSending({ mode, channelOrDirect, fromTopic = false }: Use
 					mode,
 					isPublic,
 					messageId || '0',
-					trimContent,
+					JSON.stringify(trimContent),
 					mentions,
 					attachments,
 					hide_editted,
