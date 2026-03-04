@@ -68,14 +68,26 @@ const ButtonAgent = () => {
 
 	useEffect(() => {
 		if (countRef.current >= 10) {
+			setDisable(true);
+			if (timerCount.current) {
+				clearTimeout(timerCount.current);
+			}
+
 			timerCount.current = setTimeout(() => {
 				setDisable(false);
 				countRef.current = 0;
 			}, 20000);
-			setDisable(true);
+
 			return;
 		}
+
 		countRef.current = countRef.current + 1;
+
+		return () => {
+			if (timerCount.current) {
+				clearTimeout(timerCount.current);
+			}
+		};
 	}, [onAgent]);
 
 	return (
