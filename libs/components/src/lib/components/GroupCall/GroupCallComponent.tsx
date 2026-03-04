@@ -78,14 +78,11 @@ const GroupCallComponent = memo(
 			const callGroup: any = storedCallData
 				? {
 						channel_id: storedCallData.groupId,
-						meeting_code: storedCallData.meetingCode,
 						clan_id: storedCallData.clanId,
 						channel_label: storedCallData.groupName,
 						clan_name: storedCallData.groupName
 					}
 				: currentDmGroup;
-
-			if (!callGroup?.meeting_code) return;
 
 			const callerId = userProfile?.user?.id || '';
 			const participants = [...baseParticipants, callerId.toString()];
@@ -99,7 +96,6 @@ const GroupCallComponent = memo(
 				callerId,
 				callerName: userProfile?.user?.display_name || userProfile?.user?.username || '',
 				callerAvatar: userProfile?.user?.avatar_url,
-				meetingCode: callGroup?.meeting_code,
 				clanId: callGroup?.clan_id,
 				participants
 			});
@@ -124,7 +120,7 @@ const GroupCallComponent = memo(
 				const result = await dispatch(
 					generateMeetToken({
 						channelId: callGroup?.channel_id as string,
-						roomName: callGroup?.meeting_code as string
+						roomName: callGroup?.channel_id as string
 					})
 				).unwrap();
 

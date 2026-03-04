@@ -7,7 +7,6 @@ import {
 	selectDmGroupCurrentId,
 	selectDmGroupCurrentType,
 	selectLogoCustom,
-	selectTheme,
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
@@ -22,7 +21,6 @@ import PanelClan from '../PanelClan';
 const SidebarLogoItem = () => {
 	const navigate = useCustomNavigate();
 	const dispatch = useAppDispatch();
-	const appearanceTheme = useAppSelector(selectTheme);
 	const { userProfile } = useAuth();
 	const currentClanId = useAppSelector(selectCurrentClanId);
 	const currentDmId = useAppSelector(selectDmGroupCurrentId);

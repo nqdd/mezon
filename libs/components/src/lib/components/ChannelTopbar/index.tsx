@@ -611,7 +611,6 @@ const DmTopbarTools = memo(() => {
 						groupId: currentDmGroup.channel_id,
 						groupName: currentDmGroup.channel_label || currentDmGroup.usernames?.join(',') || 'Group Call',
 						groupAvatar: currentDmGroup.channel_avatar,
-						meetingCode: currentDmGroup.meeting_code,
 						clanId: currentDmGroup.clan_id,
 						participants: [...groupParticipants, userProfile?.user_id?.toString() as string],
 						callerInfo: {
@@ -690,7 +689,7 @@ const DmTopbarTools = memo(() => {
 
 		dispatch(audioCallActions.setIsBusyTone(false));
 	};
-	const isGroupCallDisabled = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && !currentDmGroup?.meeting_code;
+	const isGroupCallDisabled = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP;
 
 	const setIsUseProfileDM = useCallback(
 		async (status: boolean) => {

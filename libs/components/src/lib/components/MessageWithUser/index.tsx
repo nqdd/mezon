@@ -379,7 +379,7 @@ function MessageWithUser({
 								</div>
 							))}
 					</div>
-					{!isEphemeralMessage && <MessageReaction message={message} isTopic={!!isTopic} />}
+					{!isEphemeralMessage && !isSearchMessage && <MessageReaction message={message} isTopic={!!isTopic} />}
 
 					{!isTopic && message?.content?.isCard && !isEphemeralMessage && message?.code !== TypeMessage.Topic && (
 						<div

@@ -8,7 +8,6 @@ export interface CallSignalingData {
 	caller_id: string;
 	caller_name: string;
 	caller_avatar?: string;
-	meeting_code?: string;
 	clan_id?: string;
 	timestamp: number;
 	participants: string[];
@@ -20,7 +19,6 @@ export interface GroupCallData {
 	groupId: string;
 	groupName: string;
 	groupAvatar?: string;
-	meetingCode?: string;
 	clanId?: string;
 	participants: string[];
 	callerInfo: {
@@ -41,7 +39,6 @@ export const createCallSignalingData = (params: {
 	callerId: string;
 	callerName: string;
 	callerAvatar?: string;
-	meetingCode?: string;
 	clanId?: string;
 	participants: string[];
 	action?: string;
@@ -54,7 +51,6 @@ export const createCallSignalingData = (params: {
 	caller_id: params.callerId,
 	caller_name: params.callerName,
 	caller_avatar: params.callerAvatar,
-	meeting_code: params.meetingCode,
 	clan_id: params.clanId,
 	timestamp: Date.now(),
 	participants: params.participants,
@@ -82,7 +78,6 @@ export const createGroupCallDataFromSignaling = (signaling: CallSignalingData): 
 	groupId: signaling.group_id,
 	groupName: signaling.group_name || 'Group Call',
 	groupAvatar: signaling.group_avatar,
-	meetingCode: signaling.meeting_code,
 	clanId: signaling.clan_id,
 	participants: signaling.participants || [],
 	callerInfo: {

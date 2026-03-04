@@ -32,7 +32,6 @@ const SettingAdvanced = ({ menuIsOpen }: SettingAdvancedProps) => {
 			dispatch(appActions.toggleHardwareAcceleration());
 			window.electron.toggleHardwareAcceleration(!hardwareAcceleration);
 		} catch (error) {
-			toast.error(t('setting:hardwareAcceleration.error') || 'Failed to toggle hardware acceleration');
 			console.error('Error toggling hardware acceleration:', error);
 		}
 	};

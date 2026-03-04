@@ -4,7 +4,8 @@ import { groupCallActions, selectCurrentUserId, useAppDispatch } from '@mezon/st
 import { useMezon } from '@mezon/transport';
 import { WEBRTC_SIGNALING_TYPES } from '@mezon/utils';
 import LottieView from 'lottie-react-native';
-import { safeJSONParse, WebrtcSignalingFwd } from 'mezon-js';
+import type { WebrtcSignalingFwd } from 'mezon-js';
+import { safeJSONParse } from 'mezon-js';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Platform, Text, TouchableOpacity, Vibration, View } from 'react-native';
@@ -27,7 +28,6 @@ interface CallSignalingData {
 	caller_id: string;
 	caller_name: string;
 	caller_avatar?: string;
-	meeting_code?: string;
 	clan_id?: string;
 	timestamp: number;
 	participants: string[];
@@ -102,7 +102,6 @@ export const useSendSignaling = () => {
 				groupId: data.group_id,
 				groupName,
 				groupAvatar: data.group_avatar || '',
-				meetingCode: data.meeting_code,
 				callerId: currentUserId
 			};
 
@@ -210,10 +209,9 @@ const CallingGroupModal = ({ dataCall }: ICallingGroupProps) => {
 		setIsVisible(false);
 		if (dataCall?.channel_id && callData) {
 			dispatch(groupCallActions.hideIncomingGroupCall());
-			if (!callData.meeting_code) return;
 			const data = {
 				channelId: dataCall.channel_id || '0',
-				roomName: callData?.meeting_code,
+				roomName: dataCall.channel_id,
 				clanId: '',
 				isGroupCall: true
 			};

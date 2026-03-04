@@ -160,8 +160,8 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			const state = store.getState();
 			const rawDataUserGroup = selectRawDataUserGroup(state, currentDmGroup.channel_id);
 			const data = {
-				channelId: currentDmGroup.channel_id || '0',
-				roomName: currentDmGroup?.meeting_code,
+				channelId: currentDmGroup?.channel_id || '0',
+				roomName: currentDmGroup?.channel_id,
 				clanId: '',
 				isGroupCall: true,
 				participantsCount: rawDataUserGroup?.user_ids?.length || 0
@@ -183,7 +183,6 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 				caller_id: userProfile?.user?.id,
 				caller_name: userProfile?.user?.display_name || userProfile?.user?.username || '',
 				caller_avatar: userProfile?.user?.avatar_url,
-				meeting_code: currentDmGroup?.meeting_code,
 				clan_id: '',
 				timestamp: Date.now(),
 				participants: rawDataUserGroup?.user_ids || []
@@ -387,7 +386,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					<View style={styles.iconWrapper}>
 						{!isChatWithMyself && (
 							<>
-								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
+								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || isTypeDMGroup) && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall()}>
 										<Icons.CallIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 									</TouchableOpacity>
