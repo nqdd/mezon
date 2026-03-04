@@ -43,7 +43,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 
 		headerTitle: {
-			paddingLeft: size.s_18,
+			paddingLeft: size.s_14,
 			fontSize: isTablet ? size.s_16 : size.s_18,
 			color: colors.textStrong,
 			fontWeight: 'bold'
@@ -57,7 +57,6 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 
 		btnAddFriendWrapper: {
 			flex: 1,
-			paddingVertical: size.s_16,
 			paddingLeft: size.s_18,
 			paddingRight: size.s_10
 		},
@@ -67,7 +66,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			height: size.s_42,
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: colors.primary,
+			backgroundColor: colors.tertiary,
 			borderRadius: size.s_20,
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_6
@@ -264,10 +263,10 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 		btnSearchWrapper: {
 			paddingRight: size.s_18,
-			paddingVertical: size.s_16
+			paddingVertical: size.s_10
 		},
 		btnSearch: {
-			backgroundColor: colors.primary,
+			backgroundColor: colors.tertiary,
 			width: size.s_42,
 			height: size.s_42,
 			borderRadius: size.s_42,
@@ -280,7 +279,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			gap: size.s_6,
 			paddingRight: size.s_10,
 			borderRadius: size.s_12,
-			backgroundColor: colors.primary,
+			backgroundColor: colors.tertiary,
 			maxWidth: size.s_220,
 			marginRight: size.s_10
 		},

@@ -81,7 +81,9 @@ export const style = (colors: Attributes) =>
 		},
 		inputStyleEmpty: {
 			height: size.s_40,
-			textAlignVertical: 'center'
+			textAlignVertical: 'center',
+			paddingTop: Platform.OS === 'ios' ? size.s_12 : size.s_10,
+			paddingBottom: size.s_10
 		},
 		suggestions: {
 			position: 'absolute',
