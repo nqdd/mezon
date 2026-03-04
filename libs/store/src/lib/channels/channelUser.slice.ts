@@ -22,7 +22,7 @@ export interface ChannelUsersEntity extends IChannelUser {
 }
 
 export const mapChannelsByUserToEntity = (channelRes: ChannelDescription) => {
-	return { ...channelRes, id: channelRes.channel_id || '0', status: channelRes.meeting_code ? 1 : 0 };
+	return { ...channelRes, id: channelRes.channel_id || '0', status: channelRes.channel_id ? 1 : 0 };
 };
 
 export interface ListChannelsByUserState extends EntityState<ChannelUsersEntity, string> {
@@ -297,7 +297,7 @@ export const selectEntitiesChannelsByUser = createSelector(getChannelsByUserStat
 export const selectSearchChannelById = createSelector([getChannelsByUserState, (_, id: string) => id], (state, id) => selectById(state, id));
 
 export const selectAllInfoChannels = createSelector(selectAllChannelsByUser, (channels = []) =>
-	channels?.map(({ channel_id, channel_label, channel_private, clan_name, clan_id, type, parent_id, meeting_code, id }) => ({
+	channels?.map(({ channel_id, channel_label, channel_private, clan_name, clan_id, type, parent_id, id }) => ({
 		channel_id,
 		channel_label,
 		channel_private,
@@ -305,7 +305,6 @@ export const selectAllInfoChannels = createSelector(selectAllChannelsByUser, (ch
 		clan_id,
 		type,
 		parent_id,
-		meeting_code,
 		id
 	}))
 );

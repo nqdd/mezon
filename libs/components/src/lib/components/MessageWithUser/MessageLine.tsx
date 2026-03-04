@@ -2,7 +2,7 @@
 import { clansActions, getStore, inviteActions, selectCanvasIdsByChannelId, selectClanById, selectInviteById, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { IExtendedMessage } from '@mezon/utils';
-import { EBacktickType, ETokenMessage, INVITE_URL_REGEX, TypeMessage, convertMarkdown, getMeetCode } from '@mezon/utils';
+import { EBacktickType, ETokenMessage, INVITE_URL_REGEX, TypeMessage, convertMarkdown } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -459,15 +459,11 @@ export const MessageLine = ({
 					/>
 				);
 			} else if (element.kindOf === ETokenMessage.VOICE_LINKS) {
-				const meetingCode = getMeetCode(contentInElement as string) as string;
 				formattedContent.push(
 					<VoiceLinkContent
 						key={`voiceLink-${s}-${messageId}`}
-						meetingCode={meetingCode}
 						isTokenClickAble={isTokenClickAble}
 						isJumMessageEnabled={isJumMessageEnabled}
-						index={index}
-						s={s}
 						contentInElement={contentInElement}
 						messageId={messageId}
 						onContextMenu={onContextMenu}
@@ -567,15 +563,11 @@ export const MessageLine = ({
 				} else if (element.type === EBacktickType.BOLD) {
 					formattedContent.push(<b key={`markdown-${s}-${messageId}`}> {contentInElement} </b>);
 				} else if (element.type === EBacktickType.VOICE_LINK) {
-					const meetingCode = getMeetCode(contentInElement as string) as string;
 					formattedContent.push(
 						<VoiceLinkContent
 							key={`voiceLink-${s}-${messageId}`}
-							meetingCode={meetingCode}
 							isTokenClickAble={isTokenClickAble}
 							isJumMessageEnabled={isJumMessageEnabled}
-							index={index}
-							s={s}
 							contentInElement={contentInElement}
 							messageId={messageId}
 							onContextMenu={onContextMenu}
@@ -716,26 +708,14 @@ export const MessageLine = ({
 	);
 };
 interface VoiceLinkContentProps {
-	meetingCode: string | undefined;
 	isTokenClickAble: boolean;
 	isJumMessageEnabled: boolean;
-	index: number;
-	s: number;
 	contentInElement: string | undefined;
 	messageId?: string;
 	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 }
 
-export const VoiceLinkContent = ({
-	meetingCode,
-	isTokenClickAble,
-	isJumMessageEnabled,
-	index,
-	s,
-	contentInElement,
-	messageId,
-	onContextMenu
-}: VoiceLinkContentProps) => {
+export const VoiceLinkContent = ({ isTokenClickAble, isJumMessageEnabled, contentInElement, messageId, onContextMenu }: VoiceLinkContentProps) => {
 	return (
 		<MarkdownContent
 			isLink={true}

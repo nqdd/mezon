@@ -6,7 +6,6 @@ export interface GroupCallData {
 	groupId: string;
 	groupName: string;
 	groupAvatar?: string;
-	meetingCode?: string;
 	clanId?: string;
 	participants: string[];
 	callerInfo: {

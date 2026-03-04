@@ -29,7 +29,7 @@ const TableMember: React.FC<ITableMemberProps> = ({ currentPage, pageSize, dataM
 						mezonJoinTime={getTimeDifferenceDate((user.user?.create_time_seconds || 0) * 1000 || '')}
 						clanJoinTime={new Date(
 							((user.user as { join_time_seconds?: number; join_time?: string })?.join_time_seconds ??
-								(user.user?.join_time ? new Date(user.user.join_time).getTime() / 1000 : 0)) * 1000
+								(user.user?.join_time_seconds ? new Date(user.user.join_time_seconds).getTime() / 1000 : 0)) * 1000
 						).toISOString()}
 						userId={user.id}
 						displayName={user.prioritizeName!}

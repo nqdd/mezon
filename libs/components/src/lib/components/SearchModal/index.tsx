@@ -102,7 +102,6 @@ function SearchModal({ onClose }: SearchModalProps) {
 					channel_private: item?.channel_private,
 					type: item?.type,
 					parent_id: item?.parent_id,
-					meeting_code: item?.meeting_code,
 					count_messsage_unread: item?.count_mess_unread,
 					lastSeenTimeStamp: Number(item?.last_seen_message?.timestamp_seconds || 0)
 				});

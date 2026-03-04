@@ -51,7 +51,6 @@ const GroupPopupNotiCall = ({ dataCall, userId }: ModalCallProps) => {
 				groupId: dataCall.channel_id,
 				groupName: callData.group_name || 'Group Call',
 				groupAvatar: callData.group_avatar,
-				meetingCode: callData.meeting_code,
 				clanId: callData.clan_id,
 				participants: callData.participants || [],
 				callerInfo: {

@@ -74,7 +74,7 @@ export const mapChannelToEntity = (channelRes: ApiChannelDescription) => {
 	return {
 		...channelRes,
 		id: channelRes.channel_id || '0',
-		status: channelRes.meeting_code ? 1 : 0,
+		status: channelRes.channel_id ? 1 : 0,
 		count_mess_unread: channelRes.count_mess_unread ? channelRes.count_mess_unread : 0
 	};
 };
@@ -497,7 +497,6 @@ export interface IUpdateChannelRequest {
 	category_name?: string;
 	app_id: string;
 	channel_avatar?: string;
-	meeting_code?: string;
 }
 
 export const updateChannel = createAsyncThunk('channels/updateChannel', async (body: IUpdateChannelRequest, thunkAPI) => {
@@ -1739,7 +1738,6 @@ export const selectCurrentChannelPrivate = createSelector(selectCurrentChannel, 
 export const selectCurrentChannelParentId = createSelector(selectCurrentChannel, (channel) => channel?.parent_id);
 export const selectCurrentChannelCategoryId = createSelector(selectCurrentChannel, (channel) => channel?.category_id);
 export const selectCurrentChannelLabel = createSelector(selectCurrentChannel, (channel) => channel?.channel_label);
-export const selectCurrentChannelMeetingCode = createSelector(selectCurrentChannel, (channel) => channel?.meeting_code);
 export const selectCurrentChannelChannelId = createSelector(selectCurrentChannel, (channel) => channel?.channel_id);
 export const selectCurrentChannelCountMessUnread = createSelector(selectCurrentChannel, (channel) => channel?.count_mess_unread);
 export const selectCurrentChannelAgeRestricted = createSelector(selectCurrentChannel, (channel) => channel?.age_restricted);

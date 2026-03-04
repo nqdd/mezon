@@ -11,7 +11,6 @@ import {
 	selectCurrentChannelClanId,
 	selectCurrentChannelId,
 	selectCurrentChannelLabel,
-	selectCurrentChannelMeetingCode,
 	selectCurrentChannelPrivate,
 	selectCurrentChannelType,
 	selectCurrentClanId,
@@ -47,7 +46,6 @@ interface VoicePreJoinWrapperProps {
 const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapperProps) => {
 	const channelLabel = useSelector(selectCurrentChannelLabel);
 	const channelId = useSelector(selectCurrentChannelId);
-	const channelMeetingCode = useSelector(selectCurrentChannelMeetingCode);
 	const channelClanId = useSelector(selectCurrentChannelClanId);
 	const voiceInfo = useSelector(selectVoiceInfo);
 	const isJoined = useSelector(selectVoiceJoined);
@@ -58,7 +56,6 @@ const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapp
 		<PreJoinVoiceChannel
 			channel_label={channelLabel}
 			channel_id={channelId as string}
-			roomName={channelMeetingCode}
 			loading={loading}
 			handleJoinRoom={handleJoinRoom}
 			clan_id={channelClanId}
@@ -234,17 +231,16 @@ const ChannelVoiceInner = () => {
 		const currentChannelId = selectCurrentChannelId(storeState);
 		const currentChannelClanId = selectCurrentChannelClanId(storeState);
 		const currentChannelLabel = selectCurrentChannelLabel(storeState);
-		const currentChannelMeetingCode = selectCurrentChannelMeetingCode(storeState);
 		const currentChannelPrivate = selectCurrentChannelPrivate(storeState);
 
-		if (!currentClanId || !currentChannelMeetingCode) return;
+		if (!currentClanId) return;
 		setLoading(true);
 
 		try {
 			const result = await dispatch(
 				generateMeetToken({
 					channelId: currentChannelId as string,
-					roomName: currentChannelMeetingCode
+					roomName: ''
 				})
 			).unwrap();
 
