@@ -40,7 +40,7 @@ function MessageHeader() {
 	return (
 		<View style={styles.headerWrapper}>
 			<View style={styles.headerComponent}>
-				<Icons.IconMessagesIcon color={themeValue.textStrong} width={size.s_40} height={size.s_40} />
+				<Icons.IconMessagesIcon color={themeValue.textStrong} width={size.s_36} height={size.s_36} />
 				<Text style={styles.headerTitle}>{t('dmMessage:title')}</Text>
 			</View>
 
@@ -60,7 +60,7 @@ function MessageHeader() {
 				</TouchableOpacity>
 				<TouchableOpacity style={styles.btnSearchWrapper} onPress={() => navigateToSearchPage()}>
 					<View style={styles.btnSearch}>
-						<Icons.SearchIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
+						<Icons.SearchIcon color={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 					</View>
 				</TouchableOpacity>
 			</View>

@@ -123,7 +123,7 @@ const ChannelListHeader = () => {
 					<Icons.QrIcon color={themeValue.text} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 				<TouchableOpacity onPressIn={onOpenEvent} style={styles.iconWrapper}>
-					<Icons.EventIcon color={themeValue.text} width={size.s_20} height={size.s_20} />
+					<Icons.EventIcon color={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 			</View>
 		</View>

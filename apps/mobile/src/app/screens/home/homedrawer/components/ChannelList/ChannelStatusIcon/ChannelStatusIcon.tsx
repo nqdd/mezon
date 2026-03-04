@@ -51,7 +51,7 @@ export const ChannelStatusIcon = memo(
 					/>
 				)}
 				{channel?.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel && (
-					<Icons.ClansLockIcon
+					<Icons.ClansWarningIcon
 						color={isUnRead ? themeValue.channelUnread : themeValue.channelNormal}
 						width={size.s_14}
 						height={size.s_14}
