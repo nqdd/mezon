@@ -20,7 +20,7 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 
 	const hanleEventChannel = async () => {
 		if (!events?.[0] && !events?.[0]?.channel_voice_id) return;
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
 				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />

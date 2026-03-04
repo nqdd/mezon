@@ -45,10 +45,8 @@ const ButtonAnswerCallGroup = memo(
 
 		const handleJoinCallGroup = async (dataCall: any) => {
 			if (dataCall?.groupId) {
-				if (!dataCall?.meetingCode) return;
 				const data = {
 					channelId: dataCall.groupId || '',
-					roomName: dataCall?.meetingCode,
 					isGroupCall: true,
 					clanId: ''
 				};

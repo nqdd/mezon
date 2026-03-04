@@ -1,4 +1,4 @@
-import { type ChannelsEntity } from '@mezon/store-mobile';
+import type { ChannelsEntity } from '@mezon/store-mobile';
 import { ChannelType } from 'mezon-js';
 
 type IChannelHashtag = {
@@ -11,7 +11,7 @@ export const ChannelHashtag = ({ channelHashtagId, channelEntity }: IChannelHash
 		channel_label: 'unknown'
 	};
 
-	const dataPress = `${channel.type}***${channel.channel_id}***${channel.clan_id}***${channel.status}***${channel.meeting_code}***${channel.category_id}`;
+	const dataPress = `${channel.type}***${channel.channel_id}***${channel.clan_id}***${channel.status}***${channel.channel_id}***${channel.category_id}`;
 
 	if (channel.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 		return `[${channel.channel_label}](##voice${JSON.stringify(dataPress)})`;
