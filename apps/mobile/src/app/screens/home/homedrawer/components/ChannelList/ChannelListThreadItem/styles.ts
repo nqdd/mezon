@@ -48,7 +48,8 @@ export const style = (colors: Attributes) =>
 		},
 
 		channelListItemTitleActive: {
-			color: colors.channelUnread
+			color: colors.channelUnread,
+			fontWeight: '500'
 		},
 
 		threadFirstItemActive: {

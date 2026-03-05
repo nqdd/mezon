@@ -13,11 +13,12 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 		},
 
 		channelListItemActive: {
-			borderRadius: size.s_10
+			borderRadius: size.s_20
 		},
 
 		channelListItemContainer: {
-			zIndex: 1
+			zIndex: 1,
+			marginHorizontal: size.s_6
 		},
 
 		channelListItemWrapper: {
@@ -28,7 +29,7 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 			shadowRadius: 3.84,
 			elevation: 5,
 			zIndex: 1,
-			borderRadius: size.s_10
+			borderRadius: size.s_20
 		},
 
 		channelListItem: {
@@ -37,7 +38,7 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 			paddingVertical: size.s_8,
 			borderRadius: 5,
 			flex: 1,
-			paddingLeft: 20
+			paddingLeft: size.s_12
 		},
 
 		dotIsNew: {
@@ -58,7 +59,8 @@ export const style = (colors: Attributes, themeBasic?: ThemeModeBase) =>
 		},
 
 		channelListItemTitleActive: {
-			color: colors.white
+			color: colors.white,
+			fontWeight: '500'
 		},
 
 		channelDotWrapper: {

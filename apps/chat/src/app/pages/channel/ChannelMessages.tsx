@@ -1083,7 +1083,12 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 		const jumpHighlightTimeoutRef = useRef<number | null>(null);
 
 		useEffect(() => {
-			if (!idMessageToJump?.id) return;
+			if (!idMessageToJump?.id) {
+				if (skipCalculateScroll.current) {
+					skipCalculateScroll.current = false;
+				}
+				return;
+			}
 
 			const scrollToMessage = (messageId: string) => {
 				const messageElement = chatRef.current?.querySelector(`#msg-${messageId}`);
@@ -1114,7 +1119,17 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 					jumpHighlightTimeoutRef.current = null;
 				}, 1000);
 			}
-		}, [idMessageToJump, effectiveChannelId, clearSafeTimeout, dispatch, setSafeTimeout, chatRef, isScrollTopJustUpdatedRef, setAnchor]);
+		}, [
+			idMessageToJump,
+			effectiveChannelId,
+			clearSafeTimeout,
+			dispatch,
+			setSafeTimeout,
+			chatRef,
+			isScrollTopJustUpdatedRef,
+			setAnchor,
+			skipCalculateScroll
+		]);
 
 		const [canSendMessage] = usePermissionChecker([EOverriddenPermission.sendMessage], channelId);
 

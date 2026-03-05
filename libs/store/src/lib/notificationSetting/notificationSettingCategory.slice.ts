@@ -515,7 +515,7 @@ export const channelCategorySettingSlice = createSlice({
 					return;
 				}
 
-				const existingEntity = state.byClans[clan_id].list.entities[channel_id];
+				const existingEntity = state.byClans[clan_id]?.list?.entities[channel_id];
 				if (existingEntity) {
 					channelCategorySettingAdapter.updateOne(state.byClans[clan_id].list, {
 						id: channel_id,
