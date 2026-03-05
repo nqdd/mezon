@@ -994,7 +994,6 @@ export type SearchItemProps = {
 	channel_private?: number;
 	parent_id?: string;
 	clanId?: string;
-	meeting_code?: string;
 	searchName?: string;
 };
 

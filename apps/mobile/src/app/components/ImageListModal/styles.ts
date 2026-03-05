@@ -1,4 +1,4 @@
-import { type Attributes, baseColor, size } from '@mezon/mobile-ui';
+import { baseColor, size, type Attributes } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 
 export const style = (colors?: Attributes) =>
@@ -56,7 +56,6 @@ export const style = (colors?: Attributes) =>
 		},
 		textOption: {
 			fontSize: size.medium,
-			fontWeight: '600',
 			color: colors?.text,
 			paddingRight: size.s_30
 		},

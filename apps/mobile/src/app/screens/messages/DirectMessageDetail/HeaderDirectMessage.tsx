@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { BackHandler, DeviceEventEmitter, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../componentUI/MobileIcons';
 import { useSendSignaling } from '../../../components/CallingGroupModal';
 import ImageNative from '../../../components/ImageNative';
 import { MemberInvoiceStatus } from '../../../components/MemberStatus/MemberInvoiceStatus';
@@ -159,8 +160,8 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 			const state = store.getState();
 			const rawDataUserGroup = selectRawDataUserGroup(state, currentDmGroup.channel_id);
 			const data = {
-				channelId: currentDmGroup.channel_id || '0',
-				roomName: currentDmGroup?.meeting_code,
+				channelId: currentDmGroup?.channel_id || '0',
+				roomName: currentDmGroup?.channel_id,
 				clanId: '',
 				isGroupCall: true,
 				participantsCount: rawDataUserGroup?.user_ids?.length || 0
@@ -182,7 +183,6 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 				caller_id: userProfile?.user?.id,
 				caller_name: userProfile?.user?.display_name || userProfile?.user?.username || '',
 				caller_avatar: userProfile?.user?.avatar_url,
-				meeting_code: currentDmGroup?.meeting_code,
 				clan_id: '',
 				timestamp: Date.now(),
 				participants: rawDataUserGroup?.user_ids || []
@@ -255,7 +255,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					title: 'quickReaction',
 					content: t('quickReaction.title'),
 					value: OptionChannelHeader.QuickReaction,
-					icon: <MezonIconCDN icon={IconCDN.reactionIcon} color={themeValue.text} height={size.s_18} width={size.s_18} />
+					icon: <Icons.EmojiIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 				},
 				{
 					title: 'removeQuickReaction',
@@ -267,7 +267,7 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					title: 'buzz',
 					content: 'Buzz',
 					value: OptionChannelHeader.Buzz,
-					icon: <MezonIconCDN icon={IconCDN.buzz} color={themeValue.text} height={size.s_18} width={size.s_18} />
+					icon: <Icons.BuzzIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 				}
 			].filter((item) => {
 				if (item.value === OptionChannelHeader.RemoveQuickReaction && !hasQuickReaction) return false;
@@ -386,14 +386,14 @@ const HeaderDirectMessage: React.FC<HeaderProps> = ({ from, styles, themeValue, 
 					<View style={styles.iconWrapper}>
 						{!isChatWithMyself && (
 							<>
-								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || (isTypeDMGroup && !!currentDmGroup?.meeting_code)) && (
+								{((!isTypeDMGroup && !!currentDmGroup?.user_ids?.[0]) || isTypeDMGroup) && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall()}>
-										<MezonIconCDN icon={IconCDN.phoneCallIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+										<Icons.CallIcon color={themeValue.text} width={size.s_16} height={size.s_16} />
 									</TouchableOpacity>
 								)}
 								{!isTypeDMGroup && (
 									<TouchableOpacity style={styles.iconHeader} onPress={() => goToCall(true)}>
-										<MezonIconCDN icon={IconCDN.videoIcon} width={size.s_18} height={size.s_18} color={themeValue.text} />
+										<Icons.VideoCallIcon color={themeValue.text} width={size.s_18} height={size.s_18} />
 									</TouchableOpacity>
 								)}
 							</>

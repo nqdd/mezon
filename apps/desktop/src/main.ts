@@ -406,10 +406,6 @@ ipcMain.handle(TOGGLE_HARDWARE_ACCELERATION, async (event, enabled) => {
 	const store = new Store();
 	store.set('hardwareAcceleration', enabled);
 
-	if (!enabled) {
-		app.disableHardwareAcceleration();
-	}
-
 	const response = await dialog.showMessageBox({
 		type: 'info',
 		title: 'Hardware Acceleration',

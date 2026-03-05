@@ -84,7 +84,7 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 			if (dataOgp?.data?.title && dataOgp?.data?.image && dataOgp?.data?.description) {
 				dispatch(
 					referencesActions.setOgpData({
-						url: dataOgp?.data?.key,
+						url: dataOgp?.data?.url || dataOgp?.data?.key,
 						image: dataOgp?.data?.image || '',
 						title: dataOgp?.data?.title || '',
 						description: dataOgp?.data?.description || '',
@@ -95,7 +95,7 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 				);
 			}
 
-			ogpLinkRef.current = dataOgp?.data?.key;
+			ogpLinkRef.current = dataOgp?.data?.url || dataOgp?.data?.key;
 		}
 	}, []);
 
@@ -130,7 +130,7 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 				start={{ x: 1, y: 0 }}
 				end={{ x: 0, y: 0 }}
 				colors={[themeValue.secondary, themeValue.secondaryLight]}
-				style={[StyleSheet.absoluteFillObject]}
+				style={[StyleSheet.absoluteFill]}
 			/>
 			{!!ogpItem?.image && <ImageNative url={ogpItem.image} style={styles.image} resizeMode="cover" />}
 			<View style={{ flexShrink: 1 }}>

@@ -78,11 +78,9 @@ const CallingModalWrapper = () => {
 
 	const handleJoinCallGroup = async (dataCall: any) => {
 		if (dataCall?.groupId) {
-			if (!dataCall?.meetingCode) return;
 			dispatch(appActions.setLoadingMainMobile(true));
 			const data = {
 				channelId: dataCall.groupId || '',
-				roomName: dataCall?.meetingCode,
 				clanId: '',
 				isGroupCall: true
 			};

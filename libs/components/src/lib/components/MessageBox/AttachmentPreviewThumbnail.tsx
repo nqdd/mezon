@@ -1,6 +1,6 @@
 import { Icons } from '@mezon/ui';
-import { ApiMessageAttachment } from 'mezon-js/api.gen';
-import React, { useState } from 'react';
+import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import React from 'react';
 import { RenderAttachmentThumbnail } from '../ThumbnailAttachmentRender';
 
 interface AttachmentPreviewThumbnailProps {
@@ -11,8 +11,6 @@ interface AttachmentPreviewThumbnailProps {
 }
 
 const AttachmentPreviewThumbnail: React.FC<AttachmentPreviewThumbnailProps> = ({ attachment, onRemove, indexOfItem, channelId }) => {
-	const [isHideAttachment, setIsHideAttachment] = useState(false);
-
 	const handleRemove = () => {
 		if (onRemove) {
 			onRemove(channelId, indexOfItem);
@@ -20,12 +18,8 @@ const AttachmentPreviewThumbnail: React.FC<AttachmentPreviewThumbnailProps> = ({
 	};
 
 	const filename = attachment.filename;
-	const displayedFilename = filename && filename.length > 25 ? filename.substring(0, 25) + '...' : filename;
-	const thumbnailAttachment = RenderAttachmentThumbnail({ attachment: attachment });
-
-	const handleShowAttachment = () => {
-		setIsHideAttachment(!isHideAttachment);
-	};
+	const displayedFilename = filename && filename.length > 25 ? `${filename.substring(0, 25)}...` : filename;
+	const thumbnailAttachment = RenderAttachmentThumbnail({ attachment });
 
 	return (
 		<div

@@ -71,7 +71,6 @@ export * from './forceReflow';
 export * from './heavyAnimation';
 export * from './mediaDimensions';
 export * from './mergeRefs';
-export * from './message';
 export * from './parseHtmlAsFormattedText';
 export * from './processEntitiesDirectly';
 export * from './resetScroll';

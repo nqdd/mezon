@@ -3,7 +3,7 @@ import type { BuzzArgs, IChannel, IMessage, IUserChannel, IUserProfileActivity, 
 import { ActiveDm } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ChannelMessage, ChannelUpdatedEvent, UserProfileRedis } from 'mezon-js';
+import type { ChannelMessage, ChannelUpdatedEvent, UserProfile } from 'mezon-js';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiChannelDescription, ApiChannelMessageHeader, ApiCreateChannelDescRequest, ApiDeleteChannelDescRequest } from 'mezon-js/api.gen';
 import { toast } from 'react-toastify';
@@ -481,7 +481,7 @@ export const addDirectByMessageWS = createAsyncThunk('direct/addDirectByMessageW
 
 interface AddGroupUserWSPayload {
 	channel_desc: ApiChannelDescription;
-	users: UserProfileRedis[];
+	users: UserProfile[];
 	myId: string;
 }
 
@@ -655,7 +655,7 @@ export const directSlice = createSlice({
 				}
 			});
 		},
-		setDmGroupCurrentId: (state, action: PayloadAction<string>) => {
+		setDmGroupCurrentId: (state, action: PayloadAction<string | null>) => {
 			state.currentDirectMessageId = action.payload;
 		},
 		setDmGroupCurrentType: (state, action: PayloadAction<number>) => {
@@ -1028,10 +1028,6 @@ export const selectCurrentDmChannelId = createSelector(
 	(state) => state.entities[state.currentDirectMessageId as string]?.channel_id || '0'
 );
 export const selectCurrentDmId = createSelector(getDirectState, (state) => state.entities[state.currentDirectMessageId as string]?.id || '');
-export const selectCurrentDmMeetingCode = createSelector(
-	getDirectState,
-	(state) => state.entities[state.currentDirectMessageId as string]?.meeting_code
-);
 export const selectCurrentDmClanId = createSelector(
 	getDirectState,
 	(state) => state.entities[state.currentDirectMessageId as string]?.clan_id || '0'

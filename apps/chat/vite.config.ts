@@ -40,7 +40,8 @@ export default defineConfig(({ mode }) => {
 				babel: {
 					plugins: [
 						['@babel/plugin-proposal-decorators', { legacy: true }],
-						['@babel/plugin-proposal-class-properties', { loose: true }]
+						['@babel/plugin-proposal-class-properties', { loose: true }],
+						...(process.env.BABEL_ENV === 'remove-e2e' ? [['react-remove-properties', { properties: ['data-e2e'] }]] : [])
 					]
 				}
 			}),
@@ -99,6 +100,7 @@ export default defineConfig(({ mode }) => {
 		define: {
 			global: 'globalThis',
 			'process.env.NODE_ENV': JSON.stringify(mode),
+			'process.env.BABEL_ENV': JSON.stringify(process.env.BABEL_ENV ?? ''),
 			'process.env.APP_VERSION': JSON.stringify(APP_VERSION),
 			...Object.keys(env).reduce(
 				(acc, key) => {

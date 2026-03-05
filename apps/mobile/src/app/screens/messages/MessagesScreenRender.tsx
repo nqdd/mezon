@@ -27,8 +27,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
-import MezonIconCDN from '../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../constants/icon_cdn';
+import { Icons } from '../../componentUI/MobileIcons';
 import useTabletLandscape from '../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../navigation/ScreenTypes';
 import MessageMenu from '../home/homedrawer/components/MessageMenu';
@@ -38,8 +37,9 @@ import MessageHeader from './MessageHeader';
 import MessagesScreenEmpty from './MessagesScreenEmpty';
 import { style } from './styles';
 
-const GRADIENT_START = { x: 1, y: 0 };
+const GRADIENT_START = { x: 1, y: 1 };
 const GRADIENT_END = { x: 0, y: 0 };
+const GRADIENT_LOCATIONS = [0, 0.3];
 const flexOneStyle = { flex: 1 };
 const contentContainerStyle = { paddingBottom: size.s_100 };
 const footerStyle = { paddingVertical: size.s_14 };
@@ -147,8 +147,8 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 	}, [paginationLoading, themeValue.textStrong]);
 
 	const gradientColors = useMemo(
-		() => [themeValue.primary, themeValue?.primaryGradiant || themeValue.primary] as [string, string],
-		[themeValue.primary, themeValue.primaryGradiant]
+		() => [themeValue?.primaryGradiant || themeValue.secondary, themeValue.secondary] as [string, string],
+		[themeValue?.primaryGradiant, themeValue.secondary]
 	);
 
 	const handleMomentumScrollBegin = useCallback(() => Keyboard.dismiss(), []);
@@ -157,7 +157,13 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 
 	return (
 		<View style={styles.container}>
-			<LinearGradient start={GRADIENT_START} end={GRADIENT_END} colors={gradientColors} style={StyleSheet.absoluteFillObject} />
+			<LinearGradient
+				start={GRADIENT_START}
+				end={GRADIENT_END}
+				colors={gradientColors}
+				style={StyleSheet.absoluteFill}
+				locations={GRADIENT_LOCATIONS}
+			/>
 			<MessageHeader />
 			<View style={flexOneStyle}>
 				<FlatList
@@ -180,7 +186,7 @@ const MessagesScreenRender = memo(({ chatList }: { chatList: string }) => {
 				/>
 			</View>
 			<Pressable style={styles.addMessage} onPress={navigateToNewMessageScreen}>
-				<MezonIconCDN icon={IconCDN.messagePlusIcon} width={size.s_22} height={size.s_22} />
+				<Icons.AddMessagesIcon width={size.s_50} height={size.s_50} />
 			</Pressable>
 		</View>
 	);

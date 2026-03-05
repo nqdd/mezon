@@ -55,6 +55,7 @@ import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../../src/app/componentUI/MezonIconCDN';
 import MezonConfirm from '../../../../../componentUI/MezonConfirm';
+import { Icons } from '../../../../../componentUI/MobileIcons';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { useImage } from '../../../../../hooks/useImage';
 import { APP_SCREEN } from '../../../../../navigation/ScreenTypes';
@@ -649,7 +650,7 @@ export const ContainerMessageActionModal = React.memo(
 				case EMessageActionType.ForwardAllMessages:
 					return <MezonIconCDN icon={IconCDN.forwardAllIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 				case EMessageActionType.CreateThread:
-					return <MezonIconCDN icon={IconCDN.threadIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
+					return <Icons.ThreadIcon color={themeValue.text} width={size.s_20} height={size.s_20} />;
 				case EMessageActionType.CopyText:
 					return <MezonIconCDN icon={IconCDN.copyIcon} width={size.s_20} height={size.s_20} color={themeValue.text} />;
 				case EMessageActionType.DeleteMessage:
@@ -704,6 +705,11 @@ export const ContainerMessageActionModal = React.memo(
 			const isTopicInitMessage = message?.code === TypeMessage.Topic;
 			const isFirstMessageInTopic = messagePosition === 0 && !!currentTopicId;
 			const isHideDeleteMessage = !((isAllowDelMessage && !isDM) || isMyMessage) || isTopicInitMessage || isFirstMessageInTopic;
+			const isVoiceStreamOrAppChannel = [
+				ChannelType.CHANNEL_TYPE_APP,
+				ChannelType.CHANNEL_TYPE_MEZON_VOICE,
+				ChannelType.CHANNEL_TYPE_STREAMING
+			].includes(currentChannel?.type);
 			const isHideTopicDiscussion =
 				(message?.topic_id && message?.topic_id !== '0') ||
 				message?.code === TypeMessage.Topic ||
@@ -712,7 +718,8 @@ export const ContainerMessageActionModal = React.memo(
 				currentChannelId !== message?.channel_id ||
 				isMessageSystem ||
 				message?.code === TypeMessage.MessageBuzz ||
-				anonymousMode;
+				anonymousMode ||
+				isVoiceStreamOrAppChannel;
 			const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
 			const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 			const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
@@ -764,7 +771,7 @@ export const ContainerMessageActionModal = React.memo(
 			const mediaList =
 				(message?.attachments?.length > 0 &&
 					message.attachments?.every((att) => att?.filetype?.includes('image') || att?.filetype?.includes('video'))) ||
-				message?.content?.embed?.some((embed) => embed?.image)
+					message?.content?.embed?.some((embed) => embed?.image)
 					? [EMessageActionType.SaveMedia, EMessageActionType.CopyMediaLink, EMessageActionType.ShareImage, EMessageActionType.CopyImage]
 					: [];
 

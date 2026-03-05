@@ -11,7 +11,6 @@ import {
 	selectCurrentChannelClanId,
 	selectCurrentChannelId,
 	selectCurrentChannelLabel,
-	selectCurrentChannelMeetingCode,
 	selectCurrentChannelPrivate,
 	selectCurrentChannelType,
 	selectCurrentClanId,
@@ -47,7 +46,6 @@ interface VoicePreJoinWrapperProps {
 const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapperProps) => {
 	const channelLabel = useSelector(selectCurrentChannelLabel);
 	const channelId = useSelector(selectCurrentChannelId);
-	const channelMeetingCode = useSelector(selectCurrentChannelMeetingCode);
 	const channelClanId = useSelector(selectCurrentChannelClanId);
 	const voiceInfo = useSelector(selectVoiceInfo);
 	const isJoined = useSelector(selectVoiceJoined);
@@ -58,7 +56,6 @@ const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapp
 		<PreJoinVoiceChannel
 			channel_label={channelLabel}
 			channel_id={channelId as string}
-			roomName={channelMeetingCode}
 			loading={loading}
 			handleJoinRoom={handleJoinRoom}
 			clan_id={channelClanId}
@@ -234,17 +231,16 @@ const ChannelVoiceInner = () => {
 		const currentChannelId = selectCurrentChannelId(storeState);
 		const currentChannelClanId = selectCurrentChannelClanId(storeState);
 		const currentChannelLabel = selectCurrentChannelLabel(storeState);
-		const currentChannelMeetingCode = selectCurrentChannelMeetingCode(storeState);
 		const currentChannelPrivate = selectCurrentChannelPrivate(storeState);
 
-		if (!currentClanId || !currentChannelMeetingCode) return;
+		if (!currentClanId) return;
 		setLoading(true);
 
 		try {
 			const result = await dispatch(
 				generateMeetToken({
 					channelId: currentChannelId as string,
-					roomName: currentChannelMeetingCode
+					roomName: ''
 				})
 			).unwrap();
 
@@ -369,11 +365,14 @@ class VoiceErrorBoundary extends React.Component<{ children: ReactNode }, VoiceE
 	render() {
 		if (this.state.hasError) {
 			return (
-				<div className="flex items-center justify-center h-full text-textSecondary">
-					<div className="text-center">
-						<p>Voice channel encountered an error.</p>
+				<div
+					className="absolute bottom-0 right-0 z-30 flex items-center justify-center h-full max-sbm:left-0 max-sbm:!w-full max-sbm:!h-[calc(100%_-_50px)]"
+					style={{ width: 'calc(100% - 72px - 272px)' }}
+				>
+					<div className="text-center text-textSecondary">
+						<p className="text-lg font-semibold">Voice channel encountered an error.</p>
 						<button
-							className="mt-2 px-4 py-2 bg-bgSecondary rounded hover:bg-bgTertiary"
+							className="mt-2 px-4 py-2 bg-bgSecondary rounded hover:bg-bgTertiary text-sm"
 							onClick={() => this.setState({ hasError: false })}
 						>
 							Retry

@@ -8,7 +8,7 @@ import {
 	save
 } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
-import { getStore, selectChannelById, selectCurrentClanId, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store-mobile';
+import { selectCurrentClanId, selectVoiceChannelMembersByChannelId, useAppSelector } from '@mezon/store-mobile';
 import type { IChannel } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../../../../componentUI/MobileIcons';
 import { IconCDN } from '../../../../../../constants/icon_cdn';
 import { APP_SCREEN } from '../../../../../../navigation/ScreenTypes';
 import { ChannelBadgeUnread } from '../../ChannelList/ChannelBadgeUnread';
@@ -39,14 +40,9 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 	const badge = useMemo(() => (voiceChannelMembers?.length > 3 ? voiceChannelMembers.length - 3 : 0), [voiceChannelMembers]);
 
 	const handleJoinVoice = async () => {
-		const store = getStore();
-		const channelStore = selectChannelById(store.getState(), channelId);
-		const meetingCode = channelStore?.meeting_code || channel?.meeting_code;
-		if (!meetingCode) return;
-
 		DeviceEventEmitter.emit(ActionEmitEvent.ON_OPEN_MEZON_MEET, {
 			channelId,
-			roomName: meetingCode,
+			roomName: channelId,
 			clanId: currentClanId
 		});
 		dismiss();
@@ -100,14 +96,14 @@ function JoinChannelVoiceBS({ channel }: { channel: IChannel }) {
 					}}
 					style={styles.inviteButton}
 				>
-					<MezonIconCDN icon={IconCDN.userPlusIcon} color={themeValue.textStrong} />
+					<Icons.AddFriendIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 			</View>
 			<View style={styles.centerContent}>
 				<View style={styles.avatarContainer}>
 					{voiceChannelMembers?.length === 0 ? (
 						<View style={styles.iconVoice}>
-							<MezonIconCDN icon={IconCDN.channelVoice} width={size.s_36} height={size.s_36} color={themeValue.textStrong} />
+							<Icons.VoiceIcon color={themeValue.textStrong} width={size.s_36} height={size.s_36} />
 						</View>
 					) : (
 						<View style={styles.avatarRow}>

@@ -36,6 +36,7 @@ const FriendsPage = () => {
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
 	const [textSearch, setTextSearch] = useState('');
 	const [isInvalidInput, setIsInvalidInput] = useState(false);
+	const [isBlockedUser, setIsBlockedUser] = useState(false);
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
 	const blockedUsers = useSelector(selectBlockedUsers);
 
@@ -66,8 +67,11 @@ const FriendsPage = () => {
 			case 'username':
 				if ((value || '').trim()) {
 					setRequestAddFriend({ ...requestAddFriend, usernames: value });
+					const blocked = blockedUsers.some((u) => u.user?.username === value);
+					setIsBlockedUser(blocked);
 				} else {
 					setRequestAddFriend({ ...requestAddFriend, usernames: '' });
+					setIsBlockedUser(false);
 				}
 				break;
 			case 'id':
@@ -86,11 +90,18 @@ const FriendsPage = () => {
 		});
 		setIsInvalidInput(false);
 		setIsAlreadyFriend(null);
+		setIsBlockedUser(false);
 	};
 
 	const handleAddFriend = async () => {
-		const username = requestAddFriend?.usernames?.[0];
+		const username = requestAddFriend?.usernames?.[0] || requestAddFriend?.usernames;
 		if (!username) return;
+
+		const isBlocked = blockedUsers.some((u) => u.user?.username === requestAddFriend.usernames);
+		if (isBlocked) {
+			setIsBlockedUser(true);
+			return;
+		}
 
 		const friend = friends?.find((u) => u?.user?.username === username);
 
@@ -134,9 +145,7 @@ const FriendsPage = () => {
 			return normalizedUsername.includes(normalizedSearchText) || normalizedDisplayName.includes(normalizedSearchText);
 		})
 		.sort((start, next) => {
-			const nameStart = (start.user?.display_name || start.user?.username) ?? '';
-			const nameNext = (next.user?.display_name || next.user?.username) ?? '';
-			return nameStart.localeCompare(nameNext);
+			return (next?.state || 0) - (start?.state || 0);
 		});
 
 	const getEmptyStateMessage = (tab: string) => {
@@ -279,7 +288,7 @@ const FriendsPage = () => {
 											}
 										}}
 										type="text"
-										className={`mb-2 bg-input-secondary rounded-lg mt-1 py-3 pr-[90px] md:pr-[140px] ${isAlreadyFriend ? 'border border-red-600 outline-none' : 'focus:outline focus:outline-1 dark:outline-[#00a8fc] outline-[#006ce7]'}`}
+										className={`mb-2 bg-input-secondary rounded-lg mt-1 py-3 pr-[90px] md:pr-[140px] ${isAlreadyFriend || isBlockedUser ? 'border border-red-600 outline-none' : 'focus:outline focus:outline-1 dark:outline-[#00a8fc] outline-[#006ce7]'}`}
 										value={requestAddFriend.usernames}
 										placeholder={t('addFriendModal.placeholder')}
 										needOutline={true}
@@ -301,9 +310,17 @@ const FriendsPage = () => {
 											{t('addFriendModal.invalidInput')}
 										</div>
 									)}
+									{isBlockedUser && (
+										<div
+											className="text-red-500 dark:text-red-400 text-[14px] pb-5"
+											data-e2e={generateE2eId('friend_page.input.error')}
+										>
+											{t('addFriendModal.blockedUser')}
+										</div>
+									)}
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
-										disabled={!requestAddFriend.usernames?.length || isInvalidInput}
+										disabled={!requestAddFriend.usernames?.length || isInvalidInput || isBlockedUser}
 										onClick={handleAddFriend}
 										data-e2e={generateE2eId('friend_page.button.send_friend_request')}
 									>

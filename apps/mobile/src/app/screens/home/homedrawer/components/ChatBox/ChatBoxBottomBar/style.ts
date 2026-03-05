@@ -6,7 +6,8 @@ export const style = (colors: Attributes) =>
 	StyleSheet.create({
 		container: {
 			paddingHorizontal: size.s_2,
-			overflow: 'visible'
+			overflow: 'visible',
+			backgroundColor: colors.secondary
 		},
 		wrapper: {
 			flexDirection: 'row',
@@ -28,7 +29,8 @@ export const style = (colors: Attributes) =>
 		},
 		iconEmoji: {
 			position: 'absolute',
-			right: 10
+			right: 8,
+			bottom: size.s_8
 		},
 		iconSend: {
 			marginLeft: size.s_6,
@@ -46,8 +48,8 @@ export const style = (colors: Attributes) =>
 		containerInput: {
 			flexDirection: 'row',
 			justifyContent: 'space-between',
-			alignItems: 'center',
-			paddingBottom: size.s_20,
+			alignItems: 'flex-end',
+			paddingBottom: size.s_10,
 			paddingTop: size.s_10,
 			paddingLeft: size.s_4
 		},
@@ -58,6 +60,7 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_6
 		},
 		input: {
+			minHeight: size.s_40,
 			alignItems: 'center',
 			flex: 1,
 			justifyContent: 'center'
@@ -78,17 +81,20 @@ export const style = (colors: Attributes) =>
 		},
 		inputStyleEmpty: {
 			height: size.s_40,
-			textAlignVertical: 'center'
+			textAlignVertical: 'center',
+			paddingTop: Platform.OS === 'ios' ? size.s_12 : size.s_10,
+			paddingBottom: size.s_10
 		},
 		suggestions: {
 			position: 'absolute',
-			bottom: size.s_70 + size.s_4,
+			bottom: size.s_60,
 			left: 0,
 			right: 0,
 			maxHeight: size.s_615,
 			backgroundColor: Platform.OS === 'android' ? 'transparent' : colors.primary,
 			borderTopColor: colors.secondaryLight,
-			borderRadius: size.s_8,
+			borderTopStartRadius: size.s_8,
+			borderTopEndRadius: size.s_8,
 			overflow: 'hidden',
 			zIndex: 10
 		},

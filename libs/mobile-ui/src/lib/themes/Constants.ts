@@ -67,7 +67,8 @@ export const baseColor = {
 	azureBlue: '#4173c3',
 	goldenrodYellow: '#f2b13a',
 	caribbeanGreen: '#1FA07C',
-	pink: '#e148c7'
+	pink: '#e148c7',
+	violetBlue: '#5e65de'
 } satisfies Colors;
 
 export const brandColors = {
@@ -76,19 +77,19 @@ export const brandColors = {
 
 export const themeColors: ThemeColor = {
 	dark: {
-		primary: '#1c1d22',
-		secondary: '#242427',
-		tertiary: '#141319',
+		primary: '#121218',
+		secondary: '#1c1d23',
+		tertiary: '#383a43',
 		border: '#2e2f34',
 		borderHighlight: '#27272f',
 		borderDim: '#2f2f37',
-		borderRadio: '#cacad2',
+		borderRadio: '#dadada',
 		text: '#CCCCCC',
 		textStrong: '#dfe0e4',
 		textDisabled: '#7b7b83',
 		textNormal: '#898993',
 		secondaryWeight: '#212122',
-		secondaryLight: '#2A2D31',
+		secondaryLight: '#26272f',
 		white: '#FFFFFF',
 		black: '#000000',
 		bgInputPrimary: '#2a2e31',
@@ -118,9 +119,9 @@ export const themeColors: ThemeColor = {
 		textSuccess: '#00d4aa'
 	},
 	light: {
-		primary: '#f2f3f5',
+		primary: '#f4f4f8',
 		secondary: '#ffffff',
-		tertiary: '#e1e1e1',
+		tertiary: '#f2f3f6',
 		border: '#9e9eaa',
 		borderHighlight: '#e0e1e3',
 		borderDim: '#dfdfdf',
@@ -130,7 +131,7 @@ export const themeColors: ThemeColor = {
 		textDisabled: '#606065',
 		textNormal: '#e0e1e3',
 		secondaryWeight: '#F0F0F0',
-		secondaryLight: '#ffffff',
+		secondaryLight: '#fefdfe',
 		white: '#000000',
 		black: '#FFFFFF',
 		bgInputPrimary: '#a0a1a6',

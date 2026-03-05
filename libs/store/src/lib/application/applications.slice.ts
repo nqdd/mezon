@@ -237,7 +237,11 @@ export const adminApplicationSlice = createSlice({
 			state.loadingStatus = 'not loaded';
 		});
 		builder.addCase(getApplicationDetail.fulfilled, (state, action) => {
-			state.appDetail = action.payload;
+			const detail = action.payload as Record<string, unknown>;
+			if (detail?.is_shadow !== undefined) {
+				detail.is_shadow = detail.is_shadow === true || detail.is_shadow === 'true';
+			}
+			state.appDetail = detail as ApiApp;
 		});
 		builder.addCase(editApplication.fulfilled, (state, action) => {
 			if (action.payload) {
@@ -247,12 +251,18 @@ export const adminApplicationSlice = createSlice({
 
 				const protectedFields = ['id', 'creator_id', 'create_time_seconds', 'disable_time_seconds'];
 
-				Object.keys(payload).forEach((key) => {
+				Object.keys(originalRequest).forEach((key) => {
 					const value = payload[key];
 
-					if (value === undefined) return;
+					if (value === undefined) {
+						return;
+					}
 
-					const wasInRequest = key in originalRequest;
+					if (key === 'is_shadow') {
+						const raw = originalRequest[key];
+						appDetailRecord[key] = raw === true || raw === 'true' || raw === 1 || raw === '1';
+						return;
+					}
 
 					if (protectedFields.includes(key)) {
 						const currentValue = appDetailRecord[key];
@@ -271,7 +281,7 @@ export const adminApplicationSlice = createSlice({
 						const isEmptyValue = value === '' || value === '0';
 						const isCurrentEmpty = currentValue === '' || currentValue === '0' || !currentValue;
 
-						if (!isEmptyValue || wasInRequest || isCurrentEmpty) {
+						if (!isEmptyValue || isCurrentEmpty) {
 							appDetailRecord[key] = value;
 						}
 						return;
@@ -287,7 +297,23 @@ export const adminApplicationSlice = createSlice({
 					appDetailRecord[key] = value;
 				});
 
+				if (payload.token) {
+					appDetailRecord.token = payload.token;
+				}
+				if (payload.disable_time_seconds !== undefined) {
+					appDetailRecord.disable_time_seconds = payload.disable_time_seconds;
+				}
+
 				state.appDetail = appDetailRecord as ApiApp;
+
+				const appId = (action.payload as Record<string, unknown>)?.id as string | undefined;
+				if (appId && state.entities[appId]) {
+					state.entities[appId] = {
+						...state.entities[appId],
+						...(action.payload as IApplicationEntity),
+						is_shadow: appDetailRecord.is_shadow as boolean
+					};
+				}
 			}
 		});
 		builder.addCase(fetchMezonOauthClient.fulfilled, (state, action: PayloadAction<ApiMezonOauthClient>) => {

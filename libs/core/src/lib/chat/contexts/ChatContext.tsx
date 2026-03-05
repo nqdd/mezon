@@ -844,7 +844,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 					}
 					if (!isMobile && directId === user.channel_id) {
-						navigate(`/chat/direct/friends`, true);
+						if (!channelId) {
+							navigate(`/chat/direct/friends`, true);
+						}
+						dispatch(directActions.setDmGroupCurrentId(null));
 					}
 					const threadToRemove =
 						user.channel_type === ChannelType.CHANNEL_TYPE_THREAD ? selectChannelById(currentState, user.channel_id) : null;
@@ -1041,17 +1044,17 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 							const thread: ThreadsEntity = {
 								id: channel.id,
 								channel_id: channel_desc.channel_id,
-								active: 1,
+								active: ThreadStatus.joined,
 								channel_label: channel_desc.channel_label,
 								clan_id: channel_desc.clan_id || (clanId as string),
 								parent_id: channel_desc.parent_id,
+								channel_private: channel_desc.channel_private,
 								creator_id: caller?.user_id || '',
 								last_sent_message: {
-									timestamp_seconds: userAdds.create_time_second
+									timestamp_seconds: userAdds.create_time_second || Date.now() / 1000
 								},
 								type: channel_desc.type
 							};
-
 							dispatch(
 								threadsActions.addThreadToCached({
 									channelId: channel.parent_id || '',
@@ -1464,6 +1467,25 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					clan_id: channelCreated.clan_id
 				};
 				dispatch(listChannelRenderAction.addThreadToListRender({ clanId: channelCreated?.clan_id as string, channel: thread }));
+
+				if (channelCreated.channel_private === ChannelStatusEnum.isPrivate) {
+					const privateThread: ThreadsEntity = {
+						...channelCreated,
+						id: channelCreated.channel_id,
+						type: channelCreated.channel_type,
+						last_sent_message: {
+							sender_id: channelCreated.creator_id,
+							timestamp_seconds: Date.now() / 1000
+						},
+						active: ThreadStatus.joined
+					};
+					dispatch(
+						threadsActions.addThreadToCached({
+							channelId: channelCreated.parent_id,
+							thread: privateThread
+						})
+					);
+				}
 			}
 
 			if (channelCreated.channel_private === 1 && channelCreated.channel_type === ChannelType.CHANNEL_TYPE_CHANNEL) {
@@ -2973,3 +2995,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+

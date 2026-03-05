@@ -13,10 +13,11 @@ const StatusBarHeight = () => {
 	return (
 		<View style={{ height: statusBarHeight }}>
 			<LinearGradient
-				start={{ x: 1, y: 0 }}
+				start={{ x: 1, y: 1 }}
 				end={{ x: 0, y: 0 }}
-				colors={[themeValue.primary, themeValue?.primaryGradiant || themeValue.primary]}
-				style={[StyleSheet.absoluteFillObject]}
+				colors={[themeValue.primaryGradiant || themeValue.secondary, themeValue.secondary]}
+				style={[StyleSheet.absoluteFill]}
+				locations={[0, 0.3]}
 			/>
 		</View>
 	);

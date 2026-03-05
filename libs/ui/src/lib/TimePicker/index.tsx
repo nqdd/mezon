@@ -1,6 +1,6 @@
 import { Menu } from '@mezon/ui';
 import type { ReactElement } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 type TimePickerProps = {
 	name: string;
@@ -10,6 +10,7 @@ type TimePickerProps = {
 
 function TimePicker(props: TimePickerProps) {
 	const { name, value, handleChangeTime } = props;
+	const [visible, setVisible] = useState(false);
 
 	const currentTimeMs = useMemo(() => {
 		if (typeof value !== 'number') return 0;
@@ -31,6 +32,14 @@ function TimePicker(props: TimePickerProps) {
 		return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 	}, [value]);
 
+	const handleTimeSelect = useCallback(
+		(ms: number) => {
+			handleChangeTime(ms);
+			setVisible(false);
+		},
+		[handleChangeTime]
+	);
+
 	const menu = useMemo(() => {
 		const menuItems: ReactElement[] = [];
 		for (let hour = 0; hour < 24; hour++) {
@@ -43,7 +52,7 @@ function TimePicker(props: TimePickerProps) {
 						className={`py-2 text-base bg-item-hover cursor-pointer ${isSelected ? 'bg-item-theme font-semibold' : ''}`}
 						key={ms}
 						data-time-value={ms}
-						onClick={() => handleChangeTime(ms)}
+						onClick={() => handleTimeSelect(ms)}
 					>
 						{label}
 					</div>
@@ -51,11 +60,12 @@ function TimePicker(props: TimePickerProps) {
 			}
 		}
 		return <>{menuItems}</>;
-	}, [value, currentTimeMs, handleChangeTime]);
+	}, [value, currentTimeMs, handleTimeSelect]);
 
 	const handleVisibleChange = useCallback(
-		(visible: boolean) => {
-			if (visible) {
+		(newVisible: boolean) => {
+			setVisible(newVisible);
+			if (newVisible) {
 				setTimeout(() => {
 					const selectedElement = document.querySelector(`[data-time-value="${currentTimeMs}"]`);
 					if (selectedElement) {
@@ -74,6 +84,7 @@ function TimePicker(props: TimePickerProps) {
 			placement="bottomLeft"
 			key={name}
 			className="max-h-52 overflow-y-scroll text-theme-primary border-none ml-[3px] py-[6px] px-[8px] w-[200px] app-scroll"
+			visible={visible}
 			onVisibleChange={handleVisibleChange}
 		>
 			<div className="cursor-pointer block w-full bg-theme-input border-theme-primary rounded p-2 font-normal text-sm tracking-wide outline-none bg-option-theme ">

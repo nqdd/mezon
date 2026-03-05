@@ -43,27 +43,31 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 		},
 
 		headerTitle: {
-			paddingLeft: size.s_18,
+			paddingLeft: size.s_14,
 			fontSize: isTablet ? size.s_16 : size.s_18,
 			color: colors.textStrong,
 			fontWeight: 'bold'
 		},
 
+		headerComponent: {
+			flexDirection: 'row',
+			alignItems: 'center',
+			marginHorizontal: size.s_18
+		},
+
 		btnAddFriendWrapper: {
 			flex: 1,
-			paddingVertical: size.s_16,
-			paddingRight: size.s_18
+			paddingLeft: size.s_18,
+			paddingRight: size.s_10
 		},
 		addFriend: {
 			flexDirection: 'row',
 			gap: size.s_8,
-			height: size.s_36,
+			height: size.s_42,
 			alignItems: 'center',
 			justifyContent: 'center',
-			backgroundColor: colors.secondaryLight,
+			backgroundColor: colors.tertiary,
 			borderRadius: size.s_20,
-			borderWidth: 1,
-			borderColor: colors.border,
 			paddingHorizontal: size.s_10,
 			paddingVertical: size.s_6
 		},
@@ -258,35 +262,30 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			height: size.s_36
 		},
 		btnSearchWrapper: {
-			paddingLeft: size.s_18,
-			paddingRight: size.s_10,
-			paddingVertical: size.s_16
+			paddingRight: size.s_18,
+			paddingVertical: size.s_10
 		},
 		btnSearch: {
-			backgroundColor: colors.secondaryLight,
-			width: size.s_36,
-			height: size.s_36,
-			borderRadius: size.s_36,
+			backgroundColor: colors.tertiary,
+			width: size.s_42,
+			height: size.s_42,
+			borderRadius: size.s_42,
 			alignItems: 'center',
-			justifyContent: 'center',
-			borderWidth: 1,
-			borderColor: colors.border
+			justifyContent: 'center'
 		},
 		wrapperItemActivity: {
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_6,
-			padding: size.s_6,
+			paddingRight: size.s_10,
 			borderRadius: size.s_12,
-			backgroundColor: colors.secondary,
-			borderColor: colors.secondaryLight,
-			borderWidth: 1,
+			backgroundColor: colors.tertiary,
 			maxWidth: size.s_220,
 			marginRight: size.s_10
 		},
 		avatarActivity: {
-			width: size.s_48,
-			height: size.s_48,
+			width: size.s_50,
+			height: size.s_50,
 			borderRadius: size.s_10,
 			overflow: 'hidden'
 		},
@@ -326,8 +325,7 @@ export const style = (colors: Attributes, isTablet?: boolean) =>
 			justifyContent: 'center',
 			borderRadius: size.s_20,
 			position: 'absolute',
-			right: -size.s_8,
-			top: -size.s_8,
+			right: size.s_12,
 			zIndex: 10
 		}
 	});

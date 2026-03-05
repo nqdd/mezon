@@ -5,8 +5,7 @@ import { EEventStatus } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { memo } from 'react';
 import { DeviceEventEmitter, Pressable, View } from 'react-native';
-import MezonIconCDN from '../../../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../../constants/icon_cdn';
+import { Icons } from '../../../../../../componentUI/MobileIcons';
 import JoinChannelVoiceBS from '../../ChannelVoice/JoinChannelVoiceBS';
 import { style } from './styles';
 
@@ -21,7 +20,7 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 
 	const hanleEventChannel = async () => {
 		if (!events?.[0] && !events?.[0]?.channel_voice_id) return;
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
 				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />
@@ -34,7 +33,7 @@ export const EventBadge = memo(({ clanId, channelId }: EventBadgeProps) => {
 		return (
 			<View style={style.container}>
 				<Pressable onPress={hanleEventChannel}>
-					<MezonIconCDN icon={IconCDN.calendarIcon} height={size.s_18} width={size.s_18} color={colorStatusEvent} />
+					<Icons.EventIcon color={colorStatusEvent} width={size.s_16} height={size.s_16} />
 				</Pressable>
 			</View>
 		);

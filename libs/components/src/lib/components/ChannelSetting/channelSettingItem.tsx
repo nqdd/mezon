@@ -155,10 +155,17 @@ const ChannelSettingItem = (props: ChannelSettingItemProps) => {
 				)}
 				<hr className="border-t border-solid dark:border-borderDefault my-4" />
 				<button
-					className={`p-2 dark:text-red-600 text-red-600 text-[16px] font-medium pl-2 ml-[-8px] hover:bg-bgModifierHoverLight dark:hover:bg-bgModalLight ${selectedButton === 'Delete' ? 'dark:bg-[#232E3B] bg-bgLightModeButton  ' : ''} w-[170px] text-left rounded-[5px]`}
+					className={`p-2 text-[16px] font-medium pl-2 ml-[-8px] w-[170px] text-left rounded-[5px] ${
+						channel.id === welcomeChannelId
+							? 'dark:text-gray-500 text-gray-400 cursor-not-allowed opacity-50'
+							: `dark:text-red-600 text-red-600 hover:bg-bgModifierHoverLight dark:hover:bg-bgModalLight ${selectedButton === 'Delete' ? 'dark:bg-[#232E3B] bg-bgLightModeButton  ' : ''}`
+					}`}
 					onClick={() => {
-						setShowModal(true);
+						if (channel.id !== welcomeChannelId) {
+							setShowModal(true);
+						}
 					}}
+					disabled={channel.id === welcomeChannelId}
 					data-e2e={generateE2eId('button.base')}
 				>
 					{isThread ? t('fields.threadDelete.delete') : t('fields.channelDelete.delete')}

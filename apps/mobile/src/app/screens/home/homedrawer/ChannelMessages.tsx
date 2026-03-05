@@ -5,7 +5,7 @@ import {
 	channelsActions,
 	getStore,
 	messagesActions,
-	selectAllAccount,
+	selectCurrentUserId,
 	selectHasMoreBottomByChannelId,
 	selectHasMoreMessageByChannelId,
 	selectIdMessageToJump,
@@ -33,7 +33,6 @@ import { MessageUserTyping } from './components/MessageUserTyping';
 import QuickReactionButton from './components/QuickReaction';
 import { style } from './styles';
 
-const scrollPositionCache = new Map<string, number>();
 type ChannelMessagesProps = {
 	channelId: string;
 	lastSeenMessageId?: string;
@@ -51,7 +50,11 @@ type ChannelMessagesProps = {
 
 const getEntitiesArray = (state: any) => {
 	if (!state?.ids) return [];
-	return state.ids.map((id) => state?.entities?.[id])?.reverse();
+	const result = new Array(state.ids.length);
+	for (let i = 0; i < state.ids.length; i++) {
+		result[i] = state.entities[state.ids[state.ids.length - 1 - i]];
+	}
+	return result;
 };
 
 const ChannelMessages = React.memo(
@@ -76,7 +79,7 @@ const ChannelMessages = React.memo(
 		const messages = useMemo(() => getEntitiesArray(selectMessagesByChannelMemoized), [selectMessagesByChannelMemoized]);
 		const isLoadMore = useRef({});
 		const [isDisableLoadMore, setIsDisableLoadMore] = useState<boolean | string>(false);
-		const idMessageToJump = useSelector(selectIdMessageToJump);
+		const idMessageToJump = useAppSelector(selectIdMessageToJump);
 		const isLoadingJumpMessage = useSelector(selectIsLoadingJumpMessage);
 		const flatListRef = useRef(null);
 		const timeOutRef = useRef(null);
@@ -85,11 +88,10 @@ const ChannelMessages = React.memo(
 		const [isShowJumpToPresent, setIsShowJumpToPresent] = useState(false);
 		const navigation = useNavigation<any>();
 		const lastMessage = useAppSelector((state) => selectLastMessageByChannelId(state, channelId));
-		const lastMessageId = useMemo(() => lastMessage?.id, [lastMessage]);
-		const userId = useSelector(selectAllAccount)?.user?.id;
+		const lastMessageId = lastMessage?.id;
+		const userId = useAppSelector(selectCurrentUserId);
 		const [haveScrollToBottom, setHaveScrollToBottom] = useState<boolean>(false);
 		const [listMessageLayout, setListMessageLayout] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
-		const savedScrollOffset = useMemo(() => scrollPositionCache.get(channelId), [channelId]);
 
 		const messagesRef = useRef(messages);
 		messagesRef.current = messages;
@@ -272,20 +274,27 @@ const ChannelMessages = React.memo(
 					lastSeenMessageId &&
 					previousMessage;
 				const shouldShowUnreadBreak = isPreviousMessageLastSeen && item?.sender_id !== userId && !haveScrollToBottomRef.current;
+
+				const messageItem = (
+					<MessageItem
+						userId={userId}
+						message={item}
+						previousMessage={previousMessage}
+						messageId={item.id}
+						mode={mode}
+						channelId={channelId}
+						topicChannelId={topicChannelId}
+						isHighlight={idMessageToJump?.id?.toString() === item?.id?.toString()}
+						preventAction={isBanned}
+					/>
+				);
+
+				if (!shouldShowUnreadBreak) return messageItem;
+
 				return (
 					<>
-						<MessageItem
-							userId={userId}
-							message={item}
-							previousMessage={previousMessage}
-							messageId={item.id}
-							mode={mode}
-							channelId={channelId}
-							topicChannelId={topicChannelId}
-							isHighlight={idMessageToJump?.id?.toString() === item?.id?.toString()}
-							preventAction={isBanned}
-						/>
-						{shouldShowUnreadBreak && <MessageNewLine key={`unread-${previousMessageId}`} />}
+						{messageItem}
+						<MessageNewLine key={`unread-${previousMessageId}`} />
 					</>
 				);
 			},
@@ -320,9 +329,20 @@ const ChannelMessages = React.memo(
 			}
 		}, []);
 
+		// Async load-more extracted so the scroll handler itself stays synchronous.
+		// Scroll fires 60+ times/sec — an async handler creates a Promise on every event.
+		const loadMoreBottom = useCallback(async () => {
+			setHaveScrollToBottom(true);
+			const canLoadMore = await isCanLoadMore(ELoadMoreDirection.bottom);
+			if (!canLoadMore) {
+				setIsDisableLoadMore(false);
+				return;
+			}
+			await onLoadMore(ELoadMoreDirection.bottom);
+		}, [isCanLoadMore, onLoadMore]);
+
 		const handleScroll = useCallback(
-			async ({ nativeEvent }) => {
-				scrollPositionCache.set(channelId, nativeEvent.contentOffset.y);
+			({ nativeEvent }) => {
 				handleSetShowJumpLast(nativeEvent);
 				if (
 					readyToLoadMore?.current &&
@@ -330,16 +350,10 @@ const ChannelMessages = React.memo(
 					!isLoadMore?.current?.[ELoadMoreDirection.bottom] &&
 					!isDisableLoadMore
 				) {
-					setHaveScrollToBottom(true);
-					const canLoadMore = await isCanLoadMore(ELoadMoreDirection.bottom);
-					if (!canLoadMore) {
-						setIsDisableLoadMore(false);
-						return;
-					}
-					await onLoadMore(ELoadMoreDirection.bottom);
+					loadMoreBottom();
 				}
 			},
-			[channelId, handleSetShowJumpLast, isDisableLoadMore, isCanLoadMore, onLoadMore]
+			[handleSetShowJumpLast, isDisableLoadMore, loadMoreBottom]
 		);
 
 		const handleLayout = useCallback((event) => {
@@ -363,7 +377,6 @@ const ChannelMessages = React.memo(
 						onLoadMore={onLoadMore}
 						isLoadMoreBottom={isLoadMore?.current?.[ELoadMoreDirection.bottom]}
 						initialScrollIndex={initialScrollIndex}
-						savedScrollOffset={initialScrollIndex === undefined ? savedScrollOffset : undefined}
 					/>
 				) : (
 					<View />

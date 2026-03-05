@@ -26,6 +26,7 @@ import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import MezonAvatar from '../../../../../componentUI/MezonAvatar';
 import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
+import { Icons } from '../../../../../componentUI/MobileIcons';
 import ImageNative from '../../../../../components/ImageNative';
 import { IconCDN } from '../../../../../constants/icon_cdn';
 import { useMixImageColor } from '../../../../../hooks/useMixImageColor';
@@ -94,7 +95,6 @@ const UserProfile = React.memo(
 	}: userProfileProps) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
-		const styles = style(themeValue, isTabletLandscape);
 		const userProfile = useAppSelector(selectAllAccount);
 		const { t, i18n } = useTranslation(['userProfile', 'friends', 'common']);
 		const userById = useAppSelector((state) => selectMemberClanByUserId(state, userId || user?.id));
@@ -119,6 +119,7 @@ const UserProfile = React.memo(
 		const isDMGroup = channelType === ChannelType.CHANNEL_TYPE_GROUP;
 		const isDM = currentChannel?.type === ChannelType.CHANNEL_TYPE_DM || currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
 		const isBlocked = infoFriend?.state === EStateFriend.BLOCK;
+		const styles = useMemo(() => style(themeValue, isTabletLandscape, isBlocked), [themeValue, isTabletLandscape, isBlocked]);
 		const isKicked = !userById;
 
 		const createTime = userById?.user?.create_time_seconds || user?.create_time_seconds || user?.user?.create_time_seconds;
@@ -349,19 +350,19 @@ const UserProfile = React.memo(
 					text: t('userAction.sendMessage'),
 					icon: <MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
 					action: navigateToMessageDetail,
-					isShow: !isBlocked
+					isShow: true
 				},
 				{
 					id: 2,
 					text: t('userAction.voiceCall'),
-					icon: <MezonIconCDN icon={IconCDN.phoneCallIcon} color={themeValue.text} />,
+					icon: <Icons.CallIcon color={themeValue.text} width={size.s_24} height={size.s_24} />,
 					action: () => handleCallUser(userId || user?.id),
 					isShow: !isBlocked
 				},
 				{
 					id: 4,
 					text: t('userAction.addFriend'),
-					icon: <MezonIconCDN icon={IconCDN.userPlusIcon} color={baseColor.green} />,
+					icon: <Icons.AddFriendIcon color={baseColor.green} width={size.s_20} height={size.s_20} />,
 					action: handleAddFriend,
 					isShow: !infoFriend && !isBlocked,
 					textStyleName: 'actionTextGreen'
@@ -369,7 +370,7 @@ const UserProfile = React.memo(
 				{
 					id: 5,
 					text: t('userAction.pending'),
-					icon: <MezonIconCDN icon={IconCDN.clockIcon} color={baseColor.goldenrodYellow} />,
+					icon: <Icons.ClockIcon color={baseColor.goldenrodYellow} width={size.s_24} height={size.s_24} />,
 					action: () => setIsShowPendingContent(true),
 					isShow:
 						!!infoFriend &&
@@ -446,9 +447,11 @@ const UserProfile = React.memo(
 				<View style={[styles.backdrop, { backgroundColor: userById || user?.avatar_url ? color : baseColor.gray }]}>
 					{!isCheckOwner && !isWebhook && (
 						<View style={styles.rowContainer}>
-							<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
-								<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
-							</TouchableOpacity>
+							{!isBlocked && (
+								<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
+									<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+								</TouchableOpacity>
+							)}
 							<TouchableOpacity onPress={handleTransferFunds} style={styles.transferFundsButton}>
 								<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>
