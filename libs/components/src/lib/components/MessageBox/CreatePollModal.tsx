@@ -44,7 +44,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 	useEscapeKeyClose(modalRef, onClose);
 
 	const handleAddAnswer = () => {
-		if (answers.length < 10) {
+		if (answers.length < 20) {
 			setAnswers([...answers, '']);
 			setAnswerEmojiIds([...answerEmojiIds, '']);
 		}
@@ -172,7 +172,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 						<div>
 							<label className="block text-sm font-semibold mb-2 text-theme-primary">{t('poll.answers')}</label>
 
-							<div className="space-y-2">
+							<div className="max-h-[280px] overflow-y-auto overflow-x-hidden space-y-2 pr-2 thread-scroll">
 								{answers.map((answer, index) => (
 									<div key={index} className="relative">
 										<button
@@ -223,7 +223,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 								))}
 							</div>
 
-							{answers.length < 10 && (
+							{answers.length < 20 && (
 								<button
 									onClick={handleAddAnswer}
 									className="mt-2 flex items-center gap-2 text-sm text-theme-primary hover:text-theme-primary-active transition-colors"

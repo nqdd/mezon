@@ -83,22 +83,30 @@ export const PollMessage = ({
 	};
 
 	const openDetailModal = (optionIndex: number) => {
-		if (!shouldShowResults) return;
 		setDetailModalSelectedIndex(optionIndex);
 		setIsDetailModalOpen(true);
 	};
 
-	const handleRowClick = (index: number) => {
-		if (shouldShowResults) {
-			if (hasVoted) return;
-			openDetailModal(index);
-			return;
-		}
-		handleAnswerToggle(index);
-	};
-
 	return (
 		<div className="block w-full">
+			<style>{`
+				@keyframes poll-bar-fill {
+					from { transform: scaleX(0); opacity: 0.6; }
+					to { transform: scaleX(1); opacity: 1; }
+				}
+				@keyframes poll-percent-pop {
+					from { opacity: 0; transform: scale(0.9); }
+					to { opacity: 1; transform: scale(1); }
+				}
+				.poll-bar-inner {
+					transform-origin: left;
+					animation: poll-bar-fill 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+				}
+				.poll-percent-text {
+					opacity: 0;
+					animation: poll-percent-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+				}
+			`}</style>
 			<div className="max-w-[420px] rounded bg-item-theme p-3 border-theme-primary">
 				{/* Question */}
 				<div className="flex items-center gap-2 mb-1">
@@ -126,22 +134,24 @@ export const PollMessage = ({
 						return (
 							<div
 								key={index}
-								onClick={shouldShowResults && hasVoted ? undefined : () => handleRowClick(index)}
-								className={`flex items-center justify-between px-3 py-2.5 rounded border transition-colors ${
+								onClick={shouldShowResults ? undefined : () => handleAnswerToggle(index)}
+								className={`relative flex items-center justify-between px-3 py-2.5 rounded border overflow-hidden transition-colors ${
 									shouldShowResults
-										? hasVoted
-											? isVoted
-												? '[background:var(--bg-active-member-channel)] cursor-default border-transparent'
-												: 'border-theme-primary cursor-default'
-											: isVoted
-												? '[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer border-transparent'
-												: 'border-theme-primary cursor-pointer'
+										? 'border-theme-primary cursor-default pointer-events-none'
 										: selectedAnswers.includes(index)
 											? '[background:var(--bg-item-hover)] border-[var(--text-theme-primary)] hover:[background:var(--bg-active-member-channel)] hover:brightness-105 cursor-pointer'
 											: '[background:var(--bg-item-hover)] border-transparent cursor-pointer'
 								}`}
 							>
-								<div className="flex items-center gap-2 min-w-0 flex-1">
+								{shouldShowResults && (
+									<div className="absolute inset-y-0 left-0 rounded-l min-w-0 overflow-hidden" style={{ width: `${percentage}%` }}>
+										<div
+											className="poll-bar-inner absolute inset-0 origin-left scale-x-0 rounded-l bg-blue-700/80"
+											style={{ animationDelay: `${index * 0.2}s` }}
+										/>
+									</div>
+								)}
+								<div className="relative z-10 flex items-center gap-2 min-w-0 flex-1">
 									{answerEmoji && (
 										<img
 											src={getSrcEmoji(answerEmoji)}
@@ -150,15 +160,18 @@ export const PollMessage = ({
 										/>
 									)}
 									<span
-										className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary' : 'text-theme-primary-active'} break-all min-w-0 flex-1`}
+										className={`text-sm font-medium ${hasVoted && isVoted ? 'text-theme-primary' : 'text-theme-primary-active'} break-all min-w-0 flex-1 truncate`}
 									>
 										{answer}
 									</span>
 								</div>
-								<div className="flex items-center gap-3 flex-shrink-0 pl-2">
+								<div className="relative z-10 flex items-center gap-3 flex-shrink-0 pl-2">
 									{shouldShowResults && (
-										<span className={`text-xs font-semibold ${isVoted ? 'text-theme-primary' : 'text-theme-primary-active'}`}>
-											{voteCount} {voteCount < 2 ? t('poll.vote') : t('poll.votes')} {percentage}%
+										<span
+											className={`poll-percent-text text-xs font-semibold ${isVoted ? 'text-theme-primary' : 'text-theme-primary-active'}`}
+											style={{ animationDelay: `${index * 0.1 + 0.25}s` }}
+										>
+											{percentage}% {voteCount} {voteCount < 2 ? t('poll.vote') : t('poll.votes')}
 										</span>
 									)}
 									{canSelectAnswers && (
@@ -190,28 +203,20 @@ export const PollMessage = ({
 				{/* Footer */}
 				<div className="flex items-center justify-between pt-1">
 					<span
-						role={shouldShowResults ? 'button' : undefined}
-						tabIndex={shouldShowResults ? 0 : undefined}
-						onClick={
-							shouldShowResults
-								? (e) => {
-										e.preventDefault();
-										e.stopPropagation();
-										openDetailModal(0);
-									}
-								: undefined
-						}
-						onKeyDown={
-							shouldShowResults
-								? (e) => {
-										if (e.key === 'Enter' || e.key === ' ') {
-											e.preventDefault();
-											openDetailModal(0);
-										}
-									}
-								: undefined
-						}
-						className={`text-xs text-theme-primary ${shouldShowResults ? 'cursor-pointer hover:underline' : ''}`}
+						role="button"
+						tabIndex={0}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							openDetailModal(0);
+						}}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' || e.key === ' ') {
+								e.preventDefault();
+								openDetailModal(0);
+							}
+						}}
+						className="text-xs text-theme-primary cursor-pointer hover:underline"
 					>
 						{totalVotes} {totalVotes < 2 ? t('poll.vote') : t('poll.votes')} • {duration} {t('poll.left')}
 					</span>
@@ -255,6 +260,7 @@ export const PollMessage = ({
 				totalVotes={totalVotes}
 				votersByOption={votersByOption}
 				initialSelectedIndex={detailModalSelectedIndex}
+				votedAnswers={votedAnswers}
 			/>
 		</div>
 	);

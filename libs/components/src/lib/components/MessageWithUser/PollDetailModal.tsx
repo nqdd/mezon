@@ -18,6 +18,7 @@ export type PollDetailModalProps = {
 	totalVotes: number;
 	votersByOption?: PollVoter[][];
 	initialSelectedIndex?: number;
+	votedAnswers?: number[];
 };
 
 export const PollDetailModal = ({
@@ -29,7 +30,8 @@ export const PollDetailModal = ({
 	voteCounts,
 	totalVotes,
 	votersByOption,
-	initialSelectedIndex = 0
+	initialSelectedIndex = 0,
+	votedAnswers = []
 }: PollDetailModalProps): ReactNode => {
 	const { t } = useTranslation('message');
 	const [selectedIndex, setSelectedIndex] = useState(initialSelectedIndex);
@@ -85,20 +87,23 @@ export const PollDetailModal = ({
 
 					<div className="flex flex-1 min-h-0 py-4 border-theme-primary">
 						<div className="w-[35%] border-r-theme-primary flex flex-col overflow-hidden">
-							<div className="overflow-y-auto px-4">
+							<div className="overflow-y-auto overflow-x-hidden px-4 pr-2 thread-scroll">
 								{answers.map((answer, index) => {
 									const count = voteCounts[index];
 									const isSelected = selectedIndex === index;
+									const isVoted = votedAnswers.includes(index);
 									const answerEmoji = answerEmojiIds?.[index];
 									return (
 										<button
 											key={index}
 											type="button"
 											onClick={() => setSelectedIndex(index)}
-											className={`w-full text-left bg-theme-primary flex mb-1 items-center gap-2 px-3 py-2.5 rounded transition-colors ${
+											className={`w-full text-left bg-theme-primary flex mb-1 items-center gap-2 px-3 py-2.5 rounded transition-colors border ${
 												isSelected
-													? 'text-theme-primary-active [background:var(--bg-active-member-channel)] transition-colors'
-													: 'text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover transition-colors'
+													? 'text-theme-primary-active [background:var(--bg-active-member-channel)] border-theme-primary transition-colors'
+													: isVoted
+														? 'text-theme-primary border-theme-primary bg-item-theme-hover hover:text-theme-primary-active'
+														: 'text-theme-primary hover:text-theme-primary-active hover:border-theme-primary bg-item-theme-hover border-transparent transition-colors'
 											}`}
 										>
 											{answerEmoji && (
@@ -113,7 +118,7 @@ export const PollDetailModal = ({
 						</div>
 
 						<div className="flex-1 flex flex-col overflow-hidden">
-							<div className="overflow-y-auto p-3">
+							<div className="overflow-y-auto overflow-x-hidden p-3 pr-2 thread-scroll">
 								{detailVoters.length === 0 ? (
 									<p className="text-lg text-theme-primary">{t('poll.noVoterDetails')}</p>
 								) : (
