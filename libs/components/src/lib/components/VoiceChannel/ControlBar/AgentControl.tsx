@@ -1,6 +1,6 @@
 import { useRoomContext } from '@livekit/components-react';
 import { usePermissionChecker } from '@mezon/core';
-import { handleAddAgentToVoice, handleKichAgentFromVoice, selectVoiceInfo, useAppDispatch } from '@mezon/store';
+import { handleAddAgentToVoice, handleKichAgentFromVoice, selectAllAccount, selectVoiceInfo, useAppDispatch } from '@mezon/store';
 import { EPermission } from '@mezon/utils';
 import type { RemoteParticipant } from 'livekit-client';
 import { memo, useEffect, useRef, useState } from 'react';
@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux';
 
 export const AgentControl = memo(({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const [hasChannelPermission] = usePermissionChecker([EPermission.manageChannel]);
-
-	if (!hasChannelPermission && !isExternalCalling) {
+	const account = useSelector(selectAllAccount);
+	if ((!hasChannelPermission && !isExternalCalling) || (isExternalCalling && !account)) {
 		return null;
 	}
 	return <ButtonAgent isExternalCalling={isExternalCalling} />;
