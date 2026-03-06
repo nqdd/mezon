@@ -197,6 +197,7 @@ const MessageText = ({
 					duration={pollData.duration}
 					allowMultipleAnswers={pollData.allowMultipleAnswers}
 					messageId={message.id}
+					channelId={message.channel_id}
 				/>
 			) : displayLine?.length > 0 || hasLinkMarkdown ? (
 				<MessageLine

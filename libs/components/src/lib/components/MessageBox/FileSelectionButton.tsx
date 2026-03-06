@@ -71,20 +71,15 @@ function FileSelectionButton({ currentChannelId, mode }: FileSelectionButtonProp
 			}
 
 			const expireHours = parseInt(pollData.duration, 10);
-			const isPublic = !currentChannel.channel_private;
-
-			const mode = currentChannel.type === 1 ? 6 : currentChannel.parrent_id !== '0' ? 6 : 2;
 
 			await dispatch(
 				createChannelPoll({
-					channelId: currentChannelId,
-					clanId: currentChannel.clan_id || '0',
-					title: pollData.question,
-					options: pollData.answers,
-					mode,
-					isPublic,
-					expireHours,
-					allowMultipleAnswers: pollData.allowMultipleAnswers
+					channel_id: currentChannelId,
+					clan_id: currentChannel.clan_id || '0',
+					question: pollData.question,
+					answers: pollData.answers,
+					expire_hours: expireHours,
+					type: pollData.allowMultipleAnswers ? 1 : 0
 				})
 			).unwrap();
 
