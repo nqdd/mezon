@@ -12,10 +12,10 @@ export const AgentControl = memo(({ isExternalCalling }: { isExternalCalling: bo
 	if (!hasChannelPermission && !isExternalCalling) {
 		return null;
 	}
-	return <ButtonAgent />;
+	return <ButtonAgent isExternalCalling={isExternalCalling} />;
 });
 
-const ButtonAgent = () => {
+const ButtonAgent = ({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const room = useRoomContext();
 	const [onAgent, setOnAgent] = useState(false);
 	const currentVoice = useSelector(selectVoiceInfo);
@@ -23,15 +23,23 @@ const ButtonAgent = () => {
 	const timerCount = useRef<NodeJS.Timeout | null>(null);
 	const [disable, setDisable] = useState(false);
 	const dispatch = useAppDispatch();
-	const handleAddAgent = () => {
+	const handleAddAgent = async () => {
+		if (isExternalCalling) {
+			const room_name = await room?.getSid();
+			if (!onAgent) {
+				dispatch(handleAddAgentToVoice({ channel_id: currentVoice?.channelId || '0', room_name: room_name || '' }));
+			} else {
+				dispatch(handleKichAgentFromVoice({ channel_id: currentVoice?.channelId || '0', room_name: room_name || '' }));
+			}
+		}
 		if (!currentVoice || disable) {
 			return;
 		}
 
 		if (!onAgent) {
-			dispatch(handleAddAgentToVoice({ channel_id: currentVoice.channelId, room_name: currentVoice.roomId || '' }));
+			dispatch(handleAddAgentToVoice({ channel_id: currentVoice?.channelId || '', room_name: currentVoice?.roomId || '' }));
 		} else {
-			dispatch(handleKichAgentFromVoice({ channel_id: currentVoice.channelId, room_name: currentVoice.roomId || '' }));
+			dispatch(handleKichAgentFromVoice({ channel_id: currentVoice?.channelId || '', room_name: currentVoice?.roomId || '' }));
 		}
 	};
 
