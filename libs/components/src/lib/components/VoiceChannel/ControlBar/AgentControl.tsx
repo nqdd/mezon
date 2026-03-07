@@ -28,7 +28,7 @@ const ButtonAgent = ({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const dispatch = useAppDispatch();
 	const handleAddAgent = async () => {
 		if (isExternalCalling) {
-			const room_name = await room?.getSid();
+			const room_name = room?.name;
 			if (!onAgent) {
 				dispatch(handleAddAgentToVoice({ channel_id: currentVoice?.channelId || '0', room_name: room_name || '' }));
 			} else {
