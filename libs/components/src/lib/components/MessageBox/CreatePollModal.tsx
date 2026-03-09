@@ -38,6 +38,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 	const [answers, setAnswers] = useState(['', '']);
 	const [answerEmojiIds, setAnswerEmojiIds] = useState(['', '']);
 	const [emojiPickerIndex, setEmojiPickerIndex] = useState<number | null>(null);
+	const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 	const [duration, setDuration] = useState('24');
 	const [allowMultipleAnswers, setAllowMultipleAnswers] = useState(false);
 
@@ -68,8 +69,17 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 		setAnswers(newAnswers);
 	};
 
-	const handleToggleEmojiPicker = (index: number) => {
-		setEmojiPickerIndex((current) => (current === index ? null : index));
+	const handleToggleEmojiPicker = (index: number, event: React.MouseEvent<HTMLButtonElement>) => {
+		if (emojiPickerIndex === index) {
+			setEmojiPickerIndex(null);
+		} else {
+			const rect = event.currentTarget.getBoundingClientRect();
+			setEmojiPickerPosition({
+				top: rect.bottom + window.scrollY + 8,
+				left: rect.left + window.scrollX
+			});
+			setEmojiPickerIndex(index);
+		}
 		setShowQuestionEmojiPicker(false);
 	};
 
@@ -169,7 +179,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 						</div>
 
 						{/* Answers */}
-						<div>
+						<div className="relative">
 							<label className="block text-sm font-semibold mb-2 text-theme-primary">{t('poll.answers')}</label>
 
 							<div className="max-h-[280px] overflow-y-auto overflow-x-hidden space-y-2 pr-2 thread-scroll">
@@ -177,7 +187,7 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 									<div key={index} className="relative">
 										<button
 											type="button"
-											onClick={() => handleToggleEmojiPicker(index)}
+											onClick={(e) => handleToggleEmojiPicker(index, e)}
 											className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-primary hover:text-theme-primary-active hover:brightness-200 transition-all"
 										>
 											{answerEmojiIds[index] ? (
@@ -207,17 +217,6 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 											>
 												<Icons.TrashIcon className="w-5 h-5" />
 											</button>
-										)}
-
-										{emojiPickerIndex === index && (
-											<div className="absolute left-0 top-full mt-2 z-[60] w-[420px] max-w-[calc(100vw-3rem)] rounded-lg border border-theme-primary bg-theme-setting-primary shadow-xl">
-												<EmojiSuggestionProvider>
-													<EmojiRolePanel
-														onEmojiSelect={(emojiId) => handleSelectAnswerEmoji(emojiId)}
-														onClose={() => setEmojiPickerIndex(null)}
-													/>
-												</EmojiSuggestionProvider>
-											</div>
 										)}
 									</div>
 								))}
@@ -286,6 +285,17 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 					</div>
 				</div>
 			</div>
+
+			{emojiPickerIndex !== null && (
+				<div
+					className="fixed z-[70] w-[420px] max-w-[calc(100vw-3rem)] rounded-lg border border-theme-primary bg-theme-setting-primary shadow-xl"
+					style={{ top: `${emojiPickerPosition.top}px`, left: `${emojiPickerPosition.left}px` }}
+				>
+					<EmojiSuggestionProvider>
+						<EmojiRolePanel onEmojiSelect={(emojiId) => handleSelectAnswerEmoji(emojiId)} onClose={() => setEmojiPickerIndex(null)} />
+					</EmojiSuggestionProvider>
+				</div>
+			)}
 		</>
 	);
 }

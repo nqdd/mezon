@@ -1,5 +1,4 @@
 import {
-	closePoll,
 	getPoll,
 	getStore,
 	selectCurrentUserId,
@@ -75,49 +74,6 @@ export const PollMessage = ({
 			dispatch(getPoll({ message_id: messageId, channel_id: channelId }));
 		}
 	}, [dispatch, messageId, channelId, pollData]);
-
-	useEffect(() => {
-		if (!pollData?.poll_id || !messageId || !channelId) return;
-		if (isClosed || !isExpired) return;
-
-		const autoClose = async () => {
-			try {
-				await dispatch(
-					closePoll({
-						poll_id: pollData.poll_id,
-						message_id: messageId,
-						channel_id: channelId
-					})
-				).unwrap();
-			} catch (error) {
-				// Silently fail - poll might already be closed by another client
-			}
-		};
-
-		autoClose();
-	}, [dispatch, pollData?.poll_id, messageId, channelId, isClosed, isExpired]);
-
-	useEffect(() => {
-		if (!pollData?.exp || isClosed) return;
-
-		const checkExpiration = () => {
-			const now = Math.floor(Date.now() / 1000);
-			const exp = parseInt((pollData as Record<string, unknown>).exp as string);
-
-			if (exp < now && !isClosed && pollData.poll_id && messageId && channelId) {
-				dispatch(
-					closePoll({
-						poll_id: pollData.poll_id,
-						message_id: messageId,
-						channel_id: channelId
-					})
-				);
-			}
-		};
-
-		const timer = setInterval(checkExpiration, 60000);
-		return () => clearInterval(timer);
-	}, [dispatch, pollData, messageId, channelId, isClosed]);
 
 	const voteCounts = useMemo(() => {
 		const pollDataAny = pollData as Record<string, unknown>;
