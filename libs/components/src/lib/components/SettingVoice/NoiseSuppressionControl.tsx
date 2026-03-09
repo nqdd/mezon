@@ -1,6 +1,6 @@
 import { Icons } from '@mezon/ui';
 import { NOISE_SUPPRESSION_NORMALIZATION_FACTOR } from '@mezon/utils';
-import { DeepFilterNet3Processor, DeepFilterNoiseFilterProcessor } from 'deepfilternet3-noise-filter';
+import { DeepFilterNoiseFilterProcessor } from 'deepfilternet3-noise-filter';
 import type { ChangeEvent } from 'react';
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
