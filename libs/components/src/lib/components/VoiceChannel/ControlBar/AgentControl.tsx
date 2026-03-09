@@ -1,6 +1,6 @@
 import { useRoomContext } from '@livekit/components-react';
 import { usePermissionChecker } from '@mezon/core';
-import { handleAddAgentToVoice, handleKichAgentFromVoice, selectVoiceInfo, useAppDispatch } from '@mezon/store';
+import { handleAddAgentToVoice, handleKichAgentFromVoice, selectAllAccount, selectVoiceInfo, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { EPermission } from '@mezon/utils';
 import type { RemoteParticipant } from 'livekit-client';
@@ -9,14 +9,14 @@ import { useSelector } from 'react-redux';
 
 export const AgentControl = memo(({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const [hasChannelPermission] = usePermissionChecker([EPermission.manageChannel]);
-
-	if (!hasChannelPermission && !isExternalCalling) {
+	const account = useSelector(selectAllAccount);
+	if ((!hasChannelPermission && !isExternalCalling) || (isExternalCalling && !account)) {
 		return null;
 	}
-	return <ButtonAgent />;
+	return <ButtonAgent isExternalCalling={isExternalCalling} />;
 });
 
-const ButtonAgent = () => {
+const ButtonAgent = ({ isExternalCalling }: { isExternalCalling: boolean }) => {
 	const room = useRoomContext();
 	const [onAgent, setOnAgent] = useState(false);
 	const currentVoice = useSelector(selectVoiceInfo);
@@ -26,15 +26,23 @@ const ButtonAgent = () => {
 	const [loading, setLoading] = useState(false);
 	const timerLoading = useRef<NodeJS.Timeout | null>(null);
 	const dispatch = useAppDispatch();
-	const handleAddAgent = () => {
+	const handleAddAgent = async () => {
+		if (isExternalCalling) {
+			const room_name = room?.name;
+			if (!onAgent) {
+				dispatch(handleAddAgentToVoice({ channel_id: currentVoice?.channelId || '0', room_name: room_name || '' }));
+			} else {
+				dispatch(handleKichAgentFromVoice({ channel_id: currentVoice?.channelId || '0', room_name: room_name || '' }));
+			}
+		}
 		if (!currentVoice || disable) {
 			return;
 		}
 		setLoading(true);
 		if (!onAgent) {
-			dispatch(handleAddAgentToVoice({ channel_id: currentVoice.channelId, room_name: currentVoice.roomId || '' }));
+			dispatch(handleAddAgentToVoice({ channel_id: currentVoice?.channelId || '', room_name: currentVoice?.roomId || '' }));
 		} else {
-			dispatch(handleKichAgentFromVoice({ channel_id: currentVoice.channelId, room_name: currentVoice.roomId || '' }));
+			dispatch(handleKichAgentFromVoice({ channel_id: currentVoice?.channelId || '', room_name: currentVoice?.roomId || '' }));
 		}
 		timerLoading.current = setTimeout(() => {
 			setLoading(false);
