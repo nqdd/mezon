@@ -200,7 +200,6 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				style={styles.absoluteFill}
 			/>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
-				<MezonIconCDN icon={IconCDN.streamBanner} customStyle={styles.backgroundImage} useOriginalColor customResizeMode="cover" />
 				{isTabletLandscape && (
 					<TouchableOpacity style={styles.backgroundSetting} onPress={handleBack}>
 						<MezonIconCDN icon={IconCDN.chevronSmallLeftIcon} height={size.s_20} width={size.s_20} color={themeValue.textStrong} />
