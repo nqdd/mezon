@@ -573,7 +573,11 @@ function MessageContextMenu({
 		) {
 			return false;
 		}
-		if (currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING || currentChannelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (
+			currentChannelType === ChannelType.CHANNEL_TYPE_STREAMING ||
+			currentChannelType === ChannelType.CHANNEL_TYPE_MEZON_VOICE ||
+			currentChannelType === ChannelType.CHANNEL_TYPE_APP
+		) {
 			return false;
 		}
 		return canManageThread;
@@ -828,6 +832,9 @@ function MessageContextMenu({
 			notAllowedType &&
 			!isTopic &&
 			canSendMessage &&
+			currentChannelType !== ChannelType.CHANNEL_TYPE_APP &&
+			currentChannelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+			currentChannelType !== ChannelType.CHANNEL_TYPE_STREAMING &&
 			builder.when(checkPos && hasPermissionCreateTopic, (builder) => {
 				builder.addMenuItem('topicDiscussion', t('topicDiscussion'), handleCreateTopic, <Icons.TopicIcon defaultSize="w-4 h-4" />);
 			});

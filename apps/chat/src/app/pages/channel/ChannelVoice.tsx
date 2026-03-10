@@ -7,11 +7,9 @@ import {
 	appActions,
 	generateMeetToken,
 	getStore,
-	handleParticipantVoiceState,
 	selectCurrentChannelClanId,
 	selectCurrentChannelId,
 	selectCurrentChannelLabel,
-	selectCurrentChannelMeetingCode,
 	selectCurrentChannelPrivate,
 	selectCurrentChannelType,
 	selectCurrentClanId,
@@ -29,7 +27,7 @@ import {
 } from '@mezon/store';
 
 import { MyVideoConference, PreJoinVoiceChannel } from '@mezon/components';
-import { ParticipantMeetState, isLinuxDesktop, isWindowsDesktop, useLastCallback } from '@mezon/utils';
+import { isLinuxDesktop, isWindowsDesktop, useLastCallback } from '@mezon/utils';
 import type { RoomConnectOptions } from 'livekit-client';
 import { Room } from 'livekit-client';
 import { ChannelType } from 'mezon-js';
@@ -47,7 +45,6 @@ interface VoicePreJoinWrapperProps {
 const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapperProps) => {
 	const channelLabel = useSelector(selectCurrentChannelLabel);
 	const channelId = useSelector(selectCurrentChannelId);
-	const channelMeetingCode = useSelector(selectCurrentChannelMeetingCode);
 	const channelClanId = useSelector(selectCurrentChannelClanId);
 	const voiceInfo = useSelector(selectVoiceInfo);
 	const isJoined = useSelector(selectVoiceJoined);
@@ -58,7 +55,6 @@ const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapp
 		<PreJoinVoiceChannel
 			channel_label={channelLabel}
 			channel_id={channelId as string}
-			roomName={channelMeetingCode}
 			loading={loading}
 			handleJoinRoom={handleJoinRoom}
 			clan_id={channelClanId}
@@ -191,23 +187,6 @@ const ChannelVoiceInner = () => {
 		}
 	}, [lowPowerMode]);
 
-	const participantMeetState = useCallback(
-		async (state: ParticipantMeetState, clanId?: string, channelId?: string, self?: boolean): Promise<void> => {
-			if (!clanId || !channelId || !userProfile?.user?.id) return;
-
-			await dispatch(
-				handleParticipantVoiceState({
-					clan_id: clanId,
-					channel_id: channelId,
-					display_name: userProfile?.user?.display_name ?? '',
-					state,
-					room_name: self && state === ParticipantMeetState.LEAVE ? 'leave' : voiceInfo?.roomId || ''
-				})
-			);
-		},
-		[dispatch, userProfile, voiceInfo?.roomId]
-	);
-
 	const handleJoinRoom = useLastCallback(async () => {
 		try {
 			await room.disconnect();
@@ -234,22 +213,20 @@ const ChannelVoiceInner = () => {
 		const currentChannelId = selectCurrentChannelId(storeState);
 		const currentChannelClanId = selectCurrentChannelClanId(storeState);
 		const currentChannelLabel = selectCurrentChannelLabel(storeState);
-		const currentChannelMeetingCode = selectCurrentChannelMeetingCode(storeState);
 		const currentChannelPrivate = selectCurrentChannelPrivate(storeState);
 
-		if (!currentClanId || !currentChannelMeetingCode) return;
+		if (!currentClanId) return;
 		setLoading(true);
 
 		try {
 			const result = await dispatch(
 				generateMeetToken({
 					channelId: currentChannelId as string,
-					roomName: currentChannelMeetingCode
+					roomName: ''
 				})
 			).unwrap();
 
 			if (result) {
-				await participantMeetState(ParticipantMeetState.JOIN, currentChannelClanId as string, currentChannelId as string);
 				dispatch(voiceActions.setJoined(true));
 				dispatch(voiceActions.setToken(result));
 				dispatch(
@@ -290,8 +267,6 @@ const ChannelVoiceInner = () => {
 		}
 
 		isDisconnectingRef.current = false;
-
-		await participantMeetState(ParticipantMeetState.LEAVE, voiceInfo.clanId, voiceInfo.channelId, self);
 	});
 
 	const handleFullScreen = useCallback(() => {
@@ -369,11 +344,14 @@ class VoiceErrorBoundary extends React.Component<{ children: ReactNode }, VoiceE
 	render() {
 		if (this.state.hasError) {
 			return (
-				<div className="flex items-center justify-center h-full text-textSecondary">
-					<div className="text-center">
-						<p>Voice channel encountered an error.</p>
+				<div
+					className="absolute bottom-0 right-0 z-30 flex items-center justify-center h-full max-sbm:left-0 max-sbm:!w-full max-sbm:!h-[calc(100%_-_50px)]"
+					style={{ width: 'calc(100% - 72px - 272px)' }}
+				>
+					<div className="text-center text-textSecondary">
+						<p className="text-lg font-semibold">Voice channel encountered an error.</p>
 						<button
-							className="mt-2 px-4 py-2 bg-bgSecondary rounded hover:bg-bgTertiary"
+							className="mt-2 px-4 py-2 bg-bgSecondary rounded hover:bg-bgTertiary text-sm"
 							onClick={() => this.setState({ hasError: false })}
 						>
 							Retry

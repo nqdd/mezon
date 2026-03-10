@@ -133,7 +133,6 @@ const HashtagChannelComponent = ({
 			channelId,
 			clanId,
 			status: Number(dataChannel?.[3] || 1),
-			meetingCode: dataChannel?.[4] || '',
 			categoryId: dataChannel?.[5],
 			channelLabel: text ? text : channelLabel && targetChannelId ? channelLabel : ''
 		};

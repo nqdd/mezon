@@ -6,8 +6,8 @@ export const MAX_PARTICIPANTS = 50;
 /**
  * Validate group call configuration
  */
-export const validateGroupCallConfig = (config: { groupId?: string; meetingCode?: string; participants?: string[] }): boolean => {
-	if (!config.groupId || !config.meetingCode || !config.participants || config.participants.length === 0) {
+export const validateGroupCallConfig = (config: { groupId?: string; participants?: string[] }): boolean => {
+	if (!config.groupId || !config.participants || config.participants.length === 0) {
 		return false;
 	}
 
