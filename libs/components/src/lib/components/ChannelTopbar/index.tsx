@@ -17,6 +17,7 @@ import {
 	selectAllAccount,
 	selectChannelById,
 	selectCloseMenu,
+	selectCurrentChannel,
 	selectCurrentChannelCategoryId,
 	selectCurrentChannelChannelId,
 	selectCurrentChannelClanId,
@@ -28,7 +29,7 @@ import {
 	selectCurrentClanId,
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
-	selectDefaultNotificationClan,
+	selectDefaultNotificationClanByClanId,
 	selectFriendById,
 	selectGalleryAttachmentsByChannel,
 	selectIsInCall,
@@ -902,11 +903,11 @@ function ThreadButton() {
 function MuteButton() {
 	const { t } = useTranslation('channelTopbar');
 	const [isMuteBell, setIsMuteBell] = useState<boolean>(false);
-	const currentChannelObjectId = useSelector(selectCurrentChannelId);
+	const currentChannelObject = useSelector(selectCurrentChannel);
 	const currentChannelCategoryId = useSelector(selectCurrentChannelCategoryId);
-	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObjectId || ''));
+	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObject?.id || ''));
 	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannelCategoryId as string));
-	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
+	const defaultNotificationClan = useAppSelector((state) => selectDefaultNotificationClanByClanId(state, currentChannelObject?.id || ''));
 
 	useEffect(() => {
 		const shouldMuteBell = (): boolean => {
