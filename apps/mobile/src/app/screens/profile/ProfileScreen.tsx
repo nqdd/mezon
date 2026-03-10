@@ -17,6 +17,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { useSelector } from 'react-redux';
 import MezonAvatar from '../../componentUI/MezonAvatar';
@@ -186,6 +187,18 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 
 	return (
 		<View style={styles.container}>
+			<LinearGradient
+				start={{ x: 1, y: 1 }}
+				end={{ x: 0, y: 0 }}
+				colors={[
+					themeValue.secondary,
+					themeValue?.primaryGradiant || themeValue.secondary,
+					themeValue.secondary,
+					themeValue?.primaryGradiant || themeValue.secondary
+				]}
+				locations={[0.2, 0.4, 0.8, 0.9]}
+				style={styles.absoluteFill}
+			/>
 			<View style={[styles.containerBackground, { backgroundColor: color }]}>
 				<MezonIconCDN icon={IconCDN.streamBanner} customStyle={styles.backgroundImage} useOriginalColor customResizeMode="cover" />
 				{isTabletLandscape && (
