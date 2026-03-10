@@ -44,7 +44,7 @@ export const PollMessage = ({
 	channelId,
 	votersByOption
 }: PollMessageProps) => {
-	const { t } = useTranslation('message');
+	const { t, i18n } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
 	const [showResults, setShowResults] = useState(false);
@@ -145,6 +145,18 @@ export const PollMessage = ({
 	const shouldShowResults = hasVoted || showResults || isClosed || isExpired;
 
 	const totalVotes = useMemo(() => voteCounts.reduce((sum, count) => sum + count, 0), [voteCounts]);
+
+	const formattedDuration = useMemo(() => {
+		if (!duration) return '';
+		const match = duration.match(/^(\d+)\s+(\w+)/);
+		if (!match) return duration;
+		const count = Number(match[1]);
+		const unit = match[2].toLowerCase();
+		if (unit.startsWith('day')) return t('poll.durationDays', { count });
+		if (unit.startsWith('hour')) return t('poll.durationHours', { count });
+		if (unit.startsWith('minute')) return t('poll.durationMinutes', { count });
+		return duration;
+	}, [duration, t, i18n.language]);
 
 	const handleAnswerToggle = (index: number) => {
 		if (!canSelectAnswers) return;
@@ -348,27 +360,29 @@ export const PollMessage = ({
 
 				{/* Footer */}
 				<div className="flex items-center justify-between pt-1">
-					<span
-						role="button"
-						tabIndex={0}
-						onClick={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-							openDetailModal(0);
-						}}
-						onKeyDown={(e) => {
-							if (e.key === 'Enter' || e.key === ' ') {
+					<span className="text-xs text-theme-primary">
+						<span
+							role="button"
+							tabIndex={0}
+							onClick={(e) => {
 								e.preventDefault();
+								e.stopPropagation();
 								openDetailModal(0);
-							}
-						}}
-						className="text-xs text-theme-primary cursor-pointer hover:underline"
-					>
-						{totalVotes} {totalVotes < 2 ? t('poll.vote') : t('poll.votes')}
+							}}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									e.preventDefault();
+									openDetailModal(0);
+								}
+							}}
+							className="cursor-pointer hover:underline"
+						>
+							{totalVotes} {totalVotes < 2 ? t('poll.vote') : t('poll.votes')}
+						</span>
 						{!isClosed && !isExpired && (
 							<>
 								{' '}
-								• {duration} {t('poll.left')}
+								• {formattedDuration || duration} {t('poll.left')}
 							</>
 						)}
 					</span>

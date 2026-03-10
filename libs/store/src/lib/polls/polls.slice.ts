@@ -12,6 +12,11 @@ import { ensureSession, getMezonCtx } from '../helpers';
 
 export const POLLS_FEATURE_KEY = 'polls';
 
+export interface PollEmojiByMessage {
+	questionEmojiId?: string;
+	answerEmojiIds?: string[];
+}
+
 export interface PollsState {
 	loadingCreate: boolean;
 	loadingVoteByMessageId: Record<string, boolean>;
@@ -19,6 +24,7 @@ export interface PollsState {
 	loadingGetByMessageId: Record<string, boolean>;
 	error: string | null;
 	pollsByMessageId: Record<string, ApiGetPollResponse>;
+	pollEmojiByMessageId: Record<string, PollEmojiByMessage>;
 }
 
 export const initialPollsState: PollsState = {
@@ -27,7 +33,8 @@ export const initialPollsState: PollsState = {
 	loadingCloseByMessageId: {},
 	loadingGetByMessageId: {},
 	error: null,
-	pollsByMessageId: {}
+	pollsByMessageId: {},
+	pollEmojiByMessageId: {}
 };
 
 export const createChannelPoll = createAsyncThunk<ApiCreatePollResponse, ApiCreatePollRequest>('polls/createPoll', async (payload, thunkAPI) => {
@@ -41,7 +48,9 @@ export const createChannelPoll = createAsyncThunk<ApiCreatePollResponse, ApiCrea
 			expire_hours: payload.expire_hours,
 			type: payload.type
 		};
+
 		const response = await mezon.client.createPoll(mezon.session, body);
+
 		return response;
 	} catch (error) {
 		captureSentryError(error, 'polls/createChannelPoll');
@@ -116,8 +125,18 @@ export const pollsSlice = createSlice({
 			})
 			.addCase(createChannelPoll.fulfilled, (state, action) => {
 				state.loadingCreate = false;
-				if (action.payload && action.payload.message_id) {
-					state.pollsByMessageId[action.payload.message_id] = action.payload;
+				const payload = action.payload as { message_id?: string; id?: string } | undefined;
+				const messageId = payload?.message_id ?? payload?.id;
+				if (payload && messageId) {
+					const id = String(messageId);
+					state.pollsByMessageId[id] = action.payload as ApiGetPollResponse;
+					const arg = action.meta.arg as ApiCreatePollRequest & { question_emoji_id?: string; answer_emoji_ids?: string[] };
+					if (arg.question_emoji_id || (arg.answer_emoji_ids?.length ?? 0) > 0) {
+						state.pollEmojiByMessageId[id] = {
+							...(arg.question_emoji_id && { questionEmojiId: arg.question_emoji_id }),
+							...(arg.answer_emoji_ids?.length && { answerEmojiIds: arg.answer_emoji_ids })
+						};
+					}
 				}
 			})
 			.addCase(createChannelPoll.rejected, (state, action) => {
@@ -220,3 +239,8 @@ export const selectPollLoadingGet = (rootState: { [POLLS_FEATURE_KEY]: PollsStat
 	messageId ? getPollsState(rootState).loadingGetByMessageId[messageId] || false : false;
 
 export const selectPollError = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): string | null => getPollsState(rootState).error;
+
+export const selectPollEmojiByMessageId = (
+	rootState: { [POLLS_FEATURE_KEY]: PollsState },
+	messageId: string | number
+): PollEmojiByMessage | undefined => getPollsState(rootState).pollEmojiByMessageId[String(messageId)];

@@ -1,7 +1,7 @@
 import { EmojiSuggestionProvider, useEscapeKeyClose } from '@mezon/core';
 import { Icons } from '@mezon/ui';
 import { getSrcEmoji } from '@mezon/utils';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EmojiRolePanel } from '../EmojiPicker/EmojiRolePanel';
 
@@ -41,8 +41,21 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 	const [emojiPickerPosition, setEmojiPickerPosition] = useState({ top: 0, left: 0 });
 	const [duration, setDuration] = useState('24');
 	const [allowMultipleAnswers, setAllowMultipleAnswers] = useState(false);
+	const [durationDropdownOpen, setDurationDropdownOpen] = useState(false);
+	const durationDropdownRef = useRef<HTMLDivElement>(null);
 
 	useEscapeKeyClose(modalRef, onClose);
+
+	useEffect(() => {
+		if (!durationDropdownOpen) return;
+		const handleClickOutside = (e: MouseEvent) => {
+			if (durationDropdownRef.current && !durationDropdownRef.current.contains(e.target as Node)) {
+				setDurationDropdownOpen(false);
+			}
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, [durationDropdownOpen]);
 
 	const handleAddAnswer = () => {
 		if (answers.length < 20) {
@@ -233,30 +246,39 @@ function CreatePollModal({ onClose, onSubmit }: CreatePollModalProps) {
 							)}
 						</div>
 
-						{/* Duration (Select) */}
 						<div>
 							<label className="block text-sm font-semibold mb-2 text-theme-primary-active">{t('poll.duration')}</label>
 
-							<div className="relative">
-								<select
-									value={duration}
-									onChange={(e) => setDuration(e.target.value)}
-									className="w-full pl-3 pr-10 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input bg-item-hover appearance-none cursor-pointer"
+							<div ref={durationDropdownRef} className="relative">
+								<button
+									type="button"
+									onClick={() => setDurationDropdownOpen((open) => !open)}
+									className="w-full pl-3 pr-10 py-2 bg-theme-input text-theme-primary-active rounded border-theme-primary focus-input bg-item-hover cursor-pointer text-left flex items-center"
 								>
-									{DURATION_OPTIONS.map((option) => (
-										<option
-											key={option.value}
-											value={option.value}
-											className="bg-theme-setting-primary text-theme-primary-active"
-										>
-											{t(option.labelKey)}
-										</option>
-									))}
-								</select>
+									{t(DURATION_OPTIONS.find((o) => o.value === duration)?.labelKey ?? 'poll.duration24Hours')}
+								</button>
 
 								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-theme-primary">
 									<Icons.ArrowDown className="w-5 h-5" />
 								</span>
+
+								{durationDropdownOpen && (
+									<div className="absolute left-0 right-0 top-full mt-1 z-50 rounded border border-theme-primary bg-theme-setting-primary shadow-xl overflow-hidden">
+										{DURATION_OPTIONS.map((option) => (
+											<button
+												key={option.value}
+												type="button"
+												onClick={() => {
+													setDuration(option.value);
+													setDurationDropdownOpen(false);
+												}}
+												className="w-full px-3 py-2 text-left text-theme-primary-active bg-item-theme-hover hover:border-l-2 hover:border-l-buttonPrimary cursor-pointer transition-colors duration-150 border-l-2 border-l-transparent"
+											>
+												{t(option.labelKey)}
+											</button>
+										))}
+									</div>
+								)}
 							</div>
 						</div>
 					</div>

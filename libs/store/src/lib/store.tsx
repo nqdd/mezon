@@ -85,6 +85,14 @@ import { TRANSACTION_HISTORY_FEATURE_KEY, transactionHistoryReducer } from './wa
 import { WALLET_FEATURE_KEY, walletReducer } from './wallet/wallet.slice';
 import { integrationWebhookReducer } from './webhook/webhook.slice';
 import { WINDOW_CONTROLS_FEATURE_KEY, windowControlsReducer } from './windowControls/windowControls.slice';
+const persistedPollsReducer = persistReducer(
+	{
+		key: 'polls',
+		storage,
+		whitelist: ['pollEmojiByMessageId']
+	},
+	pollsReducer
+);
 
 const persistedReducer = persistReducer(
 	{
@@ -362,7 +370,7 @@ const reducer = {
 	[WALLET_FEATURE_KEY]: persistedWalletStore,
 	[USER_STATUS_FEATURE_KEY]: statusReducer,
 	[DEVICES_FEATURE_KEY]: devicesReducer,
-	[POLLS_FEATURE_KEY]: pollsReducer
+	[POLLS_FEATURE_KEY]: persistedPollsReducer
 };
 
 let storeInstance = configureStore({

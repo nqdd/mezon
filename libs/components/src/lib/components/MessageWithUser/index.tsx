@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import type { MessagesEntity, RootState } from '@mezon/store';
-import { getPoll, getStore, selectBanMeInChannel, selectPollByMessageId, topicsActions, useAppDispatch, useAppSelector } from '@mezon/store';
+import {
+	getPoll,
+	getStore,
+	selectBanMeInChannel,
+	selectPollByMessageId,
+	selectPollEmojiByMessageId,
+	topicsActions,
+	useAppDispatch,
+	useAppSelector
+} from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ObserveFn, UsersClanEntity } from '@mezon/utils';
 import {
@@ -72,6 +81,7 @@ export type MessageWithUserProps = {
 const PollMessageWrapper = ({ message }: { message: MessagesEntity }) => {
 	const dispatch = useAppDispatch();
 	const pollData = useAppSelector((state: RootState) => selectPollByMessageId(state, message.id));
+	const pollEmoji = useAppSelector((state: RootState) => selectPollEmojiByMessageId(state, message.id));
 	const { t } = useTranslation();
 
 	useEffect(() => {
@@ -95,11 +105,13 @@ const PollMessageWrapper = ({ message }: { message: MessagesEntity }) => {
 	return (
 		<PollMessage
 			question={pollData.question || ''}
+			questionEmojiId={pollEmoji?.questionEmojiId}
 			answers={answers}
+			answerEmojiIds={pollEmoji?.answerEmojiIds}
 			duration={duration}
 			allowMultipleAnswers={pollData.type === 1}
 			messageId={message.id}
-			channelId={message.channelId || message.channel_id}
+			channelId={message.channel_id}
 		/>
 	);
 };

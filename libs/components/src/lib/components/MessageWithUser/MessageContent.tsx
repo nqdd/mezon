@@ -3,6 +3,7 @@ import {
 	selectIsShowCreateTopic,
 	selectMemberClanByUserId,
 	selectMessageByMessageId,
+	selectPollEmojiByMessageId,
 	threadsActions,
 	topicsActions,
 	useAppDispatch,
@@ -184,6 +185,7 @@ const MessageText = ({
 	const hasLinkMarkdown = !!linkFromMarkdown;
 
 	const pollData = displayLine ? parsePollData(displayLine) : null;
+	const pollEmoji = useAppSelector((state) => selectPollEmojiByMessageId(state, message.id));
 
 	return (
 		// eslint-disable-next-line react/jsx-no-useless-fragment
@@ -191,9 +193,9 @@ const MessageText = ({
 			{pollData ? (
 				<PollMessage
 					question={pollData.question}
-					questionEmojiId={pollData.questionEmojiId}
+					questionEmojiId={pollData.questionEmojiId ?? pollEmoji?.questionEmojiId}
 					answers={pollData.answers}
-					answerEmojiIds={pollData.answerEmojiIds}
+					answerEmojiIds={pollData.answerEmojiIds ?? pollEmoji?.answerEmojiIds}
 					duration={pollData.duration}
 					allowMultipleAnswers={pollData.allowMultipleAnswers}
 					messageId={message.id}
