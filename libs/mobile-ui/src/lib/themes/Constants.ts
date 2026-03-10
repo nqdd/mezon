@@ -247,9 +247,9 @@ export const themeColors: ThemeColor = {
 		textSuccess: '#00d4aa'
 	},
 	purpleHaze: {
-		primary: '#2F0F42',
-		primaryGradiant: '#41165a',
-		secondary: '#371A55',
+		primary: '#141334',
+		primaryGradiant: '#300a37',
+		secondary: '#17163d',
 		tertiary: '#141319',
 		border: '#2e2f34',
 		borderHighlight: '#27272f',
@@ -260,7 +260,7 @@ export const themeColors: ThemeColor = {
 		textDisabled: '#7b7b83',
 		textNormal: '#898993',
 		secondaryWeight: '#1E1133',
-		secondaryLight: '#48256e',
+		secondaryLight: '#221447',
 		white: '#FFFFFF',
 		black: '#000000',
 		bgInputPrimary: '#2a2e31',
