@@ -1,6 +1,6 @@
 import { selectScreenSource, selectShowScreen, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store';
 import type { LocalTrackPublication, Room } from 'livekit-client';
-import { AudioPresets, Track } from 'livekit-client';
+import { AudioPresets, ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
 import { useCallback, useEffect, useRef } from 'react';
 
 type PublishedScreenTracks = {
@@ -53,8 +53,8 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 						mandatory: {
 							chromeMediaSource: 'desktop',
 							chromeMediaSourceId: screenSource.id,
-							maxWidth: 1920,
-							maxHeight: 1080,
+							maxWidth: 2560,
+							maxHeight: 1440,
 							minFrameRate: 30,
 							maxFrameRate: 60
 						}
@@ -82,14 +82,28 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				const videoPublication = await room.localParticipant.publishTrack(videoTrack, {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
-					simulcast: false,
-					videoCodec: 'av1',
+					simulcast: true,
+					videoCodec: 'vp8',
 					videoEncoding: {
 						maxBitrate: 4_000_000,
 						maxFramerate: 60
 					},
 					degradationPreference: 'maintain-framerate',
-					dtx: true
+					dtx: true,
+					screenShareSimulcastLayers: [
+						// 360p
+						{
+							...VideoPresets.h360,
+							encoding: ScreenSharePresets.h360fps15.encoding,
+							resolution: ScreenSharePresets.h360fps15.resolution
+						},
+						// 1080p
+						{
+							...VideoPresets.h1080,
+							encoding: ScreenSharePresets.h1080fps30.encoding,
+							resolution: ScreenSharePresets.h1080fps30.resolution
+						}
+					]
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
