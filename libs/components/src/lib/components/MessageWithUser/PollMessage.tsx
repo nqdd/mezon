@@ -11,9 +11,10 @@ import {
 	votePoll
 } from '@mezon/store';
 import { getSrcEmoji } from '@mezon/utils';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PollDetailModal } from './PollDetailModal';
+import './PollMessage.scss';
 
 export type PollVoter = {
 	displayName: string;
@@ -68,12 +69,6 @@ export const PollMessage = ({
 		const expiration = parseInt(pollDataAny.exp as string);
 		return expiration < now;
 	}, [pollData]);
-
-	useEffect(() => {
-		if (messageId && channelId && !pollData) {
-			dispatch(getPoll({ message_id: messageId, channel_id: channelId }));
-		}
-	}, [dispatch, messageId, channelId, pollData]);
 
 	const voteCounts = useMemo(() => {
 		const pollDataAny = pollData as Record<string, unknown>;
@@ -236,24 +231,6 @@ export const PollMessage = ({
 
 	return (
 		<div className="block w-full">
-			<style>{`
-				@keyframes poll-bar-fill {
-					from { transform: scaleX(0); opacity: 0.6; }
-					to { transform: scaleX(1); opacity: 1; }
-				}
-				@keyframes poll-percent-pop {
-					from { opacity: 0; transform: scale(0.9); }
-					to { opacity: 1; transform: scale(1); }
-				}
-				.poll-bar-inner {
-					transform-origin: left;
-					animation: poll-bar-fill 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-				}
-				.poll-percent-text {
-					opacity: 0;
-					animation: poll-percent-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-				}
-			`}</style>
 			<div className="max-w-[420px] rounded bg-item-theme p-3 border-theme-primary">
 				{/* Question */}
 				<div className="flex items-center gap-2 mb-1">
