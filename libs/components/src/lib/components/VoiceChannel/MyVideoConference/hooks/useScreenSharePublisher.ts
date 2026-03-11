@@ -106,6 +106,19 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					]
 				});
 
+				setTimeout(async () => {
+					try {
+						const sender = videoPublication.track?.sender;
+						if (sender) {
+							const params = sender.getParameters();
+							params.encodings.forEach((enc) => (enc.dtx = 'enabled'));
+							await sender.setParameters(params);
+						}
+					} catch (e) {
+						console.warn('Could not update DTX parameters:', e);
+					}
+				}, 5000);
+
 				let audioPublication: LocalTrackPublication | undefined;
 				const [audioTrack] = stream.getAudioTracks();
 				if (audioTrack) {
