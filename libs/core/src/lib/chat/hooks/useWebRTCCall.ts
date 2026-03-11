@@ -411,7 +411,9 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 		try {
 			if (data) {
 				const candidate = new RTCIceCandidate(data);
-				await peerConnection?.current?.addIceCandidate(candidate);
+				if (peerConnection?.current?.remoteDescription) {
+					await peerConnection?.current?.addIceCandidate(candidate);
+				}
 				if (pendingCandidatesRef?.current?.length && peerConnection?.current?.remoteDescription?.type === 'offer') {
 					for (const candidateItem of pendingCandidatesRef.current) {
 						await mezon.socketRef.current?.forwardWebrtcSignaling(
@@ -422,6 +424,15 @@ export function useWebRTCCall({ dmUserId, channelId, userId, callerName, callerA
 							userId
 						);
 					}
+					pendingCandidatesRef.current = [];
+				} else {
+					await mezon.socketRef.current?.forwardWebrtcSignaling(
+						dmUserId,
+						WebrtcSignalingType.WEBRTC_ICE_CANDIDATE,
+						JSON.stringify(candidate),
+						channelId,
+						userId
+					);
 					pendingCandidatesRef.current = [];
 				}
 			} else {
