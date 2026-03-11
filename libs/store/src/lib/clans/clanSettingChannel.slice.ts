@@ -163,6 +163,14 @@ export const settingClanChannelSlice = createSlice({
 		resetChannelSettingState: (state) => {
 			resetSettingClanChannelState(state);
 		},
+
+		resetChannelsOnClanChange: (state) => {
+			channelSettingAdapter.removeAll(state);
+			state.listSearchChannel = [];
+			state.channelCount = 0;
+			state.loadingStatus = 'not loaded';
+			state.error = null;
+		},
 		addChannelFromSocket: (state, action) => {
 			const channel = action.payload;
 			if (!channel?.id) return;
@@ -213,14 +221,6 @@ export const settingClanChannelSlice = createSlice({
 					changes: safeChannel
 				});
 				return;
-			}
-			if (channel.parent_id && state.threadsByChannel[channel.parent_id]) {
-				const threads = state.threadsByChannel[channel.parent_id];
-				const index = threads.findIndex((t) => t.id === channel.id);
-				if (index !== -1) {
-					threads[index] = { ...threads[index], ...safeChannel };
-					return;
-				}
 			}
 
 			for (const pid in state.threadsByChannel) {
