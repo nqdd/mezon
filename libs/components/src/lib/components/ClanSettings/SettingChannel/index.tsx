@@ -151,9 +151,12 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 	const { t } = useTranslation('channelSetting');
 	const dispatch = useAppDispatch();
 	const threadsList = useSelector(selectThreadsListByParentId(channelParent.id as string));
+	const [showThreadsList, setShowThreadsList] = useState(false);
+	const shouldAutoOpenRef = useRef(false);
 
 	const handleFetchThreads = () => {
 		if (!threadsList) {
+			shouldAutoOpenRef.current = true;
 			dispatch(
 				channelSettingActions.fetchChannelSettingInClan({
 					clanId,
@@ -166,10 +169,24 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 		}
 	};
 
-	const [showThreadsList, setShowThreadsList] = useState(false);
+	useEffect(() => {
+		setShowThreadsList(false);
+		shouldAutoOpenRef.current = false;
+	}, [clanId, channelParent.id]);
+
+	useEffect(() => {
+		if (threadsList && threadsList.length > 0 && shouldAutoOpenRef.current) {
+			setShowThreadsList(true);
+			shouldAutoOpenRef.current = false;
+		}
+	}, [threadsList]);
 
 	const toggleThreadsList = () => {
-		setShowThreadsList(!showThreadsList);
+		if (!threadsList) {
+			return;
+		}
+		const newState = !showThreadsList;
+		setShowThreadsList(newState);
 	};
 
 	const isVoiceChannel = useMemo(() => {

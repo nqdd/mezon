@@ -73,15 +73,28 @@ export const fetchChannelSettingInClanCached = async (
 	const shouldForceCall = shouldForceApiCall(apiKey, channelSettingState.cache, noCache);
 
 	if (!shouldForceCall) {
-		return {
-			channel_setting_list: Object.values(channelSettingState.entities),
-			channel_count: channelSettingState.channelCount,
-			thread_count: channelSettingState.threadCount,
-			fromCache: true,
-			time: channelSettingState.cache?.lastFetched || Date.now()
-		};
+		if (parentId && parentId !== '0') {
+			const threadsForChannel = channelSettingState.threadsByChannel[parentId];
+			if (!threadsForChannel) {
+			} else {
+				return {
+					channel_setting_list: threadsForChannel,
+					channel_count: channelSettingState.channelCount,
+					thread_count: channelSettingState.threadCount,
+					fromCache: true,
+					time: channelSettingState.cache?.lastFetched || Date.now()
+				};
+			}
+		} else {
+			return {
+				channel_setting_list: Object.values(channelSettingState.entities),
+				channel_count: channelSettingState.channelCount,
+				thread_count: channelSettingState.threadCount,
+				fromCache: true,
+				time: channelSettingState.cache?.lastFetched || Date.now()
+			};
+		}
 	}
-
 	const response = await mezon.client.getChannelSettingInClan(
 		mezon.session,
 		clanId,
@@ -291,7 +304,10 @@ export const getChannelSettingState = (rootState: { [SETTING_CLAN_CHANNEL]: Sett
 const { selectAll, selectById } = channelSettingAdapter.getSelectors();
 export const selectAllChannelSuggestion = createSelector(getChannelSettingState, selectAll);
 export const selectOneChannelInfor = (channelId: string) => createSelector(getChannelSettingState, (state) => selectById(state, channelId));
-export const selectThreadsListByParentId = (parentId: string) => createSelector(getChannelSettingState, (state) => state.threadsByChannel[parentId]);
+export const selectThreadsListByParentId = (parentId: string) =>
+	createSelector(getChannelSettingState, (state) => {
+		return state.threadsByChannel[parentId];
+	});
 export const settingChannelReducer = settingClanChannelSlice.reducer;
 export const selectNumberChannelCount = createSelector(getChannelSettingState, (state) => state.channelCount);
 
