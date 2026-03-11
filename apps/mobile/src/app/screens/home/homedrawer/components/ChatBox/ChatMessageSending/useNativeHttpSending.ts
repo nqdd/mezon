@@ -76,7 +76,6 @@ export function useNativeHttpSending(options: UseChatSendingOptions) {
 			if (content?.mk?.some((item) => item.type === EBacktickType.LINK)) {
 				if (ogpData) {
 					const messageMarkdown = content?.mk;
-					const indexOgp = content?.t?.indexOf(ogpData?.url);
 
 					const ogp = {
 						title: ogpData?.title,
@@ -85,7 +84,7 @@ export function useNativeHttpSending(options: UseChatSendingOptions) {
 						s: content?.t?.length ?? 0,
 						e: (content?.t?.length ?? 0) + 1,
 						type: EBacktickType.OGP_PREVIEW,
-						index: indexOgp || 0
+						index: ogpData?.index || 0
 					};
 
 					messageMarkdown.push(ogp);
