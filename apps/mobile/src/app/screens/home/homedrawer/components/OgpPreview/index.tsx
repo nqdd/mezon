@@ -57,7 +57,7 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 						);
 						const jsonData = safeJSONParse(datafetch?.body);
 						if (jsonData?.title && jsonData?.image) {
-							const data = { data: jsonData, index: markdown.s };
+							const data = { data: jsonData, index: markdown.s, url: link };
 							return data;
 						}
 					}
@@ -84,18 +84,18 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 			if (dataOgp?.data?.title && dataOgp?.data?.image && dataOgp?.data?.description) {
 				dispatch(
 					referencesActions.setOgpData({
-						url: dataOgp?.data?.url || dataOgp?.data?.key,
+						url: dataOgp?.url || dataOgp?.data?.key,
 						image: dataOgp?.data?.image || '',
 						title: dataOgp?.data?.title || '',
 						description: dataOgp?.data?.description || '',
 						type: dataOgp?.data?.type || '',
-						index: 0,
+						index: dataOgp?.index || 0,
 						channel_id: ''
 					})
 				);
 			}
 
-			ogpLinkRef.current = dataOgp?.data?.url || dataOgp?.data?.key;
+			ogpLinkRef.current = dataOgp?.url || dataOgp?.data?.key;
 		}
 	}, []);
 
@@ -112,7 +112,7 @@ const OgpPreview = ({ contentText }: RenderOgpPreviewProps) => {
 		return () => {
 			debouncedFetchOgp.cancel();
 		};
-	}, [contentText, linkInContent, debouncedFetchOgp]);
+	}, [linkInContent, debouncedFetchOgp, contentText]);
 
 	useEffect(() => {
 		ogpLinkRef.current = '';
