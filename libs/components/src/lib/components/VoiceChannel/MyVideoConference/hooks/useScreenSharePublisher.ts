@@ -1,6 +1,6 @@
 import { selectScreenSource, selectShowScreen, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store';
 import type { LocalTrackPublication, Room } from 'livekit-client';
-import { ScreenSharePresets, Track, VideoPresets } from 'livekit-client';
+import { AudioPresets, Track } from 'livekit-client';
 import { useCallback, useEffect, useRef } from 'react';
 
 type PublishedScreenTracks = {
@@ -52,7 +52,11 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					video: {
 						mandatory: {
 							chromeMediaSource: 'desktop',
-							chromeMediaSourceId: screenSource.id
+							chromeMediaSourceId: screenSource.id,
+							maxWidth: 1920,
+							maxHeight: 1080,
+							minFrameRate: 30,
+							maxFrameRate: 60
 						}
 					},
 					audio: screenSource.audio
@@ -71,6 +75,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				if (!videoTrack) {
 					throw new Error('Selected stream has no video track');
 				}
+				videoTrack.contentHint = 'motion';
 
 				stopScreenShare();
 
@@ -78,32 +83,22 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
 					simulcast: false,
-					screenShareSimulcastLayers: [
-						// 720p
-						{
-							...VideoPresets.h720,
-							encoding: ScreenSharePresets.h720fps30.encoding,
-							resolution: ScreenSharePresets.h720fps30.resolution
-						},
-						// 1080p
-						{
-							...VideoPresets.h1080,
-							encoding: ScreenSharePresets.h1080fps30.encoding,
-							resolution: ScreenSharePresets.h1080fps30.resolution
-						},
-						{
-							...VideoPresets.h1440,
-							encoding: ScreenSharePresets.original.encoding,
-							resolution: ScreenSharePresets.original.resolution
-						}
-					]
+					videoCodec: 'av1',
+					videoEncoding: {
+						maxBitrate: 4_000_000,
+						maxFramerate: 60
+					},
+					degradationPreference: 'maintain-framerate',
+					dtx: true
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
 				const [audioTrack] = stream.getAudioTracks();
 				if (audioTrack) {
 					audioPublication = await room.localParticipant.publishTrack(audioTrack, {
-						source: Track.Source.ScreenShareAudio
+						source: Track.Source.ScreenShareAudio,
+						audioPreset: AudioPresets.music,
+						dtx: true
 					});
 				}
 
