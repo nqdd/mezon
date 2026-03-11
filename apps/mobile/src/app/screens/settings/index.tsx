@@ -221,7 +221,7 @@ export const Settings = ({ navigation }: { navigation: any }) => {
 
 	return (
 		<View style={styles.settingContainer}>
-			<StatusBarHeight />
+			<StatusBarHeight isPrimary />
 			<View style={styles.row}>
 				<Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
 					<Icons.ArrowLeftIcon color={themeValue.textStrong} width={size.s_24} height={size.s_24} />
