@@ -227,12 +227,7 @@ export const style = (colors: Attributes) =>
 			alignSelf: 'center'
 		},
 		focusedVideoStyleSmall: {
-			height: 100,
-			width: '100%',
-			alignSelf: 'center'
-		},
-		focusedVideoWrapperSmall: {
-			height: 100,
+			height: size.s_150,
 			width: '100%',
 			alignSelf: 'center'
 		},
@@ -342,7 +337,8 @@ export const style = (colors: Attributes) =>
 		},
 		// ButtonEndCall styles
 		endCallButton: {
-			backgroundColor: baseColor.redStrong
+			backgroundColor: baseColor.redStrong,
+			borderWidth: 0
 		},
 		// HeaderRoomView styles
 		headerRowLeft: {

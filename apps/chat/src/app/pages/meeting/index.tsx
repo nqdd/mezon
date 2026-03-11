@@ -7,7 +7,6 @@ import {
 	selectAllAccount,
 	selectExternalToken,
 	selectGuestAccessToken,
-	selectGuestUserId,
 	selectJoinCallExtStatus,
 	useAppDispatch,
 	voiceActions
@@ -86,7 +85,6 @@ export default function PreJoinCalling() {
 
 	const getExternalToken = useSelector(selectExternalToken);
 	const getJoinCallExtStatus = useSelector(selectJoinCallExtStatus);
-	const getGuestUserId = useSelector(selectGuestUserId);
 	const getGuestAccessToken = useSelector(selectGuestAccessToken);
 
 	function decodeJWT(token: string) {
@@ -166,7 +164,6 @@ export default function PreJoinCalling() {
 	}, []);
 
 	const isUser = getDisplayName && getAvatar;
-	const isGuest = getGuestAccessToken && getGuestUserId && getGuestUserId !== '0';
 
 	// Handle Join Meeting
 	const joinMeeting = useCallback(async () => {
@@ -179,7 +176,9 @@ export default function PreJoinCalling() {
 		setAvatar(avatar as string);
 		const fullStringNameAndAvatar = isUser ? JSON.stringify({ extName: username, extAvatar: getAvatar }) : JSON.stringify({ extName: username });
 
-		await dispatch(generateMeetTokenExternal({ token: code as string, displayName: fullStringNameAndAvatar, isGuest: !isUser as boolean }));
+		await dispatch(
+			generateMeetTokenExternal({ token: code as string, username, metadata: fullStringNameAndAvatar, isGuest: !isUser as boolean })
+		);
 	}, [dispatch, username, getDisplayName, code]);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);

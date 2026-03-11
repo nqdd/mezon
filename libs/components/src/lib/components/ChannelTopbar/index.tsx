@@ -17,6 +17,7 @@ import {
 	selectAllAccount,
 	selectChannelById,
 	selectCloseMenu,
+	selectCurrentChannel,
 	selectCurrentChannelCategoryId,
 	selectCurrentChannelChannelId,
 	selectCurrentChannelClanId,
@@ -28,7 +29,7 @@ import {
 	selectCurrentClanId,
 	selectCurrentDM,
 	selectDefaultNotificationCategory,
-	selectDefaultNotificationClan,
+	selectDefaultNotificationClanByClanId,
 	selectFriendById,
 	selectGalleryAttachmentsByChannel,
 	selectIsInCall,
@@ -451,7 +452,11 @@ const ChannelTopbarTools = memo(
 							<FileButton />
 							<GalleryButton />
 							<MuteButton />
-							<PinButton mode={ChannelStreamMode.STREAM_MODE_CHANNEL} styleCss={'text-theme-primary text-theme-primary-hover'} />
+							<PinButton
+								isDMView={false}
+								mode={ChannelStreamMode.STREAM_MODE_CHANNEL}
+								styleCss={'text-theme-primary text-theme-primary-hover'}
+							/>
 							{!isTimelineView && (
 								<div onClick={setTurnOffThreadMessage}>
 									<ChannelListButton />
@@ -744,7 +749,7 @@ const DmTopbarTools = memo(() => {
 							</button>
 						</>
 					)}
-					<PinButton mode={mode} styleCss="text-theme-primary-hover" />
+					<PinButton isDMView mode={mode} styleCss="text-theme-primary-hover" />
 
 					{!isBlockUser && !isMe && <AddMemberToGroupDm currentDmGroup={currentDmGroup} />}
 					{currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP && (
@@ -902,11 +907,11 @@ function ThreadButton() {
 function MuteButton() {
 	const { t } = useTranslation('channelTopbar');
 	const [isMuteBell, setIsMuteBell] = useState<boolean>(false);
-	const currentChannelObjectId = useSelector(selectCurrentChannelId);
+	const currentChannelObject = useSelector(selectCurrentChannel);
 	const currentChannelCategoryId = useSelector(selectCurrentChannelCategoryId);
-	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObjectId || ''));
+	const getNotificationChannelSelected = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, currentChannelObject?.id || ''));
 	const defaultNotificationCategory = useAppSelector((state) => selectDefaultNotificationCategory(state, currentChannelCategoryId as string));
-	const defaultNotificationClan = useSelector(selectDefaultNotificationClan);
+	const defaultNotificationClan = useAppSelector((state) => selectDefaultNotificationClanByClanId(state, currentChannelObject?.id || ''));
 
 	useEffect(() => {
 		const shouldMuteBell = (): boolean => {
@@ -959,15 +964,15 @@ function MuteButton() {
 	);
 }
 
-function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
+function PinButton({ styleCss, mode, isDMView = false }: { styleCss: string; mode?: number; isDMView?: boolean }) {
 	const { t } = useTranslation('channelTopbar');
 	const dispatch = useAppDispatch();
 	const isShowPinMessage = useSelector(selectIsPinModalVisible);
 	const currentChannelId = useSelector(selectCurrentChannelId) ?? '';
 	const currentDM = useSelector(selectCurrentDM) ?? '';
 	const isShowPinBadge = useAppSelector(selectIsShowPinBadgeByChannelId(currentChannelId));
-	const isShowPinDMBadge = useAppSelector((state) => selectIsShowPinBadgeByDmId(state, currentDM?.id || ''));
-	const isShowPinBadgeFinal = currentChannelId ? isShowPinBadge : isShowPinDMBadge;
+	const isShowPinDMBadge = useAppSelector((state) => selectIsShowPinBadgeByDmId(state, (currentDM as { id?: string })?.id || ''));
+	const isShowPinBadgeFinal = isDMView ? isShowPinDMBadge : isShowPinBadge;
 
 	const pinRef = useRef<HTMLDivElement | null>(null);
 
@@ -983,12 +988,11 @@ function PinButton({ styleCss, mode }: { styleCss: string; mode?: number }) {
 		await dispatch(pinMessageActions.fetchChannelPinMessages({ channelId: currentChannelId || currentDmGroup.id, clanId: currentClanId }));
 		dispatch(pinMessageActions.togglePinModal());
 
-		if (currentChannelId && isShowPinBadge) {
-			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: currentClanId, channelId: currentChannelId, isShow: false }));
-		}
-
-		if (!currentChannelId && currentDmGroup?.id && isShowPinDMBadge) {
+		if (isDMView && currentDmGroup?.id && isShowPinDMBadge) {
 			dispatch(directActions.setShowPinBadgeOfDM({ dmId: currentDmGroup.id, isShow: false }));
+		}
+		if (!isDMView && currentChannelId && isShowPinBadge) {
+			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: currentClanId, channelId: currentChannelId, isShow: false }));
 		}
 	};
 
