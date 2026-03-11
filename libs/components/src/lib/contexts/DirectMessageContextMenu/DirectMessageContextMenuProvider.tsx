@@ -12,7 +12,7 @@ import {
 	useAppDispatch,
 	useAppSelector
 } from '@mezon/store';
-import { EMuteState, FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
+import { FOR_15_MINUTES_SEC, FOR_1_HOUR_SEC, FOR_24_HOURS_SEC, FOR_3_HOURS_SEC, FOR_8_HOURS_SEC } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { FC } from 'react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
@@ -165,12 +165,12 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const isSelf = userProfile?.user?.id === currentUser?.id || currentUser?.user_ids?.includes(userProfile?.user?.id);
 
 	const isDefaultSetting = !notificationSettings?.id || notificationSettings?.id === '0';
-	const isMuted = !isDefaultSetting && notificationSettings?.active === EMuteState.MUTED;
+	const isMuted = !isDefaultSetting;
 	const hasMuteTime =
-		!isDefaultSetting && notificationSettings?.time_mute
+		!isDefaultSetting && notificationSettings?.time_mute_seconds
 			? (() => {
 					try {
-						const muteDate = new Date(notificationSettings.time_mute);
+						const muteDate = new Date(notificationSettings.time_mute_seconds);
 						return !isNaN(muteDate.getTime()) && muteDate > new Date();
 					} catch {
 						return false;

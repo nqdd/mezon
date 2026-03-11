@@ -42,8 +42,8 @@ const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRe
 			setNameChildren(t('notificationSetting.muteChannel'));
 		} else {
 			setNameChildren(t('notificationSetting.unmuteChannel'));
-			if (getNotificationChannelSelected?.time_mute) {
-				const timeMute = new Date(getNotificationChannelSelected.time_mute);
+			if (getNotificationChannelSelected?.time_mute_seconds) {
+				const timeMute = new Date(getNotificationChannelSelected.time_mute_seconds);
 				const currentTime = new Date();
 				if (timeMute > currentTime) {
 					const formattedDate = format(timeMute, 'dd/MM, HH:mm');
