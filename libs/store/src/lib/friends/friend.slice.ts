@@ -221,26 +221,20 @@ export const sendRequestUnblockFriend = createAsyncThunk('friends/requestUnblock
 	return response;
 });
 
-export const upsertFriendRequest = createAsyncThunk(
-	'friends/upsertFriendRequest',
-	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
-		const state = thunkAPI.getState() as RootState;
-		const currentFriendApi = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}`);
-
-		const friend: FriendsEntity = {
-			state: currentFriendApi ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
+export const upsertFriendRequest = createAsyncThunk('friends/upsertFriendRequest', async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
+	const friend: FriendsEntity = {
+		state: EStateFriend.MY_PENDING,
+		id: user.user_id,
+		source_id: myId,
+		user: {
 			id: user.user_id,
-			source_id: myId,
-			user: {
-				id: user.user_id,
-				username: user.username,
-				avatar_url: user.avatar,
-				display_name: user.display_name
-			}
-		};
-		thunkAPI.dispatch(friendsActions.upsertFriend(friend));
-	}
-);
+			username: user.username,
+			avatar_url: user.avatar,
+			display_name: user.display_name
+		}
+	};
+	thunkAPI.dispatch(friendsActions.upsertFriend(friend));
+});
 
 export const initialFriendsState: FriendsState = friendsAdapter.getInitialState({
 	loadingStatus: 'not loaded',
