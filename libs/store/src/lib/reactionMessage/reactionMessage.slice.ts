@@ -4,7 +4,7 @@ import type { EntityState } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { safeJSONParse } from 'mezon-js';
 import type { ApiMessageReaction } from 'mezon-js/api.gen';
-import { ensureSession, getMezonCtx } from '../helpers';
+import { ensureSession, getMezonCtx, socketState } from '../helpers';
 import { toastActions } from '../toasts';
 
 export const REACTION_FEATURE_KEY = 'reaction';
@@ -162,7 +162,7 @@ export const writeMessageReaction = createAsyncThunk(
 				}
 
 				let socketSuccess = false;
-				if (socket) {
+				if (socket && socketState.isConnected) {
 					try {
 						await retryWithBackoff(
 							async () => {
