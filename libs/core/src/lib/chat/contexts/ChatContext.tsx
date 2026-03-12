@@ -30,6 +30,7 @@ import {
 	emojiSuggestionActions,
 	eventManagementActions,
 	friendsActions,
+	getPoll,
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
@@ -75,6 +76,7 @@ import {
 	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	selectLoadingStatus,
+	selectMessageEntityById,
 	selectOrderedClans,
 	selectStreamMembersByChannelId,
 	selectUserCallId,
@@ -428,6 +430,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				) {
 					dispatch(messagesActions.newMessage(mess));
 
+					if (message.code === TypeMessage.ChatUpdate && message?.message_id) {
+						const existingMessage = selectMessageEntityById(store.getState(), message.channel_id, message.message_id);
+						if (existingMessage && existingMessage.code === TypeMessage.Poll) {
+							dispatch(
+								getPoll({
+									message_id: message.message_id,
+									channel_id: message.channel_id
+								})
+							);
+						}
+					}
+
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
 						dispatch(
 							messagesActions.updateTopicRplCount({
@@ -729,10 +743,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const onpinmessage = useCallback((pin: LastPinMessageEvent) => {
 		if (!pin?.channel_id) return;
 
-		if (pin.clan_id) {
-			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: pin.clan_id, channelId: pin.channel_id, isShow: true }));
+		const isDM = !pin.clan_id || pin.clan_id === '0';
+
+		if (isDM) {
+			dispatch(directActions.setShowPinBadgeOfDM({ dmId: pin.channel_id, isShow: true }));
 		} else {
-			dispatch(directActions.setShowPinBadgeOfDM({ dmId: pin?.channel_id, isShow: true }));
+			dispatch(channelsActions.setShowPinBadgeOfChannel({ clanId: pin.clan_id, channelId: pin.channel_id, isShow: true }));
 		}
 
 		if (pin.operation === 1) {
@@ -1073,14 +1089,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						);
 					}
 				}
-				dispatch(
-					channelsActions.joinChat({
-						clanId: clan_id,
-						channelId: channel_desc.channel_id as string,
-						channelType: channel_desc.type as number,
-						isPublic: !channel_desc.channel_private
-					})
-				);
 			}
 
 			if (channel_desc.type === ChannelType.CHANNEL_TYPE_GROUP || channel_desc.type === ChannelType.CHANNEL_TYPE_DM) {
@@ -1512,15 +1520,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				last_sent_message: { timestamp_seconds: now }
 			};
 
-			const isPublic = channelCreated.parent_id !== '' && channelCreated.parent_id !== '0' ? false : !channelCreated.channel_private;
-			dispatch(
-				channelsActions.joinChat({
-					clanId: channelCreated.clan_id,
-					channelId: channelCreated.channel_id,
-					channelType: channelCreated.channel_type,
-					isPublic
-				})
-			);
 			dispatch(
 				channelMetaActions.updateBulkChannelMetadata([
 					{
@@ -2995,4 +2994,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-

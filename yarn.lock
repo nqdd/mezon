@@ -9327,10 +9327,10 @@ deep-is@^0.1.3:
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.4.tgz#a6f2dce612fadd2ef1f519b73551f17e85199831"
   integrity sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==
 
-deepfilternet3-noise-filter@1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/deepfilternet3-noise-filter/-/deepfilternet3-noise-filter-1.1.2.tgz#502f3c44edab16664d692e10d2d7e6c426338c48"
-  integrity sha512-YMBS0sH9VA6qLLRyycMRLC4rBhA8slQZzt2q8SaiurWaAeNG6gdQxLc3NuQ0v0wWpMhGtIf5NyNLHtv6DqP4AA==
+deepfilternet3-noise-filter@1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/deepfilternet3-noise-filter/-/deepfilternet3-noise-filter-1.2.1.tgz#1363962c6b383079ed9844a31a732dc7ce6a1d0d"
+  integrity sha512-OAyrHTDlUHH+AhfpVNKYEOhVqb9cZpu0fdNThplA/tB/Ts4PF/UsI+abl2n1IbSxUkhiF0OqDejEhk1n42Oqpw==
 
 deepmerge@^4.2.2, deepmerge@^4.3.1:
   version "4.3.1"
@@ -14491,28 +14491,21 @@ metro@0.80.12:
     ws "^7.5.10"
     yargs "^17.6.2"
 
-mezon-active-windows@0.1.38:
-  version "0.1.38"
-  resolved "https://registry.yarnpkg.com/mezon-active-windows/-/mezon-active-windows-0.1.38.tgz#63241830b7f757caff3965869c8dcf620d2bddee"
-  integrity sha512-WTimM1m3jz4d0yS2edSqSdxxHPPceFAtI+Zxe1A7kBm1Px6TWB136GKNQSgn4OVRJ+ol9wHiwqRwjdHlSP+VMQ==
-  dependencies:
-    node-addon-api "^1.7.2"
-
-mezon-js-protobuf@1.10.20, mezon-js-protobuf@^1.10.20:
-  version "1.10.20"
-  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.10.20.tgz#44cb35eb916edd84ad59ba61ddd21d0b9c9a0dcd"
-  integrity sha512-oWQboXSc/JGHjzM2lkk6ylFPTDKwnKB+7RyzYbBRPag8hNuMbnZicKTzLBrtWjglprcWQjiTeQrpRQYZlUV+AA==
+mezon-js-protobuf@^1.10.23:
+  version "1.10.23"
+  resolved "https://registry.yarnpkg.com/mezon-js-protobuf/-/mezon-js-protobuf-1.10.23.tgz#c5835aeb4c302bbff49abe65ab84eb3dfb07f3e0"
+  integrity sha512-9XJY+wPwzOlyKDRfOuZLARrBNfgNC9HRNM/W12o5qHwufFGgeeHCYv24OgjRICDuJYPJhF4w4QxO3fxb38Fozw==
   dependencies:
     protobufjs "^7.2.4"
 
-mezon-js@2.14.93:
-  version "2.14.93"
-  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.14.93.tgz#7076043264ab5173edcfce860e8ec8dff2a956b5"
-  integrity sha512-wEkJIS1Q0OiH6h1Dic0Q5OLP8W39Ada7QrdrEUxBURln+gYo8p9/QirudsvzEf51b+2SUhRndvVsJK9PPhm2ww==
+mezon-js@^2.15.1:
+  version "2.15.1"
+  resolved "https://registry.yarnpkg.com/mezon-js/-/mezon-js-2.15.1.tgz#8433ae5ce0b0bc3104149ed84f75ae7cef45d117"
+  integrity sha512-JPcoy7LAcgnRDn3iaNM/JLDw3lwFKkVf9VqL4d3f5jLucAA9NlO/mHZLA7j1fQv4u5z0Z6j8Lrk+vw6Y2ztc+Q==
   dependencies:
     base64-arraybuffer "^1.0.2"
     js-base64 "^3.7.8"
-    mezon-js-protobuf "^1.10.20"
+    mezon-js-protobuf "^1.10.23"
     whatwg-fetch "^3.6.2"
 
 micromatch@^4.0.0, micromatch@^4.0.2, micromatch@^4.0.4, micromatch@^4.0.5, micromatch@^4.0.8:
@@ -14883,7 +14876,7 @@ node-abort-controller@^3.0.1, node-abort-controller@^3.1.1:
   resolved "https://registry.yarnpkg.com/node-abort-controller/-/node-abort-controller-3.1.1.tgz#a94377e964a9a37ac3976d848cb5c765833b8548"
   integrity sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==
 
-node-addon-api@^1.6.3, node-addon-api@^1.7.2:
+node-addon-api@^1.6.3:
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-1.7.2.tgz#3df30b95720b53c24e59948b49532b662444f54d"
   integrity sha512-ibPK3iA+vaY1eEjESkQkM0BbCqFOaZMiXRTtdB0u7b4djtY6JnsjvPdUHVMg6xQt3B8fpTTWHI9A+ADjM9frzg==
@@ -19241,9 +19234,9 @@ tar-stream@^3.1.7:
     streamx "^2.15.0"
 
 tar@^6.0.5, tar@^6.1.11, tar@^6.1.12, tar@^6.2.1, tar@^7.4.3, tar@^7.5.7:
-  version "7.5.7"
-  resolved "https://registry.yarnpkg.com/tar/-/tar-7.5.7.tgz#adf99774008ba1c89819f15dbd6019c630539405"
-  integrity sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==
+  version "7.5.10"
+  resolved "https://registry.yarnpkg.com/tar/-/tar-7.5.10.tgz#2281541123f5507db38bc6eb22619f4bbaef73ad"
+  integrity sha512-8mOPs1//5q/rlkNSPcCegA6hiHJYDmSLEI8aMH/CdSQJNWztHC9WHNam5zdQlfpTwB9Xp7IBEsHfV5LKMJGVAw==
   dependencies:
     "@isaacs/fs-minipass" "^4.0.0"
     chownr "^3.0.0"

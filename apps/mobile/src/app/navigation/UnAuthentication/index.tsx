@@ -4,7 +4,9 @@ import { selectCurrentLanguage, selectIsShowWelcomeMobile, useAppSelector } from
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { Platform } from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 import { useSelector } from 'react-redux';
+import { APP_LANGUAGES } from '../../constants/config';
 import AppBrowser from '../../screens/auth/AppBrowser';
 import LoginScreen from '../../screens/auth/Login';
 import WelcomeScreen from '../../screens/auth/Login/WelcomeScreen';
@@ -16,13 +18,14 @@ const Stack = createNativeStackNavigator();
 export const UnAuthentication = () => {
 	const isShowWelcome = useSelector(selectIsShowWelcomeMobile);
 	const currentLanguage = useAppSelector(selectCurrentLanguage);
+	const language = RNLocalize.getLocales()[0].languageCode;
 	const { i18n } = useTranslation();
 
 	useEffect(() => {
 		if (i18n.language !== currentLanguage) {
-			i18n.changeLanguage(currentLanguage);
+			i18n.changeLanguage(language && APP_LANGUAGES.includes(language) ? language : 'en');
 		}
-	}, [currentLanguage, i18n]);
+	}, [currentLanguage, i18n, language]);
 
 	return (
 		<Stack.Navigator

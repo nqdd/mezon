@@ -166,10 +166,10 @@ export const fetchVoiceChannelMembers = createAsyncThunk(
 
 export const generateMeetTokenExternal = createAsyncThunk(
 	'meet/generateMeetTokenExternal',
-	async ({ token, displayName, isGuest }: { token: string; displayName?: string; isGuest?: boolean }, thunkAPI) => {
+	async ({ token, username, metadata, isGuest }: { token: string; username?: string; metadata?: string; isGuest?: boolean }, thunkAPI) => {
 		try {
 			const mezon = await ensureClientAsync(getMezonCtx(thunkAPI));
-			const response = await mezon.client.generateMeetTokenExternal(generateBasePath(), token, displayName, isGuest);
+			const response = await mezon.client.generateMeetTokenExternal(generateBasePath(), token, username, metadata, isGuest);
 			return response;
 		} catch (error) {
 			captureSentryError(error, 'meet/generateMeetTokenExternal');
