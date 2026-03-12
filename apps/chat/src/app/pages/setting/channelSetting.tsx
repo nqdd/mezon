@@ -23,17 +23,6 @@ const ChannelSetting = () => {
 	const selectClanId = useSelector(selectCurrentClanId);
 	const prevClanIdRef = useRef<string | null>(null);
 
-	const handleSearchByNameChannel = (e: ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		setSearchFilter(value);
-
-		if (!value.trim()) {
-			debouncedSearchChannel.cancel();
-			return;
-		}
-		debouncedSearchChannel(value);
-	};
-
 	const debouncedSearchChannel = useDebouncedCallback(async (value: string) => {
 		await dispatch(
 			channelSettingActions.fetchChannelSettingInClan({
@@ -44,6 +33,20 @@ const ChannelSetting = () => {
 			})
 		);
 	}, 300);
+
+	const handleSearchByNameChannel = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			const value = e.target.value;
+			setSearchFilter(value);
+
+			if (!value.trim()) {
+				debouncedSearchChannel.cancel();
+				return;
+			}
+			debouncedSearchChannel(value);
+		},
+		[debouncedSearchChannel]
+	);
 
 	const listChannelBySearch = useMemo(() => {
 		if (searchFilter) {

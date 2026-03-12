@@ -73,21 +73,12 @@ export const fetchChannelSettingInClanCached = async (
 	const shouldForceCall = shouldForceApiCall(apiKey, channelSettingState.cache, noCache);
 
 	if (!shouldForceCall) {
-		if (parentId && parentId !== '0') {
-			const threadsForChannel = channelSettingState.threadsByChannel[parentId];
-			if (!threadsForChannel) {
-			} else {
-				return {
-					channel_setting_list: threadsForChannel,
-					channel_count: channelSettingState.channelCount,
-					thread_count: channelSettingState.threadCount,
-					fromCache: true,
-					time: channelSettingState.cache?.lastFetched || Date.now()
-				};
-			}
-		} else {
+		const cachedList =
+			parentId && parentId !== '0' ? channelSettingState.threadsByChannel[parentId] : Object.values(channelSettingState.entities);
+
+		if (cachedList) {
 			return {
-				channel_setting_list: Object.values(channelSettingState.entities),
+				channel_setting_list: cachedList,
 				channel_count: channelSettingState.channelCount,
 				thread_count: channelSettingState.threadCount,
 				fromCache: true,
@@ -177,13 +168,6 @@ export const settingClanChannelSlice = createSlice({
 			resetSettingClanChannelState(state);
 		},
 
-		resetChannelsOnClanChange: (state) => {
-			channelSettingAdapter.removeAll(state);
-			state.listSearchChannel = [];
-			state.channelCount = 0;
-			state.loadingStatus = 'not loaded';
-			state.error = null;
-		},
 		addChannelFromSocket: (state, action) => {
 			const channel = action.payload;
 			if (!channel?.id) return;

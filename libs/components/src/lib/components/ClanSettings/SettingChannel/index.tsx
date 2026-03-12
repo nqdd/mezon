@@ -152,12 +152,13 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 	const dispatch = useAppDispatch();
 	const threadsList = useSelector(selectThreadsListByParentId(channelParent.id as string));
 	const [showThreadsList, setShowThreadsList] = useState(false);
+	const [isLoadingThreads, setIsLoadingThreads] = useState(false);
 	const shouldAutoOpenRef = useRef(false);
 
 	const handleFetchThreads = () => {
 		if (!threadsList) {
 			shouldAutoOpenRef.current = true;
-			dispatch(
+			return dispatch(
 				channelSettingActions.fetchChannelSettingInClan({
 					clanId,
 					parentId: channelParent.id as string,
@@ -171,6 +172,7 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 
 	useEffect(() => {
 		setShowThreadsList(false);
+		setIsLoadingThreads(false);
 		shouldAutoOpenRef.current = false;
 	}, [clanId, channelParent.id]);
 
@@ -181,12 +183,17 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 		}
 	}, [threadsList]);
 
-	const toggleThreadsList = () => {
+	const toggleThreadsList = async () => {
 		if (!threadsList) {
+			setIsLoadingThreads(true);
+			try {
+				await handleFetchThreads();
+			} finally {
+				setIsLoadingThreads(false);
+			}
 			return;
 		}
-		const newState = !showThreadsList;
-		setShowThreadsList(newState);
+		setShowThreadsList(!showThreadsList);
 	};
 
 	const isVoiceChannel = useMemo(() => {
@@ -221,9 +228,13 @@ const RenderChannelAndThread = ({ channelParent, clanId, currentPage, pageSize, 
 				{!isVoiceChannel && !searchFilter && (
 					<div
 						onClick={toggleThreadsList}
-						className={`absolute top-4 right-2 cursor-pointer transition duration-100 ease-in-out ${showThreadsList ? '' : '-rotate-90'}`}
+						className={`absolute top-4 right-2 cursor-pointer transition duration-100 ease-in-out flex items-center justify-center h-6 w-6 ${showThreadsList ? '' : '-rotate-90'}`}
 					>
-						<Icons.ArrowDown defaultSize="h-6 w-6 dark:text-[#b5bac1] text-black" />
+						{isLoadingThreads ? (
+							<Icons.LoadingSpinner className="h-6 w-6 dark:text-[#b5bac1] text-black" />
+						) : (
+							<Icons.ArrowDown defaultSize="h-6 w-6 dark:text-[#b5bac1] text-black" />
+						)}
 					</div>
 				)}
 			</div>
