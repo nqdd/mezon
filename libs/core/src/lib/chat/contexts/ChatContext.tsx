@@ -1089,14 +1089,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						);
 					}
 				}
-				dispatch(
-					channelsActions.joinChat({
-						clanId: clan_id,
-						channelId: channel_desc.channel_id as string,
-						channelType: channel_desc.type as number,
-						isPublic: !channel_desc.channel_private
-					})
-				);
 			}
 
 			if (channel_desc.type === ChannelType.CHANNEL_TYPE_GROUP || channel_desc.type === ChannelType.CHANNEL_TYPE_DM) {
@@ -1528,15 +1520,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				last_sent_message: { timestamp_seconds: now }
 			};
 
-			const isPublic = channelCreated.parent_id !== '' && channelCreated.parent_id !== '0' ? false : !channelCreated.channel_private;
-			dispatch(
-				channelsActions.joinChat({
-					clanId: channelCreated.clan_id,
-					channelId: channelCreated.channel_id,
-					channelType: channelCreated.channel_type,
-					isPublic
-				})
-			);
 			dispatch(
 				channelMetaActions.updateBulkChannelMetadata([
 					{
