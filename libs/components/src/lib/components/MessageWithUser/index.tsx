@@ -219,11 +219,7 @@ function MessageWithUser({
 						},
 						{
 							'bg-highlight-no-hover':
-								(hasIncludeMention || checkReplied) &&
-								!messageReplyHighlight &&
-								!checkMessageTargetToMoved &&
-								!isEphemeralMessage &&
-								!isTopic
+								(hasIncludeMention || checkReplied) && !messageReplyHighlight && !checkMessageTargetToMoved && !isEphemeralMessage
 						},
 						{ '!bg-bgMessageReplyHighline': messageReplyHighlight },
 						{ 'bg-highlight': isHighlight },
