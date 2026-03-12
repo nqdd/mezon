@@ -1,4 +1,5 @@
-import { ChatProps, ReceivedChatMessage, useChat } from '@livekit/components-react';
+import type { ChatProps, ReceivedChatMessage } from '@livekit/components-react';
+import { useChat } from '@livekit/components-react';
 import { selectOpenExternalChatBox } from '@mezon/store';
 import { safeJSONParse } from 'mezon-js';
 import React, { useMemo } from 'react';
@@ -41,7 +42,7 @@ const ChatStreamExternal = () => {
 };
 
 const MessageItem = ({ message }: { message: ReceivedChatMessage }) => {
-	const nameSender = safeJSONParse(message.from?.identity || `{ extName: 'Guest' }`).extName || '';
+	const nameSender = safeJSONParse(message.from?.metadata || `{ extName: 'Guest' }`).extName || '';
 	const time = useMemo(() => {
 		const timestamp = message.timestamp; // Example timestamp in milliseconds
 		const date = new Date(timestamp);
