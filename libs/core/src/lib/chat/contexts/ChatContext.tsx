@@ -30,6 +30,7 @@ import {
 	emojiSuggestionActions,
 	eventManagementActions,
 	friendsActions,
+	getPoll,
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
@@ -75,6 +76,7 @@ import {
 	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	selectLoadingStatus,
+	selectMessageEntityById,
 	selectOrderedClans,
 	selectStreamMembersByChannelId,
 	selectUserCallId,
@@ -427,6 +429,18 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					message.code === TypeMessage.DeleteEphemeralMsg
 				) {
 					dispatch(messagesActions.newMessage(mess));
+
+					if (message.code === TypeMessage.ChatUpdate && message?.message_id) {
+						const existingMessage = selectMessageEntityById(store.getState(), message.channel_id, message.message_id);
+						if (existingMessage && existingMessage.code === TypeMessage.Poll) {
+							dispatch(
+								getPoll({
+									message_id: message.message_id,
+									channel_id: message.channel_id
+								})
+							);
+						}
+					}
 
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
 						dispatch(
