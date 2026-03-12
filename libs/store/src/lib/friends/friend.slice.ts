@@ -57,6 +57,7 @@ const mapFriendToStatus = (friends: ApiFriend[]): IUserProfileActivity[] => {
 };
 export interface FriendsState extends EntityState<FriendsEntity, string> {
 	loadingStatus: LoadingStatus;
+	addFriendRequestLoading: boolean;
 	error?: string | null;
 	currentTabStatus: string;
 	cache?: CacheMetadata;
@@ -238,6 +239,7 @@ export const upsertFriendRequest = createAsyncThunk('friends/upsertFriendRequest
 
 export const initialFriendsState: FriendsState = friendsAdapter.getInitialState({
 	loadingStatus: 'not loaded',
+	addFriendRequestLoading: false,
 	friends: [],
 	error: null,
 	currentTabStatus: 'all',
@@ -338,10 +340,18 @@ export const friendsSlice = createSlice({
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			});
-		builder.addCase(sendRequestAddFriend.rejected, (state: FriendsState, action) => {
-			state.loadingStatus = 'error';
-			state.error = action.error.message ?? 'No valid ID or username was provided.';
-		});
+		builder
+			.addCase(sendRequestAddFriend.pending, (state: FriendsState) => {
+				state.addFriendRequestLoading = true;
+			})
+			.addCase(sendRequestAddFriend.fulfilled, (state: FriendsState) => {
+				state.addFriendRequestLoading = false;
+			})
+			.addCase(sendRequestAddFriend.rejected, (state: FriendsState, action) => {
+				state.addFriendRequestLoading = false;
+				state.loadingStatus = 'error';
+				state.error = action.error.message ?? 'No valid ID or username was provided.';
+			});
 	}
 });
 
@@ -377,3 +387,4 @@ export const selectBlockedUsersForMessage = createSelector([selectAllFriends], (
 export const selectFriendById = createSelector([getFriendsState, (state, userId: string) => userId], (state, userId) => selectById(state, userId));
 export const selectCurrentTabStatus = createSelector(getFriendsState, (state) => state.currentTabStatus);
 export const selectLoadingStatusFriend = createSelector(getFriendsState, (state) => state.loadingStatus);
+export const selectAddFriendRequestLoading = createSelector(getFriendsState, (state) => state.addFriendRequestLoading);
