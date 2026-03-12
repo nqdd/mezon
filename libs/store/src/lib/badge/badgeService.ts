@@ -212,8 +212,8 @@ class BadgeService extends EventEmitter {
 	}
 
 	incrementChannelFromNotification(clanId: string, channelId: string, messageId?: string) {
-		const badgeKey = messageId ? `${channelId}_${messageId}` : '';
-		if (badgeKey && this.processedBadgeMessageIds.has(badgeKey)) {
+		const badgeKey = messageId && messageId !== '0' ? `${channelId}_${messageId}` : '';
+		if (!badgeKey || this.processedBadgeMessageIds.has(badgeKey)) {
 			return;
 		}
 		if (badgeKey) {
@@ -224,8 +224,8 @@ class BadgeService extends EventEmitter {
 	}
 
 	incrementChannelFromNotificationForTopic(clanId: string, parentChannelId: string, topicId: string, messageId?: string) {
-		const badgeKey = messageId ? `${parentChannelId}_${messageId}` : '';
-		if (badgeKey && this.processedBadgeMessageIds.has(badgeKey)) {
+		const badgeKey = messageId && messageId !== '0' ? `${parentChannelId}_${messageId}` : '';
+		if (!badgeKey || this.processedBadgeMessageIds.has(badgeKey)) {
 			return;
 		}
 		if (badgeKey) {
