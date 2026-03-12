@@ -371,7 +371,7 @@ export const UsersClanSlice = createSlice({
 		) => {
 			const { clanId, channelId, userIds, banner_id, ban_time } = action.payload;
 			const banList: Update<UsersClanEntity, string>[] = userIds.map((id) => {
-				const oldBanList = state.byClans?.[clanId]?.entities?.entities[id].ban_list || {};
+				const oldBanList = state.byClans?.[clanId]?.entities?.entities[id]?.ban_list || {};
 				return {
 					id,
 					changes: {
