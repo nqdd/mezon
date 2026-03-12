@@ -212,7 +212,10 @@ export default class App {
 			</head>
 			<body>
 				<div class="top-bar"></div>
-				<img class="logo-img" src="https://cdn.mezon.ai/landing-page-mezon/logodefault.webp" alt="Mezon" />
+				<svg class="logo-img" xmlns="http://www.w3.org/2000/svg" viewBox="69.96 139.03 468.28 466.17">
+					<path fill="#CC1FC9" d="M83.98,377.69c1.1-125.83,100.99-226.95,227.46-226.72c125.68,0.22,226.91,99.47,226.8,227.02c-0.11,129.55-102.46,227.5-227.15,227.21C182.57,604.89,85.03,503.08,83.98,377.69z M312.48,187.09c-106.14-1.2-191.04,85.07-191.39,189.54c-0.36,105.8,86.56,190.6,190.4,190.77c101.54,0.16,192.19-83.84,190.1-194.44C499.7,272.54,416.77,186.76,312.48,187.09z"/>
+					<path fill="#E399C3" d="M347.42,147.98c-82.52-11.58-154.52,9.75-210.71,72.12c-56.15,62.33-70.24,136.08-49.81,217c-26.16-56.54-24.97-141.21,24.48-209.03C162.47,158.02,254.29,120.74,347.42,147.98z"/>
+				</svg>
 				<div class="app-name">Mezon</div>
 				<div class="dots">
 					<span></span><span></span><span></span>
@@ -225,10 +228,14 @@ export default class App {
 		if (!App.mainWindow.isVisible()) App.mainWindow.show();
 
 		App.networkRetryInterval = setInterval(() => {
-			if (net.isOnline()) {
-				App.clearNetworkRetry();
-				App.loadMainWindow();
-			}
+			net.fetch('https://mezon.ai/favicon.ico')
+				.then(() => {
+					App.clearNetworkRetry();
+					App.loadMainWindow();
+				})
+				.catch(() => {
+					// Still offline, keep retrying
+				});
 		}, 3000);
 
 		App.networkRetryTimeout = setTimeout(() => {
@@ -459,13 +466,17 @@ export default class App {
 
 		App.mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
 			log.error(`Failed to load: ${validatedURL}, Error code: ${errorCode}, Description: ${errorDescription}`);
-			if (errorCode !== -3 && errorCode !== -21) {
+			const isCSPError = errorDescription?.toUpperCase().includes('CSP') || errorDescription?.toUpperCase().includes('CONTENT-SECURITY-POLICY');
+			if (errorCode !== -3 && errorCode !== -21 && !isCSPError) {
 				App.showConnectingPage(errorDescription);
 			}
 		});
 
 		App.mainWindow.webContents.on('did-finish-load', () => {
-			App.clearNetworkRetry();
+			const currentURL = App.mainWindow.webContents.getURL();
+			if (!currentURL.startsWith('data:')) {
+				App.clearNetworkRetry();
+			}
 		});
 
 		App.mainWindow.webContents.on('certificate-error', (event, url, error, _certificate, callback) => {
