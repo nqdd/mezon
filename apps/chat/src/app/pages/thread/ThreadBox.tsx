@@ -430,7 +430,7 @@ const ThreadBox = () => {
 	return (
 		<div
 			ref={threadBoxRef}
-			className="flex flex-col flex-1 justify-end border-l border-color-primary bg-theme-chat pt-4"
+			className="flex flex-col flex-1 justify-end border-l border-color-primary bg-theme-chat"
 			data-e2e={generateE2eId('discussion.box.thread')}
 		>
 			{threadCurrentChannel && (
