@@ -1,5 +1,5 @@
 import type { MezonContextValue } from '@mezon/transport';
-import { socketState } from '@mezon/transport';
+import { isOnline, socketState } from '@mezon/transport';
 import type { GetThunkAPI } from '@reduxjs/toolkit';
 import type { Client, Session } from 'mezon-js';
 import type { DongClient, IndexerClient, MmnClient, ZkClient } from 'mmn-client-js';
@@ -113,10 +113,6 @@ export interface RetryConfig {
 	mezon?: MezonValueContext;
 }
 
-let sharedConnectionCheckPromise: Promise<boolean> | null = null;
-let lastConnectionCheckTime = 0;
-const CONNECTION_CHECK_CACHE_MS = 2000;
-
 const activeScopeControllers = new Map<string, AbortController>();
 
 export function cancelPreviousRequestsInScope(scope: string): void {
@@ -138,39 +134,8 @@ export function createScopeAbortController(scope?: string): AbortController | un
 	return controller;
 }
 
-async function checkInternetConnectionCached(): Promise<boolean> {
-	const now = Date.now();
-
-	if (now - lastConnectionCheckTime < CONNECTION_CHECK_CACHE_MS) {
-		if (typeof navigator !== 'undefined' && typeof navigator.onLine !== 'undefined') {
-			return navigator.onLine;
-		}
-	}
-
-	if (sharedConnectionCheckPromise) {
-		return sharedConnectionCheckPromise;
-	}
-
-	sharedConnectionCheckPromise = (async () => {
-		try {
-			const response = await fetch(`${window.origin}/assets/favicon.ico`, {
-				method: 'HEAD',
-				cache: 'no-cache',
-				signal: AbortSignal.timeout(5000)
-			});
-			lastConnectionCheckTime = Date.now();
-			return response.ok;
-		} catch {
-			lastConnectionCheckTime = Date.now();
-			return false;
-		} finally {
-			setTimeout(() => {
-				sharedConnectionCheckPromise = null;
-			}, 100);
-		}
-	})();
-
-	return sharedConnectionCheckPromise;
+export function checkInternetConnectionCached(): boolean {
+	return isOnline();
 }
 
 type RequiredRetryConfig = Required<Omit<RetryConfig, 'signal' | 'scope' | 'mezon'>>;
