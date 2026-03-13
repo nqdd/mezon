@@ -8,7 +8,7 @@ export type ParsedPollData = {
 };
 
 export const parsePollData = (messageContent: string): ParsedPollData | null => {
-	if (!messageContent || !messageContent.startsWith('📊')) {
+	if (!messageContent || !messageContent?.startsWith('📊')) {
 		return null;
 	}
 
