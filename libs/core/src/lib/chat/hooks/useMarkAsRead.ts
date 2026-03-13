@@ -7,6 +7,7 @@ import {
 	markAsReadProcessing,
 	selectAllChannels,
 	selectChannelThreads,
+	selectChannelsByClanId,
 	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	useAppDispatch,
@@ -158,14 +159,12 @@ export function useMarkAsRead() {
 				clan_id: clanId ?? ''
 			};
 
-			console.log('handleMarkAsReadClan');
-
 			setStatusMarkAsReadClan('pending');
 			try {
 				await actionMarkAsRead(body);
 
 				const store = getStore();
-				const channels = selectChannelThreads(store.getState() as RootState);
+				const channels = selectChannelsByClanId(store.getState() as RootState, clanId);
 				const channelIds = channels.map((item) => item.id);
 				const channelUpdates = buildChannelUpdates(channelIds);
 
