@@ -1,10 +1,10 @@
+import { isSessionRefreshing } from '@mezon/transport';
 import { LIMIT_CLAN_ITEM, trackError } from '@mezon/utils';
 import { createListenerMiddleware } from '@reduxjs/toolkit';
 import * as Sentry from '@sentry/browser';
 import { authActions } from '../auth/auth.slice';
 import type { EErrorType, Toast, ToastPayload } from '../toasts';
 import { toastActions } from '../toasts';
-import { walletActions } from '../wallet/wallet.slice';
 import { triggerClanLimitModal } from './errors.slice';
 
 interface ErrorAction {
@@ -32,34 +32,9 @@ export const errorListenerMiddleware = createListenerMiddleware({
 let hasDispatchedRefreshOnce = false;
 let isRefreshing = false;
 
-function isUnauthorizedError(payload: unknown): boolean {
-	if (!payload) return false;
-
-	if (payload instanceof Response && payload.status === 401) {
-		return true;
-	}
-
-	if (typeof payload === 'object') {
-		const p = payload as Record<string, any>;
-		if (p.status === 401 || p.statusCode === 401 || p.code === 16) {
-			return true;
-		}
-		if (p.error?.status === 401 || p.error?.statusCode === 401) {
-			return true;
-		}
-	}
-
-	const msg =
-		typeof payload === 'string'
-			? payload
-			: typeof payload === 'object'
-				? (payload as any)?.message || (payload as any)?.error?.message || ''
-				: '';
-	if (typeof msg === 'string' && (msg.includes('Unauthenticated') || msg.includes('Refresh token invalid') || msg.includes('token expired'))) {
-		return true;
-	}
-
-	return false;
+export function resetRefreshState() {
+	hasDispatchedRefreshOnce = false;
+	isRefreshing = false;
 }
 
 function isErrorPredicate(action: ErrorAction) {
@@ -134,23 +109,19 @@ errorListenerMiddleware.startListening({
 		try {
 			const isRefreshAction = typeof action.type === 'string' && action.type.startsWith('auth/refreshSession');
 
-			if (!isRefreshAction && !hasDispatchedRefreshOnce && !isRefreshing) {
+			if (!isRefreshAction && !hasDispatchedRefreshOnce && !isRefreshing && !isSessionRefreshing()) {
 				let status: number | undefined = action?.payload?.status ?? action?.payload?.error?.status;
 				if (status == null && action?.payload && typeof action.payload === 'object') {
 					status = action?.payload?.status;
 				}
 
-				if (status === 401) {
+				if (status === 401 || status === 403 || status === 500) {
 					isRefreshing = true;
 					hasDispatchedRefreshOnce = true;
 					try {
 						const result = await listenerApi.dispatch(authActions.refreshSession());
 						const isRejected = result.meta?.requestStatus === 'rejected';
-						if (isRejected || isUnauthorizedError(result.payload)) {
-							console.error('Refresh session failed with 401, logging out');
-							listenerApi.dispatch(authActions.setLogout());
-							listenerApi.dispatch(walletActions.setLogout());
-						} else {
+						if (!isRejected) {
 							hasDispatchedRefreshOnce = false;
 						}
 					} finally {

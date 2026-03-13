@@ -290,6 +290,15 @@ const persistedActivitiesReducer = persistReducer(
 	activitiesAPIReducer
 );
 
+const persistedDirectReducer = persistReducer(
+	{
+		key: 'direct',
+		storage,
+		whitelist: ['pinnedDms']
+	},
+	directReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	dashboard: dashboardReducer,
@@ -318,7 +327,7 @@ const reducer = {
 	[POLICIES_FEATURE_KEY]: policiesReducer,
 	userClanProfile: userClanProfileReducer,
 	friends: friendsReducer,
-	direct: directReducer,
+	direct: persistedDirectReducer,
 	roleId: roleIdReducer,
 	[OVERRIDDEN_POLICIES_FEATURE_KEY]: overriddenPoliciesReducer,
 	notificationsetting: notificationSettingReducer,

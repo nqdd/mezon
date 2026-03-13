@@ -57,6 +57,7 @@ const mapFriendToStatus = (friends: ApiFriend[]): IUserProfileActivity[] => {
 };
 export interface FriendsState extends EntityState<FriendsEntity, string> {
 	loadingStatus: LoadingStatus;
+	addFriendRequestLoading: boolean;
 	error?: string | null;
 	currentTabStatus: string;
 	cache?: CacheMetadata;
@@ -221,29 +222,24 @@ export const sendRequestUnblockFriend = createAsyncThunk('friends/requestUnblock
 	return response;
 });
 
-export const upsertFriendRequest = createAsyncThunk(
-	'friends/upsertFriendRequest',
-	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
-		const state = thunkAPI.getState() as RootState;
-		const currentFriendApi = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}`);
-
-		const friend: FriendsEntity = {
-			state: currentFriendApi ? EStateFriend.FRIEND : EStateFriend.MY_PENDING,
+export const upsertFriendRequest = createAsyncThunk('friends/upsertFriendRequest', async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
+	const friend: FriendsEntity = {
+		state: EStateFriend.MY_PENDING,
+		id: user.user_id,
+		source_id: myId,
+		user: {
 			id: user.user_id,
-			source_id: myId,
-			user: {
-				id: user.user_id,
-				username: user.username,
-				avatar_url: user.avatar,
-				display_name: user.display_name
-			}
-		};
-		thunkAPI.dispatch(friendsActions.upsertFriend(friend));
-	}
-);
+			username: user.username,
+			avatar_url: user.avatar,
+			display_name: user.display_name
+		}
+	};
+	thunkAPI.dispatch(friendsActions.upsertFriend(friend));
+});
 
 export const initialFriendsState: FriendsState = friendsAdapter.getInitialState({
 	loadingStatus: 'not loaded',
+	addFriendRequestLoading: false,
 	friends: [],
 	error: null,
 	currentTabStatus: 'all',
@@ -344,10 +340,18 @@ export const friendsSlice = createSlice({
 				state.loadingStatus = 'error';
 				state.error = action.error.message;
 			});
-		builder.addCase(sendRequestAddFriend.rejected, (state: FriendsState, action) => {
-			state.loadingStatus = 'error';
-			state.error = action.error.message ?? 'No valid ID or username was provided.';
-		});
+		builder
+			.addCase(sendRequestAddFriend.pending, (state: FriendsState) => {
+				state.addFriendRequestLoading = true;
+			})
+			.addCase(sendRequestAddFriend.fulfilled, (state: FriendsState) => {
+				state.addFriendRequestLoading = false;
+			})
+			.addCase(sendRequestAddFriend.rejected, (state: FriendsState, action) => {
+				state.addFriendRequestLoading = false;
+				state.loadingStatus = 'error';
+				state.error = action.error.message ?? 'No valid ID or username was provided.';
+			});
 	}
 });
 
@@ -383,3 +387,4 @@ export const selectBlockedUsersForMessage = createSelector([selectAllFriends], (
 export const selectFriendById = createSelector([getFriendsState, (state, userId: string) => userId], (state, userId) => selectById(state, userId));
 export const selectCurrentTabStatus = createSelector(getFriendsState, (state) => state.currentTabStatus);
 export const selectLoadingStatusFriend = createSelector(getFriendsState, (state) => state.loadingStatus);
+export const selectAddFriendRequestLoading = createSelector(getFriendsState, (state) => state.addFriendRequestLoading);
