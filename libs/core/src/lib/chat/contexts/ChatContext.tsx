@@ -2502,7 +2502,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		const channels = selectChannelThreads(store.getState() as RootState);
 
 		if (markAsReadEvent.category_id === '0') {
-			const channelIds = channels.map((item) => item.id);
+			const clanChannels = selectChannelsByClanId(store.getState() as RootState, markAsReadEvent.clan_id);
+			const channelIds = clanChannels.map((item) => item.id);
 			const channelUpdates = channelIds.map((channelId) => {
 				let messageId = selectLatestMessageId(store.getState(), channelId);
 				if (!messageId) {
@@ -2524,32 +2525,32 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
 			}));
 			badgeService.markAsReadCategory(markAsReadEvent.clan_id as string, markAsReadEvent.category_id, channelIds, channelUpdates);
-		} else {
-			const relatedChannels = channels.filter((channel) => channel.parent_id === markAsReadEvent.channel_id);
-			const channelIds = relatedChannels.map((channel) => channel.id);
-			const channelUpdates = channelIds.map((channelId) => ({
+			return;
+		}
+		const relatedChannels = channels.filter((channel) => channel.parent_id === markAsReadEvent.channel_id);
+		const channelIds = relatedChannels.map((channel) => channel.id);
+		const channelUpdates = channelIds.map((channelId) => ({
+			channelId,
+			messageId: selectLatestMessageId(store.getState(), channelId) || undefined
+		}));
+		badgeService.markAsReadChannel(
+			markAsReadEvent.clan_id as string,
+			markAsReadEvent.channel_id,
+			[markAsReadEvent.channel_id, ...channelIds],
+			channelUpdates,
+			relatedChannels.map((channel) => ({
+				channelId: channel.id,
+				count: (channel.count_mess_unread ?? 0) * -1
+			}))
+		);
+
+		const threadIds = relatedChannels.flatMap((channel) => channel.threadIds || []);
+		if (threadIds.length) {
+			const threadUpdates = threadIds.map((channelId) => ({
 				channelId,
 				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
 			}));
-			badgeService.markAsReadChannel(
-				markAsReadEvent.clan_id as string,
-				markAsReadEvent.channel_id,
-				[markAsReadEvent.channel_id, ...channelIds],
-				channelUpdates,
-				relatedChannels.map((channel) => ({
-					channelId: channel.id,
-					count: (channel.count_mess_unread ?? 0) * -1
-				}))
-			);
-
-			const threadIds = relatedChannels.flatMap((channel) => channel.threadIds || []);
-			if (threadIds.length) {
-				const threadUpdates = threadIds.map((channelId) => ({
-					channelId,
-					messageId: selectLatestMessageId(store.getState(), channelId) || undefined
-				}));
-				dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadUpdates));
-			}
+			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadUpdates));
 		}
 	}, []);
 
