@@ -337,7 +337,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const errorTopic = /[`<>,/]/.test(contentSubmit.topic || '');
+	const errorTopic = /[`<>,/"\\']/.test(contentSubmit.topic || '');
 	const isDisabled = option === '' || errorOption || !isEventChanged || errorTopic;
 
 	return (

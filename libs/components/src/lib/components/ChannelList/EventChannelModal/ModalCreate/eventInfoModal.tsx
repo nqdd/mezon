@@ -180,13 +180,13 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					placeholder={t('fields.eventName.placeholder')}
 					onChange={(e) => setContentSubmit((prev) => ({ ...prev, topic: e.target.value }))}
 					value={contentSubmit.topic}
-					className={`font-[400] rounded w-full  outline-none text-[15px] p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''} ${/[`<>,/]/.test(contentSubmit.topic || '') ? 'border border-[#e44141]' : 'border border-theme-primary'}`}
+					className={`font-[400] rounded w-full  outline-none text-[15px] p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''} ${/[`<>,/"\\']/.test(contentSubmit.topic || '') ? 'border border-[#e44141]' : 'border border-theme-primary'}`}
 					maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED) * 2}
 					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_topic')}
 				/>
-				{/[`<>,/]/.test(contentSubmit.topic || '') && (
+				{/[`<>,/"\\']/.test(contentSubmit.topic || '') && (
 					<p className="text-[#e44141]  text-xs italic font-thin mt-1">
-						{"Invalid event topic. Characters '`', '<', '>', ',', and '/' are not allowed."}
+						{"Invalid event topic. Characters '`', '<', '>', ',', '/', '\"', '\\', and ''' are not allowed."}
 					</p>
 				)}
 			</div>
