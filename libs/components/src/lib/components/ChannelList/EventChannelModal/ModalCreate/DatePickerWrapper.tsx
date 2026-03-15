@@ -26,7 +26,10 @@ const DatePickerWrapper = (props: DatePickerWrapperProps) => {
 		const loadDatePicker = async () => {
 			try {
 				const datepickerModule = await import('react-datepicker');
-				setDatePickerComponent(() => datepickerModule.default);
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const resolved = datepickerModule.default as any;
+				const Component = typeof resolved === 'function' ? resolved : resolved?.default;
+				setDatePickerComponent(() => Component);
 				setIsLoading(false);
 			} catch (error) {
 				console.error('Failed to load DatePicker:', error);

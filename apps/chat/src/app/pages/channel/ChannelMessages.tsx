@@ -231,23 +231,27 @@ function ChannelMessages({
 				}
 
 				if (shouldUpdate) {
-					dispatch(
-						messagesActions.UpdateChannelLastMessage({
-							channelId,
-							messageId: lastMessageViewport
-						})
-					);
+					queueMicrotask(() => {
+						dispatch(
+							messagesActions.UpdateChannelLastMessage({
+								channelId,
+								messageId: lastMessageViewport
+							})
+						);
+					});
 				}
 			}
 
 			const scrollPosition = selectScrollPositionByChannelId(state, effectiveChannelId);
 			if (!scrollPosition?.messageId && lastMessageViewport) {
-				dispatch(
-					channelsActions.setScrollPosition({
-						channelId,
-						messageId: lastMessageViewport
-					})
-				);
+				queueMicrotask(() => {
+					dispatch(
+						channelsActions.setScrollPosition({
+							channelId,
+							messageId: lastMessageViewport
+						})
+					);
+				});
 			}
 		};
 	}, [channelId]);
