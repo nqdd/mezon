@@ -1,18 +1,7 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
-import 'react-datepicker/dist/react-datepicker.min.css';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const LazyDatePicker = React.lazy<React.ComponentType<any>>(() =>
-	import('react-datepicker').then((mod) => {
-		const resolved = mod as { default: React.ComponentType<any> & { default?: React.ComponentType<any> } };
-		return { default: resolved.default?.default ?? resolved.default };
-	})
-);
-
 type DatePickerWrapperProps = {
 	selected: Date;
 	onChange: (date: Date) => void;
-	dateFormat: string;
+	dateFormat?: string;
 	minDate?: Date;
 	maxDate?: Date;
 	className?: string;
@@ -24,48 +13,31 @@ type DatePickerWrapperProps = {
 	onFocus?: () => void;
 };
 
-const DatePickerWrapper = (props: DatePickerWrapperProps) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const wrapperRef = useRef<HTMLDivElement>(null);
+const toInputValue = (date: Date): string => {
+	const y = date.getFullYear();
+	const m = String(date.getMonth() + 1).padStart(2, '0');
+	const d = String(date.getDate()).padStart(2, '0');
+	return `${y}-${m}-${d}`;
+};
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			const target = event.target as Node;
-			if (wrapperRef.current && !wrapperRef.current.contains(target)) {
-				const calendarPopup = document.querySelector('.react-datepicker-popper');
-				if (!calendarPopup || !calendarPopup.contains(target)) {
-					setIsOpen(false);
-				}
-			}
-		};
-
-		if (isOpen) {
-			document.addEventListener('mousedown', handleClickOutside, true);
-		}
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside, true);
-		};
-	}, [isOpen]);
-
-	const handleChange = (date: Date) => {
-		props.onChange(date);
-		setIsOpen(false);
+const DatePickerWrapper = ({ selected, onChange, minDate, maxDate, className, wrapperClassName, onFocus }: DatePickerWrapperProps) => {
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (!e.target.value) return;
+		onChange(new Date(`${e.target.value}T00:00:00`));
 	};
 
 	return (
-		<Suspense fallback={<div className="w-full h-[38px] bg-option-theme  animate-pulse rounded"></div>}>
-			<div ref={wrapperRef}>
-				<LazyDatePicker
-					{...props}
-					onChange={handleChange}
-					open={isOpen}
-					onInputClick={() => setIsOpen(true)}
-					onClickOutside={() => setIsOpen(false)}
-					popperClassName="z-[200]"
-				/>
-			</div>
-		</Suspense>
+		<div className={wrapperClassName}>
+			<input
+				type="date"
+				className={className}
+				value={toInputValue(selected)}
+				min={minDate ? toInputValue(minDate) : undefined}
+				max={maxDate ? toInputValue(maxDate) : undefined}
+				onChange={handleChange}
+				onFocus={onFocus}
+			/>
+		</div>
 	);
 };
 

@@ -1,6 +1,6 @@
 import { selectScreenSource, selectShowScreen, useAppDispatch, useAppSelector, voiceActions } from '@mezon/store';
 import type { LocalTrackPublication, Room } from 'livekit-client';
-import { AudioPresets, ScreenSharePresets, Track } from 'livekit-client';
+import { AudioPresets, Track } from 'livekit-client';
 import { useCallback, useEffect, useRef } from 'react';
 
 type PublishedScreenTracks = {
@@ -81,10 +81,10 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				const videoPublication = await room.localParticipant.publishTrack(videoTrack, {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
-					simulcast: true,
+					simulcast: false,
 					videoCodec: 'vp8',
-					degradationPreference: 'maintain-resolution',
-					screenShareSimulcastLayers: [ScreenSharePresets.h360fps3, ScreenSharePresets.h720fps15]
+					degradationPreference: 'maintain-resolution'
+					//screenShareSimulcastLayers: [ScreenSharePresets.h360fps3, ScreenSharePresets.h720fps15]
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
@@ -93,7 +93,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					audioPublication = await room.localParticipant.publishTrack(audioTrack, {
 						source: Track.Source.ScreenShareAudio,
 						audioPreset: AudioPresets.speech,
-						dtx: true
+						dtx: false
 					});
 				}
 
