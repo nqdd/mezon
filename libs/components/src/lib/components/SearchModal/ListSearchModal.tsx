@@ -1,4 +1,5 @@
-import { SearchItemProps, TypeSearch } from '@mezon/utils';
+import type { SearchItemProps } from '@mezon/utils';
+import { TypeSearch } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useContext, useMemo } from 'react';
 import { SuggestItem } from '../../components';
@@ -28,7 +29,11 @@ const ListSearchModal = (props: ListSearchModalProps) => {
 			return (
 				<div
 					key={item.id}
-					ref={(element) => item?.id && itemRefs && (itemRefs[item.id] = element)}
+					ref={(element) => {
+						if (item?.id && itemRefs) {
+							itemRefs[item.id] = element;
+						}
+					}}
 					onClick={() => onItemClick(item)}
 					onMouseEnter={() => onMouseEnter(item)}
 					className={`${focusItemId === item.id ? 'bg-item-theme ' : ''}  w-full px-[10px] py-[4px] rounded-[6px] cursor-pointer`}

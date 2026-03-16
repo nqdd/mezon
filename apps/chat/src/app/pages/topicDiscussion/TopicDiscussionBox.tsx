@@ -1,4 +1,11 @@
-import { AttachmentPreviewThumbnail, FileSelectionButton, MentionReactInput, PreviewOgp, ReplyMessageBox, UserMentionList } from '@mezon/components';
+import {
+	AttachmentPreviewThumbnail,
+	FileSelectionButton,
+	MentionReactInput,
+	PreviewOgp,
+	ReplyMessageBox,
+	useUserMentionList
+} from '@mezon/components';
 import { useChatSending, useDragAndDrop, useReference, useSeenMessagePool } from '@mezon/core';
 import {
 	fetchMessages,
@@ -299,7 +306,7 @@ const TopicDiscussionBox = ({ currentTopicId }: { currentTopicId: string }) => {
 			setIsFetchMessageDone(true);
 		}
 	}, [currentTopicId, currentChannelId, currentClanId, dispatch]);
-	const mentionsList = UserMentionList({
+	const mentionsList = useUserMentionList({
 		channelID: currentChannelId as string,
 		channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 	});

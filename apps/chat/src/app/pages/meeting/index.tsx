@@ -68,6 +68,12 @@ export default function PreJoinCalling() {
 	const getAvatar = account?.user?.avatar_url;
 	const [cameraOn, setCameraOn] = useState(false);
 	const [username, setUsername] = useState(getDisplayName || '');
+
+	useEffect(() => {
+		if (getDisplayName && !username) {
+			setUsername(getDisplayName);
+		}
+	}, [getDisplayName]);
 	const [avatar, setAvatar] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	// State for permissions
@@ -167,24 +173,28 @@ export default function PreJoinCalling() {
 
 	// Handle Join Meeting
 	const joinMeeting = useCallback(async () => {
-		if (!username.trim() && !getDisplayName) {
+		const identity = account?.user?.id || username.trim();
+		if (!identity) {
 			setError('Please enter your name before joining the meeting.');
 			return;
 		}
 
 		setError(null);
 		setAvatar(avatar as string);
-		const fullStringNameAndAvatar = isUser ? JSON.stringify({ extName: username, extAvatar: getAvatar }) : JSON.stringify({ extName: username });
+		const displayName = username.trim() || getDisplayName || '';
+		const fullStringNameAndAvatar = isUser
+			? JSON.stringify({ extName: displayName, extAvatar: getAvatar })
+			: JSON.stringify({ extName: displayName });
 
 		await dispatch(
 			generateMeetTokenExternal({
 				token: code as string,
-				username: account?.user?.id || username,
+				username: identity,
 				metadata: fullStringNameAndAvatar,
 				isGuest: !isUser as boolean
 			})
 		);
-	}, [dispatch, username, account?.user?.id, getDisplayName, code]);
+	}, [dispatch, username, account?.user?.id, getDisplayName, getAvatar, isUser, code, avatar]);
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 

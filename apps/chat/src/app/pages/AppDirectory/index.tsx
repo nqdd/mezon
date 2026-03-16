@@ -1,13 +1,13 @@
 import { AppDirectoryList } from '@mezon/components';
 import { selectTheme } from '@mezon/store';
 import { Button, Icons, Image } from '@mezon/ui';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 interface ICategoryArr {
-	icon: JSX.Element;
+	icon: React.JSX.Element;
 	title: string;
 }
 

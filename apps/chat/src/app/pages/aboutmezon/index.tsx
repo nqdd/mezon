@@ -42,7 +42,7 @@ const AnimatedSection = ({ className = '', children }: AnimatedSectionProps) => 
 
 	return (
 		<section
-			ref={ref as React.RefObject<HTMLElement>}
+			ref={ref as React.RefObject<HTMLElement | null>}
 			className={`transition-all duration-700 ease-out transform opacity-0 translate-y-6 ${
 				isVisible ? 'opacity-100 translate-y-0' : ''
 			} ${className}`}

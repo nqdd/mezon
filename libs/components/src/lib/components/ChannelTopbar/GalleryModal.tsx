@@ -67,7 +67,7 @@ type VirtualDataItem = DateHeaderItem | ImagesGridItem;
 
 interface GalleryModalProps {
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement>;
+	rootRef?: RefObject<HTMLElement | null>;
 }
 
 export function GalleryModal({ onClose, rootRef }: GalleryModalProps) {

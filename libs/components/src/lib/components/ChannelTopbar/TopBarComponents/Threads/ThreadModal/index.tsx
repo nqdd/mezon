@@ -25,7 +25,7 @@ import ThreadList from './ThreadList';
 
 type ThreadsProps = {
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement>;
+	rootRef?: RefObject<HTMLElement | null>;
 };
 
 const ThreadModal = ({ onClose, rootRef }: ThreadsProps) => {

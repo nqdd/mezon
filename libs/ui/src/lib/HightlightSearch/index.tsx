@@ -1,4 +1,5 @@
 import { KMPHighlight, normalizeString } from '@mezon/utils';
+import React from 'react';
 
 const HighlightMatch = (content: string, valueSearch: string[]) => {
 	const normalizedSearchTerms = valueSearch.flatMap((term) => normalizeString(term).split(/\s+/)).filter((term) => term.length > 0);
@@ -22,7 +23,7 @@ const HighlightMatch = (content: string, valueSearch: string[]) => {
 
 	matchPositions.sort((a, b) => a.start - b.start);
 
-	const parts: (string | JSX.Element)[] = [];
+	const parts: (string | React.JSX.Element)[] = [];
 	let startIndex = 0;
 
 	matchPositions.forEach((match) => {

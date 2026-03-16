@@ -12,7 +12,7 @@ export interface GridLayoutProps extends HTMLAttributes<HTMLDivElement>, Pick<Us
 
 function _GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutProps) {
 	const gridEl = createRef<HTMLDivElement>();
-	const { layout } = useGridLayout(gridEl, tracks.length);
+	const { layout } = useGridLayout(gridEl as React.RefObject<HTMLDivElement>, tracks.length);
 	const pagination = usePagination(layout.maxTiles, tracks);
 
 	const [interactive, setInteractive] = useState(false);
@@ -46,7 +46,7 @@ function _GridLayout({ tracks, isExternalCalling, ...props }: GridLayoutProps) {
 		};
 	}, [pagination, gridEl]);
 
-	useSwipe(gridEl, {
+	useSwipe(gridEl as React.RefObject<HTMLElement | null> as React.RefObject<HTMLElement>, {
 		onLeftSwipe: pagination.nextPage,
 		onRightSwipe: pagination.prevPage
 	});

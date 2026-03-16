@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 type MessageProps = {
-	chatRef: React.RefObject<HTMLDivElement>;
+	chatRef: React.RefObject<HTMLDivElement | null>;
 	channelId: string;
 	hasMoreMessage: boolean;
 	loadMoreMessage: () => void;

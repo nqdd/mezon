@@ -227,8 +227,8 @@ const ImageEditorHeader = React.memo(({ handleClose, t }: ImageEditorHeaderProps
 ));
 // Canvas
 type ImageEditorCanvasProps = {
-	bgCanvasRef: React.RefObject<HTMLCanvasElement>;
-	overlayCanvasRef: React.RefObject<HTMLCanvasElement>;
+	bgCanvasRef: React.RefObject<HTMLCanvasElement | null>;
+	overlayCanvasRef: React.RefObject<HTMLCanvasElement | null>;
 	handleMouseDown: (event: React.MouseEvent<HTMLCanvasElement>) => void;
 	handleMouseMove: (event: React.MouseEvent<HTMLCanvasElement>) => void;
 	handleMouseUp: (event: React.MouseEvent<HTMLCanvasElement>) => void;

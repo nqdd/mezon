@@ -3,7 +3,7 @@ import { DmCallAudioHookReturn, useDmCallAudio } from './useDmCallAudio';
 import { DmCallStateHookReturn, useDmCallState } from './useDmCallState';
 
 export interface DmCallHookReturn extends DmCallAudioHookReturn, DmCallStateHookReturn {
-	dmCallingRef: React.RefObject<{ triggerCall: (isVideoCall?: boolean, isAnswer?: boolean) => void }>;
+	dmCallingRef: React.RefObject<{ triggerCall: (isVideoCall?: boolean, isAnswer?: boolean) => void } | null>;
 }
 
 export interface DmCallHookParams {

@@ -1,17 +1,17 @@
 import { Icons } from '@mezon/ui';
 import { Platform } from '@mezon/utils';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface DownloadLink {
 	url: string;
-	icon: JSX.Element;
+	icon: React.JSX.Element;
 	trackingData?: { platform: string; type: string };
 }
 
 interface DropdownButtonProps {
-	icon: JSX.Element;
+	icon: React.JSX.Element;
 	downloadLinks: DownloadLink[];
-	dropdownRef: React.RefObject<HTMLDivElement>;
+	dropdownRef: React.RefObject<HTMLDivElement | null>;
 	downloadUrl?: string;
 	platform?: Platform;
 	isWindow?: boolean;

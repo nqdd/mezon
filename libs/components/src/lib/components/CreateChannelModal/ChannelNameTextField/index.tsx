@@ -3,7 +3,7 @@ import { Icons } from '@mezon/ui';
 import { ValidateSpecialCharacters, generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebouncedCallback } from 'use-debounce';
 import { ChannelLableModal } from '../ChannelLabel';
@@ -90,7 +90,7 @@ export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameM
 		}
 	}, 300);
 
-	const iconMap: Partial<Record<ChannelType, JSX.Element>> = {
+	const iconMap: Partial<Record<ChannelType, React.JSX.Element>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: <Icons.Hashtag defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_FORUM]: <Icons.Forum defaultSize="w-6 h-6" />,

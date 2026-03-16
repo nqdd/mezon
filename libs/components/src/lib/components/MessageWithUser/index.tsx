@@ -60,7 +60,7 @@ export type MessageWithUserProps = {
 	isEditing?: boolean;
 	isShowFull?: boolean;
 	isHighlight?: boolean;
-	editor?: JSX.Element;
+	editor?: React.JSX.Element;
 	onContextMenu?: (event: React.MouseEvent<HTMLElement>) => void;
 	popup?: () => ReactNode;
 	isSearchMessage?: boolean;

@@ -1,9 +1,9 @@
 import React from 'react';
 
-export const filterOptionReactSelect = (option: { label: JSX.Element | string; value: string }, inputValue: string) => {
+export const filterOptionReactSelect = (option: { label: React.JSX.Element | string; value: string }, inputValue: string) => {
 	let label = '';
 	if (React.isValidElement(option.label)) {
-		const children = (option.label as JSX.Element).props.children;
+		const children = (option.label as React.JSX.Element).props.children;
 
 		if (Array.isArray(children)) {
 			const secondChild = children[1];

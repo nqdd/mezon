@@ -1,6 +1,6 @@
 import { Icons, Image } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
-import { memo, useEffect, useRef, useState, type RefObject } from 'react';
+import React, { memo, useEffect, useRef, useState, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface LayoutProps {
@@ -196,7 +196,7 @@ export const HeaderFeature: React.FC<HeaderFeatureProps> = ({ content, className
 };
 
 interface IconCardProps {
-	icon: JSX.Element;
+	icon: React.JSX.Element;
 	label: string;
 }
 
@@ -239,7 +239,7 @@ interface IntersectionOptions {
 	threshold?: number | number[];
 }
 
-export const useIntersectionObserver = (elementRef: RefObject<Element>, options: IntersectionOptions): boolean => {
+export const useIntersectionObserver = (elementRef: RefObject<Element | null>, options: IntersectionOptions): boolean => {
 	const [isVisible, setIsVisible] = useState<boolean>(false);
 	const [hasAnimated, setHasAnimated] = useState<boolean>(false);
 

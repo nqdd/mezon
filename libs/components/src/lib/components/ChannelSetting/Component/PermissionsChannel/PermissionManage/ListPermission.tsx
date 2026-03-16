@@ -73,7 +73,9 @@ const ListPermission = forwardRef<ListPermissionHandle, ItemListPermissionProps>
 							title={item.slug ? getPermissionTitle(item.slug) || item.title : item.title}
 							active={matchingRoleChannel?.active}
 							onSelect={onSelect}
-							ref={(el) => (itemRefs.current[item.id] = el!)}
+							ref={(el) => {
+								itemRefs.current[item.id] = el!;
+							}}
 						/>
 					);
 				})}

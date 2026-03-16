@@ -15,7 +15,7 @@ import ListRolePermission from './listRolePermission';
 export type PermissionsChannelProps = {
 	channel: IChannel;
 	openModalAdd: MutableRefObject<boolean>;
-	parentRef: RefObject<HTMLDivElement>;
+	parentRef: RefObject<HTMLDivElement | null>;
 	clanId?: string;
 };
 

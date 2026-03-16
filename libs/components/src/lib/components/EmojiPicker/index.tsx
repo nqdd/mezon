@@ -119,7 +119,7 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 		[categoryEmoji]
 	);
 
-	const categoriesWithIcons: { name: string; icon: JSX.Element }[] = useMemo(() => {
+	const categoriesWithIcons: { name: string; icon: React.JSX.Element }[] = useMemo(() => {
 		const categories = categoriesEmoji.map((category, index) => ({
 			name: category,
 			icon: categoryIcons[index + 1]
@@ -351,7 +351,13 @@ function EmojiCustomPanel(props: EmojiCustomPanelOptions) {
 					>
 						{categoriesWithIcons.map((item, index) => {
 							return (
-								<div className="w-full" key={index} ref={(el) => (categoryRefs.current[item.name] = el)}>
+								<div
+									className="w-full"
+									key={index}
+									ref={(el) => {
+										categoryRefs.current[item.name] = el;
+									}}
+								>
 									<DisplayByCategories
 										emojisData={emojis}
 										onEmojiSelect={handleEmojiSelect}
@@ -379,7 +385,7 @@ type DisplayByCategoriesProps = {
 	readonly emojisData: IEmoji[];
 	onClickAddButton?: () => void;
 	showAddButton?: boolean;
-	categoryIcons?: JSX.Element;
+	categoryIcons?: React.JSX.Element;
 };
 
 const getEmojisByCategories = (emojis: IEmoji[], categoryParam: string) => {

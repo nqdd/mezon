@@ -34,7 +34,7 @@ export function useIntersectionObserver(
 		threshold,
 		isDisabled
 	}: {
-		rootRef: RefObject<HTMLDivElement>;
+		rootRef: RefObject<HTMLDivElement | null>;
 		throttleMs?: number;
 		throttleScheduler?: Scheduler;
 		debounceMs?: number;
@@ -45,12 +45,12 @@ export function useIntersectionObserver(
 	},
 	rootCallback?: RootCallback
 ): Response {
-	const controllerRef = useRef<IntersectionController>();
-	const rootCallbackRef = useRef<RootCallback>();
+	const controllerRef = useRef<IntersectionController>(null);
+	const rootCallbackRef = useRef<RootCallback>(null);
 	const freezeFlagsRef = useRef(0);
-	const onUnfreezeRef = useRef<NoneToVoidFunction>();
+	const onUnfreezeRef = useRef<NoneToVoidFunction>(null);
 
-	rootCallbackRef.current = rootCallback;
+	rootCallbackRef.current = rootCallback ?? null;
 
 	const freeze = useLastCallback(() => {
 		freezeFlagsRef.current++;
@@ -65,7 +65,7 @@ export function useIntersectionObserver(
 
 		if (!freezeFlagsRef.current && onUnfreezeRef.current) {
 			onUnfreezeRef.current();
-			onUnfreezeRef.current = undefined;
+			onUnfreezeRef.current = null;
 		}
 	});
 
@@ -80,7 +80,7 @@ export function useIntersectionObserver(
 			if (controllerRef.current) {
 				controllerRef.current.observer.disconnect();
 				controllerRef.current.destroy();
-				controllerRef.current = undefined;
+				controllerRef.current = null;
 			}
 		};
 	}, [isDisabled]);
@@ -196,7 +196,7 @@ export function useIntersectionObserver(
 	return { observe, freeze, unfreeze };
 }
 
-export function useOnIntersect(targetRef: RefObject<HTMLDivElement>, observe?: ObserveFn, callback?: TargetCallback) {
+export function useOnIntersect(targetRef: RefObject<HTMLDivElement | null>, observe?: ObserveFn, callback?: TargetCallback) {
 	const lastCallback = useLastCallback(callback);
 
 	useEffect(() => {
@@ -204,7 +204,7 @@ export function useOnIntersect(targetRef: RefObject<HTMLDivElement>, observe?: O
 	}, [lastCallback, observe, targetRef]);
 }
 
-export function useIsIntersecting(targetRef: RefObject<HTMLDivElement>, observe?: ObserveFn, callback?: TargetCallback) {
+export function useIsIntersecting(targetRef: RefObject<HTMLDivElement | null>, observe?: ObserveFn, callback?: TargetCallback) {
 	const [isIntersecting, setIsIntersecting] = useState(!observe);
 
 	useOnIntersect(targetRef, observe, (entry) => {

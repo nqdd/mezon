@@ -33,7 +33,7 @@ export interface DmCallStateHookReturn {
 
 interface DmCallStateHookParams {
 	userId: string;
-	dmCallingRef: React.RefObject<{ triggerCall: (isVideoCall?: boolean, isAnswer?: boolean) => void }>;
+	dmCallingRef: React.RefObject<{ triggerCall: (isVideoCall?: boolean, isAnswer?: boolean) => void } | null>;
 }
 
 export const useDmCallState = ({ userId, dmCallingRef }: DmCallStateHookParams): DmCallStateHookReturn => {

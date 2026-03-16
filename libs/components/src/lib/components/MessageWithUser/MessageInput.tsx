@@ -19,7 +19,7 @@ import Mention, { type MentionData } from '../../components/MessageBox/ReactionM
 import MentionsInput, { type FormattedText, type MentionsInputHandle } from '../../components/MessageBox/ReactionMentionInput/MentionsInput';
 import SuggestItem from '../../components/MessageBox/ReactionMentionInput/SuggestItem';
 import parseHtmlAsFormattedText from '../../components/MessageBox/ReactionMentionInput/parseHtmlAsFormattedText';
-import { UserMentionList } from '../../components/UserMentionList';
+import { useUserMentionList } from '../../components/UserMentionList';
 
 type MessageInputProps = {
 	messageId: string;
@@ -46,7 +46,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ channelId, mode, channelLab
 	);
 	const { emojis } = useEmojiSuggestionContext();
 	const editorRef = useRef<MentionsInputHandle | null>(null);
-	const mentionListData = UserMentionList({ channelID: channelId, channelMode: mode });
+	const mentionListData = useUserMentionList({ channelID: channelId, channelMode: mode });
 	const rolesClan = useSelector(selectAllRolesClan);
 	useChannelMembers({ channelId, mode: ChannelStreamMode.STREAM_MODE_CHANNEL ?? 0 });
 	const [showModal, closeModal] = useModal(() => {
