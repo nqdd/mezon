@@ -1,42 +1,9 @@
 import react from '@vitejs/plugin-react';
 import * as fs from 'fs';
 import * as path from 'path';
-import { defineConfig, loadEnv, type Plugin } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-
-function nodePolyfillsPlugin(): Plugin {
-	return {
-		name: 'node-polyfills',
-		transformIndexHtml() {
-			return [
-				{
-					tag: 'script',
-					attrs: { type: 'module' },
-					children: [
-						"import { Buffer } from 'buffer';",
-						'globalThis.Buffer = globalThis.Buffer || Buffer;',
-						"import process from 'process/browser';",
-						'globalThis.process = globalThis.process || process;',
-						'globalThis.global = globalThis.global || globalThis;'
-					].join('\n'),
-					injectTo: 'head-prepend'
-				}
-			];
-		},
-		config() {
-			return {
-				resolve: {
-					alias: {
-						buffer: 'buffer',
-						process: 'process/browser',
-						stream: 'stream-browserify',
-						util: 'util'
-					}
-				}
-			};
-		}
-	};
-}
 
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8'));
 const APP_VERSION = packageJson.version;
@@ -69,6 +36,15 @@ export default defineConfig(({ mode }) => {
 		},
 
 		plugins: [
+			nodePolyfills({
+				include: ['buffer', 'process', 'stream', 'util'],
+				exclude: ['crypto'],
+				globals: {
+					Buffer: true,
+					global: true,
+					process: true
+				}
+			}),
 			react({
 				babel: {
 					plugins: [
@@ -78,7 +54,6 @@ export default defineConfig(({ mode }) => {
 					]
 				}
 			}),
-			nodePolyfillsPlugin(),
 			viteStaticCopy({
 				targets: [
 					{

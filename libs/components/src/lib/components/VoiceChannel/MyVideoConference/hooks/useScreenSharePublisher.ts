@@ -55,8 +55,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 							chromeMediaSourceId: screenSource.id,
 							maxWidth: 2560,
 							maxHeight: 1440,
-							minFrameRate: 30,
-							maxFrameRate: 60
+							maxFrameRate: 30
 						}
 					},
 					audio: screenSource.audio
@@ -75,7 +74,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				if (!videoTrack) {
 					throw new Error('Selected stream has no video track');
 				}
-				videoTrack.contentHint = 'motion';
+				videoTrack.contentHint = 'text';
 
 				stopScreenShare();
 
@@ -85,7 +84,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					simulcast: true,
 					videoCodec: 'vp8',
 					degradationPreference: 'maintain-resolution',
-					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h1080fps30]
+					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h720fps15]
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
