@@ -2,6 +2,7 @@ import react from '@vitejs/plugin-react';
 import * as fs from 'fs';
 import * as path from 'path';
 import { defineConfig, loadEnv } from 'vite';
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf-8'));
@@ -35,6 +36,15 @@ export default defineConfig(({ mode }) => {
 		},
 
 		plugins: [
+			nodePolyfills({
+				include: ['buffer', 'process', 'stream', 'util'],
+				exclude: ['crypto'],
+				globals: {
+					Buffer: true,
+					global: true,
+					process: true
+				}
+			}),
 			react({
 				babel: {
 					plugins: [
