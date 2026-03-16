@@ -23,9 +23,9 @@ import { useSelector } from 'react-redux';
 import LeaveGroupModal from '../../components/LeaveGroupModal';
 import ModalEditGroup from '../../components/ModalEditGroup';
 import ItemPanelMember from '../../components/PanelMember/ItemPanelMember';
-import RemoveFriendModal from '../../components/RemoveFriendModal';
 import ShareContactModal from '../../components/ShareContact';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
+import { useRemoveFriendModal } from '../../hooks/useRemoveFriendModal';
 import { MemberMenuItem } from '../MemberContextMenu';
 import { useModals } from '../MemberContextMenu/useModals';
 import type { DirectMessageContextMenuContextType, DirectMessageContextMenuHandlers, DirectMessageContextMenuProps } from './types';
@@ -48,7 +48,6 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 	const [currentUser, setCurrentUser] = useState<ChannelMembersEntity | any>(null);
 	const [currentHandlers, setCurrentHandlers] = useState<DirectMessageContextMenuHandlers | null>(null);
 	const [isLeaveGroupModalOpen, setIsLeaveGroupModalOpen] = useState(false);
-	const [friendToRemove, setFriendToRemove] = useState<{ username?: string; id?: string; displayName?: string } | null>(null);
 	const dispatch = useAppDispatch();
 
 	const userProfile = useSelector(selectAllAccount);
@@ -129,36 +128,15 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		isLastOne
 	});
 
-	const [showRemoveFriendConfirm, hideRemoveFriendConfirm] = useModal(
-		() =>
-			friendToRemove ? (
-				<RemoveFriendModal
-					username={friendToRemove.username}
-					displayName={friendToRemove.displayName}
-					onClose={() => {
-						hideRemoveFriendConfirm();
-						setFriendToRemove(null);
-					}}
-					onConfirm={() => {
-						if (friendToRemove?.username && friendToRemove?.id) {
-							deleteFriend(friendToRemove.username, friendToRemove.id);
-						}
-						hideRemoveFriendConfirm();
-						setFriendToRemove(null);
-					}}
-				/>
-			) : null,
-		[friendToRemove, deleteFriend]
-	);
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
 
-	const openRemoveFriendModal = useCallback(
+	const openRemoveFriendConfirm = useCallback(
 		(payload?: { username?: string; userId?: string; displayName?: string }) => {
 			if (payload?.username && payload?.userId) {
-				setFriendToRemove({ username: payload.username, id: payload.userId, displayName: payload.displayName });
-				showRemoveFriendConfirm();
+				openRemoveFriendModal({ username: payload.username, id: payload.userId, displayName: payload.displayName });
 			}
 		},
-		[showRemoveFriendConfirm]
+		[openRemoveFriendModal]
 	);
 
 	const notificationSettings = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channelId || ''));
@@ -184,7 +162,7 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		openEditGroupModal: editGroupModal.openEditModal,
 		openLeaveGroupModal,
 		openShareContactModal,
-		openRemoveFriendModal
+		openRemoveFriendModal: openRemoveFriendConfirm
 	});
 
 	const { showContextMenu } = useContextMenuHandlers({
