@@ -64,7 +64,7 @@ const VoicePreJoinWrapper = memo(({ loading, handleJoinRoom }: VoicePreJoinWrapp
 });
 
 interface VoiceConferenceContainerProps {
-	containerRef: RefObject<HTMLDivElement | null>;
+	containerRef: RefObject<HTMLDivElement>;
 	token: string;
 	isOpenPopOut?: boolean;
 	isVoiceFullScreen?: boolean;

@@ -4,7 +4,7 @@ import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mention as MentionComponent, MentionsInput as MentionsInputComponent } from 'react-mentions';
-import { useUserMentionList } from '../UserMentionList';
+import { UserMentionList } from '../UserMentionList';
 import SelectGroup from './SelectGroup';
 import SelectItemUser from './SelectItemUser';
 import type { ChannelOption, HasOption, SearchInputProps } from './types';
@@ -40,7 +40,7 @@ const SearchInput = ({
 }: SearchInputProps) => {
 	const { t } = useTranslation('searchMessageChannel');
 	const isClanMode = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
-	const userListData = useUserMentionList({
+	const userListData = UserMentionList({
 		channelID: channelId,
 		channelMode: mode
 	});

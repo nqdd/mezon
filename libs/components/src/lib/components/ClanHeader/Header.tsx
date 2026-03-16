@@ -6,7 +6,7 @@ type HeaderProps = {
 	name?: string;
 	handleShowModalClan: () => void;
 	isShowModalPanelClan: boolean;
-	modalRef: React.RefObject<HTMLDivElement | null>;
+	modalRef: React.RefObject<HTMLDivElement>;
 	children: React.ReactNode;
 };
 

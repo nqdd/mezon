@@ -59,7 +59,7 @@ export const EmojiRolePanel: React.FC<EmojiRolePanelProps> = ({ onEmojiSelect, o
 		[categoryEmoji]
 	);
 
-	const categoriesWithIcons: { name: string; icon: React.JSX.Element }[] = useMemo(() => {
+	const categoriesWithIcons: { name: string; icon: JSX.Element }[] = useMemo(() => {
 		return categoriesEmoji.map((category, index) => ({
 			name: category,
 			icon: categoryIcons[index]
@@ -177,7 +177,7 @@ export const EmojiRolePanel: React.FC<EmojiRolePanelProps> = ({ onEmojiSelect, o
 						>
 							{categoriesWithIcons.map((item, index) => {
 								return (
-									<div className="w-full" key={index} ref={(el) => { categoryRefs.current[item.name] = el; }}>
+									<div className="w-full" key={index} ref={(el) => (categoryRefs.current[item.name] = el)}>
 										<DisplayByCategories
 											emojisData={emojis}
 											onEmojiSelect={handleEmojiSelect}
@@ -202,7 +202,7 @@ type DisplayByCategoriesProps = {
 	readonly onEmojiSelect: (emojiId: string, emoji: string) => void;
 	readonly onEmojiHover: (item: IEmoji) => void;
 	readonly emojisData: IEmoji[];
-	categoryIcons?: React.JSX.Element;
+	categoryIcons?: JSX.Element;
 };
 
 const getEmojisByCategories = (emojis: IEmoji[], categoryParam: string) => {

@@ -4,7 +4,7 @@ import { RequestInput } from '@mezon/utils';
 import { RefObject, useCallback } from 'react';
 
 interface UseClickUpToEditMessageProps {
-	editorRef: RefObject<HTMLDivElement | null>;
+	editorRef: RefObject<HTMLDivElement>;
 	currentChannelId: string | undefined;
 	userId: string | undefined;
 	draftRequest?: RequestInput | null;
@@ -38,7 +38,7 @@ export const useClickUpToEditMessage = ({ editorRef, currentChannelId, userId, d
 		}
 	}, [currentChannelId, draftRequest?.valueTextInput, dispatch, userId]);
 
-	useClickUpToEdit(editorRef as RefObject<HTMLElement | null>, draftRequest?.valueTextInput || '', clickUpToEditMessage);
+	useClickUpToEdit(editorRef as RefObject<HTMLElement>, draftRequest?.valueTextInput || '', clickUpToEditMessage);
 
 	return { clickUpToEditMessage };
 };

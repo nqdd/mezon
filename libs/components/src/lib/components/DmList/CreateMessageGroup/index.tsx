@@ -17,7 +17,7 @@ type CreateMessageGroupProps = {
 	onClose: () => void;
 	classNames?: string;
 	currentDM?: DirectEntity;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 };
 
 const ITEM_HEIGHT = 40;

@@ -6,7 +6,7 @@ const INTERSECTION_THROTTLE_FOR_MEDIA = IS_ANDROID ? 1000 : 350;
 
 export function useMessageObservers(
 	type: any,
-	containerRef: RefObject<HTMLDivElement | null>,
+	containerRef: RefObject<HTMLDivElement>,
 	memoFirstUnreadIdRef?: { current: number | undefined } | null,
 	onIntersectPinnedMessage?: any,
 	chatId?: string

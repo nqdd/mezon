@@ -19,7 +19,7 @@ export interface SearchInputProps {
 	appearanceTheme: string;
 	lightMentionsInputStyle: any;
 	darkMentionsInputStyle: any;
-	searchRef: React.RefObject<HTMLInputElement | null>;
+	searchRef: React.RefObject<HTMLInputElement>;
 	onInputClick: () => void;
 	onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement> | React.KeyboardEvent<HTMLInputElement>) => void;
 	onChange: OnChangeHandlerFunc;
@@ -37,7 +37,7 @@ export interface SearchBarProps {
 	appearanceTheme: string;
 	lightMentionsInputStyle: any;
 	darkMentionsInputStyle: any;
-	searchRef: React.RefObject<HTMLInputElement | null>;
+	searchRef: React.RefObject<HTMLInputElement>;
 	onInputClick: () => void;
 	onKeyDown: (event: React.KeyboardEvent<HTMLTextAreaElement> | React.KeyboardEvent<HTMLInputElement>) => void;
 	onChange: OnChangeHandlerFunc;

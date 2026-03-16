@@ -57,7 +57,7 @@ type PanelChannel = {
 	selectedChannel?: string;
 	openSetting: () => void;
 	setIsShowPanelChannel: React.Dispatch<React.SetStateAction<boolean>>;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 	isUnread?: boolean;
 };
 

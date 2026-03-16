@@ -3,7 +3,7 @@ import { Socket, WebrtcSignalingFwd, safeJSONParse } from 'mezon-js';
 
 export interface GroupCallSocketHandlerOptions {
 	dispatch: AppDispatch;
-	socketRef: React.RefObject<Socket | null>;
+	socketRef: React.RefObject<Socket>;
 	userId: string | undefined;
 }
 

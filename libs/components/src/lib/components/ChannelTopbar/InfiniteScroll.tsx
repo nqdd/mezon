@@ -9,7 +9,7 @@ declare module 'react' {
 }
 
 type OwnProps = {
-	ref?: RefObject<HTMLDivElement | null>;
+	ref?: RefObject<HTMLDivElement>;
 	style?: React.CSSProperties;
 	className?: string;
 	items?: any[];

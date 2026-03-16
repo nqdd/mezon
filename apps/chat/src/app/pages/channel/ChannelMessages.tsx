@@ -539,7 +539,7 @@ const ScrollDownButton = memo(
 		effectiveChannelId: string;
 		clanId: string;
 		messageIds: string[];
-		chatRef: React.RefObject<HTMLDivElement | null>;
+		chatRef: React.RefObject<HTMLDivElement>;
 		lastSeenAtBottomRef: React.MutableRefObject<string | null>;
 		isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
 		isJumpingToPresentRef: React.MutableRefObject<boolean>;
@@ -717,7 +717,7 @@ ChannelMessages.Skeleton = () => {
 
 type ChatMessageListProps = {
 	messageIds: string[];
-	chatRef: React.RefObject<HTMLDivElement | null>;
+	chatRef: React.RefObject<HTMLDivElement>;
 	isLoadingMoreBottomRef: React.MutableRefObject<boolean>;
 	isFirstJoinLoadRef: React.MutableRefObject<boolean>;
 	isScrollTopJustUpdatedRef: React.MutableRefObject<boolean>;
@@ -847,7 +847,7 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 
 		const { observeIntersectionForLoading } = useMessageObservers('thread', chatRef, null, null, channelId);
 
-		const listItemElementsRef = useRef<HTMLDivElement[]>(null);
+		const listItemElementsRef = useRef<HTMLDivElement[]>();
 
 		useSyncEffect(() => {
 			if (idMessageToJump) {
@@ -935,13 +935,13 @@ const ChatMessageList: React.FC<ChatMessageListProps> = memo(
 				if (!container) return;
 				const containerHeight = getContainerHeight();
 				const prevContainerHeight = prevContainerHeightRef.current;
-				prevContainerHeightRef.current = containerHeight ?? null;
+				prevContainerHeightRef.current = containerHeight;
 
 				if (
 					messageIds === prevMessageIds &&
 					isViewportNewest === prevIsViewportNewest &&
 					containerHeight !== prevContainerHeight &&
-					prevContainerHeight == null
+					prevContainerHeight === undefined
 				) {
 					return;
 				}

@@ -3,7 +3,7 @@ import type { RefObject } from 'react';
 import { useCallback, useEffect } from 'react';
 
 interface UseFocusManagerProps {
-	editorRef: RefObject<HTMLDivElement | null>;
+	editorRef: RefObject<HTMLDivElement>;
 	isTopic: boolean;
 	isMenuClosed: boolean;
 	isStatusMenuOpen: boolean;

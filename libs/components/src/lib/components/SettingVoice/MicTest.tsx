@@ -6,7 +6,7 @@ interface MicTestProps {
 	micLevel: number;
 	testError: string;
 	hasSetSinkId: boolean;
-	playbackAudioRef: React.RefObject<HTMLAudioElement | null>;
+	playbackAudioRef: React.RefObject<HTMLAudioElement>;
 	onStartTest: () => void;
 	onStopTest: () => void;
 	t: (key: string) => string;

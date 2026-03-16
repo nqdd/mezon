@@ -71,7 +71,7 @@ export const useDmCallAudio = (): DmCallAudioHookReturn => {
 		};
 	}, []);
 
-	const playAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement | null>, loop = true) => {
+	const playAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement>, loop = true) => {
 		if (audioRef.current) {
 			audioRef.current.pause();
 			audioRef.current.currentTime = 0;
@@ -89,7 +89,7 @@ export const useDmCallAudio = (): DmCallAudioHookReturn => {
 		}
 	}, []);
 
-	const stopAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement | null>) => {
+	const stopAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement>) => {
 		if (audioRef.current) {
 			audioRef.current.pause();
 			audioRef.current.currentTime = 0;

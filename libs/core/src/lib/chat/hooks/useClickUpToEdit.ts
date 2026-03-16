@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from 'react';
 
-export const useClickUpToEdit = <T extends HTMLElement = HTMLElement>(ref: RefObject<T | null>, value: string, handler: () => void) => {
+export const useClickUpToEdit = <T extends HTMLElement = HTMLElement>(ref: RefObject<T>, value: string, handler: () => void) => {
 	useEffect(() => {
 		const editorElement = ref.current;
 

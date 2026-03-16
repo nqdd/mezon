@@ -22,14 +22,14 @@ const TOOLS_FREEZE_TIMEOUT = 350;
 
 export function useScrollHooks(
 	type: string,
-	containerRef: RefObject<HTMLDivElement | null>,
+	containerRef: RefObject<HTMLDivElement>,
 	messageIds: string[],
 	_getContainerHeight: Signal<number | undefined>,
 	isViewportNewest: boolean,
 	_isUnread: boolean,
 	onScrollDownToggle: BooleanToVoidFunction,
 	onNotchToggle: BooleanToVoidFunction,
-	isReady: RefObject<boolean | null>,
+	isReady: RefObject<boolean>,
 	loadViewportMessages: ({ direction }: { direction: LoadMoreDirection }) => void
 ) {
 	const [loadMoreBackwards, loadMoreForwards] = useMemo(

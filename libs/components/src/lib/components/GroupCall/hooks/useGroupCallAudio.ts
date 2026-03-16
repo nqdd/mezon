@@ -80,7 +80,7 @@ export const useGroupCallAudio = (): GroupCallAudioHookReturn => {
 		};
 	}, []);
 
-	const playAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement | null>) => {
+	const playAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement>) => {
 		if (audioRef.current) {
 			audioRef.current.pause();
 			audioRef.current.currentTime = 0;
@@ -96,7 +96,7 @@ export const useGroupCallAudio = (): GroupCallAudioHookReturn => {
 		}
 	}, []);
 
-	const stopAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement | null>) => {
+	const stopAudio = useCallback((audioRef: React.RefObject<HTMLAudioElement>) => {
 		if (audioRef.current) {
 			audioRef.current.pause();
 			audioRef.current.currentTime = 0;

@@ -30,7 +30,7 @@ export type LocationModalProps = {
 
 type OptionType = {
 	value: string;
-	label: React.JSX.Element;
+	label: JSX.Element;
 };
 
 type FilterOptionType = (option: FilterOptionOption<OptionType>, inputValue: string) => boolean;
@@ -276,7 +276,7 @@ const TitleOptionEvent = ({
 	title: string;
 	desc: string;
 	choose: boolean;
-	icon: React.JSX.Element;
+	icon: JSX.Element;
 	onChange?: () => void;
 	id: string;
 	disabled?: boolean;

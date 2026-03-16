@@ -229,12 +229,7 @@ function StickerSquare({ channel, mode, onClose, isTopic = false }: ChannelMessa
 				) : (
 					<>
 						{categoryLogo.map((avt) => (
-							<div
-								ref={(el) => {
-									categoryRefs.current[avt.type || ''] = el;
-								}}
-								key={avt.id}
-							>
+							<div ref={(el) => (categoryRefs.current[avt.type || ''] = el)} key={avt.id}>
 								<CategorizedStickers
 									valueInputToCheckHandleSearch={valueInputToCheckHandleSearch}
 									stickerList={stickers}

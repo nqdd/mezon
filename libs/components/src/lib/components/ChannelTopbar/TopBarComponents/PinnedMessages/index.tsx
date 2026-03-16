@@ -12,7 +12,7 @@ import ListPinMessage from './ListPinMessage';
 
 type PinnedMessagesProps = {
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 	mode?: number;
 };
 

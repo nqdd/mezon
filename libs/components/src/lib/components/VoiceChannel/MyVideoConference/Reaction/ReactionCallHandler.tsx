@@ -21,7 +21,7 @@ export const ReactionCallHandler = memo(() => {
 	const lastEmojiTimestampRef = useRef<number>(0);
 	const voiceInfo = useSelector(selectVoiceInfo);
 	const channelId = voiceInfo?.channelId;
-	const rafRef = useRef<number>(null);
+	const rafRef = useRef<number>();
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const generatePosition = useCallback(() => {
 		const horizontalOffset = (Math.random() - 0.5) * 40;

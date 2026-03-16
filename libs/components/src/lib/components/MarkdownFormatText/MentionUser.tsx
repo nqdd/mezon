@@ -47,7 +47,7 @@ type UserProfilePopupProps = {
 	mode?: number;
 	positionShortUser: { top: number; left: number } | null;
 	isDm?: boolean;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 	onClose: () => void;
 	username?: string;
 };
