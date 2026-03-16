@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.min.css';
-
 type DatePickerWrapperProps = {
 	selected: Date;
 	onChange: (date: Date) => void;
-	dateFormat: string;
+	dateFormat?: string;
 	minDate?: Date;
 	maxDate?: Date;
 	className?: string;
@@ -17,44 +13,29 @@ type DatePickerWrapperProps = {
 	onFocus?: () => void;
 };
 
-const DatePickerWrapper = (props: DatePickerWrapperProps) => {
-	const [isOpen, setIsOpen] = useState(false);
-	const wrapperRef = useRef<HTMLDivElement>(null);
+const toInputValue = (date: Date): string => {
+	const y = date.getFullYear();
+	const m = String(date.getMonth() + 1).padStart(2, '0');
+	const d = String(date.getDate()).padStart(2, '0');
+	return `${y}-${m}-${d}`;
+};
 
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			const target = event.target as Node;
-			if (wrapperRef.current && !wrapperRef.current.contains(target)) {
-				const calendarPopup = document.querySelector('.react-datepicker-popper');
-				if (!calendarPopup || !calendarPopup.contains(target)) {
-					setIsOpen(false);
-				}
-			}
-		};
-
-		if (isOpen) {
-			document.addEventListener('mousedown', handleClickOutside, true);
-		}
-
-		return () => {
-			document.removeEventListener('mousedown', handleClickOutside, true);
-		};
-	}, [isOpen]);
-
-	const handleChange = (date: Date | null) => {
-		props.onChange(date ?? new Date());
-		setIsOpen(false);
+const DatePickerWrapper = ({ selected, onChange, minDate, maxDate, className, wrapperClassName, onFocus }: DatePickerWrapperProps) => {
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (!e.target.value) return;
+		onChange(new Date(`${e.target.value}T00:00:00`));
 	};
 
 	return (
-		<div ref={wrapperRef}>
-			<DatePicker
-				{...props}
+		<div className={wrapperClassName}>
+			<input
+				type="date"
+				className={className}
+				value={toInputValue(selected)}
+				min={minDate ? toInputValue(minDate) : undefined}
+				max={maxDate ? toInputValue(maxDate) : undefined}
 				onChange={handleChange}
-				open={isOpen}
-				onInputClick={() => setIsOpen(true)}
-				onClickOutside={() => setIsOpen(false)}
-				popperClassName="z-[200]"
+				onFocus={onFocus}
 			/>
 		</div>
 	);
