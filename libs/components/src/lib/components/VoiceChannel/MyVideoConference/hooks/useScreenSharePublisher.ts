@@ -82,14 +82,14 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				const videoPublication = await room.localParticipant.publishTrack(videoTrack, {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
-					simulcast: false,
+					simulcast: true,
 					videoCodec: 'vp8',
 					videoEncoding: {
 						maxBitrate: 4_000_000,
 						maxFramerate: 60
 					},
-					degradationPreference: 'maintain-framerate',
-					//dtx: true,
+					degradationPreference: 'maintain-resolution',
+					dtx: true,
 					screenShareSimulcastLayers: [
 						// 360p
 						{
