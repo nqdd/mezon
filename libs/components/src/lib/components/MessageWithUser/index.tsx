@@ -78,25 +78,42 @@ export type MessageWithUserProps = {
 	channelId?: string;
 };
 
-const PollMessageWrapper = ({ message }: { message: MessagesEntity }) => {
+const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { message: MessagesEntity; observeIntersectionForLoading?: ObserveFn }) => {
 	const dispatch = useAppDispatch();
 	const pollData = useAppSelector((state: RootState) => selectPollByMessageId(state, message.id));
 	const pollEmoji = useAppSelector((state: RootState) => selectPollEmojiByMessageId(state, message.id));
 	const { t } = useTranslation();
+	const containerRef = useRef<HTMLDivElement>(null);
+	const hasFetched = useRef(false);
 
 	useEffect(() => {
-		if (!pollData && message.channel_id) {
-			dispatch(
-				getPoll({
-					message_id: message.id,
-					channel_id: message.channel_id
-				})
-			);
+		if (pollData || hasFetched.current || !message.channel_id) return;
+
+		const el = containerRef.current;
+		if (!el || !observeIntersectionForLoading) {
+			hasFetched.current = true;
+			dispatch(getPoll({ message_id: message.id, channel_id: message.channel_id }));
+			return;
 		}
-	}, [dispatch, message.id, message.channel_id, pollData]);
+
+		return observeIntersectionForLoading(el, (entry) => {
+			if (entry.isIntersecting && !hasFetched.current) {
+				hasFetched.current = true;
+				dispatch(getPoll({ message_id: message.id, channel_id: message.channel_id }));
+			}
+		});
+	}, [dispatch, message.id, message.channel_id, pollData, observeIntersectionForLoading]);
+
+	const answerCount = useMemo(() => {
+		const content = message?.content?.t;
+		if (!content) return 2;
+		const lines = content.split('\n');
+		return lines.filter((line: string) => /^\d+\.\s/.test(line.trim())).length || 2;
+	}, [message?.content?.t]);
 
 	if (!pollData) {
-		return null;
+		const placeholderHeight = 80 + answerCount * 44;
+		return <div ref={containerRef} style={{ minHeight: `${placeholderHeight}px` }} />;
 	}
 
 	const answers = pollData.answers?.map((answer) => answer.label || '') || [];
@@ -411,7 +428,9 @@ function MessageWithUser({
 								contentMsg={message?.content?.t || ''}
 							/>
 						)}
-						{message.code === TypeMessage.Poll && <PollMessageWrapper message={message} />}
+						{message.code === TypeMessage.Poll && (
+							<PollMessageWrapper message={message} observeIntersectionForLoading={observeIntersectionForLoading} />
+						)}
 						{!!(message.code === TypeMessage.SendToken) && <TokenTransactionMessage message={message} />}
 						{message?.content?.components &&
 							message?.content.components.map((actionRow, index) => (

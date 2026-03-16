@@ -48,6 +48,7 @@ import {
 	pinMessageActions,
 	policiesActions,
 	referencesActions,
+	resetRefreshState,
 	rolesClanActions,
 	selectAllChannels,
 	selectAllTextChannel,
@@ -99,7 +100,7 @@ import {
 	walletActions,
 	webhookActions
 } from '@mezon/store';
-import { useMezon } from '@mezon/transport';
+import { resetSessionRefreshManager, useMezon } from '@mezon/transport';
 import type { IMessageSendPayload, IUserProfileActivity, NotificationCategory } from '@mezon/utils';
 import {
 	ADD_ROLE_CHANNEL_STATUS,
@@ -190,7 +191,7 @@ import type { ChannelCanvas, DeleteAccountEvent, RemoveFriend, SdTopicEvent } fr
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Subject } from 'rxjs';
-import { debounceTime, exhaustMap, filter } from 'rxjs/operators';
+import { exhaustMap, filter, throttleTime } from 'rxjs/operators';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useCustomNavigate } from '../hooks/useCustomNavigate';
 import { handleGroupCallSocketEvent } from './groupCallSocketHandler';
@@ -2501,7 +2502,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		const channels = selectChannelThreads(store.getState() as RootState);
 
 		if (markAsReadEvent.category_id === '0') {
-			const channelIds = channels.map((item) => item.id);
+			const clanChannels = selectChannelsByClanId(store.getState() as RootState, markAsReadEvent.clan_id);
+			const channelIds = clanChannels.map((item) => item.id);
 			const channelUpdates = channelIds.map((channelId) => {
 				let messageId = selectLatestMessageId(store.getState(), channelId);
 				if (!messageId) {
@@ -2523,32 +2525,32 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
 			}));
 			badgeService.markAsReadCategory(markAsReadEvent.clan_id as string, markAsReadEvent.category_id, channelIds, channelUpdates);
-		} else {
-			const relatedChannels = channels.filter((channel) => channel.parent_id === markAsReadEvent.channel_id);
-			const channelIds = relatedChannels.map((channel) => channel.id);
-			const channelUpdates = channelIds.map((channelId) => ({
+			return;
+		}
+		const relatedChannels = channels.filter((channel) => channel.parent_id === markAsReadEvent.channel_id);
+		const channelIds = relatedChannels.map((channel) => channel.id);
+		const channelUpdates = channelIds.map((channelId) => ({
+			channelId,
+			messageId: selectLatestMessageId(store.getState(), channelId) || undefined
+		}));
+		badgeService.markAsReadChannel(
+			markAsReadEvent.clan_id as string,
+			markAsReadEvent.channel_id,
+			[markAsReadEvent.channel_id, ...channelIds],
+			channelUpdates,
+			relatedChannels.map((channel) => ({
+				channelId: channel.id,
+				count: (channel.count_mess_unread ?? 0) * -1
+			}))
+		);
+
+		const threadIds = relatedChannels.flatMap((channel) => channel.threadIds || []);
+		if (threadIds.length) {
+			const threadUpdates = threadIds.map((channelId) => ({
 				channelId,
 				messageId: selectLatestMessageId(store.getState(), channelId) || undefined
 			}));
-			badgeService.markAsReadChannel(
-				markAsReadEvent.clan_id as string,
-				markAsReadEvent.channel_id,
-				[markAsReadEvent.channel_id, ...channelIds],
-				channelUpdates,
-				relatedChannels.map((channel) => ({
-					channelId: channel.id,
-					count: (channel.count_mess_unread ?? 0) * -1
-				}))
-			);
-
-			const threadIds = relatedChannels.flatMap((channel) => channel.threadIds || []);
-			if (threadIds.length) {
-				const threadUpdates = threadIds.map((channelId) => ({
-					channelId,
-					messageId: selectLatestMessageId(store.getState(), channelId) || undefined
-				}));
-				dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadUpdates));
-			}
+			dispatch(channelMetaActions.setChannelsLastSeenTimestamp(threadUpdates));
 		}
 	}, []);
 
@@ -2756,9 +2758,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 	const executeReconnect = useCallback(
 		async (_socketType: string) => {
 			socketState.status = 'connecting';
-
-			console.log(socketState.status, 'socketState.status');
-
 			const store = getStore();
 			const clanIdActive = selectCurrentClanId(store.getState());
 
@@ -2792,7 +2791,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		const subscription = reconnect$
 			.pipe(
 				filter(() => !socketRef.current?.isOpen()),
-				debounceTime(500),
+				throttleTime(500),
 				exhaustMap(
 					(socketType) =>
 						new Promise<void>((resolve) => {
@@ -2821,6 +2820,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 	useEffect(() => {
 		const onSessionExpired = () => {
+			console.error('Session expired, logging out');
+			resetSessionRefreshManager();
+			resetRefreshState();
 			dispatch(authActions.setLogout());
 			dispatch(walletActions.setLogout());
 		};
