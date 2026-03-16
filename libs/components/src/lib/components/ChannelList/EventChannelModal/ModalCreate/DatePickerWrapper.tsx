@@ -1,13 +1,6 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.min.css';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const LazyDatePicker = React.lazy<React.ComponentType<any>>(() =>
-	import('react-datepicker').then((mod) => {
-		const resolved = mod as { default: React.ComponentType<any> & { default?: React.ComponentType<any> } };
-		return { default: resolved.default?.default ?? resolved.default };
-	})
-);
 
 type DatePickerWrapperProps = {
 	selected: Date;
@@ -48,24 +41,22 @@ const DatePickerWrapper = (props: DatePickerWrapperProps) => {
 		};
 	}, [isOpen]);
 
-	const handleChange = (date: Date) => {
-		props.onChange(date);
+	const handleChange = (date: Date | null) => {
+		props.onChange(date ?? new Date());
 		setIsOpen(false);
 	};
 
 	return (
-		<Suspense fallback={<div className="w-full h-[38px] bg-option-theme  animate-pulse rounded"></div>}>
-			<div ref={wrapperRef}>
-				<LazyDatePicker
-					{...props}
-					onChange={handleChange}
-					open={isOpen}
-					onInputClick={() => setIsOpen(true)}
-					onClickOutside={() => setIsOpen(false)}
-					popperClassName="z-[200]"
-				/>
-			</div>
-		</Suspense>
+		<div ref={wrapperRef}>
+			<DatePicker
+				{...props}
+				onChange={handleChange}
+				open={isOpen}
+				onInputClick={() => setIsOpen(true)}
+				onClickOutside={() => setIsOpen(false)}
+				popperClassName="z-[200]"
+			/>
+		</div>
 	);
 };
 
