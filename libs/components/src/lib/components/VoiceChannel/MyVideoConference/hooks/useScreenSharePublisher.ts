@@ -75,7 +75,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 				if (!videoTrack) {
 					throw new Error('Selected stream has no video track');
 				}
-				videoTrack.contentHint = 'motion';
+				videoTrack.contentHint = 'text';
 
 				stopScreenShare();
 
