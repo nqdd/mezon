@@ -4,21 +4,23 @@ import ModalLayout from '../Modal';
 type RemoveFriendModalProps = {
 	username?: string;
 	displayName?: string;
+	titleText?: string;
 	onClose: () => void;
 	onConfirm: () => void;
 	isProcessing?: boolean;
 };
 
-const RemoveFriendModal = ({ username, displayName, onClose, onConfirm, isProcessing }: RemoveFriendModalProps) => {
+const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfirm, isProcessing }: RemoveFriendModalProps) => {
 	const { t } = useTranslation('friendsPage');
 	const displayUsername = displayName || username || (t('friend') as string);
+	const heading = titleText || (t('removeFriendModal.title', { username: displayUsername }) as string);
 
 	return (
 		<ModalLayout onClose={onClose}>
 			<div className="bg-theme-setting-primary rounded-xl w-[420px] shadow-2xl">
 				<div className="px-6 pt-6 pb-4">
 					<h2 className="text-theme-primary-active text-xl font-semibold mb-2 truncate" title={displayUsername}>
-						{t('removeFriendModal.title', { username: displayUsername })}
+						{heading}
 					</h2>
 					<p className="text-theme-primary text-sm leading-6">
 						<Trans
