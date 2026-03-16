@@ -93,7 +93,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					audioPublication = await room.localParticipant.publishTrack(audioTrack, {
 						source: Track.Source.ScreenShareAudio,
 						audioPreset: AudioPresets.speech,
-						dtx: true
+						dtx: false
 					});
 				}
 
