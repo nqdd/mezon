@@ -1,14 +1,12 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.min.css';
 
-const LazyDatePicker = lazy(
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(): Promise<{ default: React.ComponentType<any> }> =>
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		import('react-datepicker').then((mod: any) => {
-			const Component = typeof mod.default === 'function' ? mod.default : mod.default?.default;
-			return { default: Component };
-		})
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const LazyDatePicker = React.lazy<React.ComponentType<any>>(() =>
+	import('react-datepicker').then((mod) => {
+		const resolved = mod as { default: React.ComponentType<any> & { default?: React.ComponentType<any> } };
+		return { default: resolved.default?.default ?? resolved.default };
+	})
 );
 
 type DatePickerWrapperProps = {

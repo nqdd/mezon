@@ -1,3 +1,4 @@
+import babel from '@rolldown/plugin-babel';
 import react from '@vitejs/plugin-react';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -45,14 +46,14 @@ export default defineConfig(({ mode }) => {
 					process: true
 				}
 			}),
-			react({
-				babel: {
-					plugins: [
-						['@babel/plugin-proposal-decorators', { legacy: true }],
-						['@babel/plugin-proposal-class-properties', { loose: true }],
-						...(process.env.BABEL_ENV === 'remove-e2e' ? [['react-remove-properties', { properties: ['data-e2e'] }]] : [])
-					]
-				}
+			react(),
+			babel({
+				// presets: [reactCompilerPreset()],
+				plugins: [
+					['@babel/plugin-proposal-decorators', { legacy: true }],
+					['@babel/plugin-proposal-class-properties', { loose: true }],
+					...(process.env.BABEL_ENV === 'remove-e2e' ? [['react-remove-properties', { properties: ['data-e2e'] }]] : [])
+				]
 			}),
 			viteStaticCopy({
 				targets: [
@@ -115,6 +116,8 @@ export default defineConfig(({ mode }) => {
 
 		resolve: {
 			alias: {
+				react: path.resolve(__dirname, '../../node_modules/react'),
+				'react-dom': path.resolve(__dirname, '../../node_modules/react-dom'),
 				'@mezon/store': path.resolve(__dirname, '../../libs/store/src/index.ts'),
 				'@mezon/core': path.resolve(__dirname, '../../libs/core/src/index.ts'),
 				'@mezon/components': path.resolve(__dirname, '../../libs/components/src/index.ts'),
@@ -131,7 +134,8 @@ export default defineConfig(({ mode }) => {
 				'mezon-js-protobuf': path.resolve(__dirname, '../../node_modules/mezon-js-protobuf/dist/mezon-js-protobuf.esm.mjs')
 			},
 			extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-			conditions: ['import', 'module', 'browser', 'default']
+			conditions: ['import', 'module', 'browser', 'default'],
+			dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
 		},
 
 		css: {
@@ -158,42 +162,31 @@ export default defineConfig(({ mode }) => {
 					},
 					manualChunks: (id) => {
 						if (id.includes('node_modules')) {
-							const segments = id.split('node_modules/');
-							const lastSegment = segments[segments.length - 1];
-							const pkg = lastSegment.startsWith('@') ? lastSegment.split('/').slice(0, 2).join('/') : lastSegment.split('/')[0];
-
-							if (pkg === 'react' || pkg === 'react-dom' || pkg === 'scheduler') {
+							if (id.includes('node_modules/tiptap') || id.includes('node_modules/@tiptap')) return 'vendor-tiptap';
+							if (id.includes('node_modules/react-datepicker')) return 'vendor-datepicker';
+							if (id.includes('node_modules/react-pdf') || id.includes('node_modules/pdfjs-dist')) return 'vendor-pdf';
+							if (
+								/\/node_modules\/react\//.test(id) ||
+								/\/node_modules\/react-dom\//.test(id) ||
+								/\/node_modules\/scheduler\//.test(id)
+							) {
 								return 'vendor-react';
 							}
-							if (pkg === 'react-router' || pkg === 'react-router-dom') {
-								return 'vendor-router';
-							}
-							if (pkg === '@reduxjs/toolkit' || pkg === 'redux' || pkg === 'react-redux' || pkg === 'redux-persist') {
+							if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) return 'vendor-router';
+							if (
+								id.includes('node_modules/@reduxjs') ||
+								id.includes('node_modules/react-redux') ||
+								id.includes('node_modules/redux') ||
+								id.includes('node_modules/reselect') ||
+								id.includes('node_modules/immer')
+							) {
 								return 'vendor-redux';
 							}
-							if (pkg.startsWith('@tiptap/')) {
-								return 'vendor-tiptap';
-							}
-							if (pkg === 'react-datepicker') {
-								return 'vendor-datepicker';
-							}
-							if (pkg === 'react-pdf' || pkg === 'pdfjs-dist') {
-								return 'vendor-pdf';
-							}
-							if (pkg === 'mezon-js') {
-								return 'vendor-mezon';
-							}
-							if (pkg === 'mezon-js-protobuf') {
-								return 'vendor-protobuf';
-							}
+							if (id.includes('node_modules/mezon-js') || id.includes('node_modules/mezon-js-protobuf')) return 'vendor-mezon-js';
+							if (id.includes('node_modules/protobufjs') || id.includes('node_modules/long')) return 'vendor-protobuf';
 						}
-
-						if (id.includes('libs/translations/src/languages/en')) {
-							return 'i18n-en';
-						}
-						if (id.includes('libs/translations/src/languages/vi')) {
-							return 'i18n-vi';
-						}
+						if (id.includes('libs/translations/src/languages/en')) return 'i18n-en';
+						if (id.includes('libs/translations/src/languages/vi')) return 'i18n-vi';
 					}
 				}
 			},
