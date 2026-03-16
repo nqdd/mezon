@@ -1,7 +1,8 @@
-import babel from '@rolldown/plugin-babel';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import react from '@vitejs/plugin-react';
 import * as fs from 'fs';
 import * as path from 'path';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, loadEnv } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -13,13 +14,11 @@ export default defineConfig(({ mode }) => {
 	const workspaceRoot = path.resolve(__dirname, '../..');
 	const env = loadEnv(mode, workspaceRoot, 'NX_');
 	const appRoot = path.join(workspaceRoot, 'apps/chat');
-	const isDesktopBuild =
-		process.env.NX_BUILD_TARGET === 'desktop' || process.env.BUILD_TARGET === 'desktop' || process.env.BUILD_TARGET === 'electron';
 	return {
 		root: path.join(appRoot, 'src'),
 		publicDir: mode === 'production' ? false : path.join(appRoot, 'src/assets'),
 		cacheDir: path.join(workspaceRoot, 'node_modules/.vite/apps/chat'),
-		base: mode === 'production' && !isDesktopBuild ? '/' : './',
+		base: mode === 'production' ? '/' : './',
 
 		server: {
 			port: 4200,
@@ -37,6 +36,16 @@ export default defineConfig(({ mode }) => {
 		},
 
 		plugins: [
+			react({
+				babel: {
+					plugins: [
+						['@babel/plugin-proposal-decorators', { legacy: true }],
+						['@babel/plugin-proposal-class-properties', { loose: true }],
+						...(process.env.BABEL_ENV === 'remove-e2e' ? [['react-remove-properties', { properties: ['data-e2e'] }]] : [])
+					]
+				}
+			}),
+			nxViteTsPaths(),
 			nodePolyfills({
 				include: ['buffer', 'process', 'stream', 'util'],
 				exclude: ['crypto'],
@@ -45,15 +54,6 @@ export default defineConfig(({ mode }) => {
 					global: true,
 					process: true
 				}
-			}),
-			react(),
-			babel({
-				// presets: [reactCompilerPreset()],
-				plugins: [
-					['@babel/plugin-proposal-decorators', { legacy: true }],
-					['@babel/plugin-proposal-class-properties', { loose: true }],
-					...(process.env.BABEL_ENV === 'remove-e2e' ? [['react-remove-properties', { properties: ['data-e2e'] }]] : [])
-				]
 			}),
 			viteStaticCopy({
 				targets: [
@@ -83,7 +83,18 @@ export default defineConfig(({ mode }) => {
 						await fs.remove(path.join(workspaceRoot, 'apps/dist'));
 					}
 				}
-			}
+			},
+			...(process.env.ANALYZE === 'true'
+				? [
+						visualizer({
+							open: true,
+							filename: path.join(workspaceRoot, 'dist/stats.html'),
+							gzipSize: true,
+							brotliSize: true,
+							template: 'treemap'
+						})
+					]
+				: [])
 		],
 
 		define: {
@@ -119,31 +130,26 @@ export default defineConfig(({ mode }) => {
 
 		resolve: {
 			alias: {
-				react: path.resolve(__dirname, '../../node_modules/react'),
-				'react-dom': path.resolve(__dirname, '../../node_modules/react-dom'),
 				'@mezon/store': path.resolve(__dirname, '../../libs/store/src/index.ts'),
 				'@mezon/core': path.resolve(__dirname, '../../libs/core/src/index.ts'),
 				'@mezon/components': path.resolve(__dirname, '../../libs/components/src/index.ts'),
 				'@mezon/transport': path.resolve(__dirname, '../../libs/transport/src/index.ts'),
 				'@mezon/utils': path.resolve(__dirname, '../../libs/utils/src/index.ts'),
-				'@mezon/ui/lib': path.resolve(__dirname, '../../libs/ui/src/lib'),
 				'@mezon/ui': path.resolve(__dirname, '../../libs/ui/src/index.ts'),
 				'@mezon/themes': path.resolve(__dirname, '../../libs/themes/src/index.ts'),
 				'@mezon/translations': path.resolve(__dirname, '../../libs/translations/src/index.ts'),
 				'@mezon/logger': path.resolve(__dirname, '../../libs/logger/src/index.ts'),
-				'@mezon/assets': path.resolve(__dirname, '../../libs/assets/src/index.ts'),
-				'@mezon/chat-scroll': path.resolve(__dirname, '../../libs/chat-scroll/src/index.ts'),
-				'@mezon/package-js': path.resolve(__dirname, '../../package.json'),
 				'mezon-js-protobuf': path.resolve(__dirname, '../../node_modules/mezon-js-protobuf/dist/mezon-js-protobuf.esm.mjs')
 			},
 			extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
-			conditions: ['import', 'module', 'browser', 'default'],
-			dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime']
+			conditions: ['import', 'module', 'browser', 'default']
 		},
 
 		css: {
 			preprocessorOptions: {
-				scss: {}
+				scss: {
+					api: 'modern-compiler'
+				}
 			}
 		},
 
@@ -151,7 +157,10 @@ export default defineConfig(({ mode }) => {
 			outDir: path.resolve(__dirname, '../../dist/apps/chat'),
 			emptyOutDir: true,
 			reportCompressedSize: true,
-			rolldownOptions: {
+			commonjsOptions: {
+				transformMixedEsModules: true
+			},
+			rollupOptions: {
 				output: {
 					entryFileNames: '[name].[hash].js',
 					chunkFileNames: '[name].[hash].chunk.js',
@@ -163,35 +172,43 @@ export default defineConfig(({ mode }) => {
 					},
 					manualChunks: (id) => {
 						if (id.includes('node_modules')) {
-							if (id.includes('node_modules/tiptap') || id.includes('node_modules/@tiptap')) return 'vendor-tiptap';
-							if (id.includes('node_modules/react-pdf') || id.includes('node_modules/pdfjs-dist')) return 'vendor-pdf';
-							if (
-								/\/node_modules\/react\//.test(id) ||
-								/\/node_modules\/react-dom\//.test(id) ||
-								/\/node_modules\/scheduler\//.test(id)
-							) {
+							if (id.includes('@tiptap')) {
+								return 'vendor-tiptap';
+							}
+							if (id.includes('react-datepicker')) {
+								return 'vendor-datepicker';
+							}
+							if (id.includes('react-pdf') || id.includes('pdfjs-dist')) {
+								return 'vendor-pdf';
+							}
+							if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
 								return 'vendor-react';
 							}
-							if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) return 'vendor-router';
-							if (
-								id.includes('node_modules/@reduxjs') ||
-								id.includes('node_modules/react-redux') ||
-								id.includes('node_modules/redux') ||
-								id.includes('node_modules/reselect') ||
-								id.includes('node_modules/immer')
-							) {
+							if (id.includes('react-router')) {
+								return 'vendor-router';
+							}
+							if (id.includes('@reduxjs') || id.includes('redux') || id.includes('react-redux')) {
 								return 'vendor-redux';
 							}
-							if (id.includes('node_modules/mezon-js') || id.includes('node_modules/mezon-js-protobuf')) return 'vendor-mezon-js';
-							if (id.includes('node_modules/protobufjs') || id.includes('node_modules/long')) return 'vendor-protobuf';
+							if (id.includes('mezon-js')) {
+								return 'vendor-mezon';
+							}
+							if (id.includes('mezon-protobuf')) {
+								return 'vendor-protobuf';
+							}
 						}
-						if (id.includes('libs/translations/src/languages/en')) return 'i18n-en';
-						if (id.includes('libs/translations/src/languages/vi')) return 'i18n-vi';
+
+						if (id.includes('libs/translations/src/languages/en')) {
+							return 'i18n-en';
+						}
+						if (id.includes('libs/translations/src/languages/vi')) {
+							return 'i18n-vi';
+						}
 					}
 				}
 			},
-			sourcemap: true,
-			minify: mode === 'production',
+			sourcemap: mode === 'development',
+			minify: mode === 'production' ? 'esbuild' : false,
 			target: 'esnext',
 			chunkSizeWarningLimit: 1000
 		}
