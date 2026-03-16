@@ -84,7 +84,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					simulcast: true,
 					videoCodec: 'vp8',
 					degradationPreference: 'maintain-resolution',
-					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h720fps15]
+					screenShareSimulcastLayers: [ScreenSharePresets.h360fps3, ScreenSharePresets.h720fps15]
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
