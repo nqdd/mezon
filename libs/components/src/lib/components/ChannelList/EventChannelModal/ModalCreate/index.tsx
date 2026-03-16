@@ -17,6 +17,7 @@ import isEqual from 'lodash.isequal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { REGEX_INVALID_EVENT_TOPIC } from '../eventHelper';
 import { formatTimeStringToHourFormat, getDefaultCreateEventTimes, getTimeTodayMidNight } from '../timeFomatEvent';
 import EventInfoModal from './eventInfoModal';
 import HeaderEventCreate from './headerEventCreate';
@@ -337,7 +338,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const errorTopic = /[`<>,/"\\']/.test(contentSubmit.topic || '');
+	const errorTopic = REGEX_INVALID_EVENT_TOPIC.test(contentSubmit.topic || '');
 	const isDisabled = option === '' || errorOption || !isEventChanged || errorTopic;
 
 	return (
@@ -397,8 +398,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 							<button
 								disabled={isDisabled}
 								className={`px-4 py-2 rounded-md text-white font-semibold bg-primary ${isDisabled ? 'bg-opacity-50 cursor-not-allowed' : ''}`}
-								// eslint-disable-next-line @typescript-eslint/no-empty-function
-								onClick={isDisabled ? () => {} : handleUpdate}
+								onClick={handleUpdate}
 							>
 								{t('actions.edit')}
 							</button>
@@ -406,8 +406,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 							<button
 								disabled={createStatus === 'loading' || errorTopic}
 								className={`px-4 py-2 rounded font-semibold text-white bg-primary ${option === '' || errorOption || errorTopic ? 'bg-opacity-50 cursor-not-allowed' : ''}`}
-								// eslint-disable-next-line @typescript-eslint/no-empty-function
-								onClick={option === '' || errorOption || errorTopic ? () => {} : () => handleSubmit()}
+								onClick={() => handleSubmit()}
 								data-e2e={generateE2eId('clan_page.modal.create_event.button_create')}
 							>
 								{t('actions.create')}

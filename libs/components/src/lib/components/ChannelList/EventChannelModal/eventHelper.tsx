@@ -1,5 +1,7 @@
 import { isSameDay } from 'date-fns';
 
+export const REGEX_INVALID_EVENT_TOPIC = /[`<>,/"\\']/;
+
 export const checkError = (startDate: number, endDate: number, setErrorStart: (value: boolean) => void, setErrorEnd: (value: boolean) => void) => {
 	const currentDate = Date.now();
 	const compareCurrentAndStart = currentDate < startDate;
@@ -29,18 +31,25 @@ export const renderDescriptionWithLinks = (text?: string) => {
 
 	return parts.map((part, index) => {
 		if (part.match(urlRegex)) {
-			return (
-				<a
-					key={index}
-					href={part}
-					target="_blank"
-					rel="noopener noreferrer"
-					className="text-blue-500 hover:underline"
-					onClick={(e) => e.stopPropagation()}
-				>
-					{part}
-				</a>
-			);
+			try {
+				const url = new URL(part);
+				if (!['http:', 'https:'].includes(url.protocol)) return part;
+
+				return (
+					<a
+						key={index}
+						href={part}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="text-blue-500 hover:underline"
+						onClick={(e) => e.stopPropagation()}
+					>
+						{part}
+					</a>
+				);
+			} catch (error) {
+				return part;
+			}
 		}
 		return part;
 	});
