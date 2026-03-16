@@ -150,46 +150,7 @@ export default defineConfig(({ mode }) => {
 			outDir: path.resolve(__dirname, '../../dist/apps/chat'),
 			emptyOutDir: true,
 			reportCompressedSize: true,
-			rolldownOptions: {
-				output: {
-					entryFileNames: '[name].[hash].js',
-					chunkFileNames: '[name].[hash].chunk.js',
-					assetFileNames: (assetInfo) => {
-						if (assetInfo.name?.endsWith('.css')) {
-							return '[name].[hash].css';
-						}
-						return 'assets/[name].[hash][ext]';
-					},
-					manualChunks: (id) => {
-						if (id.includes('node_modules')) {
-							if (id.includes('node_modules/tiptap') || id.includes('node_modules/@tiptap')) return 'vendor-tiptap';
-							if (id.includes('node_modules/react-pdf') || id.includes('node_modules/pdfjs-dist')) return 'vendor-pdf';
-							if (
-								/\/node_modules\/react\//.test(id) ||
-								/\/node_modules\/react-dom\//.test(id) ||
-								/\/node_modules\/scheduler\//.test(id)
-							) {
-								return 'vendor-react';
-							}
-							if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) return 'vendor-router';
-							if (
-								id.includes('node_modules/@reduxjs') ||
-								id.includes('node_modules/react-redux') ||
-								id.includes('node_modules/redux') ||
-								id.includes('node_modules/reselect') ||
-								id.includes('node_modules/immer')
-							) {
-								return 'vendor-redux';
-							}
-							if (id.includes('node_modules/mezon-js') || id.includes('node_modules/mezon-js-protobuf')) return 'vendor-mezon-js';
-							if (id.includes('node_modules/protobufjs') || id.includes('node_modules/long')) return 'vendor-protobuf';
-						}
-						if (id.includes('libs/translations/src/languages/en')) return 'i18n-en';
-						if (id.includes('libs/translations/src/languages/vi')) return 'i18n-vi';
-					}
-				}
-			},
-			sourcemap: mode === 'development',
+			sourcemap: true,
 			minify: mode === 'production',
 			target: 'esnext',
 			chunkSizeWarningLimit: 1000
