@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface HeroSectionProps {
-	homeRef: RefObject<HTMLDivElement | null>;
+	homeRef: RefObject<HTMLDivElement>;
 	isVisible: boolean;
 }
 

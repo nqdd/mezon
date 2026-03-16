@@ -17,7 +17,7 @@ import SearchFile from './SearchFile';
 
 type FileModalProps = {
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 };
 
 const FileModal = ({ onClose, rootRef }: FileModalProps) => {

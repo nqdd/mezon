@@ -22,7 +22,7 @@ interface IntersectionOptions {
 	threshold?: number | number[];
 }
 
-export const useIntersectionObserver = (elementRef: RefObject<Element | null>, options: IntersectionOptions): boolean => {
+export const useIntersectionObserver = (elementRef: RefObject<Element>, options: IntersectionOptions): boolean => {
 	const [isVisible, setIsVisible] = useState<boolean>(false);
 	const [hasAnimated, setHasAnimated] = useState<boolean>(false);
 

@@ -71,7 +71,7 @@ export const MessageButton: React.FC<MessageButtonProps> = ({ messageId, button,
 	);
 };
 
-const IconEmbedMessage: { [key: string]: React.JSX.Element } = {
+const IconEmbedMessage: { [key: string]: JSX.Element } = {
 	[EIconEmbedButtonMessage.PLAY]: <Icons.RightFilledTriangle className="w-4 h-4" />,
 	[EIconEmbedButtonMessage.PAUSE]: <Icons.PauseIcon className="w-4 h-4 text-white" />
 };

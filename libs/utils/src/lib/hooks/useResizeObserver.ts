@@ -5,7 +5,7 @@ import { useStateRef } from './useStateRef';
 const elementObserverMap = new Map<HTMLElement, [ResizeObserver, CallbackManager]>();
 
 export default function useResizeObserver(
-	ref: React.RefObject<HTMLElement | null> | undefined,
+	ref: React.RefObject<HTMLElement> | undefined,
 	onResize: (entry: ResizeObserverEntry) => void,
 	isDisabled = false
 ) {

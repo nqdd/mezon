@@ -2,7 +2,7 @@ import React, { TextareaHTMLAttributes } from 'react';
 
 interface TextAreaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'dangerouslySetInnerHTML'> {
 	className?: string;
-	refTextArea?: React.RefObject<HTMLTextAreaElement | null>;
+	refTextArea?: React.RefObject<HTMLTextAreaElement>;
 }
 
 const TextArea: React.FC<TextAreaProps> = ({ className, refTextArea, ...rest }) => {

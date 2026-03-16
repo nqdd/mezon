@@ -46,7 +46,7 @@ export type MessageRef = {
 };
 
 type ChannelMessageComponent = React.FC<MessageProps> & {
-	Skeleton?: () => React.JSX.Element;
+	Skeleton?: () => JSX.Element;
 };
 
 export const ChannelMessage: ChannelMessageComponent = ({

@@ -1,4 +1,4 @@
-import { MessageBox, ReplyMessageBox, useUserMentionList } from '@mezon/components';
+import { MessageBox, ReplyMessageBox, UserMentionList } from '@mezon/components';
 import { useChatSending, useEscapeKey } from '@mezon/core';
 import {
 	ETypeMission,
@@ -99,7 +99,7 @@ export function ChannelMessageBox({ channel, clanId, mode }: Readonly<ChannelMes
 		<div className="mx-3 relative" ref={chatboxRef}>
 			{dataReferences.message_ref_id && <ReplyMessageBox channelId={channelId ?? ''} dataReferences={dataReferences} />}
 			<MessageBox
-				listMentions={useUserMentionList({
+				listMentions={UserMentionList({
 					channelID: mode === ChannelStreamMode.STREAM_MODE_THREAD ? (channel.parent_id ?? '') : (channelId ?? ''),
 					channelMode: mode
 				})}

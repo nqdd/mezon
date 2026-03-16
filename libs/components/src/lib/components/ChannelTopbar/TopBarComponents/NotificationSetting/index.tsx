@@ -21,7 +21,7 @@ import { useSelector } from 'react-redux';
 import { createNotificationTypesListTranslated } from '../../../PanelChannel';
 import ItemPanel from '../../../PanelChannel/ItemPanel';
 
-const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRef?: RefObject<HTMLElement | null> }) => {
+const NotificationSetting = ({ onClose, rootRef }: { onClose: () => void; rootRef?: RefObject<HTMLElement> }) => {
 	const { t } = useTranslation('channelTopbar');
 	const tChannelMenu = useTranslation('channelMenu').t;
 	const notificationTypesList = createNotificationTypesListTranslated(tChannelMenu);

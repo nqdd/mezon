@@ -6,7 +6,7 @@ import {
 	PreviewOgp,
 	PrivateThread,
 	ThreadNameTextField,
-	useUserMentionList
+	UserMentionList
 } from '@mezon/components';
 import { useChannelMembers, useDragAndDrop, useMessageValue, useReference, useThreadMessage, useThreads } from '@mezon/core';
 import {
@@ -541,7 +541,7 @@ const ThreadBox = () => {
 									handlePaste={onPastedFiles}
 									onSend={handleSendWithLimitCheck}
 									onTyping={handleTypingDebounced}
-									listMentions={useUserMentionList({
+									listMentions={UserMentionList({
 										channelID: currentChannelId as string,
 										channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 									})}
@@ -567,7 +567,7 @@ const ThreadBox = () => {
 										handlePaste={onPastedFiles}
 										onSend={handleSendWithLimitCheck}
 										onTyping={handleTypingDebounced}
-										listMentions={useUserMentionList({
+										listMentions={UserMentionList({
 											channelID: currentChannelId as string,
 											channelMode: ChannelStreamMode.STREAM_MODE_CHANNEL
 										})}

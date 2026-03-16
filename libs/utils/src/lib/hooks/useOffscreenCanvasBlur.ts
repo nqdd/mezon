@@ -12,7 +12,7 @@ export default function useOffscreenCanvasBlur(
 ) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const workerIndex = useMemo(() => cycleRestrict(MAX_WORKERS, ++lastWorkerIndex), []);
-	const offscreenRef = useRef<OffscreenCanvas>(null);
+	const offscreenRef = useRef<OffscreenCanvas>();
 
 	const blurThumb = useLastCallback(async (canvas: HTMLCanvasElement, uri: string) => {
 		requestMutation(() => {

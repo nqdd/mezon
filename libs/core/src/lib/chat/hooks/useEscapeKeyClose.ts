@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from 'react';
 
-export const useEscapeKeyClose = (ref: RefObject<HTMLElement | null> | undefined, onClose: () => void) => {
+export const useEscapeKeyClose = (ref: RefObject<HTMLElement> | undefined, onClose: () => void) => {
 	useEffect(() => {
 		const element = ref?.current;
 		if (!element) return;

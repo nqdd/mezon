@@ -9,9 +9,9 @@ type ModalFooterProfileProps = {
 	name?: string;
 	isDM: boolean;
 	userStatusProfile: string;
-	rootRef?: RefObject<HTMLElement | null>;
+	rootRef?: RefObject<HTMLElement>;
 	onCloseModal?: () => void;
-	modalControlRef?: RefObject<HTMLDivElement | null>;
+	modalControlRef?: RefObject<HTMLDivElement>;
 };
 
 const ModalFooterProfile = ({ userId, avatar, name, isDM, userStatusProfile, rootRef, onCloseModal, modalControlRef }: ModalFooterProfileProps) => {

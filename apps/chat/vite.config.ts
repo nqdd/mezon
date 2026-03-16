@@ -1,5 +1,5 @@
 import babel from '@rolldown/plugin-babel';
-import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react';
 import * as fs from 'fs';
 import * as path from 'path';
 import { defineConfig, loadEnv } from 'vite';
@@ -48,7 +48,7 @@ export default defineConfig(({ mode }) => {
 			}),
 			react(),
 			babel({
-				presets: [reactCompilerPreset()],
+				// presets: [reactCompilerPreset()],
 				plugins: [
 					['@babel/plugin-proposal-decorators', { legacy: true }],
 					['@babel/plugin-proposal-class-properties', { loose: true }],

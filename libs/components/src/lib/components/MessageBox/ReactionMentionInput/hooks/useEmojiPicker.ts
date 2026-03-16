@@ -1,10 +1,9 @@
 import { emojiSuggestionActions } from '@mezon/store';
-import type { RefObject } from 'react';
-import { useCallback } from 'react';
+import { RefObject, useCallback } from 'react';
 import type { MentionsInputHandle } from '../MentionsInput';
 
 interface UseEmojiPickerProps {
-	editorRef: RefObject<MentionsInputHandle | null>;
+	editorRef: RefObject<MentionsInputHandle>;
 	emojiPicked: any;
 	addEmojiState: any;
 	dispatch: any;
@@ -13,23 +12,22 @@ interface UseEmojiPickerProps {
 }
 
 export const useEmojiPicker = ({ editorRef, emojiPicked, addEmojiState, dispatch, focusEditorIfMatch, onDirectEmojiInsert }: UseEmojiPickerProps) => {
-	const insertEmojiDirectly = useCallback(
-		(emojiId: string, emojiShortname: string) => {
-			if (!editorRef?.current) {
-				return;
-			}
 
-			editorRef.current.insertEmoji(emojiId, emojiShortname);
-			dispatch(
-				emojiSuggestionActions.setSuggestionEmojiObjPicked({
-					shortName: '',
-					id: '',
-					isReset: true
-				})
-			);
-		},
-		[editorRef, onDirectEmojiInsert, dispatch]
-	);
+	const insertEmojiDirectly = useCallback((emojiId: string, emojiShortname: string) => {
+
+		if (!editorRef?.current) {
+			return;
+		}
+
+		editorRef.current.insertEmoji(emojiId, emojiShortname);
+		dispatch(
+			emojiSuggestionActions.setSuggestionEmojiObjPicked({
+				shortName: '',
+				id: '',
+				isReset: true
+			})
+		);
+	}, [editorRef, onDirectEmojiInsert, dispatch]);
 
 	return {
 		insertEmojiDirectly

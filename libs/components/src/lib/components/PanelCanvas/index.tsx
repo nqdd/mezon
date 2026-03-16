@@ -11,7 +11,7 @@ interface IPanelCanvasProps {
 	clanId?: string;
 	canvasId?: string;
 	handClosePannel: () => void;
-	parentRef: RefObject<HTMLDivElement | null>;
+	parentRef: RefObject<HTMLDivElement>;
 }
 
 const PanelCanvas: React.FC<IPanelCanvasProps> = ({ coords, channelId, clanId, canvasId, handClosePannel, parentRef }) => {

@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 interface MediaPlayerProps {
-	videoRef: RefObject<HTMLVideoElement | null>;
+	videoRef: RefObject<HTMLVideoElement>;
 	currentChannel?: ChannelsEntity | null;
 }
 
@@ -265,7 +265,7 @@ type ChannelStreamProps = {
 	currentStreamInfo: IStreamInfo | null;
 	currentChannel: ChannelsEntity | null;
 	handleChannelClick: (clanId: string, channelId: string, userId: string, streamId: string, username: string, accessToken: string) => void;
-	streamVideoRef: RefObject<HTMLVideoElement | null>;
+	streamVideoRef: RefObject<HTMLVideoElement>;
 	disconnect: () => void;
 	isStream: boolean;
 };

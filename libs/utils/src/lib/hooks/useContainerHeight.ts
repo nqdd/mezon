@@ -3,7 +3,7 @@ import useLastCallback from './useLastCallback';
 import useResizeObserver from './useResizeObserver';
 import { useSignal } from './useSignal';
 
-export function useContainerHeight(containerRef: RefObject<HTMLDivElement | null>, isComposerVisible: boolean) {
+export function useContainerHeight(containerRef: RefObject<HTMLDivElement>, isComposerVisible: boolean) {
 	const [getContainerHeight, setContainerHeight] = useSignal<number | undefined>();
 
 	// Container resize observer (caused by Composer reply/webpage panels)
@@ -22,7 +22,7 @@ export function useContainerHeight(containerRef: RefObject<HTMLDivElement | null
 		}
 	}, [isComposerVisible, containerRef, getContainerHeight]);
 
-	const prevContainerHeight = useRef<number>(null);
+	const prevContainerHeight = useRef<number>();
 
 	return [getContainerHeight, prevContainerHeight] as const;
 }

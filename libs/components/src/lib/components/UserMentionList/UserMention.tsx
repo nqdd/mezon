@@ -14,7 +14,7 @@ interface UserMentionListProps {
 	channelMode?: number;
 }
 
-export function useUserMentionList({ channelID, channelMode }: UserMentionListProps): MentionDataProps[] {
+export function UserMentionList({ channelID, channelMode }: UserMentionListProps): MentionDataProps[] {
 	const { membersOfParent } = useChannelMembers({ channelId: channelID, mode: channelMode ?? 0 });
 	const channel = useAppSelector((state) => selectChannelById(state, channelID)) || {};
 	const channelparent = useAppSelector((state) => selectChannelById(state, channel?.parent_id || '')) || {};

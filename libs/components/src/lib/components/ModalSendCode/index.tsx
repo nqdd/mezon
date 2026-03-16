@@ -142,9 +142,7 @@ const ModalCreatePin = ({ onNext, onBack, onClose, setPin }: ModalProps & { setP
 						{pin.map((value, index) => (
 							<input
 								key={index}
-								ref={(el) => {
-									inputsRef.current[index] = el;
-								}}
+								ref={(el) => (inputsRef.current[index] = el)}
 								type="text"
 								maxLength={1}
 								value={value}
@@ -338,9 +336,7 @@ export const ModalConfirmPin = ({
 						{otp.map((value, index) => (
 							<input
 								key={index}
-								ref={(el) => {
-									inputsRef.current[index] = el;
-								}}
+								ref={(el) => (inputsRef.current[index] = el)}
 								type="text"
 								value={value}
 								onChange={(e) => handleChange(e.target.value, index)}
