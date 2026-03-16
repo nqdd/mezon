@@ -55,8 +55,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 							chromeMediaSourceId: screenSource.id,
 							maxWidth: 2560,
 							maxHeight: 1440,
-							minFrameRate: 30,
-							maxFrameRate: 60
+							maxFrameRate: 30
 						}
 					},
 					audio: screenSource.audio
@@ -83,9 +82,9 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
 					simulcast: true,
-					videoCodec: 'vp8',
+					videoCodec: 'vp9',
 					degradationPreference: 'maintain-resolution',
-					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h720fps15]
+					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h720fps15, ScreenSharePresets.h1080fps15]
 				});
 
 				let audioPublication: LocalTrackPublication | undefined;
