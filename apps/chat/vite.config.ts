@@ -158,28 +158,32 @@ export default defineConfig(({ mode }) => {
 					},
 					manualChunks: (id) => {
 						if (id.includes('node_modules')) {
-							if (id.includes('@tiptap')) {
-								return 'vendor-tiptap';
-							}
-							if (id.includes('react-datepicker')) {
-								return 'vendor-datepicker';
-							}
-							if (id.includes('react-pdf') || id.includes('pdfjs-dist')) {
-								return 'vendor-pdf';
-							}
-							if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+							const segments = id.split('node_modules/');
+							const lastSegment = segments[segments.length - 1];
+							const pkg = lastSegment.startsWith('@') ? lastSegment.split('/').slice(0, 2).join('/') : lastSegment.split('/')[0];
+
+							if (pkg === 'react' || pkg === 'react-dom' || pkg === 'scheduler') {
 								return 'vendor-react';
 							}
-							if (id.includes('react-router')) {
+							if (pkg === 'react-router' || pkg === 'react-router-dom') {
 								return 'vendor-router';
 							}
-							if (id.includes('@reduxjs') || id.includes('redux') || id.includes('react-redux')) {
+							if (pkg === '@reduxjs/toolkit' || pkg === 'redux' || pkg === 'react-redux' || pkg === 'redux-persist') {
 								return 'vendor-redux';
 							}
-							if (id.includes('mezon-js')) {
+							if (pkg.startsWith('@tiptap/')) {
+								return 'vendor-tiptap';
+							}
+							if (pkg === 'react-datepicker') {
+								return 'vendor-datepicker';
+							}
+							if (pkg === 'react-pdf' || pkg === 'pdfjs-dist') {
+								return 'vendor-pdf';
+							}
+							if (pkg === 'mezon-js') {
 								return 'vendor-mezon';
 							}
-							if (id.includes('mezon-protobuf')) {
+							if (pkg === 'mezon-js-protobuf') {
 								return 'vendor-protobuf';
 							}
 						}
