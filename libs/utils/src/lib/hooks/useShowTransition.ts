@@ -68,7 +68,7 @@ export default function useShowTransition<RefType extends HTMLElement = HTMLDivE
 
 	const localRef = useRef<RefType>(null);
 	const ref = params.ref || localRef;
-	const closingTimeoutRef = useRef<number>();
+	const closingTimeoutRef = useRef<number>(null);
 	const [getState, setState] = useSignal<State | undefined>();
 	const optionsRef = useStateRef({
 		closeDuration,
@@ -111,7 +111,7 @@ export default function useShowTransition<RefType extends HTMLElement = HTMLDivE
 			if (isOpen) {
 				if (closingTimeoutRef.current) {
 					clearTimeout(closingTimeoutRef.current);
-					closingTimeoutRef.current = undefined;
+					closingTimeoutRef.current = null;
 				}
 
 				if (options.noOpenTransition || (prevIsOpen === undefined && options.noMountTransition)) {

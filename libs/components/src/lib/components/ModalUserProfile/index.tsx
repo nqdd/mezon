@@ -48,10 +48,10 @@ type ModalUserProfileProps = {
 	isDM?: boolean;
 	userStatusProfile?: string;
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement>;
+	rootRef?: RefObject<HTMLElement | null>;
 	isUserRemoved?: boolean;
 	checkAnonymous?: boolean;
-	modalControlRef?: RefObject<HTMLDivElement>;
+	modalControlRef?: RefObject<HTMLDivElement | null>;
 };
 
 export type OpenModalProps = {

@@ -24,7 +24,7 @@ export default function useMediaWithLoadProgress(
 	const isSynced = true;
 	const id = useUniqueId();
 	const [loadProgress, setLoadProgress] = useState(mediaData && !isStreaming ? 1 : 0);
-	const startedAtRef = useRef<number>();
+	const startedAtRef = useRef<number>(null);
 
 	const handleProgress = useMemo(() => {
 		return throttle(
@@ -51,7 +51,7 @@ export default function useMediaWithLoadProgress(
 
 				mediaLoader.fetch(mediaHash, mediaFormat, isHtmlAllowed, handleProgress, id).then(() => {
 					const spentTime = Date.now() - startedAtRef.current!;
-					startedAtRef.current = undefined;
+					startedAtRef.current = null;
 
 					if (!delay || spentTime >= delay) {
 						forceUpdate();
@@ -71,7 +71,7 @@ export default function useMediaWithLoadProgress(
 		if (noLoad && startedAtRef.current) {
 			mediaLoader.cancelProgress(handleProgress);
 			setLoadProgress(0);
-			startedAtRef.current = undefined;
+			startedAtRef.current = null;
 		}
 	}, [handleProgress, noLoad]);
 

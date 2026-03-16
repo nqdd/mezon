@@ -206,7 +206,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	const { setSubPanelActive } = useGifsStickersEmoji();
 
 	useFocusManager({
-		editorRef: editorElementRef as RefObject<HTMLDivElement>,
+		editorRef: editorElementRef as RefObject<HTMLDivElement | null>,
 		isTopic: props.isTopic || false,
 		isMenuClosed: useSelector(selectCloseMenu),
 		isStatusMenuOpen: useSelector(selectStatusMenu),
@@ -713,7 +713,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	}, [attachmentFiltered?.files]);
 
 	const { onKeyDown } = useKeyboardHandler({
-		editorRef: editorElementRef as RefObject<HTMLDivElement>,
+		editorRef: editorElementRef as RefObject<HTMLDivElement | null>,
 		updateDraft:
 			updateDraft ||
 			(() => {
@@ -1011,7 +1011,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	);
 
 	useClickUpToEditMessage({
-		editorRef: editorElementRef as RefObject<HTMLDivElement>,
+		editorRef: editorElementRef as RefObject<HTMLDivElement | null>,
 		currentChannelId: props.currentChannelId,
 		userId: userProfile?.user?.id,
 		draftRequest,

@@ -9,7 +9,7 @@ interface WebRTCContextType {
 	connect: () => Promise<void>;
 	disconnect: () => void;
 	handleChannelClick: (clanId: string, channelId: string, userId: string, streamId: string, username: string, accessToken: string) => void;
-	streamVideoRef: React.RefObject<HTMLVideoElement>;
+	streamVideoRef: React.RefObject<HTMLVideoElement | null>;
 	isStream: boolean;
 }
 

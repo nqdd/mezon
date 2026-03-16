@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useThrottledCallback } from 'use-debounce';
 import { MessageBox } from '../../MessageBox';
 import { ReplyMessageBox } from '../../ReplyMessageBox';
-import { UserMentionList } from '../../UserMentionList';
+import { useUserMentionList } from '../../UserMentionList';
 
 interface DirectIdProps {
 	// directParamId: string;
@@ -68,7 +68,7 @@ export function DirectMessageBox({ mode, direct }: DirectIdProps) {
 				onSend={handleSend}
 				currentChannelId={directParamId}
 				onTyping={handleTypingDebounced}
-				listMentions={UserMentionList({ channelID: directParamId ?? '', channelMode: mode })}
+				listMentions={useUserMentionList({ channelID: directParamId ?? '', channelMode: mode })}
 				mode={mode}
 			/>
 		</div>

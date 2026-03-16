@@ -5,11 +5,11 @@ import { useUnmountCleanup } from './useUnmountCleanup';
 
 export function useSyncEffect<const T extends readonly any[]>(effect: (args: T | readonly []) => NoneToVoidFunction | void, dependencies: T) {
 	const prevDeps = usePreviousDeprecated<T>(dependencies);
-	const cleanupRef = useRef<NoneToVoidFunction>();
+	const cleanupRef = useRef<NoneToVoidFunction>(null);
 
 	if (!prevDeps || dependencies.some((d, i) => d !== prevDeps[i])) {
 		cleanupRef.current?.();
-		cleanupRef.current = effect(prevDeps || []) ?? undefined;
+		cleanupRef.current = effect(prevDeps || []) ?? null;
 	}
 
 	useUnmountCleanup(() => {

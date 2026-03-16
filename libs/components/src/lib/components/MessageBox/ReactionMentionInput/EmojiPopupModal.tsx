@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux';
 import { GifStickerEmojiPopup } from '../../GifsStickersEmojis';
 
 interface EmojiPopupModalProps {
-	popupRef: RefObject<HTMLDivElement>;
+	popupRef: RefObject<HTMLDivElement | null>;
 	mode?: ChannelStreamMode;
 	isEmojiPopupVisible: boolean;
 	setIsEmojiPopupVisible: (visible: boolean) => void;

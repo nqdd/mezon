@@ -2,7 +2,7 @@ import { CHANNEL_INPUT_ID, GENERAL_INPUT_ID } from '@mezon/utils';
 import { RefObject, useCallback } from 'react';
 
 interface UseFocusEditorProps {
-	editorRef: RefObject<HTMLInputElement | HTMLDivElement | HTMLUListElement>;
+	editorRef: RefObject<HTMLInputElement | HTMLDivElement | HTMLUListElement | null>;
 	isTopic?: boolean;
 }
 

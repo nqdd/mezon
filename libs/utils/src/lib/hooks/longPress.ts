@@ -31,8 +31,8 @@ export interface ILongPressType {
 }
 
 export function useLongPress<T>({ onStart, onFinish }: PressHandlers<T>, { delay = 300, shouldPreventDefault = true }: Options = {}) {
-	const timeout = useRef<NodeJS.Timeout>();
-	const target = useRef<EventTarget>();
+	const timeout = useRef<NodeJS.Timeout>(null);
+	const target = useRef<EventTarget>(null);
 
 	const start = useCallback(
 		(e: React.MouseEvent<T> | React.TouchEvent<T>) => {

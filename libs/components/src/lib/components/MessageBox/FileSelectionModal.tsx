@@ -8,7 +8,7 @@ export type FileSelectionModalProps = {
 	onClose: () => void;
 	onUploadFile: () => void;
 	onCreatePoll?: () => void;
-	buttonRef?: React.RefObject<HTMLDivElement>;
+	buttonRef?: React.RefObject<HTMLDivElement | null>;
 };
 
 function FileSelectionModal({ isOpen, onClose, onUploadFile, onCreatePoll, buttonRef: _buttonRef }: FileSelectionModalProps) {

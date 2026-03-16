@@ -2,7 +2,7 @@ import { accountActions, useAppDispatch } from '@mezon/store';
 import { Button, FormError, Icons, Input, Menu } from '@mezon/ui';
 import { ECountryCode, parsePhoneVN, validatePhoneNumber, type LoadingStatus } from '@mezon/utils';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { OtpConfirm } from '../OtpConfirm';
@@ -244,7 +244,7 @@ export const SelectCountry = ({ country, setCountry }: { country: string; setCou
 		],
 		[]
 	);
-	const flags: Record<string, { flag: JSX.Element; dial: string; name: string }> = {
+	const flags: Record<string, { flag: React.JSX.Element; dial: string; name: string }> = {
 		'+84': { flag: <VietNamFlag />, dial: '+84', name: 'Vietnam' },
 		'+81': { flag: <JapanFlag />, dial: '+81', name: 'Japan' },
 		'+1': { flag: <USFlag />, dial: '+1', name: 'US' }

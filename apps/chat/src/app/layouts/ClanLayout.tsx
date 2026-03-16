@@ -32,7 +32,7 @@ import ThreadsMain from '../pages/thread';
 import TopicDiscussionMain from '../pages/topicDiscussion';
 
 const ClanEffects: React.FC<{
-	chatStreamRef: React.RefObject<HTMLDivElement>;
+	chatStreamRef: React.RefObject<HTMLDivElement | null>;
 	isShowChatStream: boolean;
 	isShowCreateThread: boolean;
 	isShowCreateTopic: boolean;

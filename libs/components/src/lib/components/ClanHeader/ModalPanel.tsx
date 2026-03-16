@@ -18,7 +18,7 @@ type ModalPanelProps = {
 	isShowEmptyCategory: boolean;
 	isClanOwner: boolean;
 	setIsShowModalPanelClan: (show: boolean) => void;
-	rootRef: RefObject<HTMLElement>;
+	rootRef: RefObject<HTMLElement | null>;
 };
 
 const ModalPanel: React.FC<ModalPanelProps> = ({

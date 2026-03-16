@@ -5,7 +5,7 @@ export const useLayoutEffectWithPrevDeps = <const T extends readonly any[]>(
 	dependencies: T,
 	debugKey?: string
 ) => {
-	const prevDepsRef = useRef<T>();
+	const prevDepsRef = useRef<T>(null);
 
 	return useLayoutEffect(() => {
 		const prevDeps = prevDepsRef.current;

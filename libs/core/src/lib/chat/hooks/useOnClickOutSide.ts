@@ -3,9 +3,9 @@ import { RefObject, useEffect } from 'react';
 type Event = MouseEvent | TouchEvent;
 
 export const useOnClickOutside = <T extends HTMLElement = HTMLElement>(
-	ref: RefObject<T> | undefined,
+	ref: RefObject<T | null> | undefined,
 	handler: (event: Event) => void,
-	rootElement?: RefObject<T>
+	rootElement?: RefObject<T | null>
 ) => {
 	useEffect(() => {
 		const el = ref?.current;

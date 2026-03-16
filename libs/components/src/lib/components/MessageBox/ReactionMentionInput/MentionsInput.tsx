@@ -1253,7 +1253,6 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 
 					if (activeMentionContext?.trigger === childConfig.trigger) {
 						return cloneElement(child, {
-							...child.props,
 							mentionState: activeMentionContext.mentionState,
 							onSelect: handleMentionSelect,
 							onMouseEnter: handleSuggestionMouseEnter,
@@ -1262,7 +1261,7 @@ const MentionsInputComponent = forwardRef<MentionsInputHandle, MentionsInputProp
 							suggestionStyle,
 							triggerSelection,
 							onSelectionTriggered
-						} as MentionProps);
+						} as Partial<MentionProps>);
 					}
 				}
 				return null;

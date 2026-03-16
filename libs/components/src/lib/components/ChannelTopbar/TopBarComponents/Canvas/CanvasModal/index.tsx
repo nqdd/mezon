@@ -23,7 +23,7 @@ import SearchCanvas from './SearchCanvas';
 
 type CanvasProps = {
 	onClose: () => void;
-	rootRef?: RefObject<HTMLElement>;
+	rootRef?: RefObject<HTMLElement | null>;
 };
 
 const CanvasModal = ({ onClose, rootRef }: CanvasProps) => {

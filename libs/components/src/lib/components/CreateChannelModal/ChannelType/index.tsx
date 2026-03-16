@@ -36,7 +36,7 @@ export const ChannelTypeComponent: React.FC<ChannelTypeProps> = ({ type, onChang
 		[ChannelType.CHANNEL_TYPE_DM]: '',
 		[ChannelType.CHANNEL_TYPE_GROUP]: ''
 	};
-	const iconMap: Partial<Record<ChannelType, JSX.Element>> = {
+	const iconMap: Partial<Record<ChannelType, React.JSX.Element>> = {
 		[ChannelType.CHANNEL_TYPE_CHANNEL]: <Icons.Hashtag defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_MEZON_VOICE]: <Icons.Speaker defaultSize="w-6 h-6" />,
 		[ChannelType.CHANNEL_TYPE_FORUM]: <Icons.Forum defaultSize="w-6 h-6" />,

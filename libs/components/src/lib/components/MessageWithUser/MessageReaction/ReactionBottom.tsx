@@ -6,7 +6,7 @@ import { memo, useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 type ReactionBottomProps = {
-	smileButtonRef: React.RefObject<HTMLDivElement>;
+	smileButtonRef: React.RefObject<HTMLDivElement | null>;
 	messageIdRefReaction: string;
 };
 

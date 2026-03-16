@@ -9,7 +9,7 @@ import { ModalLayout } from '../../../components';
 import ModalSticker, { EGraphicType } from './ModalEditSticker';
 import SettingStickerItem from './SettingStickerItem';
 
-const SettingSticker = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) => {
+const SettingSticker = ({ parentRef }: { parentRef: RefObject<HTMLDivElement | null> }) => {
 	const { t } = useTranslation('clanSettings');
 	const [showModalSticker, setShowModalSticker] = useState<boolean>(false);
 	const [editSticker, setEditSticker] = useState<ClanSticker | null>(null);

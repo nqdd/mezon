@@ -19,7 +19,7 @@ import type { IMessageCallLog, IMessageSendPayload } from '@mezon/utils';
 import { CallLog, IMessageTypeCallLog } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api';
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 type CallLogMessageProps = {
@@ -32,7 +32,7 @@ type CallLogMessageProps = {
 	contentMsg: string;
 };
 
-const iconMap: { [key: string]: { icon: JSX.Element; text: string; colorClass: string; bgClass: string } } = {
+const iconMap: { [key: string]: { icon: React.JSX.Element; text: string; colorClass: string; bgClass: string } } = {
 	[`${IMessageTypeCallLog.TIMEOUTCALL}_SENDER`]: {
 		icon: <Icons.OutGoingCall defaultSize="w-6 h-6" />,
 		text: CallLog.OUTGOING_CALL,

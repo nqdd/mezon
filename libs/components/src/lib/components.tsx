@@ -88,7 +88,7 @@ export { SettingVoice } from './components/SettingVoice';
 export { default as MzToast } from './components/ToastController/MzToast';
 export { default as ToastController } from './components/ToastController/ToastController';
 
-export { UserMentionList } from './components/UserMentionList';
+export { useUserMentionList } from './components/UserMentionList';
 
 export * from './components/ContextMenu';
 

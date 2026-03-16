@@ -9,7 +9,7 @@ import { ModalErrorTypeUpload, ModalLayout, ModalOverData } from '../../../compo
 import ModalSticker, { EGraphicType } from '../SettingSticker/ModalEditSticker';
 import SettingEmojiList from './SettingEmojiList';
 
-const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement> }) => {
+const SettingEmoji = ({ parentRef }: { parentRef: RefObject<HTMLDivElement | null> }) => {
 	const { t } = useTranslation('clanSettings');
 	const currentClanId = useSelector(selectCurrentClanId);
 	const [openModal, setOpenModal] = useState(false);
