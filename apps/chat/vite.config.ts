@@ -163,7 +163,6 @@ export default defineConfig(({ mode }) => {
 					manualChunks: (id) => {
 						if (id.includes('node_modules')) {
 							if (id.includes('node_modules/tiptap') || id.includes('node_modules/@tiptap')) return 'vendor-tiptap';
-							if (id.includes('node_modules/react-datepicker')) return 'vendor-datepicker';
 							if (id.includes('node_modules/react-pdf') || id.includes('node_modules/pdfjs-dist')) return 'vendor-pdf';
 							if (
 								/\/node_modules\/react\//.test(id) ||
