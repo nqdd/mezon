@@ -82,7 +82,7 @@ export const useScreenSharePublisher = (room?: Room | null) => {
 					name: 'screen-share',
 					source: Track.Source.ScreenShare,
 					simulcast: true,
-					videoCodec: 'vp9',
+					videoCodec: 'vp8',
 					degradationPreference: 'maintain-resolution',
 					backupCodec: false,
 					screenShareSimulcastLayers: [ScreenSharePresets.h360fps15, ScreenSharePresets.h720fps15]
