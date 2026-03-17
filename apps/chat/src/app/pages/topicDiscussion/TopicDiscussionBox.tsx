@@ -37,7 +37,7 @@ import {
 } from '@mezon/utils';
 import isElectron from 'is-electron';
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
-import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api';
 import type { DragEvent } from 'react';
 import React, { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -94,6 +94,8 @@ const TopicDiscussionBox = ({ currentTopicId }: { currentTopicId: string }) => {
 		fromTopic: true
 	});
 
+	const isSendingRef = useRef(false);
+
 	const handleSend = useCallback(
 		async (
 			content: IMessageSendPayload,
@@ -107,16 +109,23 @@ const TopicDiscussionBox = ({ currentTopicId }: { currentTopicId: string }) => {
 			const isFileOnly = !content?.t && safeAttachments.length > 0;
 			if (!content?.t && safeAttachments.length === 0) return;
 
-			await sendMessage(content, mentions, safeAttachments, references, false, false, false, 0);
+			if (isSendingRef.current) return;
+			isSendingRef.current = true;
 
-			dispatch(
-				referencesActions.setAtachmentAfterUpload({
-					channelId: currentInputChannelId,
-					files: []
-				})
-			);
+			try {
+				await sendMessage(content, mentions, safeAttachments, references, false, false, false, 0);
 
-			setIsFetchMessageDone(true);
+				dispatch(
+					referencesActions.setAtachmentAfterUpload({
+						channelId: currentInputChannelId,
+						files: []
+					})
+				);
+
+				setIsFetchMessageDone(true);
+			} finally {
+				isSendingRef.current = false;
+			}
 		},
 		[sendMessage, sessionUser, dispatch, currentInputChannelId]
 	);

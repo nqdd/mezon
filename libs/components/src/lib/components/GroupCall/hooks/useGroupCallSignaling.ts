@@ -121,7 +121,6 @@ export const useGroupCallSignaling = (): GroupCallSignalingHookReturn => {
 				groupId: data.group_id,
 				groupName,
 				groupAvatar: data.group_avatar || '',
-				meetingCode: data.meeting_code,
 				callerId: currentUserId
 			};
 

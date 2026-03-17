@@ -1,12 +1,20 @@
 import type { Dispatch } from '@reduxjs/toolkit';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api';
 import { IMAGE_MAX_FILE_SIZE, MAX_FILE_SIZE, fileTypeImage } from '../constant';
 import type { IMentionOnMessage, IRolesClan, IStartEndIndex, MentionDataProps, MentionItem, MentionReactInputProps, RequestInput } from '../types';
 
+export const getImageExtension = (url?: string): string | undefined => {
+	if (!url) return undefined;
+
+	const match = url.match(/\.(jpg|jpeg|png|webp|avif|gif|svg|heic)$/i);
+	return match ? `image/${match[1].toLowerCase()}` : undefined;
+};
+
 function createFileMetadata<T>(file: File): T {
+	const checkIsImage = getImageExtension(file.name);
 	return {
 		filename: file.name,
-		filetype: file.type,
+		filetype: checkIsImage || file.type,
 		size: file.size,
 		url: URL.createObjectURL(file)
 	} as T;

@@ -24,7 +24,7 @@ export function EventLocation({ event }: IEventLocation) {
 	const channelVoice = useAppSelector((state) => selectChannelById(state, event?.channel_voice_id || ''));
 
 	const joinVoiceChannel = async () => {
-		if (channelVoice?.meeting_code && channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+		if (channelVoice?.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
 			const data = {
 				heightFitContent: true,
 				children: <JoinChannelVoiceBS channel={channelVoice} />

@@ -31,7 +31,7 @@ const FriendsPage = () => {
 		const tab = tabData.find((tab) => tab.value === tabValue);
 		return tab ? tab.title.toUpperCase() : tabValue.toUpperCase();
 	};
-	const { friends, quantityPendingRequest, addFriend, acceptFriend } = useFriends();
+	const { friends, quantityPendingRequest, addFriend, acceptFriend, isAddingFriend } = useFriends();
 	const [isAlreadyFriend, setIsAlreadyFriend] = useState<boolean | null>(null);
 	const [openModalAddFriend, setOpenModalAddFriend] = useState(false);
 	const [textSearch, setTextSearch] = useState('');
@@ -145,7 +145,12 @@ const FriendsPage = () => {
 			return normalizedUsername.includes(normalizedSearchText) || normalizedDisplayName.includes(normalizedSearchText);
 		})
 		.sort((start, next) => {
-			return (next?.state || 0) - (start?.state || 0);
+			if (currentTabStatus === 'pending') {
+				return (next?.state || 0) - (start?.state || 0);
+			}
+			const nameStart = (start.user?.display_name || start.user?.username) ?? '';
+			const nameNext = (next.user?.display_name || next.user?.username) ?? '';
+			return nameStart.localeCompare(nameNext);
 		});
 
 	const getEmptyStateMessage = (tab: string) => {
@@ -320,7 +325,7 @@ const FriendsPage = () => {
 									)}
 									<Button
 										className="absolute btn-primary btn-primary-hover rounded-lg px-2 top-3 right-2 text-[14px] py-[5px] min-w-[80px] md:min-w-[130px]"
-										disabled={!requestAddFriend.usernames?.length || isInvalidInput || isBlockedUser}
+										disabled={!requestAddFriend.usernames?.length || isInvalidInput || isBlockedUser || isAddingFriend}
 										onClick={handleAddFriend}
 										data-e2e={generateE2eId('friend_page.button.send_friend_request')}
 									>

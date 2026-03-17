@@ -65,6 +65,16 @@ export type ImageWindowProps = {
 
 app.setAppUserModelId('app.mezon.ai');
 
+app.commandLine.appendSwitch('enable-accelerated-video-decode');
+app.commandLine.appendSwitch('enable-accelerated-video-encode');
+app.commandLine.appendSwitch('disable-low-res-tiling');
+app.commandLine.appendSwitch('webrtc-max-cpu-consumption-percentage', '100');
+app.commandLine.appendSwitch('enable-features', 'WebRTC-Audio-Send-Side-Bwe');
+app.commandLine.appendSwitch('force-fieldtrials', 'WebRTC-Bwe-InitialRate/2000000/');
+app.commandLine.appendSwitch('ignore-gpu-blocklist');
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+
 export default class Main {
 	static initialize() {
 		if (SquirrelEvents.handleEvents()) {
@@ -405,10 +415,6 @@ ipcMain.handle(AUTO_START_APP, (event, action) => {
 ipcMain.handle(TOGGLE_HARDWARE_ACCELERATION, async (event, enabled) => {
 	const store = new Store();
 	store.set('hardwareAcceleration', enabled);
-
-	if (!enabled) {
-		app.disableHardwareAcceleration();
-	}
 
 	const response = await dialog.showMessageBox({
 		type: 'info',

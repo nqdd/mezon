@@ -1,6 +1,7 @@
 import {
 	categoriesActions,
 	createNewChannel,
+	fetchClans,
 	getApplicationDetail,
 	selectAllAccount,
 	selectAllCategories,
@@ -10,7 +11,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { ChannelType } from 'mezon-js';
-import type { ApiCreateChannelDescRequest } from 'mezon-js/api.gen';
+import type { ApiCreateChannelDescRequest } from 'mezon-js/api';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -54,7 +55,9 @@ const ModalAddApp = memo(({ applicationId, handleOpenModal }: ModalAddAppProps) 
 	}, [applicationId, dispatch]);
 
 	const clans = useSelector(selectAllClans);
-
+	useEffect(() => {
+		dispatch(fetchClans({}));
+	}, [dispatch]);
 	const categories = useAppSelector((state) => selectAllCategories(state, clanValue));
 	const clanConfig: SelectFieldConfig<any> = {
 		label: 'Add to clan',

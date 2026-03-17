@@ -1,10 +1,9 @@
-import { WebrtcSignalingFwd } from 'mezon-js';
+import type { WebrtcSignalingFwd } from 'mezon-js';
 
 export interface GroupCallData {
 	groupId: string;
 	groupName: string;
 	groupAvatar?: string;
-	meetingCode?: string;
 	clanId?: string;
 	participants: string[];
 	callerInfo: {
@@ -43,7 +42,6 @@ export interface CallSignalingData {
 	caller_id: string;
 	caller_name: string;
 	caller_avatar?: string;
-	meeting_code?: string;
 	clan_id?: string;
 	timestamp: number;
 	participants: string[];

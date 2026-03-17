@@ -19,7 +19,7 @@ import {
 import { DEFAULT_ROLE_COLOR, EUserStatus, formatDateI18n } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
-import type { ApiAddFriendsResponse } from 'mezon-js/api.gen';
+import type { ApiAddFriendsResponse } from 'mezon-js/api';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceEventEmitter, Text, TouchableOpacity, View } from 'react-native';
@@ -95,7 +95,6 @@ const UserProfile = React.memo(
 	}: userProfileProps) => {
 		const isTabletLandscape = useTabletLandscape();
 		const { themeValue } = useTheme();
-		const styles = style(themeValue, isTabletLandscape);
 		const userProfile = useAppSelector(selectAllAccount);
 		const { t, i18n } = useTranslation(['userProfile', 'friends', 'common']);
 		const userById = useAppSelector((state) => selectMemberClanByUserId(state, userId || user?.id));
@@ -120,6 +119,7 @@ const UserProfile = React.memo(
 		const isDMGroup = channelType === ChannelType.CHANNEL_TYPE_GROUP;
 		const isDM = currentChannel?.type === ChannelType.CHANNEL_TYPE_DM || currentChannel?.type === ChannelType.CHANNEL_TYPE_GROUP;
 		const isBlocked = infoFriend?.state === EStateFriend.BLOCK;
+		const styles = useMemo(() => style(themeValue, isTabletLandscape, isBlocked), [themeValue, isTabletLandscape, isBlocked]);
 		const isKicked = !userById;
 
 		const createTime = userById?.user?.create_time_seconds || user?.create_time_seconds || user?.user?.create_time_seconds;
@@ -350,7 +350,7 @@ const UserProfile = React.memo(
 					text: t('userAction.sendMessage'),
 					icon: <MezonIconCDN icon={IconCDN.chatIcon} color={themeValue.text} />,
 					action: navigateToMessageDetail,
-					isShow: !isBlocked
+					isShow: true
 				},
 				{
 					id: 2,
@@ -447,9 +447,11 @@ const UserProfile = React.memo(
 				<View style={[styles.backdrop, { backgroundColor: userById || user?.avatar_url ? color : baseColor.gray }]}>
 					{!isCheckOwner && !isWebhook && (
 						<View style={styles.rowContainer}>
-							<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
-								<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
-							</TouchableOpacity>
+							{!isBlocked && (
+								<TouchableOpacity onPress={iconFriend?.action} style={styles.topActionButton}>
+									<MezonIconCDN icon={iconFriend?.icon} color={themeValue.text} width={size.s_20} height={size.s_20} />
+								</TouchableOpacity>
+							)}
 							<TouchableOpacity onPress={handleTransferFunds} style={styles.transferFundsButton}>
 								<MezonIconCDN icon={IconCDN.transactionIcon} color={themeValue.text} width={size.s_20} height={size.s_20} />
 							</TouchableOpacity>

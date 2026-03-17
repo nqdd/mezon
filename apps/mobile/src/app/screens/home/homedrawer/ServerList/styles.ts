@@ -13,6 +13,15 @@ export const style = (colors: Attributes) =>
 			paddingHorizontal: size.s_10
 		},
 
+		logo: {
+			width: size.s_40,
+			height: size.s_40
+		},
+
+		logoBorderRadius: {
+			borderRadius: size.s_8
+		},
+
 		badge: {
 			backgroundColor: baseColor.redStrong,
 			position: 'absolute',
@@ -46,7 +55,8 @@ export const style = (colors: Attributes) =>
 			paddingBottom: size.s_100
 		},
 		separatorLine: {
-			width: '60%',
+			width: '50%',
+			height: 0.5,
 			marginTop: size.s_6,
 			alignSelf: 'center',
 			backgroundColor: colors.white

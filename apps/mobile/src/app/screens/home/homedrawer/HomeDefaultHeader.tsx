@@ -1,6 +1,6 @@
 import { useChatSending } from '@mezon/core';
 import type { IOption } from '@mezon/mobile-components';
-import { ActionEmitEvent, ENotificationActive, ETypeSearch, load, save, STORAGE_USERS_QUICK_REACTION } from '@mezon/mobile-components';
+import { ActionEmitEvent, ETypeSearch, load, save, STORAGE_USERS_QUICK_REACTION } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import {
 	accountActions,
@@ -21,7 +21,6 @@ import { useSelector } from 'react-redux';
 import MezonIconCDN from '../../../componentUI/MezonIconCDN';
 import { Icons } from '../../../componentUI/MobileIcons';
 import { IconCDN } from '../../../constants/icon_cdn';
-import useStatusMuteChannel from '../../../hooks/useStatusMuteChannel';
 import useTabletLandscape from '../../../hooks/useTabletLandscape';
 import { APP_SCREEN } from '../../../navigation/ScreenTypes';
 import { ConfirmBuzzMessageModal } from './components/ConfirmBuzzMessage';
@@ -241,7 +240,7 @@ const HomeDefaultHeader = React.memo(
 
 		const renderChannelIcon = () => {
 			if (currentChannel?.channel_private === ChannelStatusEnum.isPrivate && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
-				return <Icons.ThreadIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
+				return <Icons.ThreadLockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			if (!!currentChannel?.channel_label && currentChannel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
@@ -265,7 +264,7 @@ const HomeDefaultHeader = React.memo(
 			}
 
 			if (currentChannel?.type === ChannelType.CHANNEL_TYPE_CHANNEL && isAgeRestrictedChannel) {
-				return <Icons.ClansLockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
+				return <Icons.ClansWarningIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
 			}
 
 			return <Icons.ClansOpenIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />;
@@ -316,13 +315,13 @@ const HomeDefaultHeader = React.memo(
 					</TouchableOpacity>
 				) : currentChannel ? (
 					<TouchableOpacity style={styles.iconBell} onPress={() => navigateToSearchPage()}>
-						<Icons.SearchIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
+						<Icons.SearchIcon color={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 					</TouchableOpacity>
 				) : (
 					<View />
 				)}
 				<TouchableOpacity style={styles.iconBell} onPress={() => navigateToChannelHighlight()}>
-					<Icons.ClockIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
+					<Icons.ClockIcon color={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 				</TouchableOpacity>
 				<View style={styles.headerTooltipContainer}>
 					<HeaderTooltip onPressOption={onPressOption} options={headerOptions} />
@@ -331,25 +330,5 @@ const HomeDefaultHeader = React.memo(
 		);
 	}
 );
-
-interface NotificationBellProps {
-	color: string;
-}
-
-const NotificationBell: React.FC<NotificationBellProps> = ({ color }) => {
-	const iconProps = {
-		width: size.s_20,
-		height: size.s_20,
-		color
-	};
-
-	const { statusMute } = useStatusMuteChannel();
-
-	return statusMute === ENotificationActive.OFF ? (
-		<MezonIconCDN icon={IconCDN.bellSlashIcon} {...iconProps} />
-	) : (
-		<MezonIconCDN icon={IconCDN.bellIcon} {...iconProps} />
-	);
-};
 
 export default HomeDefaultHeader;

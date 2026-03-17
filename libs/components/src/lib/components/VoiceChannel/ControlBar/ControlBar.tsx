@@ -342,8 +342,8 @@ const ControlBar = ({
 					/>
 				)}
 
-				<AgentControl />
-				<RaisingHandControls />
+				<AgentControl isExternalCalling={!!isExternalCalling} />
+				{!isExternalCalling && <RaisingHandControls />}
 				{visibleControls.leave && <LeaveButton onLeaveRoom={handleLeaveRoom} />}
 			</div>
 

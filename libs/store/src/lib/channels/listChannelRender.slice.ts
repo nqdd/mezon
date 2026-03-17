@@ -2,7 +2,7 @@ import { captureSentryError } from '@mezon/logger';
 import type { ICategoryChannel, IChannel } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ApiChannelDescription, ApiUpdateCategoryDescRequest } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiUpdateCategoryDescRequest } from 'mezon-js/api';
 import type { CategoriesEntity } from '../categories/categories.slice';
 import { clansActions } from '../clans/clans.slice';
 import type { RootState } from '../store';
@@ -179,7 +179,6 @@ export const listChannelRenderSlice = createSlice({
 					e2ee: dataUpdate.e2ee || (state.listChannelRender[clanId][indexUpdate] as IChannel).e2ee,
 					topic: dataUpdate.topic || (state.listChannelRender[clanId][indexUpdate] as IChannel).topic,
 					age_restricted: dataUpdate.age_restricted,
-					meeting_code: dataUpdate?.meeting_code || (state.listChannelRender[clanId][indexUpdate] as IChannel).meeting_code,
 					channel_private: dataUpdate.channel_private
 						? dataUpdate.channel_private || (state.listChannelRender[clanId][indexUpdate] as IChannel).channel_private
 						: 0

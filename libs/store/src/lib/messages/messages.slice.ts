@@ -27,7 +27,7 @@ import type { EntityState, GetThunkAPI, PayloadAction, Update } from '@reduxjs/t
 import { createAsyncThunk, createEntityAdapter, createSelector, createSelectorCreator, createSlice, weakMapMemoize } from '@reduxjs/toolkit';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import type { ChannelMessage } from 'mezon-js';
-import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api.gen';
+import type { ApiChannelMessageHeader, ApiMessageAttachment, ApiMessageMention, ApiMessageRef } from 'mezon-js/api';
 import type { MessageButtonClicked } from 'mezon-js/socket';
 import { accountActions, selectAllAccount } from '../account/account.slice';
 import { getUserAvatarOverride, getUserClanAvatarOverride } from '../avatarOverride/avatarOverride';
@@ -1013,6 +1013,7 @@ export const editMessageViaApi = createAsyncThunk('messages/editMessageViaApi', 
 			...content,
 			t: content.t?.trim()
 		};
+		const stringifiedContent = JSON.stringify(trimContent);
 
 		const res = await client.updateChannelMessage(
 			session,
@@ -1021,7 +1022,7 @@ export const editMessageViaApi = createAsyncThunk('messages/editMessageViaApi', 
 			mode,
 			isPublic,
 			messageId || '0',
-			trimContent,
+			stringifiedContent,
 			mentions,
 			attachments,
 			hideEditted,
@@ -1135,22 +1136,27 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		}
 
 		let res;
-		if (socketState.isConnected) {
-			res = await socket.writeChatMessage(
-				clanId,
-				channelId,
-				mode,
-				isPublic,
-				content,
-				mentions,
-				uploadedFiles,
-				references,
-				anonymous,
-				mentionEveryone,
-				'',
-				code
-			);
-		} else {
+
+		try {
+			if (socketState.isConnected) {
+				res = await socket.writeChatMessage(
+					clanId,
+					channelId,
+					mode,
+					isPublic,
+					content,
+					anonymous ? undefined : mentions,
+					uploadedFiles,
+					references,
+					anonymous,
+					mentionEveryone,
+					'',
+					code
+				);
+			} else {
+				throw new Error('Socket not connected');
+			}
+		} catch (err) {
 			res = await client.sendChannelMessage(
 				session,
 				clanId,
@@ -1158,7 +1164,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 				mode,
 				isPublic,
 				typeof content === 'object' ? JSON.stringify(content) : content,
-				mentions,
+				anonymous ? undefined : mentions,
 				uploadedFiles,
 				references,
 				anonymous,
@@ -1671,6 +1677,7 @@ export const messagesSlice = createSlice({
 				case TypeMessage.Ephemeral:
 				case TypeMessage.ShareContact:
 				case TypeMessage.Location:
+				case TypeMessage.Poll:
 				case TypeMessage.Chat: {
 					if (topic_id !== '0' && topic_id) {
 						handleAddOneMessage({

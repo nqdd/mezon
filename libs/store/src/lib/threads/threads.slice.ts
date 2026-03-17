@@ -3,7 +3,7 @@ import type { IMessageWithUser, IThread, LoadingStatus } from '@mezon/utils';
 import { LIMIT, ThreadStatus, TypeCheck, getParentChannelIdIfHas } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ApiChannelDescription } from 'mezon-js/api.gen';
+import type { ApiChannelDescription } from 'mezon-js/api';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelsActions, selectCurrentChannel } from '../channels/channels.slice';
@@ -405,8 +405,11 @@ export const threadsSlice = createSlice({
 		},
 		addThreadToCached: (state, action: PayloadAction<{ channelId: string; thread: ThreadsEntity }>) => {
 			const { channelId, thread } = action.payload;
-			if (!state.byChannels?.[channelId]) {
-				return;
+			if (!state.byChannels) {
+				state.byChannels = {};
+			}
+			if (!state.byChannels[channelId]) {
+				state.byChannels[channelId] = threadsAdapter.getInitialState();
 			}
 
 			threadsAdapter.upsertOne(state.byChannels[channelId], thread);
