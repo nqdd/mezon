@@ -7,20 +7,14 @@ interface EmbedImageProps {
 	height?: number;
 }
 
-export function EmbedImage({ url, width, height }: EmbedImageProps) {
+export function EmbedImage({ url }: EmbedImageProps) {
 	const [showPreview, closePreview] = useModal(() => {
 		return <ImagePreview imageUrl={url} onClose={closePreview} />;
 	});
 
 	return (
-		<div className="mt-2 rounded overflow-hidden">
-			<img
-				src={url}
-				style={{ width: width || 'auto', height: height || 'auto' }}
-				alt=""
-				className="w-full h-auto max-w-full cursor-pointer"
-				onClick={showPreview}
-			/>
+		<div className="mt-2 rounded overflow-hidden max-w-full">
+			<img src={url} alt="" className="w-full h-auto max-w-full object-contain cursor-pointer" onClick={showPreview} />
 		</div>
 	);
 }
