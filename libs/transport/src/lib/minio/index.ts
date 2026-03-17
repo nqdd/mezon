@@ -1,6 +1,5 @@
-import { Buffer as BufferPolyfill } from 'buffer';
 import type { Client, Session } from 'mezon-js';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api';
 
 export class CustomFile extends File {
 	url?: string;
@@ -128,12 +127,12 @@ export async function handleUploadFileMobile(
 				fileType = `text/${fileExtension}`;
 			}
 			if (file?.uri) {
-				const decoded = BufferPolyfill.from(file.fileData, 'base64');
-				if (!decoded) {
-					console.error('Failed to read file data.');
-					return;
+				const binaryStr = atob(file.fileData);
+				const bytes = new Uint8Array(binaryStr.length);
+				for (let i = 0; i < binaryStr.length; i++) {
+					bytes[i] = binaryStr.charCodeAt(i);
 				}
-				const blob = new Blob([decoded], { type: fileType });
+				const blob = new Blob([bytes], { type: fileType });
 				const { filePath, originalFilename } = createUploadFilePath(filename, true);
 				resolve(
 					uploadFile(
