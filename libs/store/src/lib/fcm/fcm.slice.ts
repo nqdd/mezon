@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { Session } from 'mezon-js';
 import { selectSession } from '../auth/auth.slice';
 import { ensureSession, getMezonCtx, withRetry } from '../helpers';
+import type { RootState } from '../store';
 
 const REGIS_FCM_TOKEN_CACHED_TIME = 1000 * 60 * 60;
 
@@ -50,7 +51,7 @@ export const registFcmDeviceToken = createAsyncThunk(
 
 export const connectNotificationService = createAsyncThunk('fcm/connectNotificationService', async (_, thunkAPI) => {
 	try {
-		const state = thunkAPI.getState();
+		const state = thunkAPI.getState() as RootState;
 		const sessionData = selectSession(state as Parameters<typeof selectSession>[0]);
 
 		if (!sessionData?.token || !sessionData?.user_id) {
@@ -60,8 +61,7 @@ export const connectNotificationService = createAsyncThunk('fcm/connectNotificat
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
 		const response = await withRetry(
-			(session) =>
-				mezon.client.registFCMDeviceToken(session, sessionData?.user_id?.toString() || '', sessionData.username || '', 'desktop', ''),
+			(session) => mezon.client.registFCMDeviceToken(session, state.fcm.token || '', sessionData.username || '', 'desktop', ''),
 			{
 				maxRetries: 3,
 				initialDelay: 1000,
