@@ -18,7 +18,7 @@ const ItemStatus = ({ children, description, dropdown, startIcon, type, onClick,
 		<div
 			onClick={!disabled ? onClick : undefined}
 			className={`flex flex-col rounded-sm text-theme-primary ${disabled ? 'cursor-default' : 'cursor-pointer text-theme-primary-hover bg-item-theme-hover'} px-2`}
-			data-e2e={generateE2eId('short_profile.action.button.base')}
+			data-e2e={generateE2eId('short_profile.action.button.status')}
 		>
 			<div className="flex items-center justify-between">
 				{startIcon && (

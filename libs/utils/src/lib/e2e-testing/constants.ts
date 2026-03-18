@@ -51,7 +51,8 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		action: {
 			button: {
-				base: ''
+				base: '',
+				status: ''
 			}
 		},
 		modal: {
@@ -741,7 +742,8 @@ export const DATA_E2E_IDENTIFIER = {
 						item: ''
 					},
 					chat: '',
-					gallery: ''
+					gallery: '',
+					timeline: ''
 				},
 				badge: ''
 			},
@@ -1006,7 +1008,8 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	suggest_item: {
-		username: ''
+		username: '',
+		clan_name: ''
 	},
 	badge: {
 		friend_pending: ''
@@ -1014,6 +1017,41 @@ export const DATA_E2E_IDENTIFIER = {
 	full_profile: {
 		about_me: '',
 		member_since: ''
+	},
+	timeline: {
+		buttons: {
+			create_new: ''
+		},
+		current_year: '',
+		list_year: '',
+		modal: {
+			input: {
+				title: '',
+				date: '',
+				description: '',
+				attachment: ''
+			},
+			attachments_list: {
+				item: {
+					button: {
+						remove: ''
+					}
+				}
+			},
+			button: {
+				save: ''
+			}
+		},
+		events: {
+			time: {
+				month: '',
+				day: '',
+				year: ''
+			},
+			trigger: {
+				event_detail: ''
+			}
+		}
 	}
 };
 type DotNestedKeys<T> = T extends object
