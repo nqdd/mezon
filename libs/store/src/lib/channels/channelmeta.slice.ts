@@ -1,7 +1,7 @@
 import type { LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
-import type { ChannelDescription } from 'mezon-js-protobuf';
+import type { ApiChannelDescription } from 'mezon-js/api';
 import { selectAllAccount } from '../account/account.slice';
 export const CHANNELMETA_FEATURE_KEY = 'channelmeta';
 
@@ -18,9 +18,9 @@ export interface ChannelMetaEntity {
 	count_mess_unread?: number;
 }
 
-function extractChannelMeta(channel: ChannelDescription): ChannelMetaEntity {
+function extractChannelMeta(channel: ApiChannelDescription): ChannelMetaEntity {
 	return {
-		id: channel.channel_id,
+		id: channel.channel_id || '',
 		lastSeenTimestamp: Number(channel.last_seen_message?.timestamp_seconds) ?? 0,
 		lastSentTimestamp: Number(channel.last_sent_message?.timestamp_seconds),
 		clanId: channel.clan_id ?? '0',
@@ -81,8 +81,8 @@ export const channelMetaSlice = createSlice({
 			}));
 			channelMetaAdapter.updateMany(state, updates);
 		},
-		updateBulkChannelMetadata: (state, action: PayloadAction<ChannelDescription[]>) => {
-			const meta = (action.payload as ChannelDescription[]).map((ch) => extractChannelMeta(ch));
+		updateBulkChannelMetadata: (state, action: PayloadAction<ChannelMetaEntity[]>) => {
+			const meta = (action.payload as ApiChannelDescription[]).map((ch) => extractChannelMeta(ch));
 			channelMetaAdapter.upsertMany(state, meta);
 		},
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
