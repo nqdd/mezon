@@ -38,7 +38,7 @@ export const renderDescriptionWithLinks = (text?: string) => {
 				return (
 					<a
 						key={index}
-						href={part}
+						href={url?.href}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="text-blue-500 hover:underline"

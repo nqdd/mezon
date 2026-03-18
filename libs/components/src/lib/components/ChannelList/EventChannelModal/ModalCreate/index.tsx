@@ -371,6 +371,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 					choiceLocation={choiceLocation}
 					setContentSubmit={setContentSubmit}
 					setErrorTime={(status: boolean) => setErrorTime(status)}
+					errorTopic={errorTopic}
 				/>
 			)}
 			{currentModal === Tabs_Option.REVIEW && (

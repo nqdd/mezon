@@ -9,7 +9,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../ModalValidateFile/ModalOverData';
-import { REGEX_INVALID_EVENT_TOPIC, checkError } from '../eventHelper';
+import { checkError } from '../eventHelper';
 import { getTimeTodayMidNight } from '../timeFomatEvent';
 
 const DatePickerWrapper = lazy(() => import('./DatePickerWrapper'));
@@ -22,10 +22,11 @@ export type EventInfoModalProps = {
 	setErrorTime: (status: boolean) => void;
 	setContentSubmit: React.Dispatch<React.SetStateAction<ContenSubmitEventProps>>;
 	onClose: () => void;
+	errorTopic: boolean;
 };
 
 const EventInfoModal = (props: EventInfoModalProps) => {
-	const { contentSubmit, setErrorTime, setContentSubmit, onClose } = props;
+	const { contentSubmit, setErrorTime, setContentSubmit, onClose, errorTopic } = props;
 	const { t } = useTranslation('eventCreator');
 	const { t: tCommon } = useTranslation('common');
 	const [countCharacterDescription, setCountCharacterDescription] = useState(255);
@@ -180,13 +181,11 @@ const EventInfoModal = (props: EventInfoModalProps) => {
 					placeholder={t('fields.eventName.placeholder')}
 					onChange={(e) => setContentSubmit((prev) => ({ ...prev, topic: e.target.value }))}
 					value={contentSubmit.topic}
-					className={`font-[400] rounded w-full  outline-none text-[15px] p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''} ${REGEX_INVALID_EVENT_TOPIC.test(contentSubmit.topic || '') ? 'border border-[#e44141]' : 'border border-theme-primary'}`}
+					className={`font-[400] rounded w-full  outline-none text-[15px] p-2 focus:outline-none focus:border-white-500 bg-theme-input ${appearanceTheme === 'light' ? 'lightEventInputAutoFill' : ''} ${errorTopic ? 'border border-[#e44141]' : 'border border-theme-primary'}`}
 					maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED) * 2}
 					data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.event_topic')}
 				/>
-				{REGEX_INVALID_EVENT_TOPIC.test(contentSubmit.topic || '') && (
-					<p className="text-[#e44141]  text-xs italic font-thin mt-1">{t('errorMessages.invalidTopic')}</p>
-				)}
+				{errorTopic && <p className="text-[#e44141]  text-xs italic font-thin mt-1">{t('errorMessages.invalidTopic')}</p>}
 			</div>
 			<div className="mb-4 flex gap-x-4">
 				<div className="w-1/2" data-e2e={generateE2eId('clan_page.modal.create_event.event_info.input.start_date')}>
