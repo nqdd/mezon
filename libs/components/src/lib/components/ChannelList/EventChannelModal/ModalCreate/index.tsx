@@ -17,6 +17,7 @@ import isEqual from 'lodash.isequal';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { REGEX_INVALID_EVENT_TOPIC } from '../eventHelper';
 import { formatTimeStringToHourFormat, getDefaultCreateEventTimes, getTimeTodayMidNight } from '../timeFomatEvent';
 import EventInfoModal from './eventInfoModal';
 import HeaderEventCreate from './headerEventCreate';
@@ -337,7 +338,8 @@ const ModalCreate = (props: ModalCreateProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const isDisabled = option === '' || errorOption || !isEventChanged;
+	const errorTopic = REGEX_INVALID_EVENT_TOPIC.test(contentSubmit.topic || '');
+	const isDisabled = option === '' || errorOption || !isEventChanged || errorTopic;
 
 	return (
 		<div className="bg-theme-setting-primary rounded-lg text-sm p-4 text-theme-primary">
@@ -369,6 +371,7 @@ const ModalCreate = (props: ModalCreateProps) => {
 					choiceLocation={choiceLocation}
 					setContentSubmit={setContentSubmit}
 					setErrorTime={(status: boolean) => setErrorTime(status)}
+					errorTopic={errorTopic}
 				/>
 			)}
 			{currentModal === Tabs_Option.REVIEW && (
@@ -394,18 +397,17 @@ const ModalCreate = (props: ModalCreateProps) => {
 					{currentModal === Tabs_Option.REVIEW ? (
 						eventId !== '' ? (
 							<button
-								className={`px-4 py-2 rounded-md text-white font-semibold bg-primary ${isDisabled && ' bg-opacity-50 cursor-not-allowed'}`}
-								// eslint-disable-next-line @typescript-eslint/no-empty-function
+								disabled={isDisabled}
+								className={`px-4 py-2 rounded-md text-white font-semibold bg-primary ${isDisabled ? 'bg-opacity-50 cursor-not-allowed' : ''}`}
 								onClick={handleUpdate}
 							>
 								{t('actions.edit')}
 							</button>
 						) : (
 							<button
-								disabled={createStatus === 'loading'}
-								className={`px-4 py-2 rounded font-semibold text-white bg-primary ${(option === '' || errorOption) && ' bg-opacity-50'}`}
-								// eslint-disable-next-line @typescript-eslint/no-empty-function
-								onClick={option === '' || errorOption ? () => {} : () => handleSubmit()}
+								disabled={createStatus === 'loading' || errorTopic}
+								className={`px-4 py-2 rounded font-semibold text-white bg-primary ${option === '' || errorOption || errorTopic ? 'bg-opacity-50 cursor-not-allowed' : ''}`}
+								onClick={() => handleSubmit()}
 								data-e2e={generateE2eId('clan_page.modal.create_event.button_create')}
 							>
 								{t('actions.create')}
@@ -413,9 +415,9 @@ const ModalCreate = (props: ModalCreateProps) => {
 						)
 					) : (
 						<button
-							className={`px-4 py-2 rounded font-semibold text-white bg-primary ${(!buttonWork || errorTime || errorOption || !option) && ' bg-opacity-50 cursor-not-allowed'}`}
+							className={`px-4 py-2 rounded font-semibold text-white bg-primary ${!buttonWork || errorTime || errorOption || !option || errorTopic ? 'bg-opacity-50 cursor-not-allowed' : ''}`}
 							onClick={() => handleNext(currentModal)}
-							disabled={!option || !buttonWork || errorTime || errorOption}
+							disabled={!option || !buttonWork || errorTime || errorOption || errorTopic}
 							data-e2e={generateE2eId('clan_page.modal.create_event.next')}
 						>
 							{t('actions.next')}
