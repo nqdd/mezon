@@ -2,6 +2,7 @@ import { useAppNavigation, useAuth } from '@mezon/core';
 import { authActions, selectIsLogin, toastActions } from '@mezon/store';
 import { useMezon } from '@mezon/transport';
 
+import { QRSection } from '@mezon/components';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -123,7 +124,7 @@ function Login() {
 				</div>
 
 				<div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center w-56 h-80">
-					{/* <QRSection loginId={loginId || ''} isExpired={hidden} reloadQR={reloadQR} />; */}
+					<QRSection loginId={loginId || ''} isExpired={hidden} reloadQR={reloadQR} />;
 					<p className="text-sm text-gray-500">{t('login.qr.signIn')}</p>
 					<p className="text-xs text-gray-400">{t('login.qr.useMobile')}</p>
 				</div>
