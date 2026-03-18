@@ -11,6 +11,7 @@ import { accountActions } from '../account/account.slice';
 import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { usersClanActions } from '../clanMembers/clan.members';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
@@ -91,6 +92,7 @@ export interface ClansState extends EntityState<ClansEntity, string> {
 	clanGroups: EntityState<ClanGroup, string>;
 	clanGroupOrder: ClanGroupItem[];
 	cache?: CacheMetadata;
+	checkJoinList: Record<string, true>;
 }
 
 export const clansAdapter = createEntityAdapter<ClansEntity>();
@@ -104,12 +106,6 @@ export const changeCurrentClan = createAsyncThunk<void, ChangeCurrentClanArgs>(
 	'clans/changeCurrentClan',
 	async ({ clanId, noCache = false }: ChangeCurrentClanArgs, thunkAPI) => {
 		try {
-			const state = thunkAPI.getState() as RootState;
-			const targetClan = state.clans.entities[clanId];
-			const hasUnreadCount = (targetClan?.badge_count ?? 0) > 0;
-			if (hasUnreadCount && !noCache) {
-				thunkAPI.dispatch(listClanBadgeCount({ clanId }));
-			}
 			batch(() => {
 				thunkAPI.dispatch(clansActions.setCurrentClanId(clanId as string));
 				thunkAPI.dispatch(channelsActions.setCurrentChannelId({ clanId, channelId: '' }));
@@ -149,30 +145,36 @@ const selectCachedClans = createSelector([(state: RootState) => state[CLANS_FEAT
 	return clansAdapter.getSelectors().selectAll(clansState);
 });
 
-export const listClanBadgeCount = createAsyncThunk<void, { clanId: string }>('clans/listClanBadgeCount', async ({ clanId }, thunkAPI) => {
+export const listClanBadgeCount = createAsyncThunk('clans/listClanBadgeCount', async ({ clanId }: { clanId?: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
+		const currentClanId = selectCurrentClanId(thunkAPI.getState() as RootState);
 
 		const response = await fetchDataWithSocketFallback(
 			mezon,
 			{
 				api_name: 'ListClanBadgeCount',
 				list_clan_badge_count_req: {
-					clan_id: clanId
+					clan_id: currentClanId
 				}
 			},
 			(session) => (mezon.client as any).listClanBadgeCount?.(session, clanId),
 			'clan_badge_count'
 		);
 
-		if (response && (response as any).badge_count !== undefined) {
+		if (response && (response as any).badge_count !== undefined && currentClanId) {
 			thunkAPI.dispatch(
 				clansActions.setClanBadgeCount({
-					clanId,
+					clanId: currentClanId,
 					badgeCount: (response as any).badge_count
 				})
 			);
 		}
+		const state = thunkAPI.getState() as RootState;
+		if ((response as any)?.channeldesc && currentClanId && !state.clans.checkJoinList[currentClanId]) {
+			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata((response as any)?.channeldesc));
+		}
+		return currentClanId;
 	} catch (error) {
 		captureSentryError(error, 'clans/listClanBadgeCount');
 		return thunkAPI.rejectWithValue(error);
@@ -521,6 +523,10 @@ export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan
 	try {
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 		await mezon.socketRef.current?.joinClanChat(clanId);
+		const state = thunkAPI.getState() as RootState;
+		if (!state.clans?.checkJoinList?.[clanId]) {
+			thunkAPI.dispatch(listClanBadgeCount({ clanId }));
+		}
 	} catch (error) {
 		captureSentryError(error, 'clans/joinClan');
 		return thunkAPI.rejectWithValue(error);
@@ -617,7 +623,8 @@ export const initialClansState: ClansState = clansAdapter.getInitialState({
 	inviteClanId: undefined,
 	clansOrder: [],
 	clanGroups: clanGroupAdapter.getInitialState(),
-	clanGroupOrder: []
+	clanGroupOrder: [],
+	checkJoinList: {}
 });
 
 type UpdateClanBadgeCountPayload = {
@@ -975,6 +982,12 @@ export const clansSlice = createSlice({
 					}
 				});
 			}
+		});
+		builder.addCase(listClanBadgeCount.fulfilled, (state: ClansState, action: PayloadAction<string | null | undefined>) => {
+			if (action.payload) {
+				state.checkJoinList[action.payload] = true;
+			}
+			state.loadingStatus = 'loaded';
 		});
 	}
 });
