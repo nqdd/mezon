@@ -43,12 +43,15 @@ const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting, isExpand
 	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhookItem.creator_id as string));
 	return (
 		<div className="bg-theme-setting-nav border-theme-primary p-[20px]  rounded-md mb-[20px]">
-			<div className="flex gap-[20px] items-center">
+			<div className="flex gap-[20px] items-center" data-e2e={generateE2eId('clan_page.settings.integrations.webhook_item')}>
 				<img src={webhookItem.avatar} alt="Webhook avatar" className="aspect-square w-[50px] rounded-full" />
 				<div className="flex w-full justify-between items-center text-theme-primary-active">
 					<div className="">
-						<div>{webhookItem.webhook_name}</div>
-						<div className="flex gap-1 items-center">
+						<div data-e2e={generateE2eId('clan_page.settings.integrations.webhook_item.webhook_title')}>{webhookItem.webhook_name}</div>
+						<div
+							className="flex gap-1 items-center"
+							data-e2e={generateE2eId('clan_page.settings.integrations.webhook_item.webhook_description')}
+						>
 							<Icons.ClockIcon className="text-theme-primary" />
 							<div className="text-theme-primary text-[13px]">
 								{t('webhooksItem.createdBy', {

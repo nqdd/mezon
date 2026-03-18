@@ -60,7 +60,9 @@ const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps)
 		<div className="flex flex-col gap-4 md:gap-8 overflow-x-hidden">
 			<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
 				<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary flex-shrink-0" />
-				<div className="font-semibold text-theme-primary">{t('buttons.back').toUpperCase()}</div>
+				<div className="font-semibold text-theme-primary" data-e2e={generateE2eId('clan_page.settings.onboarding.button.back')}>
+					{t('buttons.back').toUpperCase()}
+				</div>
 			</div>
 			<div className="flex flex-col gap-4 md:gap-6 overflow-x-hidden">
 				<div className="flex flex-col gap-2">
@@ -269,6 +271,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 		<div
 			className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-bgSecondary p-3 md:p-4 rounded-lg border border-gray-200 dark:border-transparent overflow-x-hidden"
 			onClick={handleOpenWrap}
+			data-e2e={generateE2eId('clan_page.settings.onboarding.question.item')}
 		>
 			<div className="flex flex-col gap-2">
 				<div className="flex justify-between items-center gap-2">
