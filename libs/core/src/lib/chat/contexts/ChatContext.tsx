@@ -719,8 +719,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
-				if (notification.code === NotificationCode.FRIEND_ACCEPT && notification.sender_id) {
-					dispatch(friendsActions.acceptFriend(notification.sender_id));
+				if (notification.code === NotificationCode.FRIEND_ACCEPT) {
+					dispatch(friendsActions.acceptFriend(`${userId}_${notification.sender_id}`));
 				}
 			}
 
@@ -2996,3 +2996,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+
