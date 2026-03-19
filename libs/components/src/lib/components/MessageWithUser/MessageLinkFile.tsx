@@ -61,6 +61,7 @@ const PDFLoadingFallback = () => {
 };
 
 function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
+	const [isDownloading, setIsDownloading] = useState(false);
 	const handleDownload = async () => {
 		// window.open(attachmentData.);
 		const store = getStore();
@@ -70,26 +71,31 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 		if (isBanned) {
 			return;
 		}
-		const response = await fetch(attachmentData.url as string);
-		if (!response.ok) {
-			return;
-		}
-		if (isElectron()) {
-			try {
+		if (isDownloading) return;
+		setIsDownloading(true);
+		try {
+			const response = await fetch(attachmentData.url as string);
+			if (!response.ok) {
+				return;
+			}
+
+			if (isElectron()) {
 				await electronBridge.invoke(DOWNLOAD_FILE, {
 					url: attachmentData.url as string,
 					defaultFileName: attachmentData.filename as string
 				});
-			} catch (error) {
-				console.error('Error during download:', error);
+			} else {
+				const blob = await response.blob();
+				const dataUrl = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = dataUrl;
+				a.download = attachmentData.filename as string;
+				a.click();
 			}
-		} else {
-			const blob = await response.blob();
-			const dataUrl = URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = dataUrl;
-			a.download = attachmentData.filename as string;
-			a.click();
+		} catch (error) {
+			console.error('Error during download:', error);
+		} finally {
+			setIsDownloading(false);
 		}
 	};
 	const thumbnailAttachment = RenderAttachmentThumbnail({ attachment: attachmentData, size: 'w-8 h-10' });
@@ -186,10 +192,20 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 							<div className="flex space-x-2 absolute right-4">
 								<button
 									onClick={handleDownload}
-									className="rounded-md w-8 h-8 flex justify-center  bg-theme-contexify bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary items-center cursor-pointer "
+									disabled={isDownloading}
+									className={`rounded-md w-8 h-8 flex justify-center bg-theme-contexify bg-secondary-button-hover border-theme-primary text-theme-primary-hover text-theme-primary items-center cursor-pointer ${
+										isDownloading ? 'opacity-60 cursor-not-allowed' : ''
+									}`}
 									title="Download"
 								>
-									<Icons.Download defaultSize="w-4 h-4" />
+									{isDownloading ? (
+										<div
+											className="w-4 h-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent text-theme-secondary"
+											aria-hidden
+										/>
+									) : (
+										<Icons.Download defaultSize="w-4 h-4" />
+									)}
 								</button>
 								{isOwner && (
 									<button
