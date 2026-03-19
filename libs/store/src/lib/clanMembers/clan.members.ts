@@ -100,7 +100,7 @@ export const fetchUsersClan = createAsyncThunk('UsersClan/fetchUsersClan', async
 	}
 });
 
-export const listOnlineUserClan = createAsyncThunk('clans/listOnlineUserClan', async ({ clanId }: { clanId?: string }, thunkAPI) => {
+export const listOnlineUserClan = createAsyncThunk('UsersClan/listOnlineUserClan', async ({ clanId }: { clanId?: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
@@ -112,11 +112,7 @@ export const listOnlineUserClan = createAsyncThunk('clans/listOnlineUserClan', a
 					clan_id: clanId
 				}
 			},
-			(session) => {
-				return new Promise((resolve) => {
-					resolve([]);
-				});
-			},
+			(session) => Promise.resolve([]),
 			'user_online_list'
 		);
 
@@ -135,7 +131,7 @@ export const listOnlineUserClan = createAsyncThunk('clans/listOnlineUserClan', a
 
 		return clanId;
 	} catch (error) {
-		captureSentryError(error, 'clans/listClanBadgeCount');
+		captureSentryError(error, 'UsersClan/listOnlineUserClan');
 		return thunkAPI.rejectWithValue(error);
 	}
 });
