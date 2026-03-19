@@ -13,7 +13,7 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
-import { usersClanActions } from '../clanMembers/clan.members';
+import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
@@ -261,9 +261,6 @@ export type FetchClansPayload = {
 	fromCache?: boolean;
 };
 
-let lastUnreadIndicatorCall = 0;
-const UNREAD_DEBOUNCE_MS = 2000;
-
 export const fetchClans = createAsyncThunk(
 	'clans/fetchClans',
 	async ({ noCache = false, isMobile = false }: { noCache?: boolean; isMobile?: boolean }, thunkAPI) => {
@@ -281,16 +278,6 @@ export const fetchClans = createAsyncThunk(
 			const queuedMessages = state.messages.queuedLastSeenMessages;
 			if (queuedMessages.length > 0) {
 				thunkAPI.dispatch(processQueuedLastSeenMessages());
-			}
-
-			if (!response.fromCache && clans.length > 0) {
-				if (isMobile) {
-					const now = Date.now();
-					if (now - lastUnreadIndicatorCall > UNREAD_DEBOUNCE_MS) {
-						lastUnreadIndicatorCall = now;
-						const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
-					}
-				}
 			}
 
 			const payload: FetchClansPayload = {
@@ -520,6 +507,7 @@ export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan
 		const state = thunkAPI.getState() as RootState;
 		if (!state.clans?.checkJoinList?.[clanId]) {
 			thunkAPI.dispatch(listClanBadgeCount({ clanId }));
+			thunkAPI.dispatch(listOnlineUserClan({ clanId }));
 		}
 	} catch (error) {
 		captureSentryError(error, 'clans/joinClan');
