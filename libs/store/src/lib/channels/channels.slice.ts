@@ -817,9 +817,6 @@ export const fetchChannels = createAsyncThunk(
 					})
 				);
 
-				const meta = channels.map((ch) => extractChannelMeta(ch));
-				thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata(meta));
-
 				const currentState = thunkAPI.getState() as RootState;
 				const queuedMessages = currentState.messages.queuedLastSeenMessages;
 				if (queuedMessages.length > 0) {

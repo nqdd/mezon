@@ -106,7 +106,7 @@ const persistedClansReducer = persistReducer(
 	{
 		key: 'clans',
 		storage,
-		blacklist: ['invitePeople']
+		blacklist: ['invitePeople', 'checkJoinList']
 	},
 	clansReducer
 );
@@ -299,6 +299,14 @@ const persistedDirectReducer = persistReducer(
 	directReducer
 );
 
+const persistedFcmReducer = persistReducer(
+	{
+		key: 'fcm',
+		storage
+	},
+	fcmReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	dashboard: dashboardReducer,
@@ -347,7 +355,7 @@ const reducer = {
 	activitiesapi: persistedActivitiesReducer,
 	auditlog: auditLogReducer,
 	audiocall: audioCallReducer,
-	fcm: fcmReducer,
+	fcm: persistedFcmReducer,
 	auditlogfilter: auditLogFilterReducer,
 	references: referencesReducer,
 	reaction: reactionReducer,

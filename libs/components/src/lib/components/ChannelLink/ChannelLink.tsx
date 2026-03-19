@@ -10,6 +10,7 @@ import {
 	onboardingActions,
 	selectAppChannelById,
 	selectBuzzStateByChannelId,
+	selectChannelBadgeById,
 	selectCurrentMission,
 	selectEventsByChannelId,
 	selectIsChannelMuted,
@@ -71,19 +72,7 @@ export type ChannelLinkRef = {
 	isInViewport: () => boolean;
 };
 
-const ChannelLinkComponent = ({
-	clanId,
-	channel,
-	isPrivate,
-	createInviteLink,
-	isUnReadChannel,
-	numberNotification,
-	isActive,
-	channelType,
-	permissions,
-	dragStart,
-	dragEnter
-}: ChannelLinkProps) => {
+const ChannelLinkComponent = ({ clanId, channel, isPrivate, isUnReadChannel, numberNotification, isActive, permissions }: ChannelLinkProps) => {
 	const { hasAdminPermission, hasClanPermission, hasChannelManagePermission, isClanOwner } = permissions;
 	const dispatch = useAppDispatch();
 	const channelLinkRef = useRef<HTMLAnchorElement | null>(null);
@@ -209,7 +198,6 @@ const ChannelLinkComponent = ({
 	const isAgeRestrictedChannel = useMemo(() => {
 		return channel?.age_restricted === 1;
 	}, [channel?.age_restricted]);
-	const countNumberNotification = numberNotification && numberNotification > 99 ? '99+' : (numberNotification ?? 0);
 
 	return (
 		<div
@@ -274,35 +262,14 @@ const ChannelLinkComponent = ({
 				</Link>
 			}
 
-			{isShowSettingChannel ? (
-				numberNotification && numberNotification > 0 ? (
-					<>
-						<Icons.SettingProfile
-							className={`absolute ml-auto w-4 h-4  top-[6px] right-3 cursor-pointer hidden group-hover:block text-theme-primary `}
-							onClick={handleOpenCreate}
-						/>
-						<div
-							className={`absolute ml-auto w-5 h-5 text-white right-3 group-hover:hidden bg-red-600 rounded-full text-[12px] flex items-center justify-center top-2`}
-							data-e2e={generateE2eId('clan_page.channel_list.item.badge')}
-						>
-							{countNumberNotification}
-						</div>
-					</>
-				) : (
-					<Icons.SettingProfile
-						className={`absolute ml-auto w-5 h-5 top-2 right-3 ${isActive ? 'text-theme-primary-active' : 'text-transparent'} hidden group-hover:block text-theme-primary-hover cursor-pointer`}
-						onClick={handleOpenCreate}
-					/>
-				)
-			) : (
-				<>
-					{numberNotification && numberNotification > 0 ? (
-						<div className="absolute ml-auto w-4 h-4 top-[9px] text-white right-3 group-hover:hidden bg-red-600 flex justify-center items-center rounded-full text-xs">
-							{numberNotification}
-						</div>
-					) : null}
-				</>
+			{isShowSettingChannel && (
+				<Icons.SettingProfile
+					className={`absolute ml-auto right-3 cursor-pointer hidden group-hover:block text-theme-primary-hover w-5 h-5 top-2 ${isActive ? 'text-theme-primary-active' : 'text-transparent'}`}
+					onClick={handleOpenCreate}
+				/>
 			)}
+
+			<ChannelBadge channelId={channel.id} />
 		</div>
 	);
 };
@@ -345,3 +312,17 @@ const ModalConfirmComponent: React.FC<ModalConfirmComponentProps> = ({ handleCan
 		/>
 	);
 };
+
+const ChannelBadge = memo(({ channelId }: { channelId: string }) => {
+	const badgeChannel = useSelector((state) => selectChannelBadgeById(state, channelId));
+	const countNumberNotification = badgeChannel && badgeChannel > 99 ? '99+' : (badgeChannel ?? 0);
+
+	if (!badgeChannel) {
+		return null;
+	}
+	return (
+		<div className="absolute ml-auto w-4 h-4 top-[9px] text-white right-3 group-hover:hidden bg-red-600 flex justify-center items-center rounded-full text-xs">
+			{countNumberNotification}
+		</div>
+	);
+});
