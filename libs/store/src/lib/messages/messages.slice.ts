@@ -1744,17 +1744,19 @@ export const messagesSlice = createSlice({
 				case TypeMessage.ChatUpdate:
 				case TypeMessage.UpdateEphemeralMsg: {
 					const updateTimeSeconds = action.payload.update_time_seconds;
+					let changes: Partial<MessagesEntity> = {
+						content: action.payload.content,
+						mentions: action.payload.mentions,
+						hide_editted: action.payload.hide_editted,
+						update_time_seconds: updateTimeSeconds,
+						update_time: action.payload.update_time || (updateTimeSeconds ? new Date(updateTimeSeconds * 1000).toISOString() : undefined)
+					};
+					if (!action.payload.attachments?.length) {
+						changes.attachments = action.payload.attachments;
+					}
 					channelMessagesAdapter.updateOne(channelEntity, {
 						id: action.payload.id,
-						changes: {
-							content: action.payload.content,
-							mentions: action.payload.mentions,
-							attachments: action.payload.attachments,
-							hide_editted: action.payload.hide_editted,
-							update_time_seconds: updateTimeSeconds,
-							update_time:
-								action.payload.update_time || (updateTimeSeconds ? new Date(updateTimeSeconds * 1000).toISOString() : undefined)
-						}
+						changes
 					});
 					const replyList = handleUpdateReplyMessage(channelEntity, action.payload.id);
 					if (replyList.length > 0) {

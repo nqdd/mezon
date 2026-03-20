@@ -13,11 +13,11 @@ import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
-import { usersClanActions } from '../clanMembers/clan.members';
+import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
-import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx, sleep } from '../helpers';
+import { ensureClient, ensureSession, ensureSocket, fetchDataWithSocketFallback, getMezonCtx } from '../helpers';
 import { messagesActions, processQueuedLastSeenMessages } from '../messages/messages.slice';
 import { notificationSettingActions } from '../notificationSetting/notificationSettingChannel.slice';
 import { defaultNotificationActions } from '../notificationSetting/notificationSettingClan.slice';
@@ -261,9 +261,6 @@ export type FetchClansPayload = {
 	fromCache?: boolean;
 };
 
-let lastUnreadIndicatorCall = 0;
-const UNREAD_DEBOUNCE_MS = 2000;
-
 export const fetchClans = createAsyncThunk(
 	'clans/fetchClans',
 	async ({ noCache = false, isMobile = false }: { noCache?: boolean; isMobile?: boolean }, thunkAPI) => {
@@ -281,22 +278,6 @@ export const fetchClans = createAsyncThunk(
 			const queuedMessages = state.messages.queuedLastSeenMessages;
 			if (queuedMessages.length > 0) {
 				thunkAPI.dispatch(processQueuedLastSeenMessages());
-			}
-
-			if (!response.fromCache && clans.length > 0 && !fetchListClanUnreadMsgIndicator) {
-				if (isMobile) {
-					const now = Date.now();
-					if (now - lastUnreadIndicatorCall > UNREAD_DEBOUNCE_MS) {
-						lastUnreadIndicatorCall = now;
-						const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
-						queueMicrotask(() => {
-							thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
-						});
-					}
-				} else {
-					const clanIds = clans.filter((clan) => clan?.id).map((clan) => clan.id);
-					thunkAPI.dispatch(listClanUnreadMsgIndicator({ clanIds }));
-				}
 			}
 
 			const payload: FetchClansPayload = {
@@ -526,6 +507,7 @@ export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan
 		const state = thunkAPI.getState() as RootState;
 		if (!state.clans?.checkJoinList?.[clanId]) {
 			thunkAPI.dispatch(listClanBadgeCount({ clanId }));
+			thunkAPI.dispatch(listOnlineUserClan({ clanId }));
 		}
 	} catch (error) {
 		captureSentryError(error, 'clans/joinClan');
@@ -563,50 +545,6 @@ export const updateHasUnreadBasedOnChannels = createAsyncThunk<{ clanId: string;
 			return { clanId, hasUnread };
 		} catch (error) {
 			captureSentryError(error, 'clans/updateHasUnreadBasedOnChannels');
-			return thunkAPI.rejectWithValue(error);
-		}
-	}
-);
-
-let fetchListClanUnreadMsgIndicator = false;
-
-export const listClanUnreadMsgIndicator = createAsyncThunk<void, { clanIds: string[]; isMobile?: boolean }>(
-	'clans/listClanUnreadMsgIndicator',
-	async ({ clanIds }, thunkAPI) => {
-		try {
-			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-
-			for (const clanId of clanIds) {
-				try {
-					await sleep(1000);
-					const response = await fetchDataWithSocketFallback(
-						mezon,
-						{
-							api_name: 'ListClanUnreadMsgIndicator',
-							list_unread_msg_indicator_req: {
-								clan_id: clanId
-							}
-						},
-						(session) => mezon.client.listClanUnreadMsgIndicator?.(session, clanId),
-						'unread_msg_indicator'
-					);
-
-					if (response && response.has_unread_message !== undefined) {
-						const hasUnread = response.has_unread_message || false;
-						thunkAPI.dispatch(
-							clansActions.setHasUnreadMessage({
-								clanId,
-								hasUnread
-							})
-						);
-					}
-				} catch (error) {
-					console.warn(`Failed to get unread indicator for clan ${clanId}:`, error);
-				}
-			}
-			fetchListClanUnreadMsgIndicator = true;
-		} catch (error) {
-			captureSentryError(error, 'clans/listClanUnreadMsgIndicator');
 			return thunkAPI.rejectWithValue(error);
 		}
 	}
@@ -1027,8 +965,7 @@ export const clansActions = {
 	deleteClan,
 	joinClan,
 	transferClan,
-	updateHasUnreadBasedOnChannels,
-	listClanUnreadMsgIndicator
+	updateHasUnreadBasedOnChannels
 };
 
 /*

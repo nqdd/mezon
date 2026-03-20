@@ -6,7 +6,8 @@ import type {
 	ApiCreatePollResponse,
 	ApiGetPollRequest,
 	ApiGetPollResponse,
-	ApiVotePollRequest
+	ApiVotePollRequest,
+	ApiVotePollResponse
 } from 'mezon-js/api';
 import { ensureSession, getMezonCtx } from '../helpers';
 
@@ -58,7 +59,7 @@ export const createChannelPoll = createAsyncThunk<ApiCreatePollResponse, ApiCrea
 	}
 });
 
-export const votePoll = createAsyncThunk<ApiGetPollResponse, ApiVotePollRequest>('polls/votePoll', async (payload, thunkAPI) => {
+export const votePoll = createAsyncThunk<ApiVotePollResponse, ApiVotePollRequest>('polls/votePoll', async (payload, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 		const body = {
@@ -157,8 +158,15 @@ export const pollsSlice = createSlice({
 					state.loadingVoteByMessageId[messageId] = false;
 				}
 
-				if (action.payload && action.payload.message_id && Object.keys(action.payload).length > 1) {
-					state.pollsByMessageId[action.payload.message_id] = action.payload;
+				const voteMessageId = action.meta.arg.message_id;
+				if (action.payload && voteMessageId && Object.keys(action.payload).length > 1) {
+					const currentPoll = state.pollsByMessageId[voteMessageId];
+					if (currentPoll) {
+						state.pollsByMessageId[voteMessageId] = {
+							...currentPoll,
+							...(action.payload as Partial<ApiGetPollResponse>)
+						};
+					}
 				}
 			})
 			.addCase(votePoll.rejected, (state, action) => {

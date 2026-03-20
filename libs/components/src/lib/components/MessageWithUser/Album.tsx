@@ -74,6 +74,7 @@ const Album: FC<OwnProps> = ({
 					onClick={onClick}
 					onContextMenu={onContextMenu}
 					isSending={isSending}
+					isInSearchMessage={isInSearchMessage}
 				/>
 			);
 		} else if (video) {
