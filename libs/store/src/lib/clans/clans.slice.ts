@@ -760,11 +760,10 @@ export const clansSlice = createSlice({
 			const { clanId, badgeCount } = action.payload;
 			const entity = state.entities[clanId];
 			if (entity) {
-				clanUnreadAdapter.updateOne(state.clanUnreadStates, {
-					id: clanId,
-					changes: {
-						badge: Math.max(0, badgeCount)
-					}
+				clanUnreadAdapter.upsertOne(state.clanUnreadStates, {
+					clan_id: clanId,
+					has_unread: !!badgeCount,
+					badge: Math.max(0, badgeCount)
 				});
 			}
 		},
@@ -997,6 +996,7 @@ export const clansActions = {
  * See: https://react-redux.js.org/next/api/hooks#useselector
  */
 const { selectAll, selectEntities, selectById } = clansAdapter.getSelectors();
+const { selectAll: selectAllBadgeClan } = clanUnreadAdapter.getSelectors();
 
 export const getClansState = (rootState: { [CLANS_FEATURE_KEY]: ClansState }): ClansState => rootState[CLANS_FEATURE_KEY];
 export const selectAllClans = createSelector(getClansState, selectAll);
@@ -1035,9 +1035,7 @@ export const selectOrderedClans = createSelector([selectAllClans, (state: RootSt
 	return [...orderedClans, ...remainingClans];
 });
 
-export const selectBadgeCountAllClan = createSelector(selectAllClans, (clan) => {
-	return clan.reduce((total, count) => total + (count.badge_count ?? 0), 0);
-});
+export const selectBadgeCountAllClan = createSelector(getClansState, (state) => selectAllBadgeClan(state.clanUnreadStates));
 
 export const selectInvitePeopleStatus = createSelector(getClansState, (state) => state.invitePeople);
 export const selectInviteChannelId = createSelector(getClansState, (state) => state.inviteChannelId);
