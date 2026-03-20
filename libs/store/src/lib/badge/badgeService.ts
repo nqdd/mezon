@@ -436,7 +436,7 @@ class BadgeService extends EventEmitter {
 		if (!dispatch || !state) return;
 
 		const { clanId, channelId, count } = event;
-		const currentClanBadge = state.clans?.entities?.[clanId]?.badge_count ?? 0;
+		const currentClanBadge = state.clans?.clanUnreadStates?.entities?.[clanId]?.badge ?? 0;
 
 		dispatch(channelMetaActions.updateChannelBadgeCount({ clanId, channelId, count: -count }));
 		dispatch(listChannelsByUserActions.updateChannelBadgeCount({ channelId, count: -count }));
@@ -484,7 +484,7 @@ class BadgeService extends EventEmitter {
 
 			case 'MARK_AS_READ_CATEGORY': {
 				if (categoryBadgeTotal > 0) {
-					const currentClanBadge = this.getState?.()?.clans?.entities?.[event.clanId]?.badge_count ?? 0;
+					const currentClanBadge = this.getState?.()?.clans?.clanUnreadStates?.entities?.[event.clanId]?.badge ?? 0;
 					const decrement = Math.min(categoryBadgeTotal, currentClanBadge);
 					dispatch(clansActions.updateClanBadgeCount({ clanId: event.clanId, count: -decrement, isReset: decrement >= currentClanBadge }));
 				}
