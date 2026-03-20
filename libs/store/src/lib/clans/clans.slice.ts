@@ -1035,7 +1035,9 @@ export const selectOrderedClans = createSelector([selectAllClans, (state: RootSt
 	return [...orderedClans, ...remainingClans];
 });
 
-export const selectBadgeCountAllClan = createSelector(getClansState, (state) => selectAllBadgeClan(state.clanUnreadStates));
+export const selectBadgeCountAllClan = createSelector(getClansState, (state) =>
+	selectAllBadgeClan(state.clanUnreadStates).reduce((total, count) => total + (count.badge ?? 0), 0)
+);
 
 export const selectInvitePeopleStatus = createSelector(getClansState, (state) => state.invitePeople);
 export const selectInviteChannelId = createSelector(getClansState, (state) => state.inviteChannelId);
