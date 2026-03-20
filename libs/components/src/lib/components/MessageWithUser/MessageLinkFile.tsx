@@ -6,7 +6,7 @@ import { DOWNLOAD_FILE, EFailAttachment, EMimeTypes, electronBridge } from '@mez
 import isElectron from 'is-electron';
 import type { ChannelStreamMode } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api';
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { ModalDeleteMess, RenderAttachmentThumbnail } from '../../components';
@@ -62,6 +62,7 @@ const PDFLoadingFallback = () => {
 
 function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 	const [isDownloading, setIsDownloading] = useState(false);
+	const downloadingRef = useRef(false);
 	const handleDownload = async () => {
 		// window.open(attachmentData.);
 		const store = getStore();
@@ -71,30 +72,41 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 		if (isBanned) {
 			return;
 		}
-		if (isDownloading) return;
-		setIsDownloading(true);
-		try {
-			const response = await fetch(attachmentData.url as string);
-			if (!response.ok) {
-				return;
-			}
 
+		const url = attachmentData.url as string | undefined;
+		if (!url) return;
+
+		const filename = (attachmentData.filename as string | undefined) ?? 'attachment';
+
+		if (downloadingRef.current) return;
+		downloadingRef.current = true;
+		setIsDownloading(true);
+
+		try {
 			if (isElectron()) {
 				await electronBridge.invoke(DOWNLOAD_FILE, {
-					url: attachmentData.url as string,
-					defaultFileName: attachmentData.filename as string
+					url: url as string,
+					defaultFileName: filename
 				});
 			} else {
+				const response = await fetch(url);
+				if (!response.ok) {
+					return;
+				}
+
 				const blob = await response.blob();
 				const dataUrl = URL.createObjectURL(blob);
 				const a = document.createElement('a');
 				a.href = dataUrl;
-				a.download = attachmentData.filename as string;
+				a.download = filename;
 				a.click();
+
+				URL.revokeObjectURL(dataUrl);
 			}
 		} catch (error) {
 			console.error('Error during download:', error);
 		} finally {
+			downloadingRef.current = false;
 			setIsDownloading(false);
 		}
 	};
@@ -121,11 +133,11 @@ function MessageLinkFile({ attachmentData, mode, message }: MessageImage) {
 		return isPDF ? <PDFHeader filename={attachmentData.filename || 'Document'} onClose={closePopup} onMaximize={maximizeToggle} /> : undefined;
 	};
 
-	const createPDFFooter = (closePopup: () => void, maximizeToggle: () => void) => {
+	const createPDFFooter = (_closePopup: () => void, _maximizeToggle: () => void) => {
 		return isPDF ? <PDFFooter filename={attachmentData.filename || 'Document'} /> : undefined;
 	};
 
-	const [openPDFViewer, closePDFViewer] = usePopup(
+	const [openPDFViewer] = usePopup(
 		({ closePopup }: { closePopup: () => void }) => {
 			if (isPDF && attachmentData.url) {
 				return (
