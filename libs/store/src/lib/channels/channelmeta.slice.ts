@@ -35,13 +35,18 @@ export interface ChannelMetaState extends EntityState<ChannelMetaEntity, string>
 	loadingStatus: LoadingStatus;
 	error?: string | null;
 	lastSentChannelId?: string;
+	dmEntities: EntityState<ChannelMetaEntity, string>;
 }
 
 const channelMetaAdapter = createEntityAdapter<ChannelMetaEntity>();
+const dmMetaAdapter = createEntityAdapter<ChannelMetaEntity>({
+	sortComparer: (a, b) => (b.lastSentTimestamp || 0) - (a.lastSentTimestamp || 0)
+});
 
 export const initialChannelMetaState: ChannelMetaState = channelMetaAdapter.getInitialState({
 	loadingStatus: 'not loaded',
-	error: null
+	error: null,
+	dmEntities: dmMetaAdapter.getInitialState({})
 });
 
 export const channelMetaSlice = createSlice({
@@ -49,13 +54,22 @@ export const channelMetaSlice = createSlice({
 	initialState: initialChannelMetaState,
 	reducers: {
 		add: channelMetaAdapter.addOne,
-		setChannelLastSentTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; senderId: string }>) => {
-			const channel = state?.entities[action.payload.channelId];
-			if (channel) {
-				channel.lastSentTimestamp = Math.floor(action.payload.timestamp);
-				state.lastSentChannelId = channel.id;
-				channel.senderId = action.payload.senderId;
+		setChannelLastSentTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; senderId: string; clanId: string }>) => {
+			if (action.payload.clanId === '0') {
+				dmMetaAdapter.updateOne(state.dmEntities, {
+					id: action.payload.channelId,
+					changes: {
+						lastSentTimestamp: Math.floor(action.payload.timestamp)
+					}
+				});
+				return;
 			}
+			channelMetaAdapter.updateOne(state, {
+				id: action.payload.channelId,
+				changes: {
+					lastSentTimestamp: Math.floor(action.payload.timestamp)
+				}
+			});
 		},
 		setChannelLastSeenTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; messageId?: string }>) => {
 			const { channelId, timestamp, messageId } = action.payload;
@@ -83,6 +97,10 @@ export const channelMetaSlice = createSlice({
 		},
 		updateBulkChannelMetadata: (state, action: PayloadAction<ChannelMetaEntity[]>) => {
 			const meta = (action.payload as ApiChannelDescription[]).map((ch) => extractChannelMeta(ch));
+			if (meta?.[0]?.clanId === '0') {
+				dmMetaAdapter.upsertMany(state.dmEntities, meta);
+				return;
+			}
 			channelMetaAdapter.upsertMany(state, meta);
 		},
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
@@ -174,6 +192,8 @@ import { remove } from '@mezon/mobile-components';
  */
 const { selectEntities, selectById } = channelMetaAdapter.getSelectors();
 
+const { selectAll: selectAllDmMetadata, selectIds: selectAllDmMetadataIds } = dmMetaAdapter.getSelectors();
+
 export const getChannelMetaState = (rootState: { [CHANNELMETA_FEATURE_KEY]: ChannelMetaState }): ChannelMetaState =>
 	rootState[CHANNELMETA_FEATURE_KEY];
 
@@ -237,3 +257,6 @@ export const selectChannelBadgeById = createSelector(
 	[getChannelMetaState, (state, channelId: string) => channelId],
 	(state, channelId) => selectById(state, channelId)?.count_mess_unread || 0
 );
+
+export const selectDmSort = createSelector([getChannelMetaState], (state) => selectAllDmMetadataIds(state.dmEntities) || []);
+export const selectAllDmSort = createSelector([getChannelMetaState], (state) => selectAllDmMetadata(state.dmEntities) || []);
