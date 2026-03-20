@@ -98,6 +98,32 @@ export const channelMetaSlice = createSlice({
 					count_mess_unread: finalCount
 				}
 			});
+		},
+		resetChannelsCount: (
+			state,
+			action: PayloadAction<{
+				channelIds: string[];
+			}>
+		) => {
+			const { channelIds } = action.payload;
+			const clanChannels = state.entities;
+
+			if (!clanChannels) return;
+
+			const updates = channelIds.reduce<Array<{ id: string; changes: { count_mess_unread: number } }>>((acc, channelId) => {
+				const entity = clanChannels[channelId];
+				if (!entity || entity.count_mess_unread === 0) return acc;
+				acc.push({
+					id: channelId,
+					changes: {
+						count_mess_unread: 0
+					}
+				});
+				return acc;
+			}, []);
+			if (updates.length > 0) {
+				channelMetaAdapter.updateMany(state, updates);
+			}
 		}
 	}
 });
