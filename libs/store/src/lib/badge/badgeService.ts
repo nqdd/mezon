@@ -6,7 +6,6 @@ import { Subject, merge, type Subscription } from 'rxjs';
 import { bufferTime, distinctUntilChanged, filter, groupBy, map, mergeMap } from 'rxjs/operators';
 import { listChannelsByUserActions } from '../channels/channelUser.slice';
 import { channelMetaActions } from '../channels/channelmeta.slice';
-import { channelsActions } from '../channels/channels.slice';
 import { selectMemberClanByUserId } from '../clanMembers/clan.members';
 import { clansActions } from '../clans/clans.slice';
 import { directMetaActions } from '../direct/direct.slice';
@@ -436,7 +435,7 @@ class BadgeService extends EventEmitter {
 		if (!dispatch || !state) return;
 
 		const { clanId, channelId, count } = event;
-		const currentClanBadge = state.clans?.entities?.[clanId]?.badge_count ?? 0;
+		const currentClanBadge = state.clans?.clanUnreadStates?.entities?.[clanId]?.badge ?? 0;
 
 		dispatch(channelMetaActions.updateChannelBadgeCount({ clanId, channelId, count: -count }));
 		dispatch(listChannelsByUserActions.updateChannelBadgeCount({ channelId, count: -count }));
@@ -474,7 +473,7 @@ class BadgeService extends EventEmitter {
 		}
 
 		dispatch(channelMetaActions.setChannelsLastSeenTimestamp(event.channelUpdates));
-		dispatch(channelsActions.resetChannelsCount({ clanId: event.clanId, channelIds: event.channelIds }));
+		dispatch(channelMetaActions.resetChannelsCount({ channelIds: event.channelIds }));
 		dispatch(listChannelsByUserActions.markAsReadChannel(event.channelIds));
 
 		switch (event.type) {
@@ -484,7 +483,7 @@ class BadgeService extends EventEmitter {
 
 			case 'MARK_AS_READ_CATEGORY': {
 				if (categoryBadgeTotal > 0) {
-					const currentClanBadge = this.getState?.()?.clans?.entities?.[event.clanId]?.badge_count ?? 0;
+					const currentClanBadge = this.getState?.()?.clans?.clanUnreadStates?.entities?.[event.clanId]?.badge ?? 0;
 					const decrement = Math.min(categoryBadgeTotal, currentClanBadge);
 					dispatch(clansActions.updateClanBadgeCount({ clanId: event.clanId, count: -decrement, isReset: decrement >= currentClanBadge }));
 				}

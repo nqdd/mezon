@@ -786,7 +786,7 @@ export const processQueuedLastSeenMessages = createAsyncThunk('messages/processQ
 	thunkAPI.dispatch(messagesActions.clearQueuedLastSeenMessages());
 
 	for (const queuedMessage of queuedMessages) {
-		const channelEntity = state.channels.byClans[queuedMessage.clanId]?.entities?.entities?.[queuedMessage.channelId];
+		const channelEntity = state.channelmeta?.entities?.[queuedMessage.channelId];
 		const actualBadgeCount = channelEntity?.count_mess_unread || queuedMessage.badge_count;
 		await thunkAPI.dispatch(
 			updateLastSeenMessage({
