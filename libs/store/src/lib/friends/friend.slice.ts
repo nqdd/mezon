@@ -148,6 +148,21 @@ export const sendRequestAddFriend = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const state = thunkAPI.getState() as RootState;
 			const currentUserId = state.account?.userProfile?.user?.id;
+			if (!isAcceptingRequest) {
+				const allFriends = friendsAdapter.getSelectors().selectAll(state.friends);
+				const alreadyPending = allFriends.find((f) => {
+					if (f.state !== EStateFriend.OTHER_PENDING) return false;
+					if (ids && f.id === ids) return true;
+					if (usernames && f.user?.username === usernames) return true;
+					return false;
+				});
+				if (alreadyPending) {
+					if (!isMobile) {
+						toast.warn(i18n.t('friends:toast.friendRequestAlreadySent'));
+					}
+					return;
+				}
+			}
 			const response = await mezon.client.addFriends(mezon.session, ids ? [ids] : [], usernames ? [usernames] : []);
 
 			if (response) {

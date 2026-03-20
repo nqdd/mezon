@@ -29,7 +29,8 @@
 		"sendAddFriendSuccess": "Friend request sent successfully!",
 		"acceptAddFriendSuccess": "Accept friend request!",
 		"sendAddFriendFail": "Hm, that didn't work. Double-check that the username is correct.",
-		"somethingWentWrong": "Something went wrong"
+		"somethingWentWrong": "Something went wrong",
+		"friendRequestAlreadySent": "Friend request already sent, waiting for acceptance."
 	},
 	"you": "you"
 }
