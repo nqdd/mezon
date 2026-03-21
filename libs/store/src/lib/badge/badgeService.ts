@@ -454,7 +454,7 @@ class BadgeService extends EventEmitter {
 
 		dispatch(listChannelsByUserActions.resetBadgeCount({ channelId }));
 		const latestMessageId = selectLatestMessageId(state, channelId);
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId, timestamp: now, messageId: event.messageId || latestMessageId }));
+		dispatch(channelMetaActions.setDirectLastSeenTimestamp({ channelId, timestamp: now, messageId: event.messageId || latestMessageId }));
 	}
 
 	private executeDmIncrement(event: DmIncrementEvent) {
