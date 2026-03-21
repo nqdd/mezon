@@ -3,9 +3,9 @@ import { ActionEmitEvent, ENotificationActive, ENotificationChannelId, load, sav
 import { baseColor, size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
 import {
+	channelMetaActions,
 	deleteChannel,
 	directActions,
-	directMetaActions,
 	EStateFriend,
 	fetchUserChannels,
 	getStore,
@@ -265,7 +265,7 @@ function MessageMenu({ messageInfo }: IServerMenuProps) {
 		const timestamp = Date.now() / 1000;
 		const store = getStore();
 		const messageId = store ? selectLatestMessageId(store.getState(), channel_id) : undefined;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: channel_id, timestamp, messageId }));
+		dispatch(channelMetaActions.setDirectLastSeenTimestamp({ channelId: channel_id, timestamp, messageId }));
 
 		const body: ApiMarkAsReadRequest = {
 			clan_id: '',
