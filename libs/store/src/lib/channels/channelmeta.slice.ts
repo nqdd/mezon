@@ -142,6 +142,19 @@ export const channelMetaSlice = createSlice({
 			if (updates.length > 0) {
 				channelMetaAdapter.updateMany(state, updates);
 			}
+		},
+		setDirectLastSeenTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; messageId?: string }>) => {
+			const { channelId, timestamp, messageId } = action.payload;
+			const lastSeenMessage = Math.floor(timestamp);
+
+			dmMetaAdapter.updateOne(state.dmEntities, {
+				id: channelId,
+				changes: {
+					lastSeenTimestamp: lastSeenMessage,
+					count_mess_unread: 0,
+					lastSeenMessageId: messageId
+				}
+			});
 		}
 	}
 });
@@ -192,7 +205,11 @@ import { remove } from '@mezon/mobile-components';
  */
 const { selectEntities, selectById } = channelMetaAdapter.getSelectors();
 
-const { selectAll: selectAllDmMetadata, selectIds: selectAllDmMetadataIds } = dmMetaAdapter.getSelectors();
+const {
+	selectAll: selectAllDmMetadata,
+	selectIds: selectAllDmMetadataIds,
+	selectEntities: selectAllDmMetadataEntities
+} = dmMetaAdapter.getSelectors();
 
 export const getChannelMetaState = (rootState: { [CHANNELMETA_FEATURE_KEY]: ChannelMetaState }): ChannelMetaState =>
 	rootState[CHANNELMETA_FEATURE_KEY];
@@ -260,3 +277,25 @@ export const selectChannelBadgeById = createSelector(
 
 export const selectDmSort = createSelector([getChannelMetaState], (state) => selectAllDmMetadataIds(state.dmEntities) || []);
 export const selectAllDmSort = createSelector([getChannelMetaState], (state) => selectAllDmMetadata(state.dmEntities) || []);
+export const selectDirectsUnreadlist = createSelector(selectAllDmSort, (state) => {
+	return state.filter((item) => {
+		return item?.count_mess_unread && item?.isMute !== true;
+	});
+});
+
+export const selectTotalUnreadDM = createSelector(selectDirectsUnreadlist, (listUnreadDM) => {
+	return listUnreadDM.reduce((total, count) => total + (count?.count_mess_unread ?? 0), 0);
+});
+
+export const selectIsUnreadDMById = createSelector([selectAllDmMetadataEntities, (state, channelId: string) => channelId], (entities, channelId) => {
+	const channel = entities?.[channelId];
+
+	if (!channel) {
+		return false;
+	}
+
+	const lastSeen = channel.lastSeenTimestamp ?? 0;
+	const lastSent = channel.lastSentTimestamp ?? 0;
+
+	return lastSent > lastSeen;
+});

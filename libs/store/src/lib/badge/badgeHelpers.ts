@@ -124,7 +124,7 @@ const performReset = (dispatch: AppDispatch, params: ResetBadgeParams, store?: {
 	} else {
 		dispatch(listChannelsByUserActions.resetBadgeCount({ channelId }));
 		const messageId = store?.getState ? selectLatestMessageId(store.getState(), channelId) : undefined;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId, timestamp: now, messageId }));
+		dispatch(channelMetaActions.setDirectLastSeenTimestamp({ channelId, timestamp: now, messageId }));
 	}
 };
 
