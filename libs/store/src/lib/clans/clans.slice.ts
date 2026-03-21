@@ -501,7 +501,7 @@ interface JoinClanPayload {
 	isMobile?: boolean;
 }
 
-export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan', async ({ clanId, isMobile }, thunkAPI) => {
+export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan', async ({ clanId, isMobile = false }, thunkAPI) => {
 	try {
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 		await mezon.socketRef.current?.joinClanChat(clanId);
