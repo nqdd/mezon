@@ -499,16 +499,20 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 					}
 
-					if (mess.isMe && isNotCurrentDirect && !isContentMutation) {
+					if (mess.isMe && !isContentMutation) {
 						const directReceiver = selectDirectById(store.getState(), mess?.channel_id);
 						// Mark as read if isMe send token
 						if (
 							directReceiver &&
-							(directReceiver.type === ChannelType.CHANNEL_TYPE_DM || directReceiver.type === ChannelType.CHANNEL_TYPE_GROUP) &&
-							!directReceiver.count_mess_unread
+							(directReceiver.type === ChannelType.CHANNEL_TYPE_DM || directReceiver.type === ChannelType.CHANNEL_TYPE_GROUP)
 						) {
 							dispatch(
-								directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp, messageId: message.id })
+								channelMetaActions.setChannelLastSentTimestamp({
+									channelId: message.channel_id,
+									timestamp,
+									senderId: message.sender_id,
+									clanId: message.clan_id || '0'
+								})
 							);
 						}
 					}
@@ -556,7 +560,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 					if (message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
 						dispatch(
-							channelMetaActions.setChannelLastSentTimestamp({ channelId: message.channel_id, timestamp, senderId: message.sender_id })
+							channelMetaActions.setChannelLastSentTimestamp({
+								channelId: message.channel_id,
+								timestamp,
+								senderId: message.sender_id,
+								clanId: message.clan_id || '0'
+							})
 						);
 					}
 					dispatch(listChannelsByUserActions.updateLastSentTime({ channelId: message.channel_id }));

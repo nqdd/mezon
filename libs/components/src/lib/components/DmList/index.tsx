@@ -1,5 +1,5 @@
 import { useFriends } from '@mezon/core';
-import { appActions, selectDirectsOpenlistOrder, selectPinnedDms, useAppDispatch } from '@mezon/store';
+import { appActions, selectDmSort, selectPinnedDms, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef } from 'react';
@@ -15,7 +15,7 @@ export type CategoriesState = Record<string, boolean>;
 
 function DirectMessageList() {
 	const { t } = useTranslation('directMessage');
-	const dmGroupChatList = useSelector(selectDirectsOpenlistOrder);
+	const dmGroupChatList = useSelector(selectDmSort);
 	const { quantityPendingRequest } = useFriends();
 	const pinnedDmIds = useSelector(selectPinnedDms);
 
