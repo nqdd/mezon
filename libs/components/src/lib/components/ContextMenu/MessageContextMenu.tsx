@@ -15,7 +15,6 @@ import {
 	closePoll,
 	createEditCanvas,
 	directActions,
-	getPoll,
 	gifsStickerEmojiActions,
 	giveCoffeeActions,
 	messagesActions,
@@ -44,7 +43,6 @@ import {
 	selectMessageIdsByChannelId,
 	selectModeResponsive,
 	selectPinMessageByChannelId,
-	selectPollByMessageId,
 	selectQuickMenuByChannelId,
 	selectTheme,
 	selectThreadCurrentChannel,
@@ -206,7 +204,7 @@ function MessageContextMenu({
 		return message?.isError === true && isMyMessage;
 	}, [message?.isError, isMyMessage]);
 
-	const pollData = useAppSelector((state) => selectPollByMessageId(state, messageId || ''));
+	const pollData = message?.content as unknown as Record<string, unknown> | undefined;
 
 	const checkMessageHasText = useMemo(() => {
 		return message?.content.t !== '';
@@ -537,30 +535,21 @@ function MessageContextMenu({
 	}, [dispatch, message?.channel_id, message?.id]);
 
 	const handleClosePoll = useCallback(async () => {
-		if (!pollData || !message?.channel_id || !message?.id) return;
+		if (!message?.channel_id || !message?.id) return;
 
 		try {
 			await dispatch(
 				closePoll({
-					poll_id: pollData.poll_id,
 					message_id: message.id,
 					channel_id: message.channel_id
 				})
 			).unwrap();
-
-			await dispatch(
-				getPoll({
-					message_id: message.id,
-					channel_id: message.channel_id
-				})
-			).unwrap();
-
 			showSimpleToast(t('pollEnded'));
 		} catch (error) {
 			console.error('Failed to close poll', error);
 			toast.error(t('errors.failedToClosePoll'));
 		}
-	}, [dispatch, pollData, message?.channel_id, message?.id, t]);
+	}, [dispatch, message?.channel_id, message?.id, t]);
 
 	const checkPos = useMemo(() => {
 		if (posShowMenu === SHOW_POSITION.NONE || posShowMenu === SHOW_POSITION.IN_STICKER || posShowMenu === SHOW_POSITION.IN_EMOJI) {
@@ -576,6 +565,10 @@ function MessageContextMenu({
 	const isClickedEmoji = useMemo(() => {
 		return posShowMenu === SHOW_POSITION.IN_EMOJI;
 	}, [posShowMenu]);
+
+	const isPollMessage = useMemo(() => {
+		return message?.code === TypeMessage.Poll;
+	}, [message?.code]);
 
 	const [enableEditMessageItem, enableReportMessageItem] = useMemo(() => {
 		if (!checkPos) return [false, false];
@@ -838,10 +831,10 @@ function MessageContextMenu({
 				<Icons.ForwardAllRightClick defaultSize="w-4 h-4" />
 			);
 		});
-		builder.when(enableCreateThreadItem, (builder) => {
+		builder.when(enableCreateThreadItem && !isPollMessage, (builder) => {
 			builder.addMenuItem('createThread', t('createThread'), () => handleCreateThread(), <Icons.ThreadIconRightClick defaultSize="w-4 h-4" />);
 		});
-		builder.when(checkPos, (builder) => {
+		builder.when(checkPos && !isPollMessage, (builder) => {
 			builder.addMenuItem(
 				'copyText',
 				t('copyText'),
@@ -860,7 +853,7 @@ function MessageContextMenu({
 		});
 
 		builder.when(
-			message?.code === TypeMessage.Poll && pollData && !pollData.is_closed && pollData.creator_id === userId && checkPos,
+			message?.code === TypeMessage.Poll && pollData && !pollData.is_closed && message?.sender_id === userId && checkPos,
 			(builder) => {
 				builder.addMenuItem(
 					'endPollNow',
@@ -877,6 +870,7 @@ function MessageContextMenu({
 		);
 
 		message?.code !== TypeMessage.Topic &&
+			!isPollMessage &&
 			notAllowedType &&
 			!isTopic &&
 			canSendMessage &&
