@@ -106,7 +106,18 @@ export const channelMetaSlice = createSlice({
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
 			const { clanId, channelId, count, isReset = false } = action.payload;
 			const entity = state.entities[channelId];
-			if (!entity) return;
+			if (!entity) {
+				channelMetaAdapter.addOne(state, {
+					id: channelId,
+					clanId,
+					isMute: false,
+					lastSeenTimestamp: 0,
+					lastSentTimestamp: Date.now(),
+					senderId: '0',
+					count_mess_unread: 1
+				});
+				return;
+			}
 			const newCountMessUnread = isReset ? 0 : (entity.count_mess_unread ?? 0) + count;
 			const finalCount = Math.max(0, newCountMessUnread);
 			if ((entity.count_mess_unread || 0) === finalCount) return;
