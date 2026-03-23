@@ -106,12 +106,14 @@ export function useFriends() {
 				dispatch(
 					friendsActions.applyFriendBlockState({
 						userId: id,
-						state: EStateFriend.FRIEND
+						state: EStateFriend.FRIEND,
+						sourceId: currentUserId
 					})
 				);
 				broadcastFriendRelationToOtherTabs({
 					userId: id,
-					state: EStateFriend.FRIEND
+					state: EStateFriend.FRIEND,
+					sourceId: currentUserId
 				});
 				return true;
 			}
