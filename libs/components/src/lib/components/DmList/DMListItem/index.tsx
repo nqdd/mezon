@@ -2,12 +2,10 @@ import { useMemberStatus } from '@mezon/core';
 import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
-	directMetaActions,
 	getStore,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
-	selectLatestMessageId,
 	selectStatusInVoice,
 	useAppDispatch,
 	useAppSelector
@@ -69,10 +67,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const handleLeave = async (e: React.MouseEvent, directId: string, currentDmGroupId: string) => {
 		e.stopPropagation();
 		await dispatch(directActions.closeDirectMessage({ channel_id: directId }));
-		const timestamp = Date.now() / 1000;
 		const store = getStore();
-		const messageId = store ? selectLatestMessageId(store.getState(), directId) : undefined;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp, messageId }));
 		if (directId === currentDmGroupId) {
 			dispatch(directActions.setDmGroupCurrentId(''));
 			navigateToFriends();

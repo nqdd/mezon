@@ -210,7 +210,7 @@ export const FriendList = React.memo(({ isUnknownChannel, isKeyboardVisible, cha
 			linkInvite = `${process.env.NX_CHAT_APP_REDIRECT_URI}/invite/${response.invite_link}`;
 			setCurrentInviteLink(linkInvite);
 			currentInviteLinkRef.current = linkInvite;
-			dispatch(clansActions.joinClan({ clanId: '0' }));
+			dispatch(clansActions.joinClan({ clanId: '0', isMobile: true }));
 		} catch (error) {
 			Toast.show({
 				type: 'error',
