@@ -33,10 +33,6 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 	const isTabletLandscape = useTabletLandscape();
 	const dispatch = useAppDispatch();
 
-	if (isEmpty(dm)) {
-		return null;
-	}
-
 	const getBadge = (dm: DirectEntity) => {
 		switch (dm.type) {
 			case ChannelType.CHANNEL_TYPE_DM:
@@ -95,6 +91,10 @@ const UnreadDMBadgeItem = memo(({ dmId, numUnread }: { dmId: string; numUnread: 
 			navigation.navigate(APP_SCREEN.MESSAGES.MESSAGE_DETAIL, { directMessageId: dm?.channel_id, from: APP_SCREEN.HOME });
 		}
 	};
+
+	if (isEmpty(dm)) {
+		return null;
+	}
 
 	return (
 		<TouchableOpacity onPress={navigateToDirectMessageMDetail} style={[styles.mt10]}>
