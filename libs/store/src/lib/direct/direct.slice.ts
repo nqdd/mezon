@@ -11,7 +11,7 @@ import { selectAllAccount } from '../account/account.slice';
 import { userChannelsActions } from '../channelmembers/AllUsersChannelByAddChannel.slice';
 import type { StatusUserArgs } from '../channelmembers/channel.members';
 import { channelsActions } from '../channels/channels.slice';
-import { ensureSession, ensureSocket, getMezonCtx, withRetry } from '../helpers';
+import { ensureSession, getMezonCtx, withRetry } from '../helpers';
 import type { MessagesEntity } from '../messages/messages.slice';
 import { messagesActions } from '../messages/messages.slice';
 import type { RootState } from '../store';
@@ -567,15 +567,6 @@ export const addGroupUserWS = createAsyncThunk('direct/addGroupUserWS', async (p
 	}
 });
 
-export const follower = createAsyncThunk('direct/follower', async (_, thunkAPI) => {
-	try {
-		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
-		await mezon.socketRef.current?.follower();
-	} catch (error) {
-		return thunkAPI.rejectWithValue(error);
-	}
-});
-
 export const initialDirectState: DirectState = directAdapter.getInitialState({
 	loadingStatus: 'not loaded',
 	socketStatus: 'not loaded',
@@ -972,7 +963,6 @@ export const directActions = {
 	openDirectMessage,
 	addGroupUserWS,
 	addDirectByMessageWS,
-	follower,
 	fetchDirectDetail
 };
 
