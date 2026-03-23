@@ -165,7 +165,7 @@ export const SendTokenScreen = ({ route }: any) => {
 		async (walletAddress) => {
 			if (!walletAddress) {
 				try {
-					dispatch(clansActions.joinClan({ clanId: '0', isMobile: true }));
+					dispatch(clansActions.joinClan({ clanId: '0' }));
 					if (directMessageId) {
 						await sendInviteMessage(
 							`${t('tokensSent')} ${formatMoney(Number(plainTokenCount || 1))}₫ | ${note?.replace?.(/\s+/g, ' ')?.trim() || ''}`,

@@ -58,6 +58,14 @@ export const mapDmGroupToEntity = (channelRes: ApiChannelDescription, existingEn
 		mapped.channel_avatar = '/assets/images/avatar-group.png';
 	}
 
+	if (existingEntity?.last_sent_message && !mapped?.last_sent_message) {
+		mapped.last_sent_message = existingEntity?.last_sent_message;
+	}
+
+	if (existingEntity?.last_seen_message && !mapped?.last_seen_message) {
+		mapped.last_seen_message = existingEntity?.last_seen_message;
+	}
+
 	return mapped;
 };
 
