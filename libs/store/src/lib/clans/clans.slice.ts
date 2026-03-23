@@ -148,17 +148,16 @@ const selectCachedClans = createSelector([(state: RootState) => state[CLANS_FEAT
 	return clansAdapter.getSelectors().selectAll(clansState);
 });
 
-export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCount', async ({ clanId }: { clanId?: string }, thunkAPI) => {
+export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCount', async ({ clanId }: { clanId: string }, thunkAPI) => {
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
-		const currentClanId = selectCurrentClanId(thunkAPI.getState() as RootState);
 
 		const response = await fetchDataWithSocketFallback(
 			mezon,
 			{
 				api_name: 'ListChannelBadgeCount',
 				list_channel_badge_count_req: {
-					clan_id: currentClanId
+					clan_id: clanId
 				}
 			},
 			(session) => Promise.resolve([]),
@@ -166,10 +165,10 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 		);
 
 		const state = thunkAPI.getState() as RootState;
-		if ((response as any)?.channeldesc && currentClanId && !state.clans.checkJoinList[currentClanId]) {
-			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata((response as any)?.channeldesc));
+		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId]) {
+			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: (response as any)?.channeldesc, clanId }));
 		}
-		return currentClanId;
+		return clanId;
 	} catch (error) {
 		captureSentryError(error, 'clans/listClanBadgeCount');
 		return thunkAPI.rejectWithValue(error);

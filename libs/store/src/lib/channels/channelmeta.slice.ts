@@ -95,9 +95,9 @@ export const channelMetaSlice = createSlice({
 			}));
 			channelMetaAdapter.updateMany(state, updates);
 		},
-		updateBulkChannelMetadata: (state, action: PayloadAction<ChannelMetaEntity[]>) => {
-			const meta = (action.payload as ApiChannelDescription[]).map((ch) => extractChannelMeta(ch));
-			if (meta?.[0]?.clanId === '0') {
+		updateBulkChannelMetadata: (state, action: PayloadAction<{ data: ChannelMetaEntity[]; clanId: string }>) => {
+			const meta = (action?.payload?.data as ApiChannelDescription[]).map((ch) => extractChannelMeta(ch));
+			if (action?.payload?.clanId === '0') {
 				dmMetaAdapter.upsertMany(state.dmEntities, meta);
 				return;
 			}
