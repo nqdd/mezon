@@ -1047,16 +1047,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					if (channel_desc.type === ChannelType.CHANNEL_TYPE_THREAD) {
 						dispatch(
-							channelMetaActions.updateBulkChannelMetadata([
-								{
-									id: channel.id,
-									lastSentTimestamp: channel.last_sent_message?.timestamp_seconds || Date.now() / 1000,
-									clanId: channel.clan_id ?? '',
-									isMute: false,
-									senderId: '',
-									lastSeenTimestamp: Date.now() / 1000 - 1000
-								}
-							])
+							channelMetaActions.updateBulkChannelMetadata({
+								data: [
+									{
+										id: channel.id,
+										lastSentTimestamp: channel.last_sent_message?.timestamp_seconds || Date.now() / 1000,
+										clanId: channel.clan_id ?? '',
+										isMute: false,
+										senderId: '',
+										lastSeenTimestamp: Date.now() / 1000 - 1000
+									}
+								],
+								clanId: channel.clan_id ?? ''
+							})
 						);
 						dispatch(
 							listChannelRenderAction.setActiveThread({
@@ -1538,16 +1541,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			};
 
 			dispatch(
-				channelMetaActions.updateBulkChannelMetadata([
-					{
-						id: extendChannelCreated.channel_id,
-						lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
-						lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
-						clanId: extendChannelCreated.clan_id ?? '',
-						isMute: false,
-						senderId: ''
-					}
-				])
+				channelMetaActions.updateBulkChannelMetadata({
+					data: [
+						{
+							id: extendChannelCreated.channel_id,
+							lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
+							lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
+							clanId: extendChannelCreated.clan_id ?? '',
+							isMute: false,
+							senderId: ''
+						}
+					],
+					clanId: extendChannelCreated.clan_id ?? ''
+				})
 			);
 		} else if (channelCreated.creator_id === userId) {
 			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
