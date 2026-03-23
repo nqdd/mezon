@@ -105,11 +105,16 @@ export const channelMetaSlice = createSlice({
 		},
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
 			const { clanId, channelId, count, isReset = false } = action.payload;
-			const entity = state.entities[channelId];
+			const isDM = clanId === '0';
+			const adapter = isDM ? dmMetaAdapter : channelMetaAdapter;
+			const entitiesState = isDM ? state.dmEntities : state;
+			const entity = entitiesState.entities[channelId];
+
 			if (!entity) {
 				const initialCount = isReset ? 0 : Math.max(0, count);
 				if (initialCount <= 0) return;
-				channelMetaAdapter.addOne(state, {
+
+				adapter.addOne(entitiesState, {
 					id: channelId,
 					clanId,
 					isMute: false,
@@ -123,16 +128,7 @@ export const channelMetaSlice = createSlice({
 			const newCountMessUnread = isReset ? 0 : (entity.count_mess_unread ?? 0) + count;
 			const finalCount = Math.max(0, newCountMessUnread);
 			if ((entity.count_mess_unread || 0) === finalCount) return;
-			if (clanId === '0') {
-				dmMetaAdapter.updateOne(state.dmEntities, {
-					id: channelId,
-					changes: {
-						count_mess_unread: finalCount
-					}
-				});
-				return;
-			}
-			channelMetaAdapter.updateOne(state, {
+			adapter.updateOne(entitiesState, {
 				id: channelId,
 				changes: {
 					count_mess_unread: finalCount
