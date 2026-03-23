@@ -28,6 +28,7 @@ import {
 	e2eeActions,
 	emojiRecentActions,
 	emojiSuggestionActions,
+	EStateFriend,
 	eventManagementActions,
 	friendsActions,
 	getPoll,
@@ -2481,9 +2482,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				return;
 			}
 			dispatch(
-				friendsActions.updateFriendState({
+				friendsActions.applyFriendBlockState({
 					userId: blockFriend.user_id,
-					sourceId: blockFriend.user_id
+					state: EStateFriend.BLOCK,
+					sourceId: userId as string
 				})
 			);
 		},
@@ -2496,8 +2498,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				return;
 			}
 			dispatch(
-				friendsActions.updateFriendState({
-					userId: unblockFriend.user_id
+				friendsActions.applyFriendBlockState({
+					userId: unblockFriend.user_id,
+					state: EStateFriend.FRIEND
 				})
 			);
 		},

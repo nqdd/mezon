@@ -16,6 +16,7 @@ import { COMPOSE_FEATURE_KEY, composeReducer } from './compose/compose.slice';
 import { directReducer } from './direct/direct.slice';
 import { emojiSuggestionReducer } from './emojiSuggestion/emojiSuggestion.slice';
 import { friendsReducer } from './friends/friend.slice';
+import { initFriendRelationCrossTabSync } from './friends/friendCrossTabSync';
 import { gifsReducer } from './giftStickerEmojiPanel/gifs.slice';
 import { inviteReducer } from './invite/invite.slice';
 import { messagesReducer } from './messages/messages.slice';
@@ -485,6 +486,8 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 	}
 
 	setupSessionSyncListener(store);
+
+	initFriendRelationCrossTabSync(store.dispatch);
 
 	return { store, persistor };
 };
