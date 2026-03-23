@@ -242,6 +242,8 @@ const {
 export const getChannelMetaState = (rootState: { [CHANNELMETA_FEATURE_KEY]: ChannelMetaState }): ChannelMetaState =>
 	rootState[CHANNELMETA_FEATURE_KEY];
 
+export const getDmMetadataState = createSelector(getChannelMetaState, (state) => state?.dmEntities);
+
 export const selectChannelMetaEntities = createSelector(getChannelMetaState, selectEntities);
 
 export const selectChannelMetaById = createSelector([selectChannelMetaEntities, (state, channelId) => channelId], (entities, channelId) => {
@@ -315,8 +317,8 @@ export const selectTotalUnreadDM = createSelector(selectDirectsUnreadlist, (list
 	return listUnreadDM.reduce((total, count) => total + (count?.count_mess_unread ?? 0), 0);
 });
 
-export const selectIsUnreadDMById = createSelector([selectAllDmMetadataEntities, (state, channelId: string) => channelId], (entities, channelId) => {
-	const channel = entities?.[channelId];
+export const selectIsUnreadDMById = createSelector([getDmMetadataState, (_state, channelId: string) => channelId], (dmState, channelId) => {
+	const channel = dmState?.entities?.[channelId];
 
 	if (!channel) {
 		return false;
