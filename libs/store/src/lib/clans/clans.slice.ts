@@ -14,6 +14,7 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
+import { directActions } from '../direct/direct.slice';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
@@ -167,6 +168,7 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 		const state = thunkAPI.getState() as RootState;
 		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId]) {
 			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: (response as any)?.channeldesc, clanId }));
+			thunkAPI.dispatch(directActions.setDirectMetaEntities((response as any)?.channeldesc));
 		}
 		return clanId;
 	} catch (error) {
