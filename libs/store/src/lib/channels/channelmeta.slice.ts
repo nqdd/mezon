@@ -105,11 +105,20 @@ export const channelMetaSlice = createSlice({
 		},
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
 			const { clanId, channelId, count, isReset = false } = action.payload;
-			const entity = state.entities[channelId];
+			const entity = clanId === '0' ? state.dmEntities.entities?.[channelId] : state.entities?.[channelId];
 			if (!entity) return;
 			const newCountMessUnread = isReset ? 0 : (entity.count_mess_unread ?? 0) + count;
 			const finalCount = Math.max(0, newCountMessUnread);
 			if ((entity.count_mess_unread || 0) === finalCount) return;
+			if (clanId === '0') {
+				dmMetaAdapter.updateOne(state.dmEntities, {
+					id: channelId,
+					changes: {
+						count_mess_unread: finalCount
+					}
+				});
+				return;
+			}
 			channelMetaAdapter.updateOne(state, {
 				id: channelId,
 				changes: {
@@ -153,6 +162,16 @@ export const channelMetaSlice = createSlice({
 					lastSeenTimestamp: lastSeenMessage,
 					count_mess_unread: 0,
 					lastSeenMessageId: messageId
+				}
+			});
+		},
+		setDirectLastSentTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number }>) => {
+			const { channelId, timestamp } = action.payload;
+			const lastSentMessage = Math.floor(timestamp);
+			dmMetaAdapter.updateOne(state.dmEntities, {
+				id: channelId,
+				changes: {
+					lastSentTimestamp: lastSentMessage
 				}
 			});
 		}
@@ -279,7 +298,7 @@ export const selectDmSort = createSelector([getChannelMetaState], (state) => sel
 export const selectAllDmSort = createSelector([getChannelMetaState], (state) => selectAllDmMetadata(state.dmEntities) || []);
 export const selectDirectsUnreadlist = createSelector(selectAllDmSort, (state) => {
 	return state.filter((item) => {
-		return item?.count_mess_unread && item?.isMute !== true;
+		return !!item?.count_mess_unread && item?.isMute !== true;
 	});
 });
 
