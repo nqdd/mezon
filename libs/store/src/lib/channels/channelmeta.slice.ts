@@ -107,6 +107,8 @@ export const channelMetaSlice = createSlice({
 			const { clanId, channelId, count, isReset = false } = action.payload;
 			const entity = state.entities[channelId];
 			if (!entity) {
+				const initialCount = isReset ? 0 : Math.max(0, count);
+				if (initialCount <= 0) return;
 				channelMetaAdapter.addOne(state, {
 					id: channelId,
 					clanId,
@@ -114,7 +116,7 @@ export const channelMetaSlice = createSlice({
 					lastSeenTimestamp: 0,
 					lastSentTimestamp: Date.now(),
 					senderId: '0',
-					count_mess_unread: 1
+					count_mess_unread: initialCount
 				});
 				return;
 			}
