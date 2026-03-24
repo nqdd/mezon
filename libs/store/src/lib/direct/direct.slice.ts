@@ -247,10 +247,19 @@ export const fetchDirectMessage = createAsyncThunk(
 			const state = thunkAPI.getState() as RootState;
 			const checkJoinDM = state.clans?.checkJoinList?.['0'];
 			if (!checkJoinDM) {
-				const listBadgeDM = (await thunkAPI.dispatch(listChannelBadgeCount({ clanId: '0' })).unwrap()).channeldesc;
-				if (!listBadgeDM || !listBadgeDM.length) {
+				try {
+					const res = await thunkAPI.dispatch(listChannelBadgeCount({ clanId: '0' })).unwrap();
+					const listBadgeDM = res.channeldesc;
+
+					if (!listBadgeDM?.length) {
+						throw new Error('Empty badge list');
+					}
+				} catch (err) {
 					thunkAPI.dispatch(
-						channelMetaActions.updateBulkChannelMetadata({ data: response?.channeldesc as ChannelMetaEntity[], clanId: '0' })
+						channelMetaActions.updateBulkChannelMetadata({
+							data: response?.channeldesc as ChannelMetaEntity[],
+							clanId: '0'
+						})
 					);
 				}
 			}

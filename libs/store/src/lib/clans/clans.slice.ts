@@ -11,11 +11,9 @@ import { accountActions } from '../account/account.slice';
 import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
-import type { ChannelMetaEntity } from '../channels/channelmeta.slice';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
-import { selectAllDirectMessages } from '../direct/direct.slice';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
@@ -172,10 +170,6 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 		}
 		return { channeldesc: (response as any)?.channeldesc as ApiChannelDescription[], clanId };
 	} catch (error) {
-		if (clanId === '0') {
-			const allDm = selectAllDirectMessages(state);
-			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: allDm as ChannelMetaEntity[], clanId }));
-		}
 		captureSentryError(error, 'clans/listClanBadgeCount');
 		return thunkAPI.rejectWithValue(error);
 	}
