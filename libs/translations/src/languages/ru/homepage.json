@@ -22,7 +22,7 @@
 		"blogs": "Блоги",
 		"openMezon": "Открыть Mezon",
 		"login": "Войти",
-		"quickMeeting": "Быстрая встреча"
+		"quickMeeting": "Mezon Meet"
 	},
 	"layout": {
 		"overview": {
@@ -141,4 +141,3 @@
 		"toastFail": "Не удалось скопировать ссылку."
 	}
 }
-
