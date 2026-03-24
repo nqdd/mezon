@@ -252,7 +252,7 @@ export const selectIsUnreadChannelById = createSelector(
 	[getChannelMetaState, selectChannelMetaEntities, (state, channelId) => channelId],
 	(state, settings, channelId) => {
 		const channel = state?.entities[channelId];
-		return channel?.lastSeenTimestamp < channel?.lastSentTimestamp;
+		return channel?.lastSeenTimestamp < channel?.lastSentTimestamp || !!channel?.count_mess_unread;
 	}
 );
 
