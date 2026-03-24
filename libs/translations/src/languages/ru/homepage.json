@@ -21,7 +21,8 @@
 		"discover": "Исследовать",
 		"blogs": "Блоги",
 		"openMezon": "Открыть Mezon",
-		"login": "Войти"
+		"login": "Войти",
+		"quickMeeting": "Быстрая встреча"
 	},
 	"layout": {
 		"overview": {
