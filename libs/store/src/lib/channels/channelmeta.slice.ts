@@ -1,6 +1,7 @@
 import type { LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
+import { ChannelType } from 'mezon-js';
 import type { ApiChannelDescription } from 'mezon-js/api';
 import { selectAllAccount } from '../account/account.slice';
 export const CHANNELMETA_FEATURE_KEY = 'channelmeta';
@@ -96,7 +97,14 @@ export const channelMetaSlice = createSlice({
 			channelMetaAdapter.updateMany(state, updates);
 		},
 		updateBulkChannelMetadata: (state, action: PayloadAction<{ data: ChannelMetaEntity[]; clanId: string }>) => {
-			const meta = (action?.payload?.data as ApiChannelDescription[]).map((ch) => extractChannelMeta(ch));
+			const meta: ChannelMetaEntity[] = [];
+			const data = action?.payload?.data as ApiChannelDescription[];
+
+			for (const ch of data) {
+				if (ch.type !== ChannelType.CHANNEL_TYPE_APP && ch.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
+					meta.push(extractChannelMeta(ch));
+				}
+			}
 			if (action?.payload?.clanId === '0') {
 				dmMetaAdapter.upsertMany(state.dmEntities, meta);
 				return;

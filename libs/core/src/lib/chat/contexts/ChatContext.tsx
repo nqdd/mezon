@@ -700,7 +700,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					})
 				);
 
-				if (notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED) {
+				if (
+					notification.channel_type !== ChannelType.CHANNEL_TYPE_APP &&
+					notification.channel_type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+					(notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED)
+				) {
 					if (notification?.channel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
 						await dispatch(
 							channelsActions.addThreadSocket({
