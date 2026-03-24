@@ -1,4 +1,4 @@
-import { useEscapeKeyClose, useFriends, useMenu } from '@mezon/core';
+import { useFriends, useMenu } from '@mezon/core';
 import type { FriendsEntity, requestAddFriendParam } from '@mezon/store';
 import {
 	EStateFriend,
@@ -12,7 +12,7 @@ import {
 } from '@mezon/store';
 import { Button, Icons, Image, InputField } from '@mezon/ui';
 import { EUserStatus, generateE2eId } from '@mezon/utils';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import ActivityList from './ActivityList';
@@ -95,7 +95,7 @@ const FriendsPage = () => {
 
 	const handleAddFriend = async () => {
 		const rawUsernames = requestAddFriend?.usernames;
-		const username = (Array.isArray(rawUsernames) ? rawUsernames[0] : rawUsernames)?.trim();
+		const username = (Array.isArray(rawUsernames) ? rawUsernames[0] : rawUsernames)?.trim().toLowerCase();
 		if (!username) return;
 
 		const isBlocked = blockedUsers.some((u) => u.user?.username === requestAddFriend.usernames);
@@ -355,34 +355,6 @@ const FriendsPage = () => {
 				</div>
 				<div className="contain-strict w-[416px] max-w-2/5  lg:flex hidden bg-active-friend-list">
 					<ActivityList listFriend={friends} />
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const _RequestFailedPopup = ({ togglePopup }: { togglePopup: () => void }) => {
-	const { t } = useTranslation('friendsPage');
-	const modalRef = useRef<HTMLDivElement>(null);
-	useEscapeKeyClose(modalRef, togglePopup);
-	return (
-		<div ref={modalRef} tabIndex={-1} className="fixed inset-0 flex items-center justify-center z-50" onClick={(e) => e.stopPropagation()}>
-			<div onClick={togglePopup} className="fixed inset-0 bg-black opacity-50" />
-			<div className="relative z-10 w-[440px] text-center">
-				<div className="bg-theme-setting-primary dark:text-[#dbdee1] text-textLightTheme px-4 py-5 flex flex-col gap-5 items-center rounded-t-md">
-					<div className="text-textLightTheme dark:text-textDarkTheme uppercase font-semibold text-[20px]">
-						{t('requestFailedPopup.title')}
-					</div>
-					<div>{t('requestFailedPopup.message')}</div>
-				</div>
-				<div className="p-4 bg-theme-setting-nav rounded-b-md">
-					<div
-						onClick={togglePopup}
-						className="w-full cursor-pointer bg-[#5865f2] hover:bg-[#4752c4] text-whit rounded-sm h-[44px] flex items-center font-semibold justify-center"
-						data-e2e={generateE2eId('friend_page.request_failed_popup.button.okay')}
-					>
-						{t('requestFailedPopup.okay')}
-					</div>
 				</div>
 			</div>
 		</div>
