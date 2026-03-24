@@ -1650,7 +1650,8 @@ export const channelsActions = {
 	addThreadSocket,
 	changeCategoryOfChannel,
 	updateChannelPrivateSocket,
-	bulkDeleteChannelSocket
+	bulkDeleteChannelSocket,
+	updateCategoryNameForChannels: channelsSlice.actions.updateCategoryNameForChannels
 };
 
 /*
