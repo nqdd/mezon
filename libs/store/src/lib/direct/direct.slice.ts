@@ -1092,6 +1092,10 @@ export const selectDirectsOpenlist = createSelector(selectAllDirectMessages, (di
 	});
 });
 
+export const selectDirectOpenListIds = createSelector(selectAllDirectMessages, (directMessages) => {
+	return directMessages.map((dm) => dm.id);
+});
+
 export const selectDirectById = createSelector([selectDirectMessageEntities, (state, id) => id], (clansEntities, id) => clansEntities?.[id]);
 
 export const selectAllUserDM = createSelector(selectAllDirectMessages, (directMessages) => {

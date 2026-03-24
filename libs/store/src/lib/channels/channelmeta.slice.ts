@@ -2,7 +2,7 @@ import type { LoadingStatus } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { ChannelType } from 'mezon-js';
-import type { ApiChannelDescription } from 'mezon-js/api';
+import type { ApiChannelDescription, ApiChannelMessageHeader, ChannelMessage } from 'mezon-js/api';
 import { selectAllAccount } from '../account/account.slice';
 export const CHANNELMETA_FEATURE_KEY = 'channelmeta';
 
@@ -17,6 +17,7 @@ export interface ChannelMetaEntity {
 	senderId: string;
 	lastSeenMessageId?: string;
 	count_mess_unread?: number;
+	last_sent_message?: ApiChannelMessageHeader;
 }
 
 function extractChannelMeta(channel: ApiChannelDescription): ChannelMetaEntity {
@@ -28,9 +29,17 @@ function extractChannelMeta(channel: ApiChannelDescription): ChannelMetaEntity {
 		isMute: channel.is_mute ?? false,
 		senderId: channel.last_sent_message?.sender_id ?? '0',
 		lastSeenMessageId: channel.last_seen_message?.id,
-		count_mess_unread: channel.count_mess_unread ?? 0
+		count_mess_unread: channel?.count_mess_unread ?? 0,
+		last_sent_message: channel?.last_sent_message
 	};
 }
+
+const mapMessageToConversation = (message: ChannelMessage): ApiChannelMessageHeader => {
+	return {
+		...message,
+		timestamp_seconds: message?.create_time_seconds
+	};
+};
 
 export interface ChannelMetaState extends EntityState<ChannelMetaEntity, string> {
 	loadingStatus: LoadingStatus;
@@ -191,6 +200,17 @@ export const channelMetaSlice = createSlice({
 					lastSentTimestamp: lastSentMessage
 				}
 			});
+		},
+		updateDmLastSentMessage: (state, action: PayloadAction<{ channelId: string; message: ChannelMessage }>) => {
+			const { channelId, message } = action.payload;
+			const updatedMessage = mapMessageToConversation(message);
+
+			dmMetaAdapter.updateOne(state.dmEntities, {
+				id: channelId,
+				changes: {
+					last_sent_message: updatedMessage
+				}
+			});
 		}
 	}
 });
@@ -336,4 +356,8 @@ export const selectIsUnreadDMById = createSelector([getDmMetadataState, (_state,
 	const lastSent = channel.lastSentTimestamp ?? 0;
 
 	return lastSent > lastSeen;
+});
+
+export const selectDmLastSentMessage = createSelector([getDmMetadataState, (_state, channelId: string) => channelId], (dmState, channelId) => {
+	return dmState?.entities?.[channelId]?.last_sent_message;
 });
