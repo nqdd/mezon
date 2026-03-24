@@ -471,6 +471,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					const isContentMutation = message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove;
 					if (!isContentMutation) {
 						await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
+						dispatch(channelMetaActions.updateDmLastSentMessage({ channelId: message.channel_id, message: mess }));
 					}
 
 					const isClanView = selectClanView(store.getState());
