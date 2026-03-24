@@ -29,7 +29,7 @@ function extractChannelMeta(channel: ApiChannelDescription): ChannelMetaEntity {
 		isMute: channel.is_mute ?? false,
 		senderId: channel.last_sent_message?.sender_id ?? '0',
 		lastSeenMessageId: channel.last_seen_message?.id,
-		count_mess_unread: channel.count_mess_unread ?? 0,
+		count_mess_unread: channel?.count_mess_unread ?? 0,
 		last_sent_message: channel?.last_sent_message
 	};
 }

@@ -115,7 +115,7 @@ export const DmListItem = React.memo((props: { id: string }) => {
 					senderName={directMessage?.display_names?.[0] || directMessage?.usernames?.[0] || ''}
 					userId={directMessage?.user_ids?.[0] || ''}
 					senderId={lastSentMessage?.sender_id || ''}
-					lastSentMessageStr={JSON.stringify(lastSentMessage)}
+					lastSentMessageStr={JSON.stringify(lastSentMessage || {})}
 				/>
 			</View>
 		</View>

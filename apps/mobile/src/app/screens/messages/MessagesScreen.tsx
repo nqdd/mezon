@@ -30,11 +30,14 @@ const MessagesScreen = () => {
 	}, []);
 
 	const mergedList = useMemo(() => {
+		if (!dmGroupChatList || dmGroupChatList.length === 0) {
+			return defaultDirectList || [];
+		}
 		const sortedIds = new Set(dmGroupChatList);
 
 		const sortedPart = dmGroupChatList;
 
-		const remainingPart = defaultDirectList?.filter((id) => !sortedIds.has(id));
+		const remainingPart = defaultDirectList?.filter((id) => !sortedIds?.has(id));
 
 		return [...(sortedPart || []), ...(remainingPart || [])];
 	}, [dmGroupChatList, defaultDirectList]);
