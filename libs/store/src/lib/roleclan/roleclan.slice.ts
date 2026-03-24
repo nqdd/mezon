@@ -387,11 +387,13 @@ export const RolesClanSlice = createSlice({
 			const changes: Partial<{
 				title: string;
 				color: string;
+				role_icon: string;
 				permission_list: typeof role.permission_list;
 				role_user_list: typeof role.role_user_list;
 			}> = {};
 			changes.title = role.title;
 			changes.color = role.color;
+			changes.role_icon = role.role_icon;
 			if (role.permission_list?.permissions) {
 				changes.permission_list = role.permission_list;
 			}
@@ -411,6 +413,7 @@ export const RolesClanSlice = createSlice({
 				changes
 			});
 		},
+
 		setAll: (state, action: PayloadAction<{ roles: RolesClanEntity[]; clanId: string }>) => {
 			const { roles, clanId } = action.payload;
 			if (!state.byClans[clanId]) {

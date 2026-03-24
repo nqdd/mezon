@@ -1,4 +1,4 @@
-import { selectAllRolesClan } from '@mezon/store';
+import { selectAllRolesClan, selectAllUserClans } from '@mezon/store';
 import { DEFAULT_ROLE_COLOR } from '@mezon/utils';
 import React, { createContext, useContext, useMemo } from 'react';
 import { useSelector } from 'react-redux';
@@ -20,35 +20,45 @@ export const useColorRole = () => {
 
 export const ColorRoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const rolesClan = useSelector(selectAllRolesClan);
-	const userColorMap = useMemo(() => {
-		const map = new Map<string, { roleId: string; color: string; icon: string; max_level_permission: number }>();
+	const usersClan = useSelector(selectAllUserClans);
 
+	const roleColorMap = useMemo(() => {
+		const map = new Map<string, { color: string; icon: string; max_level_permission: number }>();
 		rolesClan.forEach((role) => {
-			role?.role_user_list?.role_users?.forEach((user) => {
-				if (!user?.id) return;
-
-				const currentRole = map.get(user.id);
-				const newRole = {
-					roleId: role.id,
-					color: role.color || DEFAULT_ROLE_COLOR,
-					icon: role?.role_icon || '',
-					max_level_permission: role.max_level_permission ?? 0
-				};
-
-				if (!currentRole) {
-					map.set(user.id, newRole);
-					return;
-				}
-
-				if (!currentRole.icon && newRole.icon) {
-					map.set(user.id, { ...currentRole, icon: newRole.icon });
-					return;
-				}
+			if (!role?.id) return;
+			map.set(role.id, {
+				color: role.color || DEFAULT_ROLE_COLOR,
+				icon: role?.role_icon || '',
+				max_level_permission: role.max_level_permission ?? 0
 			});
 		});
-
 		return map;
 	}, [rolesClan]);
+	const userColorMap = useMemo(() => {
+		const map = new Map<string, { color: string; icon: string }>();
+		usersClan.forEach((user) => {
+			if (!user?.id || !user.role_id?.length) return;
+
+			let bestColor = DEFAULT_ROLE_COLOR;
+			let bestIcon = '';
+			let bestLevel = -1;
+
+			user.role_id.forEach((roleId) => {
+				const roleData = roleColorMap.get(roleId);
+				if (!roleData) return;
+				if (roleData.max_level_permission > bestLevel) {
+					bestLevel = roleData.max_level_permission;
+					bestColor = roleData.color;
+				}
+				if (!bestIcon && roleData.icon) {
+					bestIcon = roleData.icon;
+				}
+			});
+
+			map.set(user.id, { color: bestColor, icon: bestIcon });
+		});
+		return map;
+	}, [usersClan, roleColorMap]);
 
 	const contextValue = useMemo(
 		() => ({
