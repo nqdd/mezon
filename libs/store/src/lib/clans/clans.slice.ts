@@ -167,7 +167,7 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 			'channel_badge_count'
 		);
 
-		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId] && clanId !== '0') {
+		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId]) {
 			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: (response as any)?.channeldesc, clanId }));
 		}
 		return { channeldesc: (response as any)?.channeldesc as ApiChannelDescription[], clanId };
