@@ -461,6 +461,8 @@ class BadgeService extends EventEmitter {
 		const dispatch = this.dispatch;
 		if (!dispatch) return;
 		dispatch(directMetaActions.setCountMessUnread({ channelId: event.channelId, count: event.count, isMention: event.isMention }));
+		dispatch(channelMetaActions.updateChannelBadgeCount({ clanId: '0', channelId: event.channelId, count: event.count }));
+		dispatch(channelMetaActions.setDirectLastSentTimestamp({ channelId: event.channelId, timestamp: Date.now() / 1000 }));
 	}
 
 	private executeMarkAsRead(event: MarkAsReadClanEvent | MarkAsReadCategoryEvent | MarkAsReadChannelEvent) {

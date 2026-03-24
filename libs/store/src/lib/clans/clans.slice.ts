@@ -14,6 +14,7 @@ import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCa
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
+import { directActions } from '../direct/direct.slice';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
@@ -148,38 +149,33 @@ const selectCachedClans = createSelector([(state: RootState) => state[CLANS_FEAT
 	return clansAdapter.getSelectors().selectAll(clansState);
 });
 
-export const listChannelBadgeCount = createAsyncThunk(
-	'clans/listChannelBadgeCount',
-	async ({ clanId, isMobile }: { clanId?: string; isMobile?: boolean }, thunkAPI) => {
-		try {
-			const mezon = await ensureSession(getMezonCtx(thunkAPI));
-			const currentClanId = selectCurrentClanId(thunkAPI.getState() as RootState);
+export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCount', async ({ clanId }: { clanId: string }, thunkAPI) => {
+	try {
+		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-			const clanIdToFetch = isMobile ? clanId || '0' : currentClanId;
+		const response = await fetchDataWithSocketFallback(
+			mezon,
+			{
+				api_name: 'ListChannelBadgeCount',
+				list_channel_badge_count_req: {
+					clan_id: clanId
+				}
+			},
+			(session) => Promise.resolve([]),
+			'channel_badge_count'
+		);
 
-			const response = await fetchDataWithSocketFallback(
-				mezon,
-				{
-					api_name: 'ListChannelBadgeCount',
-					list_channel_badge_count_req: {
-						clan_id: clanIdToFetch
-					}
-				},
-				(session) => Promise.resolve([]),
-				'channel_badge_count'
-			);
-
-			const state = thunkAPI.getState() as RootState;
-			if (((response as any)?.channeldesc && currentClanId && !state.clans.checkJoinList[currentClanId]) || (isMobile && clanId === '0')) {
-				thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata((response as any)?.channeldesc));
-			}
-			return currentClanId;
-		} catch (error) {
-			captureSentryError(error, 'clans/listClanBadgeCount');
-			return thunkAPI.rejectWithValue(error);
+		const state = thunkAPI.getState() as RootState;
+		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId]) {
+			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: (response as any)?.channeldesc, clanId }));
+			thunkAPI.dispatch(directActions.setDirectMetaEntities((response as any)?.channeldesc));
 		}
+		return clanId;
+	} catch (error) {
+		captureSentryError(error, 'clans/listClanBadgeCount');
+		return thunkAPI.rejectWithValue(error);
 	}
-);
+});
 
 export const fetchClansCached = async (
 	getState: () => RootState,
@@ -498,16 +494,15 @@ export const updateUser = createAsyncThunk(
 
 interface JoinClanPayload {
 	clanId: string;
-	isMobile?: boolean;
 }
 
-export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan', async ({ clanId, isMobile = false }, thunkAPI) => {
+export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan', async ({ clanId }, thunkAPI) => {
 	try {
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 		await mezon.socketRef.current?.joinClanChat(clanId);
 		const state = thunkAPI.getState() as RootState;
 		if (!state.clans?.checkJoinList?.[clanId]) {
-			thunkAPI.dispatch(listChannelBadgeCount({ clanId, isMobile }));
+			thunkAPI.dispatch(listChannelBadgeCount({ clanId }));
 			thunkAPI.dispatch(listOnlineUserClan({ clanId }));
 		}
 	} catch (error) {
