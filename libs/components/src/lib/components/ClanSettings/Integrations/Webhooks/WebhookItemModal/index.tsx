@@ -352,6 +352,8 @@ const WebhookItemChannelDropdown = ({
 }: IWebhookItemChannelDropdown) => {
 	const allChannel = useSelector(selectAllChannels);
 	const [parentChannelsInClan, setParentChannelsInClan] = useState<ChannelsEntity[]>([]);
+	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
 	useEffect(() => {
 		const normalChannels = allChannel.filter(
 			(channel) => channel.parent_id === ChannelIsNotThread.TRUE && channel.type === ChannelType.CHANNEL_TYPE_CHANNEL
@@ -365,30 +367,42 @@ const WebhookItemChannelDropdown = ({
 		}
 	}, [hasChange, webhookItem.channel_id]);
 
+	const selectedChannelId = dataForUpdate.channelIdForUpdate;
+
 	const menu = useMemo(() => {
 		const menuItems: ReactElement[] = [];
-		parentChannelsInClan.map((channel) => {
-			if (webhookItem.channel_id !== channel.channel_id) {
-				menuItems.push(
-					<Menu.Item
-						key={channel.channel_id}
-						children={channel.channel_label ?? ''}
-						className="truncate text-theme-primary bg-item-theme-hover-important"
-						onClick={() => {
-							setDataForUpdate((prev) => ({ ...prev, channelIdForUpdate: channel.channel_id }));
-							setDropdownValue(channel.channel_label);
-						}}
-					/>
-				);
-			}
+		const sortedChannels = [...parentChannelsInClan].sort((a, b) => {
+			if (a.channel_id === selectedChannelId) return -1;
+			if (b.channel_id === selectedChannelId) return 1;
+			return 0;
+		});
+		sortedChannels.map((channel) => {
+			const isSelected = selectedChannelId === channel.channel_id;
+			menuItems.push(
+				<Menu.Item
+					key={channel.channel_id}
+					children={channel.channel_label ?? ''}
+					className={`truncate text-theme-primary bg-item-theme-hover-important ${
+						isSelected ? 'border border-[#5865f2] rounded font-semibold' : ''
+					}`}
+					onClick={() => {
+						setDataForUpdate((prev) => ({ ...prev, channelIdForUpdate: channel.channel_id }));
+						setDropdownValue(channel.channel_label);
+						setIsDropdownOpen(false);
+					}}
+				/>
+			);
 		});
 		return <>{menuItems}</>;
-	}, [parentChannelsInClan, webhookItem.channel_id]);
+	}, [parentChannelsInClan, selectedChannelId]);
+
 	return (
 		<Menu
 			trigger="click"
 			menu={menu}
 			className={`bg-option-theme-important  border-none ml-[3px] py-[6px] px-[8px] max-h-[200px] overflow-y-scroll w-[200px] thread-scroll`}
+			visible={isDropdownOpen}
+			onVisibleChange={setIsDropdownOpen}
 		>
 			<div className="w-full h-[50px] rounded-md bg-theme-setting-primary flex flex-row px-3 justify-between items-center">
 				<p className="truncate max-w-[90%]">{dropdownValue}</p>
