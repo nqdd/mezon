@@ -302,8 +302,7 @@ const persistedDirectReducer = persistReducer(
 const persistedChannelMetaReducer = persistReducer(
 	{
 		key: 'direct',
-		storage,
-		whitelist: ['pinnedDms']
+		storage
 	},
 	channelMetaReducer
 );
