@@ -3,13 +3,13 @@
 		"channelName": {
 			"title": "Tên kênh",
 			"placeholder": "Nhập tên kênh",
-			"errorMessage": "Vui lòng nhập tên kênh hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+			"errorMessage": "Vui lòng nhập tên kênh (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
 			"duplicateError": "Tên kênh đã tồn tại trong danh mục. Vui lòng nhập tên khác."
 		},
 		"threadName": {
 			"title": "Tên chủ đề",
 			"placeholder": "Nhập tên chủ đề",
-			"errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+			"errorMessage": "Vui lòng nhập tên chủ đề (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
 			"duplicateError": "Tên chủ đề đã tồn tại trong kênh. Vui lòng nhập tên khác."
 		},
 		"channelDescription": {
