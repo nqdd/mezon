@@ -5,16 +5,17 @@ import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import type { ClanUpdatedEvent } from 'mezon-js';
 import { ChannelType } from 'mezon-js';
-import type { ApiClanDesc, ApiUpdateAccountRequest, MezonUpdateClanDescBody } from 'mezon-js/api';
+import type { ApiChannelDescription, ApiClanDesc, ApiUpdateAccountRequest, MezonUpdateClanDescBody } from 'mezon-js/api';
 import { batch } from 'react-redux';
 import { accountActions } from '../account/account.slice';
 import { setUserAvatarOverride } from '../avatarOverride/avatarOverride';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
+import type { ChannelMetaEntity } from '../channels/channelmeta.slice';
 import { channelMetaActions } from '../channels/channelmeta.slice';
 import { channelsActions } from '../channels/channels.slice';
 import { listOnlineUserClan, usersClanActions } from '../clanMembers/clan.members';
-import { directActions } from '../direct/direct.slice';
+import { selectAllDirectMessages } from '../direct/direct.slice';
 import { emojiSuggestionSlice } from '../emojiSuggestion/emojiSuggestion.slice';
 import { eventManagementActions } from '../eventManagement/eventManagement.slice';
 import type { MezonValueContext } from '../helpers';
@@ -150,6 +151,7 @@ const selectCachedClans = createSelector([(state: RootState) => state[CLANS_FEAT
 });
 
 export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCount', async ({ clanId }: { clanId: string }, thunkAPI) => {
+	const state = thunkAPI.getState() as RootState;
 	try {
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
@@ -165,13 +167,15 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 			'channel_badge_count'
 		);
 
-		const state = thunkAPI.getState() as RootState;
-		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId]) {
+		if ((response as any)?.channeldesc && clanId && !state.clans.checkJoinList[clanId] && clanId !== '0') {
 			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: (response as any)?.channeldesc, clanId }));
-			thunkAPI.dispatch(directActions.setDirectMetaEntities((response as any)?.channeldesc));
 		}
-		return clanId;
+		return { channeldesc: (response as any)?.channeldesc as ApiChannelDescription[], clanId };
 	} catch (error) {
+		if (clanId === '0') {
+			const allDm = selectAllDirectMessages(state);
+			thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata({ data: allDm as ChannelMetaEntity[], clanId }));
+		}
 		captureSentryError(error, 'clans/listClanBadgeCount');
 		return thunkAPI.rejectWithValue(error);
 	}
@@ -501,7 +505,7 @@ export const joinClan = createAsyncThunk<void, JoinClanPayload>('direct/joinClan
 		const mezon = await ensureSocket(getMezonCtx(thunkAPI));
 		await mezon.socketRef.current?.joinClanChat(clanId);
 		const state = thunkAPI.getState() as RootState;
-		if (!state.clans?.checkJoinList?.[clanId]) {
+		if (!state.clans?.checkJoinList?.[clanId] && clanId !== '0') {
 			thunkAPI.dispatch(listChannelBadgeCount({ clanId }));
 			thunkAPI.dispatch(listOnlineUserClan({ clanId }));
 		}
@@ -930,12 +934,15 @@ export const clansSlice = createSlice({
 				});
 			}
 		});
-		builder.addCase(listChannelBadgeCount.fulfilled, (state: ClansState, action: PayloadAction<string | null | undefined>) => {
-			if (action.payload) {
-				state.checkJoinList[action.payload] = true;
+		builder.addCase(
+			listChannelBadgeCount.fulfilled,
+			(state: ClansState, action: PayloadAction<{ channeldesc: ApiChannelDescription[]; clanId: string }>) => {
+				if (action.payload?.channeldesc) {
+					state.checkJoinList[action.payload?.clanId] = true;
+				}
+				state.loadingStatus = 'loaded';
 			}
-			state.loadingStatus = 'loaded';
-		});
+		);
 		builder.addCase(listClanBadgeCount.fulfilled, (state: ClansState, action: PayloadAction<ClanUnreadState[]>) => {
 			clanUnreadAdapter.setAll(state.clanUnreadStates, action.payload);
 			state.loadingStatus = 'loaded';
