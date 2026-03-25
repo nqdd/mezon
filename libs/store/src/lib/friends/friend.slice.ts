@@ -160,7 +160,7 @@ export const sendRequestAddFriend = createAsyncThunk(
 					if (!isMobile) {
 						toast.warn(i18n.t('friends:toast.friendRequestAlreadySent'));
 					}
-					return;
+					return thunkAPI.rejectWithValue('ALREADY_PENDING');
 				}
 			}
 			const response = await mezon.client.addFriends(mezon.session, ids ? [ids] : [], usernames ? [usernames] : []);
