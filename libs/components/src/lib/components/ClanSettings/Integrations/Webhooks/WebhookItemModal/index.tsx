@@ -16,7 +16,7 @@ import type { IChannel } from '@mezon/utils';
 import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId, timeFormatI18n } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api';
-import type { ChangeEvent, Dispatch, ReactElement, SetStateAction } from 'react';
+import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -370,30 +370,32 @@ const WebhookItemChannelDropdown = ({
 	const selectedChannelId = dataForUpdate.channelIdForUpdate;
 
 	const menu = useMemo(() => {
-		const menuItems: ReactElement[] = [];
 		const sortedChannels = [...parentChannelsInClan].sort((a, b) => {
 			if (a.channel_id === selectedChannelId) return -1;
 			if (b.channel_id === selectedChannelId) return 1;
 			return 0;
 		});
-		sortedChannels.map((channel) => {
-			const isSelected = selectedChannelId === channel.channel_id;
-			menuItems.push(
-				<Menu.Item
-					key={channel.channel_id}
-					children={channel.channel_label ?? ''}
-					className={`truncate text-theme-primary bg-item-theme-hover-important ${
-						isSelected ? 'border border-[#5865f2] rounded font-semibold' : ''
-					}`}
-					onClick={() => {
-						setDataForUpdate((prev) => ({ ...prev, channelIdForUpdate: channel.channel_id }));
-						setDropdownValue(channel.channel_label);
-						setIsDropdownOpen(false);
-					}}
-				/>
-			);
-		});
-		return <>{menuItems}</>;
+		return (
+			<>
+				{sortedChannels.map((channel) => {
+					const isSelected = selectedChannelId === channel.channel_id;
+					return (
+						<Menu.Item
+							key={channel.channel_id}
+							children={channel.channel_label ?? ''}
+							className={`truncate text-theme-primary bg-item-theme-hover-important ${
+								isSelected ? 'border border-[var(--border-highlight-react-theme)] rounded font-semibold' : ''
+							}`}
+							onClick={() => {
+								setDataForUpdate((prev) => ({ ...prev, channelIdForUpdate: channel.channel_id }));
+								setDropdownValue(channel.channel_label);
+								setIsDropdownOpen(false);
+							}}
+						/>
+					);
+				})}
+			</>
+		);
 	}, [parentChannelsInClan, selectedChannelId]);
 
 	return (
