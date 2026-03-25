@@ -22,13 +22,12 @@ import { ChannelStatusEnum, createImgproxyUrl, generateE2eId } from '@mezon/util
 import { ChannelStreamMode, ChannelType } from 'mezon-js';
 import { memo, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useModal } from 'react-modal-hook';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
+import { useRemoveFriendModal } from '../../hooks/useRemoveFriendModal';
 import { AvatarImage } from '../AvatarImage/AvatarImage';
 import ModalEditGroup from '../ModalEditGroup';
-import RemoveFriendModal from '../RemoveFriendModal';
 import WaveButtonDM from './WaveButtonDM';
 
 export type ChatWelComeProp = {
@@ -297,21 +296,7 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 		return infoFriend?.state === EStateFriend.BLOCK && infoFriend?.source_id === userProfile?.user?.id && infoFriend?.user?.id === userID;
 	}, [userProfile?.user?.id, infoFriend, userID]);
 	const { acceptFriend, deleteFriend, addFriend, blockFriend, unBlockFriend } = useFriends();
-	const [showRemoveFriendModal, hideRemoveFriendModal] = useModal(
-		() =>
-			username && userID ? (
-				<RemoveFriendModal
-					username={username}
-					displayName={displayName}
-					onClose={hideRemoveFriendModal}
-					onConfirm={() => {
-						deleteFriend(username, userID);
-						hideRemoveFriendModal();
-					}}
-				/>
-			) : null,
-		[username, userID, displayName, deleteFriend]
-	);
+	const { openRemoveFriendModal } = useRemoveFriendModal((uname, uid) => deleteFriend(uname, uid));
 
 	const title = useMemo(() => {
 		switch (checkAddFriend) {
@@ -335,13 +320,13 @@ const StatusFriend = memo((props: StatusFriendProps) => {
 					acceptFriend(username, userID);
 					break;
 				}
-				showRemoveFriendModal();
+				openRemoveFriendModal({ username, id: userID, displayName });
 				break;
 			case EStateFriend.OTHER_PENDING:
 				// return "Friend Request Sent"
 				break;
 			case EStateFriend.FRIEND:
-				showRemoveFriendModal();
+				openRemoveFriendModal({ username, id: userID, displayName });
 				break;
 			default:
 				addFriend({

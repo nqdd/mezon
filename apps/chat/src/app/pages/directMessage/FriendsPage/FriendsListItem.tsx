@@ -1,11 +1,11 @@
-import { BaseProfile, RemoveFriendModal } from '@mezon/components';
+import { BaseProfile, useRemoveFriendModal } from '@mezon/components';
 import { useAppNavigation, useDirect, useFriends, useMemberStatus } from '@mezon/core';
 import type { FriendsEntity } from '@mezon/store';
 import { audioCallActions, listUsersByUserActions, selectCurrentTabStatus } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { ETabUserStatus, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
@@ -110,6 +110,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	const { createDirectMessageWithUser } = useDirect();
 	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
 	const { acceptFriend, deleteFriend, blockFriend, unBlockFriend } = useFriends();
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
 	const userStatus = useMemberStatus(friend?.user?.id || '');
 
@@ -120,30 +121,6 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		mouseY: 0,
 		distanceToBottom: 0
 	});
-
-	const [friendPendingRemoval, setFriendPendingRemoval] = useState<FriendsEntity | null>(null);
-
-	const [openConfirmRemoveFriend, closeConfirmRemoveFriend] = useModal(
-		() =>
-			friendPendingRemoval ? (
-				<RemoveFriendModal
-					username={friendPendingRemoval.user?.username}
-					displayName={friendPendingRemoval.user?.display_name}
-					onClose={() => {
-						closeConfirmRemoveFriend();
-						setFriendPendingRemoval(null);
-					}}
-					onConfirm={() => {
-						if (friendPendingRemoval?.user?.username && friendPendingRemoval?.user?.id) {
-							deleteFriend(friendPendingRemoval.user.username, friendPendingRemoval.user.id);
-						}
-						closeConfirmRemoveFriend();
-						setFriendPendingRemoval(null);
-					}}
-				/>
-			) : null,
-		[friendPendingRemoval, deleteFriend]
-	);
 
 	const directMessageWithUser = useCallback(async () => {
 		if (currentTabStatus === ETabUserStatus.PENDING) return;
@@ -164,8 +141,11 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	};
 
 	const handleDeleteFriend = (selectedFriend: FriendsEntity) => {
-		setFriendPendingRemoval(selectedFriend);
-		openConfirmRemoveFriend();
+		openRemoveFriendModal({
+			username: selectedFriend.user?.username,
+			id: selectedFriend.user?.id,
+			displayName: selectedFriend.user?.display_name
+		});
 	};
 
 	const handleBlockFriend = async (username: string, id: string) => {

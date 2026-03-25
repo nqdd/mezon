@@ -7,6 +7,7 @@ export * from './lib/components/ClanLimitModal';
 export * from './lib/components/DraggablePopup';
 export * from './lib/contexts/DirectMessageContextMenu';
 export * from './lib/contexts/MemberContextMenu';
+export * from './lib/hooks';
 
 const ComponentsModule = {
 	Canvas

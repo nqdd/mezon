@@ -60,7 +60,7 @@ const FriendsPage = () => {
 
 	const handleChange = (key: string, value: string) => {
 		const limitedValue = (value || '').slice(0, 40);
-		const isValidInput = /^[\p{L}0-9+\-_.]+$/u.test(limitedValue || value);
+		const isValidInput = limitedValue.length > 0 && /^[\p{L}0-9+-_.]+$/u.test(limitedValue);
 
 		setIsInvalidInput(!isValidInput && value !== '');
 
