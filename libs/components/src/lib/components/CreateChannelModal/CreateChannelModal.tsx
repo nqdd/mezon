@@ -160,9 +160,7 @@ export const CreateNewChannelModal = () => {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
-			if (!isInputError) {
-				handleSubmit();
-			}
+			handleSubmit();
 		}
 	};
 
