@@ -74,7 +74,6 @@ const HeaderMezon = memo((props: HeaderProps) => {
 				data-e2e={generateE2eId('homepage.header.container.navigation')}
 			>
 				<div className="flex items-center justify-between md:px-[10px] xl:px-[32px] h-full gap-2">
-					{/* KHỐI TRÁI: LOGO - Đặt min-width để cân bằng với khối Buttons bên phải */}
 					<div className="hidden lg:flex items-center flex-shrink-0 min-w-[280px] xl:min-w-[320px]">
 						<Link to="/" className="flex items-center hover:scale-110 transition-transform duration-300 active:scale-95">
 							<Image
@@ -85,8 +84,6 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							/>
 						</Link>
 					</div>
-
-					{/* KHỐI GIỮA: MENU - Sẽ nằm giữa tuyệt đối nhờ 2 khối 2 bên bằng độ rộng nhau */}
 					<nav className="hidden lg:flex items-center justify-center flex-1 min-w-0 gap-x-1 xl:gap-x-2">
 						<NavItem href="#home" section="home" label={t('header.home')} onClick={scrollToSection} />
 
@@ -109,8 +106,6 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							</a>
 						))}
 					</nav>
-
-					{/* KHỐI PHẢI: BUTTONS - flex-shrink-0 và độ rộng cố định tương ứng với Logo */}
 					<div className="flex items-center justify-end gap-2 xl:gap-4 flex-shrink-0 min-w-fit lg:min-w-[280px] xl:min-w-[320px]">
 						<Link
 							to={isLogin ? '/meet' : '/mezon'}
@@ -129,7 +124,6 @@ const HeaderMezon = memo((props: HeaderProps) => {
 							{isLogin ? t('header.openMezon') : t('header.login')}
 						</Link>
 
-						{/* Mobile Menu Icon */}
 						<div className="lg:hidden flex w-[40px] h-[40px] items-center justify-center hover:bg-white/10 rounded-full transition-colors duration-200">
 							{sideBarIsOpen ? (
 								<Icons.MenuClose className="w-[26px] h-[26px] cursor-pointer text-white" onClick={toggleSideBar} />
