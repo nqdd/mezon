@@ -506,6 +506,46 @@ export const RolesClanSlice = createSlice({
 
 			role.channel_ids = Array.isArray(role?.channel_ids) ? role?.channel_ids?.filter((id) => id && id !== channelId) : [];
 		},
+		addUsersToRoleUserList: (state, action: PayloadAction<{ clanId: string; roleId: string; userIds: string[] }>) => {
+			const { clanId, roleId, userIds } = action.payload;
+			const role = state.byClans?.[clanId]?.roles?.[roleId];
+			if (!role) return;
+
+			const existingUsers = role.role_user_list?.role_users || [];
+			const existingIds = new Set<string>();
+			for (const u of existingUsers) {
+				if (u.id) existingIds.add(u.id);
+			}
+
+			const newUsers = userIds.filter((id) => !existingIds.has(id)).map((id) => ({ id }));
+			if (!newUsers.length) return;
+
+			role.role_user_list = {
+				...role.role_user_list,
+				role_users: [...existingUsers, ...newUsers]
+			};
+
+			RolesClanAdapter.updateOne(state, {
+				id: roleId,
+				changes: { role_user_list: role.role_user_list }
+			});
+		},
+		removeUsersFromRoleUserList: (state, action: PayloadAction<{ clanId: string; roleId: string; userIds: string[] }>) => {
+			const { clanId, roleId, userIds } = action.payload;
+			const role = state.byClans?.[clanId]?.roles?.[roleId];
+			if (!role?.role_user_list?.role_users) return;
+
+			const removeSet = new Set(userIds);
+			const updatedUsers = role.role_user_list.role_users.filter((u) => u.id && !removeSet.has(u.id));
+
+			role.role_user_list = { ...role.role_user_list, role_users: updatedUsers };
+
+			RolesClanAdapter.updateOne(state, {
+				id: roleId,
+				changes: { role_user_list: role.role_user_list }
+			});
+		},
+
 		setCurrentRoleId: (state, action: PayloadAction<string>) => {
 			state.currentRoleId = action.payload;
 		}
