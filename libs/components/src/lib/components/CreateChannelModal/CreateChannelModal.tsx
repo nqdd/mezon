@@ -157,10 +157,12 @@ export const CreateNewChannelModal = () => {
 	}, [currentClanId, dispatch]);
 	useEscapeKeyClose(modalRef, handleClose);
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter' && !e.shiftKey) {
 			e.preventDefault();
-			handleSubmit();
+			if (!isInputError) {
+				handleSubmit();
+			}
 		}
 	};
 
@@ -168,7 +170,6 @@ export const CreateNewChannelModal = () => {
 		<div
 			ref={modalRef}
 			tabIndex={-1}
-			onKeyDown={handleKeyDown}
 			className="w-[100vw] h-[100vh] text-theme-primary overflow-hidden fixed top-0 left-0 z-50 bg-black bg-opacity-80 flex flex-row justify-center items-center"
 		>
 			<div
@@ -234,6 +235,7 @@ export const CreateNewChannelModal = () => {
 									shouldValidate={true}
 									categoryId={currentCategory?.category_id || channelWelcome?.category_id}
 									clanId={currentCategory?.clan_id as string}
+									onKeyDown={handleKeyDown}
 								/>
 							)}
 							{channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (
