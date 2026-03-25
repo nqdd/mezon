@@ -21,9 +21,6 @@ export const useColorRole = () => {
 export const ColorRoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const rolesClan = useSelector(selectAllRolesClan);
 
-	// Build userId → { color, icon } từ role.role_user_list.role_users
-	// Dùng role_user_list thay vì selectAllUserClans để tránh iterate toàn bộ members
-	// role_user_list được load từ listRoles API và được preserve khi socket UPDATE role (color/icon)
 	const userColorMap = useMemo(() => {
 		const map = new Map<string, { color: string; icon: string; max_level_permission: number }>();
 
@@ -43,18 +40,15 @@ export const ColorRoleProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 					return;
 				}
 
-				// Ưu tiên role có max_level_permission cao hơn để lấy color
 				if (roleLevel > existing.max_level_permission) {
 					map.set(user.id, {
 						color: roleColor,
-						// Nếu role mới không có icon, giữ lại icon từ role cũ
 						icon: roleIcon || existing.icon,
 						max_level_permission: roleLevel
 					});
 					return;
 				}
 
-				// Role hiện tại có level cao hơn hoặc bằng, nhưng chưa có icon → lấy icon từ role này nếu có
 				if (!existing.icon && roleIcon) {
 					map.set(user.id, { ...existing, icon: roleIcon });
 				}
