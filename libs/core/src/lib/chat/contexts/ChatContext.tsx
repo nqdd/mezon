@@ -30,7 +30,6 @@ import {
 	emojiSuggestionActions,
 	eventManagementActions,
 	friendsActions,
-	getPoll,
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
@@ -77,7 +76,6 @@ import {
 	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	selectLoadingStatus,
-	selectMessageEntityById,
 	selectOrderedClans,
 	selectStreamMembersByChannelId,
 	selectUserCallId,
@@ -432,15 +430,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					dispatch(messagesActions.newMessage(mess));
 
 					if (message.code === TypeMessage.ChatUpdate && message?.message_id) {
-						const existingMessage = selectMessageEntityById(store.getState(), message.channel_id, message.message_id);
-						if (existingMessage && existingMessage.code === TypeMessage.Poll) {
-							dispatch(
-								getPoll({
-									message_id: message.message_id,
-									channel_id: message.channel_id
-								})
-							);
-						}
 					}
 
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
@@ -476,23 +465,16 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					const isClanView = selectClanView(store.getState());
 
-					let isNotCurrentDirect = false;
+					const path = isElectron() ? window.location.hash : window.location.pathname;
+					const isFriendPageView = path.includes('/chat/direct/friends');
+					const isFocus = !isBackgroundModeActive();
 
-					if (isMobile) {
-						isNotCurrentDirect =
-							isClanView || !currentDirectId || (!!currentDirectId && !RegExp(currentDirectId).test(message?.channel_id));
-					} else {
-						const path = isElectron() ? window.location.hash : window.location.pathname;
-						const isFriendPageView = path.includes('/chat/direct/friends');
-						const isFocus = !isBackgroundModeActive();
-
-						isNotCurrentDirect =
-							isFriendPageView ||
-							isClanView ||
-							!currentDirectId ||
-							(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
-							!isFocus;
-					}
+					const isNotCurrentDirect =
+						isFriendPageView ||
+						isClanView ||
+						!currentDirectId ||
+						(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
+						!isFocus;
 
 					if (isNotCurrentDirect) {
 						if (message.sender_id !== userId && message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
@@ -740,8 +722,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 			if (notification.code === NotificationCode.FRIEND_REQUEST || notification.code === NotificationCode.FRIEND_ACCEPT) {
 				dispatch(toastActions.addToast({ message: notification.subject, type: 'info', id: 'ACTION_FRIEND' }));
-				if (notification.code === NotificationCode.FRIEND_ACCEPT && notification.sender_id) {
-					dispatch(friendsActions.acceptFriend(notification.sender_id));
+				if (notification.code === NotificationCode.FRIEND_ACCEPT) {
+					dispatch(friendsActions.acceptFriend(`${userId}_${notification.sender_id}`));
 				}
 			}
 

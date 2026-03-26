@@ -13,30 +13,10 @@ import { ensureSession, getMezonCtx } from '../helpers';
 
 export const POLLS_FEATURE_KEY = 'polls';
 
-export interface PollEmojiByMessage {
-	questionEmojiId?: string;
-	answerEmojiIds?: string[];
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface PollsState {}
 
-export interface PollsState {
-	loadingCreate: boolean;
-	loadingVoteByMessageId: Record<string, boolean>;
-	loadingCloseByMessageId: Record<string, boolean>;
-	loadingGetByMessageId: Record<string, boolean>;
-	error: string | null;
-	pollsByMessageId: Record<string, ApiGetPollResponse>;
-	pollEmojiByMessageId: Record<string, PollEmojiByMessage>;
-}
-
-export const initialPollsState: PollsState = {
-	loadingCreate: false,
-	loadingVoteByMessageId: {},
-	loadingCloseByMessageId: {},
-	loadingGetByMessageId: {},
-	error: null,
-	pollsByMessageId: {},
-	pollEmojiByMessageId: {}
-};
+export const initialPollsState: PollsState = {};
 
 export const createChannelPoll = createAsyncThunk<ApiCreatePollResponse, ApiCreatePollRequest>('polls/createPoll', async (payload, thunkAPI) => {
 	try {
@@ -117,138 +97,8 @@ export const getPoll = createAsyncThunk<ApiGetPollResponse, ApiGetPollRequest>('
 export const pollsSlice = createSlice({
 	name: POLLS_FEATURE_KEY,
 	initialState: initialPollsState,
-	reducers: {},
-	extraReducers: (builder) => {
-		builder
-			.addCase(createChannelPoll.pending, (state) => {
-				state.loadingCreate = true;
-				state.error = null;
-			})
-			.addCase(createChannelPoll.fulfilled, (state, action) => {
-				state.loadingCreate = false;
-				const payload = action.payload as { message_id?: string; id?: string } | undefined;
-				const messageId = payload?.message_id ?? payload?.id;
-				if (payload && messageId) {
-					const id = String(messageId);
-					state.pollsByMessageId[id] = action.payload as ApiGetPollResponse;
-					const arg = action.meta.arg as ApiCreatePollRequest & { question_emoji_id?: string; answer_emoji_ids?: string[] };
-					if (arg.question_emoji_id || (arg.answer_emoji_ids?.length ?? 0) > 0) {
-						state.pollEmojiByMessageId[id] = {
-							...(arg.question_emoji_id && { questionEmojiId: arg.question_emoji_id }),
-							...(arg.answer_emoji_ids?.length && { answerEmojiIds: arg.answer_emoji_ids })
-						};
-					}
-				}
-			})
-			.addCase(createChannelPoll.rejected, (state, action) => {
-				state.loadingCreate = false;
-				state.error = action.error.message || 'Failed to create poll';
-			})
-
-			.addCase(votePoll.pending, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingVoteByMessageId[messageId] = true;
-				}
-				state.error = null;
-			})
-			.addCase(votePoll.fulfilled, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingVoteByMessageId[messageId] = false;
-				}
-
-				const voteMessageId = action.meta.arg.message_id;
-				if (action.payload && voteMessageId && Object.keys(action.payload).length > 1) {
-					const currentPoll = state.pollsByMessageId[voteMessageId];
-					if (currentPoll) {
-						state.pollsByMessageId[voteMessageId] = {
-							...currentPoll,
-							...(action.payload as Partial<ApiGetPollResponse>)
-						};
-					}
-				}
-			})
-			.addCase(votePoll.rejected, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingVoteByMessageId[messageId] = false;
-				}
-				state.error = action.error.message || 'Failed to vote';
-			})
-
-			.addCase(closePoll.pending, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingCloseByMessageId[messageId] = true;
-				}
-				state.error = null;
-			})
-			.addCase(closePoll.fulfilled, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingCloseByMessageId[messageId] = false;
-				}
-				if (action.payload && action.payload.message_id) {
-					state.pollsByMessageId[action.payload.message_id] = action.payload;
-				}
-			})
-			.addCase(closePoll.rejected, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingCloseByMessageId[messageId] = false;
-				}
-				state.error = action.error.message || 'Failed to close poll';
-			})
-
-			.addCase(getPoll.pending, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingGetByMessageId[messageId] = true;
-				}
-				state.error = null;
-			})
-			.addCase(getPoll.fulfilled, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingGetByMessageId[messageId] = false;
-				}
-				if (action.payload && action.payload.message_id) {
-					state.pollsByMessageId[action.payload.message_id] = action.payload;
-				}
-			})
-			.addCase(getPoll.rejected, (state, action) => {
-				const messageId = action.meta.arg.message_id;
-				if (messageId) {
-					state.loadingGetByMessageId[messageId] = false;
-				}
-				state.error = action.error.message || 'Failed to get poll';
-			});
-	}
+	reducers: {}
 });
 
 export const pollsReducer = pollsSlice.reducer;
 export const pollsActions = pollsSlice.actions;
-
-export const getPollsState = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): PollsState => rootState[POLLS_FEATURE_KEY];
-
-export const selectPollLoadingCreate = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): boolean => getPollsState(rootState).loadingCreate;
-
-export const selectPollByMessageId = (rootState: { [POLLS_FEATURE_KEY]: PollsState }, messageId: string): ApiGetPollResponse | undefined =>
-	getPollsState(rootState).pollsByMessageId[messageId];
-
-export const selectPollLoadingVote = (rootState: { [POLLS_FEATURE_KEY]: PollsState }, messageId?: string): boolean =>
-	messageId ? getPollsState(rootState).loadingVoteByMessageId[messageId] || false : false;
-
-export const selectPollLoadingClose = (rootState: { [POLLS_FEATURE_KEY]: PollsState }, messageId?: string): boolean =>
-	messageId ? getPollsState(rootState).loadingCloseByMessageId[messageId] || false : false;
-
-export const selectPollLoadingGet = (rootState: { [POLLS_FEATURE_KEY]: PollsState }, messageId?: string): boolean =>
-	messageId ? getPollsState(rootState).loadingGetByMessageId[messageId] || false : false;
-
-export const selectPollError = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): string | null => getPollsState(rootState).error;
-
-export const selectPollEmojiByMessageId = (
-	rootState: { [POLLS_FEATURE_KEY]: PollsState },
-	messageId: string | number
-): PollEmojiByMessage | undefined => getPollsState(rootState).pollEmojiByMessageId[String(messageId)];
