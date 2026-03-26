@@ -6,6 +6,7 @@ import {
 	FAVORITE_CATEGORY_ID,
 	categoriesActions,
 	listChannelRenderAction,
+	selectAllChannelMeta,
 	selectCtrlKFocusChannel,
 	selectCurrentChannelId,
 	selectCurrentClanBanner,
@@ -140,10 +141,10 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const dispatch = useAppDispatch();
 
 	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
+	const firstBadgeInClan = useSelector(selectAllChannelMeta);
 	const firstChannelWithBadgeCount = useMemo(() => {
-		return listChannelRender?.find((item) => (item as IChannel)?.count_mess_unread && ((item as IChannel)?.count_mess_unread || 0) > 0) || null;
-	}, [listChannelRender]);
-
+		return firstBadgeInClan.find((channel) => channel && channel.clanId === currentClanId && !!channel?.count_mess_unread);
+	}, [firstBadgeInClan]);
 	const [height, setHeight] = useState(0);
 
 	const data = useMemo(() => {
