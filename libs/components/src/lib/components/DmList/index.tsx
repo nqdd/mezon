@@ -20,10 +20,13 @@ function DirectMessageList() {
 	const { quantityPendingRequest } = useFriends();
 	const pinnedDmIds = useSelector(selectPinnedDms);
 
-	const pinnedDMs = useMemo(() => dmGroupChatList.filter((id) => directEntities[id] && pinnedDmIds.includes(id)), [dmGroupChatList, pinnedDmIds]);
+	const pinnedDMs = useMemo(
+		() => dmGroupChatList.filter((id) => directEntities[id] && pinnedDmIds.includes(id)),
+		[dmGroupChatList, pinnedDmIds, directEntities]
+	);
 	const unpinnedDMs = useMemo(
 		() => dmGroupChatList.filter((id) => directEntities[id] && !pinnedDmIds.includes(id)),
-		[dmGroupChatList, pinnedDmIds]
+		[dmGroupChatList, pinnedDmIds, directEntities]
 	);
 
 	return (
