@@ -965,17 +965,11 @@ export const directActions = {
 
 export const directMetaActions = directActions;
 
-const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {
-	if (lastSeenStamp && lastSentStamp) {
-		return Number(lastSeenStamp) < Number(lastSentStamp);
-	}
-	return true;
-};
-
-const { selectAll, selectEntities } = directAdapter.getSelectors();
+const { selectAll, selectEntities, selectIds } = directAdapter.getSelectors();
 
 export const getDirectState = (rootState: { [DIRECT_FEATURE_KEY]: DirectState }): DirectState => rootState[DIRECT_FEATURE_KEY];
 export const selectDirectMessageEntities = createSelector(getDirectState, selectEntities);
+export const selectDirectMessageIds = createSelector(getDirectState, selectIds);
 
 export const selectAllDirectMessages = createSelector(getDirectState, selectAll);
 export const selectDmGroupCurrentId = createSelector(getDirectState, (state) => state.currentDirectMessageId);
