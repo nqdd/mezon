@@ -13,7 +13,6 @@ import { ACTIVE_WINDOW, FINISH_RENDER, LOCK_SCREEN, TRIGGER_SHORTCUT, UNLOCK_SCR
 import setupRequestPermission from './requestPermission';
 import { initBadge } from './services/badge';
 import { forceQuit } from './utils';
-
 const isQuitting = false;
 const ACTIVITY_CODING = Object.values(EActivityCoding);
 const ACTIVITY_MUSIC = Object.values(EActivityMusic);
@@ -93,11 +92,6 @@ export default class App {
 
 	private static onReady() {
 		if (rendererAppName) {
-			App.application.setLoginItemSettings({
-				openAtLogin: true,
-				path: process.execPath
-			});
-
 			App.initMainWindow();
 			App.loadMainWindow();
 			App.setupMenu();
