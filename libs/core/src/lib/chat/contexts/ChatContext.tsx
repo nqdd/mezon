@@ -2260,13 +2260,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						updates: user_add_ids.map((id) => ({ userId: id, roleId: role.id as string }))
 					})
 				);
-				dispatch(
-					rolesClanActions.addUsersToRoleUserList({
-						clanId: role.clan_id as string,
-						roleId: role.id as string,
-						userIds: user_add_ids
-					})
-				);
 			}
 
 			if (user_remove_ids.length) {
@@ -2274,13 +2267,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					usersClanActions.removeManyRoleIds({
 						clanId: role.clan_id as string,
 						updates: user_remove_ids.map((id) => ({ userId: id, roleId: role.id as string }))
-					})
-				);
-				dispatch(
-					rolesClanActions.removeUsersFromRoleUserList({
-						clanId: role.clan_id as string,
-						roleId: role.id as string,
-						userIds: user_remove_ids
 					})
 				);
 			}
@@ -2319,7 +2305,20 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				}
 				return;
 			}
-
+			dispatch(
+				rolesClanActions.addUsersToRoleUserList({
+					clanId: role.clan_id as string,
+					roleId: role.id as string,
+					userIds: user_add_ids
+				})
+			);
+			dispatch(
+				rolesClanActions.removeUsersFromRoleUserList({
+					clanId: role.clan_id as string,
+					roleId: role.id as string,
+					userIds: user_remove_ids
+				})
+			);
 			// Handle role update
 			if (status === EEventAction.UPDATE) {
 				const isUserAffected = user_add_ids.includes(userId as string) || user_remove_ids.includes(userId as string);
