@@ -282,6 +282,11 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 			//TODO: break logic send width thread box, channel, topic box, dm
 			if (props.isThread && !nameValueThread?.trim() && !props.isTopic && !threadCurrentChannel) {
 				dispatch(threadsActions.setNameThreadError(t('channelTopbar:createThread.validation.threadNameRequired')));
+				const hasContent = checkedRequest.content?.trim() || checkedRequest.valueTextInput?.trim();
+				const hasValueThreadMedia = (valueThread?.attachments?.length ?? 0) > 0 || (valueThread?.content?.t ?? '').trim().length > 0;
+				if (!hasContent && !checkAttachment && !hasValueThreadMedia) {
+					dispatch(threadsActions.setMessageThreadError(t('channelTopbar:createThread.validation.starterMessageRequired')));
+				}
 				updateDraft?.({
 					valueTextInput: '',
 					content: '',
@@ -292,9 +297,14 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				return;
 			}
 
-			if (props.isThread && !threadCurrentChannel && !isSendMessageOnThreadBox) {
+			if (props.isThread && !threadCurrentChannel) {
 				const hasContent = checkedRequest.content?.trim() || checkedRequest.valueTextInput?.trim();
-				const hasValueThreadMedia = (valueThread?.attachments?.length ?? 0) > 0 || (valueThread?.content?.t ?? '').trim().length > 0;
+				// Khi openThreadMessageState: valueThread luôn có content (message gốc) nên KHÔNG tính vào check
+				// → bắt buộc user phải tự nhập vào field starter message
+				const hasValueThreadMedia = !isSendMessageOnThreadBox && (
+					(valueThread?.attachments?.length ?? 0) > 0 ||
+					(valueThread?.content?.t ?? '').trim().length > 0
+				);
 				if (!hasContent && !checkAttachment && !hasValueThreadMedia) {
 					dispatch(threadsActions.setMessageThreadError(t('channelTopbar:createThread.validation.starterMessageRequired')));
 					return;

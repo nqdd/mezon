@@ -410,7 +410,7 @@ const ThreadBox = () => {
 
 			const mentionInput = threadBoxRef.current?.querySelector<HTMLElement>(`#${CHANNEL_INPUT_ID}`);
 
-			if (!mentionInput?.innerHTML) {
+			if (!mentionInput?.innerText?.trim()) {
 				dispatch(threadsActions.setMessageThreadError(t('createThread.validation.starterMessageRequired')));
 				return;
 			}

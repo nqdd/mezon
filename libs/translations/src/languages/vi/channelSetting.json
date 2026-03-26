@@ -9,7 +9,8 @@
 		"threadName": {
 			"title": "Tên chủ đề",
 			"placeholder": "Nhập tên chủ đề",
-			"errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 64 ký tự, chỉ từ, số, _ hoặc -).",
+			"errorMessage": "Vui lòng nhập tên chủ đề hợp lệ (tối đa 65 ký tự, chỉ từ, số, _ hoặc -).",
+			"emptyError": "Vui lòng nhập tên chủ đề (tối đa 65 ký tự, chỉ từ, số, _ hoặc -).",
 			"duplicateError": "Tên chủ đề đã tồn tại trong kênh. Vui lòng nhập tên khác."
 		},
 		"channelDescription": {

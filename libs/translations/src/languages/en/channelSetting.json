@@ -9,7 +9,8 @@
 		"threadName": {
 			"title": "Thread Name",
 			"placeholder": "Input Thread Name",
-			"errorMessage": "Please enter a valid thread name (max 64 characters, only words, numbers, _ or -).",
+			"errorMessage": "Please enter a valid thread name (max 65 characters, only words, numbers, _ or -).",
+			"emptyError": "Please enter a thread name (max 65 characters, only words, numbers, _ or -).",
 			"duplicateError": "The thread name already exists in the channel. Please enter another name."
 		},
 		"channelDescription": {
