@@ -609,7 +609,9 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					mentionRaw: [],
 					entities: []
 				});
-				setOpenThreadMessageState(false);
+				if (threadCurrentChannel) {
+					setOpenThreadMessageState(false);
+				}
 				setMentionData([]);
 				dispatch(threadsActions.setIsPrivate(0));
 			} else if (isReplyOnTopic) {
