@@ -43,7 +43,7 @@ function DirectMessageList() {
 						<div className="text-xs font-semibold tracking-wide left-sp text-theme-primary mt-6 flex flex-row items-center w-content justify-between px-2 pb-0 h-5 cursor-default text-theme-primary-hover">
 							<p>{t('pinned', 'PINNED')}</p>
 						</div>
-						<div className={`messages-scroll font-medium px-2 mt-1 max-h-[215px] overflow-y-auto`}>
+						<div className={`messages-scroll font-medium mt-1 max-h-[215px] overflow-y-auto`}>
 							<ListDMChannel listDM={pinnedDMs} isPinnedList />
 						</div>
 					</>
@@ -56,7 +56,7 @@ function DirectMessageList() {
 			</div>
 			<div className={`flex-1 font-medium  px-2`}>
 				<div className="flex flex-col gap-1 text-center relative">
-					<ListDMChannel listDM={unpinnedDMs} />
+					<ListDMChannel listDM={unpinnedDMs} pinnedCount={pinnedDMs.length} />
 				</div>
 			</div>
 		</>
