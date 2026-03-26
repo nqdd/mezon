@@ -1043,6 +1043,19 @@ export const channelsSlice = createSlice({
 			}
 		},
 
+		updateCategoryNameForChannels: (state, action: PayloadAction<{ clanId: string; categoryId: string; categoryName: string }>) => {
+			const { clanId, categoryId, categoryName } = action.payload;
+			const clanState = state.byClans[clanId];
+			if (!clanState) return;
+			const entityState = clanState.entities;
+			const updates = (entityState.ids as string[])
+				.filter((id) => entityState.entities[id]?.category_id === categoryId)
+				.map((id) => ({ id, changes: { category_name: categoryName } }));
+			if (updates.length > 0) {
+				channelsAdapter.updateMany(entityState, updates);
+			}
+		},
+
 		update: (state, action: PayloadAction<{ clanId: string; update: Update<ChannelsEntity, string> }>) => {
 			const { clanId, update } = action.payload;
 			if (!state.byClans[clanId]) {
@@ -1606,7 +1619,8 @@ export const channelsActions = {
 	addThreadSocket,
 	changeCategoryOfChannel,
 	updateChannelPrivateSocket,
-	bulkDeleteChannelSocket
+	bulkDeleteChannelSocket,
+	updateCategoryNameForChannels: channelsSlice.actions.updateCategoryNameForChannels
 };
 
 /*

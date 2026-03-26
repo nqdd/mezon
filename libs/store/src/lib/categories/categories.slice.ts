@@ -238,6 +238,14 @@ export const updateCategory = createAsyncThunk('categories/updateCategory', asyn
 				})
 			);
 
+			thunkAPI.dispatch(
+				channelsActions.updateCategoryNameForChannels({
+					clanId,
+					categoryId: request.category_id,
+					categoryName: request.category_name || ''
+				})
+			);
+
 			return { clanId, category: updatedCategory };
 		}
 
