@@ -209,8 +209,8 @@ function MessageContextMenu({
 	const pollData = useAppSelector((state) => selectPollByMessageId(state, messageId || ''));
 
 	const checkMessageHasText = useMemo(() => {
-		return message?.content.t !== '';
-	}, [message?.content.t]);
+		return message?.content?.t !== '';
+	}, [message?.content?.t]);
 
 	const checkMessageInPinnedList = useMemo(() => {
 		return listPinMessages?.some((pinMessage) => pinMessage?.message_id === messageId);
@@ -739,7 +739,7 @@ function MessageContextMenu({
 
 		builder.when(
 			checkPos &&
-				userId !== message.sender_id &&
+				userId !== message?.sender_id &&
 				message?.sender_id !== NX_CHAT_APP_ANNONYMOUS_USER_ID &&
 				message?.sender_id !== SYSTEM_SENDER_ID &&
 				message?.username !== SYSTEM_NAME,
