@@ -14,6 +14,7 @@ interface ChannelNameModalProps {
 	onChange: (value: string) => void;
 	onCheckValidate?: (check: boolean) => void;
 	onHandleChangeValue?: () => void;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 	error?: string;
 	placeholder: string;
 	shouldValidate: boolean;
@@ -26,7 +27,7 @@ export type ChannelNameModalRef = {
 };
 
 export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameModalProps>((props, ref) => {
-	const { channelNameProps, type, onChange, onCheckValidate, onHandleChangeValue, error, placeholder, shouldValidate, categoryId, clanId } = props;
+	const { channelNameProps, type, onChange, onCheckValidate, onHandleChangeValue, onKeyDown, error, placeholder, shouldValidate, categoryId, clanId } = props;
 	const { t } = useTranslation('createChannel');
 	const [checkValidate, setCheckValidate] = useState(true);
 	const [checkNameChannel, setCheckNameChannel] = useState(true);
@@ -124,6 +125,7 @@ export const ChannelNameTextField = forwardRef<ChannelNameModalRef, ChannelNameM
 						<input
 							className="Input grow shrink basis-0 h-10 outline-none bg-transparent  text-sm font-normal "
 							onChange={handleInputChange}
+							onKeyDown={onKeyDown}
 							placeholder={placeholder}
 							maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 							data-e2e={generateE2eId('clan_page.modal.create_channel.input.channel_name')}
