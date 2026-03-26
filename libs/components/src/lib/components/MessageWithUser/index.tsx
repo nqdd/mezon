@@ -96,6 +96,7 @@ const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { messag
 		});
 	}, [dispatch, message.id, message.channel_id, hasPollData, observeIntersectionForLoading]);
 
+
 	const answerCount = useMemo(() => {
 		const content = message?.content?.t;
 		if (!content) return 2;
@@ -110,7 +111,7 @@ const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { messag
 
 	const answers =
 		(pollContent?.answers as Array<string | { label?: string }> | undefined)?.map((a) => (typeof a === 'string' ? a : (a?.label ?? ''))) ?? [];
-	const duration = pollContent?.exp ? convertTimestampToTimeRemainingI18n(parseInt(String(pollContent.exp)), t) : '';
+	const duration = pollContent?.expire_at ? convertTimestampToTimeRemainingI18n(Number(pollContent.expire_at), t) : '';
 
 	return (
 		<PollMessage

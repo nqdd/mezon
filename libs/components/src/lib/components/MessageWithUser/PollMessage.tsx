@@ -128,7 +128,7 @@ export type PollMessageProps = {
 };
 
 export const PollMessage = ({ question, answers, duration, allowMultipleAnswers, messageId, channelId, votersByOption }: PollMessageProps) => {
-	const { t, i18n } = useTranslation('message');
+	const { t } = useTranslation('message');
 	const dispatch = useAppDispatch();
 	const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
 	const [showResults, setShowResults] = useState(false);
@@ -169,9 +169,9 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers,
 
 	const isExpired = useMemo(() => {
 		const pollDataAny = pollData as Record<string, unknown>;
-		if (!pollDataAny?.exp) return false;
+		if (!pollDataAny?.expire_at) return false;
 		const now = Math.floor(Date.now() / 1000);
-		const expiration = parseInt(pollDataAny.exp as string);
+		const expiration = Number(pollDataAny.expire_at);
 		return expiration < now;
 	}, [pollData]);
 
@@ -254,24 +254,7 @@ export const PollMessage = ({ question, answers, duration, allowMultipleAnswers,
 
 	const totalVotes = useMemo(() => voteCounts.reduce((sum, count) => sum + count, 0), [voteCounts]);
 
-	const formattedDuration = useMemo(() => {
-		if (!duration) return '';
-		const match = duration.match(/^(\d+)\s+(\w+)/);
-		if (!match) return duration;
-		const count = Number(match[1]);
-		const unit = match[2].toLowerCase();
-
-		if (i18n.language.startsWith('en')) {
-			if (unit.startsWith('day')) return `${count} day${count === 1 ? '' : 's'}`;
-			if (unit.startsWith('hour')) return `${count} hour${count === 1 ? '' : 's'}`;
-			if (unit.startsWith('minute')) return `${count} minute${count === 1 ? '' : 's'}`;
-		}
-
-		if (unit.startsWith('day')) return t('poll.durationDays', { count });
-		if (unit.startsWith('hour')) return t('poll.durationHours', { count });
-		if (unit.startsWith('minute')) return t('poll.durationMinutes', { count });
-		return duration;
-	}, [duration, t, i18n.language]);
+	const formattedDuration = duration;
 
 	const handleAnswerToggle = (index: number) => {
 		if (!canSelectAnswers) return;
