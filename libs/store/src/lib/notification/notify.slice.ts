@@ -4,7 +4,7 @@ import { Direction_Mode, NotificationCategory } from '@mezon/utils';
 import type { EntityState, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit';
 import { safeJSONParse } from 'mezon-js';
-import type { ApiChannelMessageHeader, ApiMessageMention } from 'mezon-js/api.gen';
+import type { ApiChannelMessageHeader, ApiMessageMention } from 'mezon-js/api';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
 import type { MezonValueContext } from '../helpers';
@@ -334,7 +334,7 @@ export const notificationSlice = createSlice({
 								mention_ids,
 								position_s,
 								position_e,
-								attachment_type: '',
+								attachment_type: message.attachments?.[0].filetype || '',
 								has_more_attachment: (message.attachments?.length || 0) > 2,
 								is_mention_role,
 								message_id: message.message_id

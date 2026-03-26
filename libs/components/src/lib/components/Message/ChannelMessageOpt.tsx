@@ -91,7 +91,7 @@ const ChannelMessageOpt = ({
 	const replyMenu = useReplyMenuBuilder(message, hasPermission);
 	const editMenu = useEditMenuBuilder(message);
 	const reactMenu = useReactMenuBuilder(message);
-	const threadMenu = useThreadMenuBuilder(message, isShowIconThread, hasPermission, isAppChannel);
+	const threadMenu = useThreadMenuBuilder(message, isShowIconThread, hasPermission, isAppChannel, isTopic);
 	const optionMenu = useOptionMenuBuilder(handleContextMenu);
 	const giveACoffeeMenu = useGiveACoffeeMenuBuilder(message, isTopic);
 	const checkMessageOnTopic = useAppSelector((state) => selectIsMessageChannelIdMatched(state, message?.channel_id ?? ''));
@@ -323,7 +323,7 @@ function useReplyMenuBuilder(message: IMessageWithUser, hasPermission: boolean) 
 					message_sender_id: message.sender_id,
 					content: JSON.stringify(message.content),
 					message_sender_username: message.username,
-					mesages_sender_avatar: message.clan_avatar ? message.clan_avatar : message.avatar,
+					message_sender_avatar: message.clan_avatar ? message.clan_avatar : message.avatar,
 					message_sender_clan_nick: message.clan_nick,
 					message_sender_display_name: message.display_name,
 					has_attachment: (message.attachments && message.attachments?.length > 0) ?? false,
@@ -412,7 +412,7 @@ function useReactMenuBuilder(message: IMessageWithUser) {
 	});
 }
 
-function useThreadMenuBuilder(message: IMessageWithUser, isShowIconThread: boolean, hasPermission: boolean, isAppChannel: boolean) {
+function useThreadMenuBuilder(message: IMessageWithUser, isShowIconThread: boolean, hasPermission: boolean, isAppChannel: boolean, isTopic: boolean) {
 	const { t } = useTranslation('contextMenu');
 	const [thread, setThread] = useState(false);
 	const dispatch = useAppDispatch();
@@ -448,7 +448,7 @@ function useThreadMenuBuilder(message: IMessageWithUser, isShowIconThread: boole
 	}, [dispatch, message, setIsShowCreateThread, setOpenThreadMessageState, setThread, thread, setValueThread]);
 
 	return useMenuBuilderPlugin((builder) => {
-		builder.when(isShowIconThread && hasPermission && !isAppChannel, (builder) => {
+		builder.when(isShowIconThread && hasPermission && !isAppChannel && !isTopic, (builder) => {
 			builder.addMenuItem('thread', t('createThread'), handleItemClick, <Icons.ThreadIcon isWhite={thread} />);
 		});
 	});

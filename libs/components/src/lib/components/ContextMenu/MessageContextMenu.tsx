@@ -80,7 +80,7 @@ import {
 	showSimpleToast
 } from '@mezon/utils';
 import { ChannelStreamMode, ChannelType, safeJSONParse } from 'mezon-js';
-import type { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api.gen';
+import type { ApiChannelDescription, ApiQuickMenuAccessRequest } from 'mezon-js/api';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -348,7 +348,7 @@ function MessageContextMenu({
 					message_sender_id: message.sender_id,
 					content: JSON.stringify(message.content ?? '{}'),
 					message_sender_username: message.username,
-					mesages_sender_avatar: message.clan_avatar ? message.clan_avatar : message.avatar,
+					message_sender_avatar: message.clan_avatar ? message.clan_avatar : message.avatar,
 					message_sender_clan_nick: message.clan_nick,
 					message_sender_display_name: message.display_name,
 					has_attachment: (message.attachments && message.attachments?.length > 0) ?? false,
@@ -597,6 +597,7 @@ function MessageContextMenu({
 
 	const enableCreateThreadItem = useMemo(() => {
 		if (!checkPos) return false;
+		if (isTopic) return false;
 		if (
 			activeMode === ChannelStreamMode.STREAM_MODE_DM ||
 			activeMode === ChannelStreamMode.STREAM_MODE_GROUP ||
@@ -612,7 +613,7 @@ function MessageContextMenu({
 			return false;
 		}
 		return canManageThread;
-	}, [checkPos, activeMode, canManageThread, currentChannelType]);
+	}, [checkPos, activeMode, canManageThread, currentChannelType, isTopic]);
 
 	const enableDelMessageItem = useMemo(() => {
 		if (!checkPos || message?.content?.tp) return false;

@@ -21,7 +21,7 @@ import type {
 	ApiChannelDescription,
 	ApiCreateChannelDescRequest,
 	ApiMarkAsReadRequest
-} from 'mezon-js/api.gen';
+} from 'mezon-js/api';
 import { appActions } from '../app/app.slice';
 import type { CacheMetadata } from '../cache-metadata';
 import { createApiKey, createCacheMetadata, markApiFirstCalled, shouldForceApiCall } from '../cache-metadata';
@@ -514,9 +514,6 @@ export const updateChannel = createAsyncThunk('channels/updateChannel', async (b
 						}
 					})
 				);
-				thunkAPI.dispatch(
-					listChannelRenderAction.updateChannelInListRender({ channelId: body.channel_id, clanId: clanId as string, dataUpdate: body })
-				);
 			}
 		}
 	} catch (error) {
@@ -816,9 +813,6 @@ export const fetchChannels = createAsyncThunk(
 						isMobile
 					})
 				);
-
-				const meta = channels.map((ch) => extractChannelMeta(ch));
-				thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata(meta));
 
 				const currentState = thunkAPI.getState() as RootState;
 				const queuedMessages = currentState.messages.queuedLastSeenMessages;
@@ -1259,34 +1253,6 @@ export const channelsSlice = createSlice({
 					count_mess_unread: finalCount
 				}
 			});
-		},
-
-		resetChannelsCount: (
-			state: ChannelsState,
-			action: PayloadAction<{
-				clanId: string;
-				channelIds: string[];
-			}>
-		) => {
-			const { clanId, channelIds } = action.payload;
-			const clanChannels = state.byClans[clanId];
-
-			if (!clanChannels) return;
-
-			const updates = channelIds.reduce<Array<{ id: string; changes: { count_mess_unread: number } }>>((acc, channelId) => {
-				const entity = clanChannels.entities.entities[channelId];
-				if (!entity || entity.count_mess_unread === 0) return acc;
-				acc.push({
-					id: channelId,
-					changes: {
-						count_mess_unread: 0
-					}
-				});
-				return acc;
-			}, []);
-			if (updates.length > 0) {
-				channelsAdapter.updateMany(state.byClans[clanId].entities, updates);
-			}
 		},
 
 		updateAppChannel: (state, action: PayloadAction<{ clanId: string; channelId: string; changes: Partial<ApiChannelAppResponse> }>) => {

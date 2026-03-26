@@ -3,7 +3,7 @@ import { createChannelPoll, referencesActions, selectAttachmentByChannelId, sele
 import { Icons } from '@mezon/ui';
 import { IMAGE_MAX_FILE_SIZE, MAX_FILE_ATTACHMENTS, MAX_FILE_SIZE, UploadLimitReason, generateE2eId, processFile } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
-import type { ApiMessageAttachment } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment } from 'mezon-js/api';
 import { useRef, useState } from 'react';
 import { useModal } from 'react-modal-hook';
 import CreatePollModal, { type PollData } from './CreatePollModal';
@@ -81,9 +81,7 @@ function FileSelectionButton({ currentChannelId, mode }: FileSelectionButtonProp
 					question: pollData.question,
 					answers: pollData.answers,
 					expire_hours: expireHours,
-					type: pollData.allowMultipleAnswers ? 1 : 0,
-					question_emoji_id: pollData.questionEmojiId,
-					answer_emoji_ids: pollData.answerEmojiIds
+					type: pollData.allowMultipleAnswers ? 1 : 0
 				})
 			).unwrap();
 

@@ -15,7 +15,7 @@ import { Icons, Menu } from '@mezon/ui';
 import type { IChannel } from '@mezon/utils';
 import { ChannelIsNotThread, MAX_FILE_SIZE_8MB, fileTypeImage, generateE2eId, timeFormatI18n } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
-import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api.gen';
+import type { ApiMessageAttachment, ApiWebhook, MezonUpdateWebhookByIdBody } from 'mezon-js/api';
 import type { ChangeEvent, Dispatch, ReactElement, SetStateAction } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,29 +23,36 @@ import { useSelector } from 'react-redux';
 import { ELimitSize } from '../../../../ModalValidateFile';
 import { ModalErrorTypeUpload, ModalOverData } from '../../../../ModalValidateFile/ModalOverData';
 import ModalSaveChanges from '../../../ClanSettingOverview/ModalSaveChanges';
+import WebhookNameError from '../../WebhookNameError';
+import { WEBHOOK_NAME_MAX_LENGTH } from '../../webhookNameConstraints';
 import DeleteWebhookPopup from './DeleteWebhookPopup';
 
 interface IWebhookItemModalProps {
 	webhookItem: ApiWebhook;
 	currentChannel?: IChannel;
 	isClanSetting?: boolean;
+	isExpanded?: boolean;
+	onToggleExpand?: () => void;
 }
 
-const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebhookItemModalProps) => {
+const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting, isExpanded, onToggleExpand }: IWebhookItemModalProps) => {
 	const { t } = useTranslation('clanIntegrationsSetting');
 	const { t: tCommon } = useTranslation('common');
 	const [isExpand, setIsExpand] = useState(false);
+
+	const isItemExpanded = typeof isExpanded === 'boolean' ? isExpanded : isExpand;
+
 	const webhookOwner = useAppSelector((state) => selectMemberClanByUserId(state, webhookItem.creator_id as string));
 	return (
 		<div className="bg-theme-setting-nav border-theme-primary p-[20px]  rounded-md mb-[20px]">
 			<div className="flex gap-[20px] items-center">
 				<img src={webhookItem.avatar} alt="Webhook avatar" className="aspect-square w-[50px] rounded-full" />
-				<div className="flex w-full justify-between items-center text-theme-primary-active">
-					<div className="">
-						<div>{webhookItem.webhook_name}</div>
-						<div className="flex gap-1 items-center">
-							<Icons.ClockIcon className="text-theme-primary" />
-							<div className="text-theme-primary text-[13px]">
+				<div className="flex w-full min-w-0 justify-between items-center text-theme-primary-active">
+					<div className="min-w-0 flex-1 overflow-hidden">
+						<div className="break-words">{webhookItem.webhook_name}</div>
+						<div className="flex gap-1 items-center min-w-0">
+							<Icons.ClockIcon className="text-theme-primary shrink-0" />
+							<div className="text-theme-primary text-[13px] break-words">
 								{t('webhooksItem.createdBy', {
 									webhookCreateTime: timeFormatI18n(
 										webhookItem.create_time_seconds ?? Math.floor(new Date(webhookItem.update_time || '').getTime() / 1000),
@@ -57,15 +64,15 @@ const WebhookItemModal = ({ webhookItem, currentChannel, isClanSetting }: IWebho
 						</div>
 					</div>
 					<div
-						onClick={() => setIsExpand(!isExpand)}
-						className={`cursor-pointer transition duration-100 ease-in-out ${isExpand ? '' : '-rotate-90'}`}
+						onClick={() => (onToggleExpand ? onToggleExpand() : setIsExpand(!isItemExpanded))}
+						className={`cursor-pointer transition duration-100 ease-in-out ${isItemExpanded ? '' : '-rotate-90'}`}
 						data-e2e={generateE2eId('channel_setting_page.webhook.button.view_webhook')}
 					>
 						<Icons.ArrowDown defaultSize="h-[30px] w-[30px] dark:text-[#b5bac1] text-black" />
 					</div>
 				</div>
 			</div>
-			{isExpand && <ExpendedWebhookModal isClanSetting={isClanSetting} currentChannel={currentChannel} webhookItem={webhookItem} />}
+			{isItemExpanded && <ExpendedWebhookModal isClanSetting={isClanSetting} currentChannel={currentChannel} webhookItem={webhookItem} />}
 		</div>
 	);
 };
@@ -123,7 +130,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 
 	const hasChange = useMemo(() => {
 		return (
-			dataForUpdate.webhookNameInput !== webhookItem.webhook_name ||
+			(dataForUpdate.webhookNameInput ?? '').trim() !== (webhookItem.webhook_name ?? '').trim() ||
 			dataForUpdate.webhookAvatarUrl !== webhookItem.avatar ||
 			dataForUpdate.channelIdForUpdate !== webhookItem.channel_id
 		);
@@ -135,6 +142,11 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 		webhookItem.avatar,
 		webhookItem.channel_id
 	]);
+
+	const trimmedWebhookName = (dataForUpdate.webhookNameInput ?? '').trim();
+	const webhookNameLength = trimmedWebhookName.length;
+	const isWebhookNameTooLong = webhookNameLength > WEBHOOK_NAME_MAX_LENGTH;
+	const isNameValid = webhookNameLength > 0 && webhookNameLength <= WEBHOOK_NAME_MAX_LENGTH;
 
 	useEffect(() => {
 		if (!hasChange) {
@@ -184,7 +196,7 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 		const request: MezonUpdateWebhookByIdBody = {
 			avatar: dataForUpdate.webhookAvatarUrl,
 			channel_id_update: dataForUpdate.channelIdForUpdate,
-			webhook_name: dataForUpdate.webhookNameInput,
+			webhook_name: dataForUpdate.webhookNameInput?.trim() ?? '',
 			channel_id: webhookItem.channel_id,
 			clan_id: clanId
 		};
@@ -253,8 +265,11 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 									}
 									type="text"
 									value={dataForUpdate.webhookNameInput}
-									className="w-full bg-theme-setting-primary text-theme-primary rounded-sm outline-none h-[50px] px-[10px]"
+									className={`w-full bg-theme-setting-primary text-theme-primary rounded-sm outline-none h-[50px] px-[10px] ${
+										isWebhookNameTooLong ? 'border border-colorTextError' : ''
+									}`}
 								/>
+								{isWebhookNameTooLong ? <WebhookNameError message={t('webhooksEdit.nameMaxLengthError')} /> : null}
 							</div>
 							<div className="w-1/2 dark:text-[#b5bac1] text-textLightTheme">
 								<div className="text-[12px] mb-[10px]">
@@ -301,13 +316,14 @@ const ExpendedWebhookModal = ({ webhookItem, currentChannel, isClanSetting }: IE
 					</div>
 				</div>
 			</div>
-			{hasChange && <ModalSaveChanges onSave={handleEditWebhook} onReset={handleResetChange} />}
+			{hasChange && <ModalSaveChanges onSave={handleEditWebhook} onReset={handleResetChange} disableSave={!isNameValid} />}
 			{isShowPopup && (
 				<DeleteWebhookPopup
 					currentChannel={currentChannel}
 					webhookItem={webhookItem}
 					closeShowPopup={handleCloseDeletePopup}
 					isClanSetting={isClanSetting}
+					displayName={dataForUpdate.webhookNameInput}
 				/>
 			)}
 			<ModalErrorTypeUpload open={openTypeModal} onClose={() => setOpenTypeModal(false)} />

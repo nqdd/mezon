@@ -208,10 +208,10 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 				<View style={[styles.backgroundListIcon, isTabletLandscape && { justifyContent: 'space-between' }]}>
 					<View style={styles.shopSettingRow}>
 						<TouchableOpacity style={styles.backgroundSetting} onPress={() => navigateToShopScreen()}>
-							<Icons.ShopIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
+							<Icons.ShopIcon color={themeValue.textStrong} primary={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 						</TouchableOpacity>
 						<TouchableOpacity style={styles.backgroundSetting} onPress={() => navigateToSettingScreen()}>
-							<Icons.SettingIcon color={themeValue.textStrong} width={size.s_20} height={size.s_20} />
+							<Icons.SettingIcon color={themeValue.textStrong} primary={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -285,7 +285,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 					{!!walletDetail?.address && (
 						<View>
 							<TouchableOpacity onPress={showSendTokenBottomSheet} style={styles.tokenRow}>
-								<Icons.BalanceIcon color={baseColor.azureBlue} width={size.s_20} height={size.s_20} />
+								<Icons.BalanceIcon
+									color={baseColor.azureBlue}
+									primary={themeValue.textDisabled}
+									width={size.s_20}
+									height={size.s_20}
+								/>
 								<View style={styles.token}>
 									<Text
 										style={styles.text}
@@ -300,7 +305,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 								}}
 								style={styles.tokenRowMargin}
 							>
-								<Icons.TransferIcon width={size.s_20} height={size.s_20} />
+								<Icons.TransferIcon primary={themeValue.textDisabled} width={size.s_20} height={size.s_20} />
 								<View style={styles.token}>
 									<Text style={styles.text}>{t('screenStack:settingStack.sendToken')}</Text>
 								</View>
@@ -313,7 +318,12 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 								}}
 								style={styles.tokenRowMargin}
 							>
-								<Icons.HistoryTransactionIcon color={baseColor.azureBlue} width={size.s_20} height={size.s_20} />
+								<Icons.HistoryTransactionIcon
+									color={baseColor.azureBlue}
+									primary={themeValue.textDisabled}
+									width={size.s_20}
+									height={size.s_20}
+								/>
 								<View style={styles.token}>
 									<Text style={styles.text}>{t('screenStack:settingStack.historyTransaction')}</Text>
 								</View>
@@ -326,7 +336,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
 							<MezonButton
 								containerStyle={styles.button}
 								onPress={() => navigateToProfileSetting()}
-								icon={<Icons.EditIcon color={baseColor.white} width={size.s_18} height={size.s_18} />}
+								icon={<Icons.EditIcon color={themeValue?.iconTertiary} width={size.s_18} height={size.s_18} />}
 								title={t('editStatus')}
 								titleStyle={styles.whiteText}
 							/>

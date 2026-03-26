@@ -13,7 +13,7 @@ import {
 	useAppDispatch
 } from '@mezon/store';
 import { transformPayloadWriteSocket } from '@mezon/utils';
-import type { ApiClanEmoji } from 'mezon-js/api.gen';
+import type { ApiClanEmoji } from 'mezon-js/api';
 import { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 export type UseMessageReactionOption = {
@@ -65,16 +65,19 @@ export function useChatReaction({ isMobile = false, isClanViewMobile = undefined
 
 		await dispatch(channelUsersActions.addChannelUsers(body));
 		dispatch(
-			channelMetaActions.updateBulkChannelMetadata([
-				{
-					id: currentChannel?.channel_id ?? '',
-					lastSeenTimestamp: timestamp,
-					lastSentTimestamp: timestamp,
-					clanId: currentChannel?.clan_id ?? '',
-					isMute: false,
-					senderId: currentChannel?.last_sent_message?.sender_id ?? ''
-				}
-			])
+			channelMetaActions.updateBulkChannelMetadata({
+				data: [
+					{
+						id: currentChannel?.channel_id ?? '',
+						lastSeenTimestamp: timestamp,
+						lastSentTimestamp: timestamp,
+						clanId: currentChannel?.clan_id ?? '',
+						isMute: false,
+						senderId: currentChannel?.last_sent_message?.sender_id ?? ''
+					}
+				],
+				clanId: currentChannel?.clan_id ?? ''
+			})
 		);
 	}, []);
 

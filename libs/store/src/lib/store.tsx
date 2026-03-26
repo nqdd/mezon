@@ -106,7 +106,7 @@ const persistedClansReducer = persistReducer(
 	{
 		key: 'clans',
 		storage,
-		blacklist: ['invitePeople']
+		blacklist: ['invitePeople', 'checkJoinList']
 	},
 	clansReducer
 );
@@ -290,6 +290,31 @@ const persistedActivitiesReducer = persistReducer(
 	activitiesAPIReducer
 );
 
+const persistedDirectReducer = persistReducer(
+	{
+		key: 'direct',
+		storage,
+		whitelist: ['pinnedDms']
+	},
+	directReducer
+);
+
+const persistedChannelMetaReducer = persistReducer(
+	{
+		key: 'channelmeta',
+		storage
+	},
+	channelMetaReducer
+);
+
+const persistedFcmReducer = persistReducer(
+	{
+		key: 'fcm',
+		storage
+	},
+	fcmReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	dashboard: dashboardReducer,
@@ -300,7 +325,7 @@ const reducer = {
 	channelMedia: channelMediaReducer,
 	clans: persistedClansReducer,
 	channels: persistedChannelReducer,
-	channelmeta: channelMetaReducer,
+	channelmeta: persistedChannelMetaReducer,
 	settingSticker: persistedsettingClanStickerReducer,
 	allUsersByAddChannel: userChannelsReducer,
 	listchannelbyusers: persistedListchannelsByUserReducer,
@@ -318,7 +343,7 @@ const reducer = {
 	[POLICIES_FEATURE_KEY]: policiesReducer,
 	userClanProfile: userClanProfileReducer,
 	friends: friendsReducer,
-	direct: directReducer,
+	direct: persistedDirectReducer,
 	roleId: roleIdReducer,
 	[OVERRIDDEN_POLICIES_FEATURE_KEY]: overriddenPoliciesReducer,
 	notificationsetting: notificationSettingReducer,
@@ -338,7 +363,7 @@ const reducer = {
 	activitiesapi: persistedActivitiesReducer,
 	auditlog: auditLogReducer,
 	audiocall: audioCallReducer,
-	fcm: fcmReducer,
+	fcm: persistedFcmReducer,
 	auditlogfilter: auditLogFilterReducer,
 	references: referencesReducer,
 	reaction: reactionReducer,

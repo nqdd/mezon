@@ -80,7 +80,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 				<div className="flex items-center justify-between md:px-[32px] max-md:px-[16px] max-md:py-[14px] h-[80px] max-md:h-[72px]">
 					<div className="flex items-center gap-[40px]">
 						<Link to={'/'} className="flex items-center gap-[4.92px] min-w-[120px]">
-							<Image src={`/assets/logo.png`} width={120} height={35} className="object-cover" />
+							<Image src={`https://cdn.mezon.ai/landing-page-mezon/mezonlogold.png`} width={120} height={35} className="object-cover" />
 						</Link>
 						<div className="hidden lg:flex items-center gap-3 lg:max-xl:gap-[0.05rem]">
 							<NavLink href="#home" section="home" label={t('header.home')} />
@@ -138,7 +138,7 @@ const HeaderMezon = memo((props: HeaderProps) => {
 								}
 							}}
 						>
-							Quick Meeting
+							{t('header.quickMeeting')}
 						</Link>
 						<Link
 							className="hidden lg:block px-[16px] py-[10px] bg-[url(assets/button_openmezon.png)] bg-no-repeat rounded-xl text-[#6E4A9E] text-[16px] leading-[24px] font-bold whitespace-nowrap hover:opacity-90 transition-opacity"
