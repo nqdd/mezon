@@ -149,7 +149,7 @@ export const initialAppState: AppState = {
 	isShowUpdateUsername: false,
 	isTimelineViewMode: false,
 	isMediaChannelViewMode: false,
-	autoStart: true,
+	autoStart: false,
 	hardwareAcceleration: true,
 	autoHidden: false
 };
