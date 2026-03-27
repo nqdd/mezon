@@ -279,13 +279,20 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 							</div>
 						)}
 
-						<input ref={fileInputRef} type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleAddMedia} />
+						<input
+							ref={fileInputRef}
+							type="file"
+							multiple
+							accept="image/*,video/*"
+							className="hidden"
+							onChange={handleAddMedia}
+							data-e2e={generateE2eId('timeline.modal.input.attachment')}
+						/>
 
 						<button
 							onClick={() => fileInputRef.current?.click()}
 							disabled={isUploading}
 							className="w-full py-8 border-2 border-dashed border-theme-secondary hover:border-buttonPrimary/50 rounded-xl flex flex-col items-center justify-center gap-2 text-theme-secondary hover:text-buttonPrimary transition-colors cursor-pointer bg-theme-primary"
-							data-e2e={generateE2eId('timeline.modal.input.attachment')}
 						>
 							{isUploading ? (
 								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-buttonPrimary" />
