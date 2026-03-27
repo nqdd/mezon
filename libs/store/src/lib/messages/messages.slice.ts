@@ -251,7 +251,8 @@ export const fetchMessagesCached = async (
 	// );
 
 	const response = await withRetry(
-		(session) => ensuredMezon.client.listChannelMessages(session, clanId, channelId, messageId, direction, LIMIT_MESSAGE, topicId),
+		(session) =>
+			ensuredMezon.client.listChannelMessages(session, clanId, channelId, topicId ? undefined : messageId, direction, LIMIT_MESSAGE, topicId),
 		{
 			maxRetries: 5,
 			initialDelay: 1000,
