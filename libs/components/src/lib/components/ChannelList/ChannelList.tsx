@@ -143,7 +143,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
 	const firstBadgeInClan = useSelector(selectAllChannelMeta);
 	const firstChannelWithBadgeCount = useMemo(() => {
-		return firstBadgeInClan.find((channel) => channel && channel.clanId === currentClanId && !!channel?.count_mess_unread);
+		return firstBadgeInClan.find((channel) => channel && channel.clanId === currentClanId && !!channel?.count_mess_unread) ?? null;
 	}, [firstBadgeInClan]);
 	const [height, setHeight] = useState(0);
 
