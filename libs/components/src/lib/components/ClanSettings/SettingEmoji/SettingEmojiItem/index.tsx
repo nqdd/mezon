@@ -22,6 +22,7 @@ type SettingEmojiItemProp = {
 
 const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmojiItemProp) => {
 	const inputRef = useRef<HTMLInputElement>(null);
+	const isUpdatingRef = useRef<boolean>(false);
 	const [showDelete, setShowDelete] = useState<boolean>(false);
 	const dispatch = useAppDispatch();
 	const clanId = useSelector(selectCurrentClanId);
@@ -60,12 +61,17 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 				id: emoji.id || ''
 			};
 			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: emoji.id || '' }));
+			isUpdatingRef.current = true;
 			inputRef.current?.blur();
 		}
 	};
 
 	const handleInputBlur = () => {
 		setIsInputFocused(false);
+		if (isUpdatingRef.current) {
+			isUpdatingRef.current = false;
+			return;
+		}
 		const cleanName = nameEmoji.replace(/\s/g, '');
 		const cleanOriginalName = originalNameEmoji.replace(/\s/g, '');
 		if (!cleanName || nameEmoji === cleanOriginalName) {
