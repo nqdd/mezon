@@ -526,5 +526,30 @@
 		"errorMaxLength": "Длина должна быть между {{min}} и {{max}}.",
 		"formatDate": "ММММ д, гггг",
 		"cannotSendLocationWithAnonymous": "Нельзя поделиться локацией, находясь под \"анонимкой\"."
+	},
+	"emojiCategories": {
+		"forsale": "Продаётся",
+		"Recent": "Недавние",
+		"Frequently": "Часто используемые",
+		"People": "Люди",
+		"Nature": "Природа",
+		"Food": "Еда",
+		"Activities": "Активности",
+		"Travel": "Путешествия",
+		"Objects": "Объекты",
+		"Symbols": "Символы",
+		"Flags": "Флаги",
+		"Custom": "Свои",
+		"FORSALE": "Продаётся",
+		"RECENT": "Недавние",
+		"FREQUENTLY": "Часто используемые",
+		"PEOPLE": "Люди",
+		"NATURE": "Природа",
+		"FOOD": "Еда",
+		"ACTIVITIES": "Активности",
+		"TRAVEL": "Путешествия",
+		"OBJECTS": "Объекты",
+		"SYMBOLS": "Символы",
+		"FLAGS": "Флаги"
 	}
 }

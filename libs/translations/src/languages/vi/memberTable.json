@@ -14,6 +14,7 @@
 	"error": "Lỗi",
 	"profile": "Hồ sơ",
 	"message": "Tin nhắn",
+	"timeAgo": "{{time}} trước",
 	"transferOwnership": "Chuyển quyền sở hữu",
 	"removeMember": "Xóa thành viên"
 }

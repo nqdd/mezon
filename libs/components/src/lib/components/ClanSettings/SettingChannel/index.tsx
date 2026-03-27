@@ -9,6 +9,7 @@ import {
 import { Icons, Menu, Pagination } from '@mezon/ui';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
+import { enUS, es, ru, vi } from 'date-fns/locale';
 import { ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiChannelSettingItem } from 'mezon-js/api';
 import type { ReactElement } from 'react';
@@ -297,19 +298,30 @@ const ItemInfor = ({
 	isStream?: boolean;
 	isApp?: boolean;
 }) => {
-	const { t } = useTranslation('channelSetting');
+	const { t, i18n } = useTranslation('channelSetting');
 	const creatorChannel = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 	const handleCopyChannelId = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.stopPropagation();
 		e.preventDefault();
 		navigator.clipboard.writeText(channelId);
 	};
+	const getRelativeTimeLocale = () => {
+		const normalizedLanguage = i18n.language.toLowerCase();
+		if (normalizedLanguage.startsWith('es')) return es;
+		if (normalizedLanguage.startsWith('ru')) return ru;
+		if (normalizedLanguage.startsWith('vi')) return vi;
+		return enUS;
+	};
+
 	const mumberformatter = Intl.NumberFormat('en-US', {
 		notation: 'compact',
 		compactDisplay: 'short'
 	});
 	const date = lastMessage?.timestamp_seconds
-		? formatDistance((lastMessage?.timestamp_seconds as number) * 1000, new Date(), { addSuffix: true })
+		? formatDistance((lastMessage?.timestamp_seconds as number) * 1000, new Date(), {
+				addSuffix: true,
+				locale: getRelativeTimeLocale()
+			})
 		: null;
 
 	const handleShowAllMemberList = () => {

@@ -125,6 +125,10 @@
 	"isBanned": "Вы забанены",
 	"blockedUserMessage": "Вы не можете ответить на этот разговор",
 	"messageInputPlaceHolder": "Написать сообщение...",
+	"fileSelection": {
+		"uploadFile": "Загрузить файл",
+		"createPoll": "Создать опрос"
+	},
 	"shareLocationModal": {
 		"sendThisLocation": "Отправить это местоположение на",
 		"send": "Отправить",

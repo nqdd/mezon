@@ -178,9 +178,13 @@ export const uniqueUsers = (mentions: IMentionOnMessage[], memUserIds: string[] 
 export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1) => {
 	const target = new Date(Math.floor(timestampSec) * 1000);
 	const diffSec = Math.max(0, differenceInSeconds(Date.now(), target));
+	const normalizedLang = String(languageCode || 'en').toLowerCase();
 
 	if (diffSec <= justNowThreshold) {
-		return languageCode.startsWith('vi') ? 'Vừa xong' : 'Just now';
+		if (normalizedLang.startsWith('vi')) return 'Vừa xong';
+		if (normalizedLang.startsWith('es')) return 'Ahora mismo';
+		if (normalizedLang.startsWith('ru')) return 'Только что';
+		return 'Just now';
 	}
 
 	return formatDistanceToNowStrict(target, {

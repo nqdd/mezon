@@ -1,16 +1,17 @@
+const resolveBrowserLocale = (locale?: string) => {
+	const currentLocale = (locale || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') || 'en' : 'en')).toLowerCase();
+	if (currentLocale.startsWith('vi')) return 'vi-VN';
+	if (currentLocale.startsWith('ru')) return 'ru-RU';
+	if (currentLocale.startsWith('es')) return 'es-ES';
+	return 'en-US';
+};
+
 export const timeFomat = (start: string | number, locale?: string) => {
 	const date = new Date(start);
 	const timezoneOffsetMinutes = -date.getTimezoneOffset();
 	date.setUTCMinutes(date.getUTCMinutes() + timezoneOffsetMinutes);
 
-	const currentLocale = locale || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') || 'en' : 'en');
-
-	const localeMap: Record<string, string> = {
-		vi: 'vi-VN',
-		en: 'en-US'
-	};
-
-	const browserLocale = localeMap[currentLocale] || 'en-US';
+	const browserLocale = resolveBrowserLocale(locale);
 
 	try {
 		const dateFormatter = new Intl.DateTimeFormat(browserLocale, {
@@ -86,14 +87,7 @@ export const formatEventTime = (
 	const { locale, includeYear = false, timeZone = 'UTC', format = 'short' } = options;
 
 	const date = new Date(start);
-	const currentLocale = locale || (typeof window !== 'undefined' ? localStorage.getItem('i18nextLng') || 'en' : 'en');
-
-	const localeMap: Record<string, string> = {
-		vi: 'vi-VN',
-		en: 'en-US'
-	};
-
-	const browserLocale = localeMap[currentLocale] || 'en-US';
+	const browserLocale = resolveBrowserLocale(locale);
 
 	try {
 		const dateOptions: Intl.DateTimeFormatOptions = {
@@ -119,7 +113,7 @@ export const formatEventTime = (
 
 		return `${datePart} - ${timePart}`;
 	} catch (error) {
-		return timeFomat(start, currentLocale);
+		return timeFomat(start, locale);
 	}
 };
 

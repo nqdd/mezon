@@ -49,8 +49,12 @@
         "for8Hours": "Durante 8 horas",
         "for24Hours": "Durante 24 horas",
         "untilTurnBackOn": "Hasta que vuelva a encenderlo",
-        "mutedUntil": "Silenciado hasta {{time}}"
+        "mutedUntil": "Silenciado hasta {{time}}",
+        "pinConversation": "Fijar conversación",
+        "unpinConversation": "Desfijar conversación",
+        "pinLimitExceeded": "Solo puedes fijar hasta 10 conversaciones. Desfija otra conversación para fijar esta"
     },
+    "pinned": "FIJADO",
     "remove": {
         "content": "¡Esta conversación ya no está disponible!",
         "title": "Chat no disponible",

@@ -41,6 +41,12 @@
 		"has": "has:",
 		"in": "in:"
 	},
+	"mentionPrefixes": {
+		"from": "from:",
+		"mentions": "mentions:",
+		"has": "has:",
+		"in": "in:"
+	},
 	"allChannels": "All Channels",
 	"searching": "Searching...",
 	"noResults": "No Results",
