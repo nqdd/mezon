@@ -512,6 +512,7 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		screen: {
 			voice_room: {
+				channel_name: '',
 				button: {
 					join_voice: ''
 				}
@@ -699,7 +700,8 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			side_bar: {
 				item: ''
-			}
+			},
+			pin_list_container: ''
 		},
 		channel_message: {
 			header: {
@@ -1020,7 +1022,15 @@ export const DATA_E2E_IDENTIFIER = {
 	},
 	timeline: {
 		buttons: {
-			create_new: ''
+			create_new: '',
+			add_description: '',
+			edit_title: '',
+			save: '',
+			back: ''
+		},
+		input: {
+			title: '',
+			description: ''
 		},
 		current_year: '',
 		list_year: '',
