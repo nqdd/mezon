@@ -60,9 +60,12 @@ const SettingEmojiItem = ({ emoji, onUpdateEmoji: _onUpdateEmoji }: SettingEmoji
 				clan_id: clanId as string,
 				id: emoji.id || ''
 			};
-			await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: emoji.id || '' }));
-			isUpdatingRef.current = true;
-			inputRef.current?.blur();
+			try {
+				await dispatch(emojiSuggestionActions.updateEmojiSetting({ request, emojiId: emoji.id || '' }));
+			} finally {
+				isUpdatingRef.current = true;
+				inputRef.current?.blur();
+			}
 		}
 	};
 
