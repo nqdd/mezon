@@ -137,7 +137,6 @@ const ClanLogoName = ({ onUpload, onGetClanName, resetTrigger, onResetComplete, 
 								</div>
 							)}
 						</div>
-						<p className="text-[10px] mt-[10px]">{t('clanLogo.minimumSize')}</p>
 					</div>
 				</div>
 				<div className="flex flex-3 flex-col ml-[10px]">
