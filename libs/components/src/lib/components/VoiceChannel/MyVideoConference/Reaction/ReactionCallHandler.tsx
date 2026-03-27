@@ -196,7 +196,7 @@ export const ReactionCallHandler = memo(() => {
 		<>
 			<audio ref={audioRef} src="assets/audio/raising-hand.mp3" preload="auto" className="hidden" />
 			{shouldRender && (
-				<div className="absolute inset-0 z-30 flex items-center justify-center">
+				<div className="absolute z-30 flex items-center justify-center w-fit right-0">
 					{displayedEmojis &&
 						displayedEmojis.map((item) => (
 							<div
