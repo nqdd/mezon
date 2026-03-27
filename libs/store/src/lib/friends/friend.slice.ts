@@ -301,20 +301,19 @@ export const friendsSlice = createSlice({
 				//TODO: thai fix later
 			}
 		},
-		updateFriendState: (
+		applyFriendBlockState: (
 			state,
 			action: PayloadAction<{
 				userId: string;
+				state: EStateFriend;
 				sourceId?: string;
 			}>
 		) => {
-			const { userId, sourceId } = action.payload;
-
+			const { userId, state: nextState, sourceId } = action.payload;
 			const friend = state?.entities?.[userId];
-
 			if (friend) {
-				friend.state = friend.state === EStateFriend.BLOCK ? EStateFriend.FRIEND : EStateFriend.BLOCK;
-				if (sourceId) {
+				friend.state = nextState;
+				if (sourceId !== undefined) {
 					friend.source_id = sourceId;
 				}
 			}

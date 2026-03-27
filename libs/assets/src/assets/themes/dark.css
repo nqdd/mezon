@@ -114,4 +114,10 @@
 	--bg-tooltip-app: #19191c;
 	--text-tooltip-app: #ffffff;
 	--bg-unread-message: #fafafa;
+	/* bg-theme-sound-dark */
+	--bg-theme-bar-play-color-dark-sound: #ffffff;
+	--bg-theme-unselect-dark-sound: #ada9a8;
+	/* unified sound variables */
+	--bg-theme-sound-bar: var(--bg-theme-bar-play-color-dark-sound);
+	--bg-theme-sound-unselect: var(--bg-theme-unselect-dark-sound);
 }
