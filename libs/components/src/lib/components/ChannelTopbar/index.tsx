@@ -865,7 +865,7 @@ function TimelineViewToggleButton() {
 	}, [dispatch, isMediaChannelView]);
 
 	return (
-		<div className="relative leading-5 h-5">
+		<div className="relative leading-5 h-5" data-e2e={generateE2eId('chat.channel_message.header.button.timeline')}>
 			<button
 				title={isMediaChannelView ? t('tooltips.defaultView') : t('tooltips.timelineView')}
 				onClick={handleToggle}
