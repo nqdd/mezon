@@ -25,7 +25,7 @@
 		"recommendedSize": "We recommend an image of at least 512x512 for the clan.",
 		"uploadImage": "Upload Image",
 		"clanName": "Clan Name",
-		"namePlaceholder": "Support has arrived!",
+		"namePlaceholder": "Clan name...",
 		"validationError": "Please enter a channel name (max 64 characters, only words, numbers, _ or -).",
 		"modal": {
 			"title": "Only image files are allowed",
