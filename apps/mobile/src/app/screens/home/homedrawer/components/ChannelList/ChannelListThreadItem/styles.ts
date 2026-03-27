@@ -64,7 +64,7 @@ export const style = (colors: Attributes) =>
 			backgroundColor: baseColor.redStrong,
 			height: size.s_18,
 			width: size.s_18,
-			right: size.s_18,
+			right: size.s_24,
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: size.s_18,
