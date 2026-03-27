@@ -240,12 +240,20 @@ export const fetchDirectMessage = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await mezon.client.listChannelDescs(mezon.session, DM_PAGE_SIZE, 1, 1, '0', channelType, isMobile);
 			if (!response.channeldesc || response.channeldesc.length === 0) {
-				thunkAPI.dispatch(directActions.setAll([]));
 				return { channels: [], hasMore: false, page: 1 };
 			}
 
 			const state = thunkAPI.getState() as RootState;
 			const checkJoinDM = state.clans?.checkJoinList?.['0'];
+
+			const existingEntities = selectAllDirectMessages(state);
+			const userProfile = selectAllAccount(state)?.user;
+
+			const channels = processDmChannels(response.channeldesc, existingEntities, userProfile, thunkAPI);
+
+			thunkAPI.dispatch(directActions.setDirectMetaEntities(channels));
+			thunkAPI.dispatch(directActions.setAll(channels));
+
 			if (!checkJoinDM) {
 				try {
 					const res = await thunkAPI.dispatch(listChannelBadgeCount({ clanId: '0' })).unwrap();
@@ -263,15 +271,6 @@ export const fetchDirectMessage = createAsyncThunk(
 					);
 				}
 			}
-
-			const existingEntities = selectAllDirectMessages(state);
-			const userProfile = selectAllAccount(state)?.user;
-
-			const channels = processDmChannels(response.channeldesc, existingEntities, userProfile, thunkAPI);
-
-			thunkAPI.dispatch(directActions.setDirectMetaEntities(channels));
-			thunkAPI.dispatch(directActions.setAll(channels));
-
 			const hasMore = response.channeldesc.length >= DM_PAGE_SIZE;
 			return { channels, hasMore, page: 1 };
 		} catch (error) {
