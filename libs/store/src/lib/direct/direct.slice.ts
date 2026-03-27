@@ -396,15 +396,6 @@ interface JoinDirectMessagePayload {
 	isFetchingLatestMessages?: boolean;
 	isClearMessage?: boolean;
 }
-interface members {
-	user_id?: string;
-}
-
-export type StatusDMUnreadArgs = {
-	dmId: string;
-	isUnread: boolean;
-};
-
 export const joinDirectMessage = createAsyncThunk<void, JoinDirectMessagePayload>(
 	'direct/joinDirectMessage',
 	async ({ directMessageId, type, noCache = false, isFetchingLatestMessages = false, isClearMessage = false }, thunkAPI) => {

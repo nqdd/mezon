@@ -26,7 +26,7 @@ function DirectMessageList() {
 		const pinned: string[] = [];
 		const unpinned: string[] = [];
 
-		const idsToProcess = dmGroupChatList ?? directIds;
+		const idsToProcess = dmGroupChatList?.length ? dmGroupChatList : directIds;
 
 		for (const id of idsToProcess) {
 			if (!dmGroupChatList || directIdsSet.has(id)) {
