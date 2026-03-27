@@ -1,5 +1,5 @@
 import { useAuth } from '@mezon/core';
-import { authActions, selectRegisteringStatus, useAppDispatch } from '@mezon/store';
+import { accountActions, authActions, selectRegisteringStatus, useAppDispatch } from '@mezon/store';
 import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +64,7 @@ const SettingAccount = ({ onSettingProfile, menuIsOpen }: SettingAccountProps) =
 				onSubmit={async (data) => {
 					const result = await dispatch(authActions.registrationPassword(data));
 					if (result?.payload) {
+						dispatch(accountActions.setPasswordSetted(true));
 						closeSetPasswordModal();
 					}
 				}}
