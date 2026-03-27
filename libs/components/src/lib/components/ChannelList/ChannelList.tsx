@@ -6,13 +6,13 @@ import {
 	FAVORITE_CATEGORY_ID,
 	categoriesActions,
 	listChannelRenderAction,
-	selectAllChannelMeta,
 	selectCtrlKFocusChannel,
 	selectCurrentChannelId,
 	selectCurrentClanBanner,
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
 	selectCurrentUserId,
+	selectFirstChannelWithBadgeByClanId,
 	selectIsElectronDownloading,
 	selectIsElectronUpdateAvailable,
 	selectIsOpenCreateNewChannel,
@@ -141,10 +141,8 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const dispatch = useAppDispatch();
 
 	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
-	const firstBadgeInClan = useSelector(selectAllChannelMeta);
-	const firstChannelWithBadgeCount = useMemo(() => {
-		return firstBadgeInClan.find((channel) => channel && channel.clanId === currentClanId && !!channel?.count_mess_unread) ?? null;
-	}, [firstBadgeInClan]);
+	const firstChannelWithBadgeCount = useSelector((state) => selectFirstChannelWithBadgeByClanId(state, currentClanId as string));
+
 	const [height, setHeight] = useState(0);
 
 	const data = useMemo(() => {

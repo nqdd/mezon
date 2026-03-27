@@ -275,6 +275,11 @@ export const getDmMetadataState = createSelector(getChannelMetaState, (state) =>
 export const selectChannelMetaEntities = createSelector(getChannelMetaState, selectEntities);
 export const selectAllChannelMeta = createSelector(getChannelMetaState, selectAll);
 
+export const selectFirstChannelWithBadgeByClanId = createSelector(
+	[selectAllChannelMeta, (_, clanId: string) => clanId],
+	(channels, clanId) => channels.find((ch) => ch && ch.clanId === clanId && !!ch.count_mess_unread) ?? null
+);
+
 export const selectChannelMetaById = createSelector([selectChannelMetaEntities, (state, channelId) => channelId], (entities, channelId) => {
 	return entities[channelId];
 });
