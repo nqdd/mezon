@@ -33,6 +33,7 @@
 		"preview": "Preview",
 		"audioFile": "Audio File",
 		"soundName": "Voice Name",
+		"soundVolume": "Sound Volume",
 		"chooseOrDrop": "Choose or drop a file",
 		"browse": "Browse",
 		"placeholder": "Ex.cat hug",

@@ -130,5 +130,10 @@
 	--bg-tooltip-app: #ffffff;
 	--text-tooltip-app: #2c2c2c;
 	--bg-unread-message: #9e9b9b;
-	
+	/* bg-theme-sound-light */
+	--bg-theme-bar-play-color-light-sound: #2c2c2c;
+	--bg-theme-unselect-light-sound: #9e9b9b;
+	/* unified sound variables */
+	--bg-theme-sound-bar: var(--bg-theme-bar-play-color-light-sound);
+	--bg-theme-sound-unselect: var(--bg-theme-unselect-light-sound);
 }
