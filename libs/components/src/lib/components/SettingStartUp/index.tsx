@@ -42,12 +42,7 @@ const SettingStartUp = ({ menuIsOpen }: SettingStartUpProps) => {
 					</div>
 					<div className="ml-4 flex-shrink-0">
 						<label className="relative inline-flex items-center cursor-pointer">
-							<input
-								type="checkbox"
-								checked={autoStart !== undefined ? autoStart : true}
-								onChange={handleConfigStart}
-								className="sr-only peer"
-							/>
+							<input type="checkbox" checked={!!autoStart} onChange={handleConfigStart} className="sr-only peer" />
 							<div className="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
 						</label>
 					</div>
