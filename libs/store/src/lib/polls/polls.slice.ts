@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type {
 	ApiClosePollRequest,
 	ApiCreatePollRequest,
@@ -13,10 +13,13 @@ import { ensureSession, getMezonCtx } from '../helpers';
 
 export const POLLS_FEATURE_KEY = 'polls';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface PollsState {}
+export interface PollsState {
+	myVote: Record<string, number[]>;
+}
 
-export const initialPollsState: PollsState = {};
+export const initialPollsState: PollsState = {
+	myVote: {}
+};
 
 export const createChannelPoll = createAsyncThunk<ApiCreatePollResponse, ApiCreatePollRequest>('polls/createPoll', async (payload, thunkAPI) => {
 	try {
@@ -97,8 +100,20 @@ export const getPoll = createAsyncThunk<ApiGetPollResponse, ApiGetPollRequest>('
 export const pollsSlice = createSlice({
 	name: POLLS_FEATURE_KEY,
 	initialState: initialPollsState,
-	reducers: {}
+	reducers: {},
+	extraReducers: (builder) => {
+		builder.addCase(votePoll.fulfilled, (state, action) => {
+		  const messageId = action.meta.arg?.message_id;
+		  if (!messageId) return;
+		  const indices = action.payload?.my_answer_indices ?? [];
+		  state.myVote[messageId] = indices; 
+		});
+	  }
 });
 
 export const pollsReducer = pollsSlice.reducer;
 export const pollsActions = pollsSlice.actions;
+
+export const getPollsState = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): PollsState => rootState[POLLS_FEATURE_KEY];
+
+export const selectMyVote = createSelector(getPollsState, (state) => state.myVote);

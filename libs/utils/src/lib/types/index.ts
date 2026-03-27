@@ -421,6 +421,16 @@ export interface IMessageActionRow {
 	components: Array<ButtonComponent | SelectComponent | InputComponent>;
 }
 
+export interface IPollAnswer {
+	index: number;
+	label: string;
+}
+
+export enum EPollType {
+	SINGLE = 0,
+	MULTIPLE = 1,
+}
+
 export interface IMessageSendPayload {
 	t?: string;
 	e2ee?: number;
@@ -445,7 +455,7 @@ export interface IMessageSendPayload {
 	lsnt?: number;
 	question?: string;
 	question_emoji_id?: string;
-	answers?: string[];
+	answers?: IPollAnswer[];
 	answer_emoji_ids?: string[];
 	answer_counts?: number[];
 	expire_time?: number;
@@ -453,6 +463,9 @@ export interface IMessageSendPayload {
 	total_votes?: number;
 	allow_multiple_answers?: boolean;
 	user_votes?: number[];
+	id?: number,
+	expire_at?: number,
+	type?: EPollType,
 }
 
 export type IUser = {
