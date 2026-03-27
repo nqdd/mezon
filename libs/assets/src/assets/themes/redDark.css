@@ -89,7 +89,7 @@
 	/* modal */
 	--bg-modal-theme: color-mix(in oklab, hsl(232.5 calc(1 * 6.557%) 23.922% /1) 100%, rgb(26, 0, 0) 50%);
 	/* modal search */
-	--bg-modal-theme-search:  linear-gradient(rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.8)) fixed 0 0 / cover,
+	--bg-modal-theme-search: linear-gradient(rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.8)) fixed 0 0 / cover,
 		linear-gradient(64.92deg, hsl(0 88.6% 30.98%) 40%, hsl(0, 93%, 6%) 90%);
 	/* option  */
 	--bg-option-theme: #33272a;
@@ -117,5 +117,10 @@
 	--bg-tooltip-app: #19191c;
 	--text-tooltip-app: #ffffff;
 	--bg-unread-message: #fafafa;
-
+	/* bg-theme-sound-dark */
+	--bg-theme-bar-play-color-dark-sound: #ffffff;
+	--bg-theme-unselect-dark-sound: #ada9a8;
+	/* unified sound variables */
+	--bg-theme-sound-bar: var(--bg-theme-bar-play-color-dark-sound);
+	--bg-theme-sound-unselect: var(--bg-theme-unselect-dark-sound);
 }

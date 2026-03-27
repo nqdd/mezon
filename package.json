@@ -94,7 +94,6 @@
     "rc-dropdown": "^4.2.1",
     "rc-tooltip": "^6.4.0",
     "react": "18.2.0",
-    "react-audio-visualize": "^1.2.0",
     "react-contexify": "^6.0.0",
     "react-datepicker": "^6.9.0",
     "react-dom": "18.2.0",

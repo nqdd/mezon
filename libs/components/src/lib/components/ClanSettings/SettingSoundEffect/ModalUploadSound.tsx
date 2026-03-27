@@ -4,11 +4,11 @@ import { Icons, InputField, Modal } from '@mezon/ui';
 import { generateE2eId, getIdSaleItemFromSource } from '@mezon/utils';
 import { Snowflake } from '@theinternetfolks/snowflake';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AudioVisualizer } from 'react-audio-visualize';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ELimitSize } from '../../ModalValidateFile';
 import { ModalErrorTypeUploadVoice, ModalOverData } from '../../ModalValidateFile/ModalOverData';
+import AudioVisualizer from './AudioVisualizer';
 import type { SoundType } from './index';
 
 const MAX_TRIM = 10;
@@ -83,30 +83,25 @@ const downsampleMono = (input: Float32Array, inputRate: number, outputRate: numb
 	return result;
 };
 
+let sharedAudioCtx: AudioContext | null = null;
+
+const getAudioContext = (): AudioContext => {
+	if (sharedAudioCtx && sharedAudioCtx.state !== 'closed') return sharedAudioCtx;
+	const AudioContextCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+	if (!AudioContextCtor) throw new Error('AudioContext is not supported');
+	sharedAudioCtx = new AudioContextCtor();
+	return sharedAudioCtx;
+};
+
 const trimAudioToWavFallback = async (audioBlob: Blob, startSec: number, endSec: number): Promise<{ file: File; extension: 'wav' }> => {
 	if (typeof window === 'undefined') throw new Error('Window is not available');
 
-	const AudioContextCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-	if (!AudioContextCtor) throw new Error('AudioContext is not supported');
-
 	const arrayBuffer = await audioBlob.arrayBuffer();
-	const ctx: AudioContext = new AudioContextCtor();
+	const ctx = getAudioContext();
 
-	const decodeAudio = (ab: ArrayBuffer) =>
-		new Promise<AudioBuffer>((resolve, reject) => {
-			ctx.decodeAudioData(
-				ab.slice(0),
-				(decoded) => resolve(decoded),
-				(err) => reject(err)
-			);
-		});
-
-	let audioBuffer: AudioBuffer;
-	try {
-		audioBuffer = await decodeAudio(arrayBuffer);
-	} finally {
-		await ctx.close();
-	}
+	const audioBuffer = await new Promise<AudioBuffer>((resolve, reject) => {
+		ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+	});
 
 	const duration = audioBuffer.duration || 0;
 	const start = clamp(startSec, 0, duration);
@@ -254,6 +249,8 @@ function WaveformPlayer({
 		window.addEventListener('mousemove', onMove);
 		window.addEventListener('mouseup', onUp);
 	};
+	const barColor = 'var(--bg-theme-sound-bar)';
+	const barUnselectColor = 'var(--bg-theme-sound-unselect)';
 
 	return (
 		<div className="w-full rounded-lg overflow-hidden bg-item-theme p-3">
@@ -302,21 +299,11 @@ function WaveformPlayer({
 									height={80}
 									barWidth={2}
 									gap={1}
-									barColor={'var(--text-theme-primary)'}
-									barPlayedColor={'var(--text-theme-primary-hover)'}
-									currentTime={currentTime}
+									barColor={barColor}
+									barUnselectColor={barUnselectColor}
+									trimStart={duration > 0 ? trimStart / duration : 0}
+									trimEnd={duration > 0 ? trimEnd / duration : 1}
 								/>
-
-								{duration > 0 && trimStartPx > 0 && (
-									<div
-										className="absolute top-0 bottom-0 bg-black/50 pointer-events-none"
-										style={{ left: 0, width: trimStartPx }}
-									/>
-								)}
-
-								{duration > 0 && trimEndPx < containerWidth && (
-									<div className="absolute top-0 bottom-0 bg-black/50 pointer-events-none" style={{ left: trimEndPx, right: 0 }} />
-								)}
 
 								{duration > 0 && (
 									<div
@@ -389,6 +376,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 	const selectedTrimDurationSec = Math.max(0, trimEndSec - trimStartSec);
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [isUploading, setIsUploading] = useState(false);
+	const isUploadingRef = useRef(false);
 	const [openModalType, setOpenModalType] = useState(false);
 	const [openModalSize, setOpenModalSize] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -405,9 +393,16 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 			setTrimEndSec(0);
 
 			fetch(sound.url)
-				.then((res) => res.blob())
+				.then((res) => {
+					if (!res.ok) throw new Error(`Failed to load audio: ${res.status}`);
+					return res.blob();
+				})
 				.then((b) => setAudioBlob(b))
-				.catch(() => setAudioBlob(null));
+				.catch((err) => {
+					console.error('Error loading audio blob:', err);
+					setAudioBlob(null);
+					setError(t('modal.errorLoadFailed'));
+				});
 		}
 	}, [sound]);
 
@@ -460,6 +455,10 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 
 	const handleUpload = async () => {
 		if (!name.trim()) return;
+		if (isUploadingRef.current) {
+			return;
+		}
+		isUploadingRef.current = true;
 
 		setIsUploading(true);
 
@@ -474,6 +473,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 			let audioSourceBlob = validFile ?? audioBlob;
 			if (!audioSourceBlob && sound?.url) {
 				const res = await fetch(sound.url);
+				if (!res.ok) throw new Error(`Failed to fetch audio: ${res.status} ${res.statusText}`);
 				audioSourceBlob = await res.blob();
 			}
 
@@ -519,9 +519,15 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 			console.error('Error uploading sound:', error);
 			setError(t('modal.errorUploadFailed'));
 		} finally {
+			isUploadingRef.current = false;
 			setIsUploading(false);
 		}
 	};
+
+	const handleTrimChange = useCallback((trim: { startSec: number; endSec: number }) => {
+		setTrimStartSec(trim.startSec);
+		setTrimEndSec(trim.endSec);
+	}, []);
 
 	const formatFileSize = (bytes: number) => {
 		return `${(bytes / 1024).toFixed(1)} KB`;
@@ -571,10 +577,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 													src={previewUrl}
 													blob={audioBlob}
 													volume={soundVolume}
-													onTrimChange={(trim) => {
-														setTrimStartSec(trim.startSec);
-														setTrimEndSec(trim.endSec);
-													}}
+													onTrimChange={handleTrimChange}
 												/>
 											) : (
 												<Icons.UploadSoundIcon className="w-12 h-12 " />
