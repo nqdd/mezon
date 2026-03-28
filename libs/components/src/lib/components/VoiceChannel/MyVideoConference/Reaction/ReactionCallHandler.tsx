@@ -196,12 +196,12 @@ export const ReactionCallHandler = memo(() => {
 		<>
 			<audio ref={audioRef} src="assets/audio/raising-hand.mp3" preload="auto" className="hidden" />
 			{shouldRender && (
-				<div className="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
+				<div className="absolute z-30 flex items-center justify-center w-fit right-0">
 					{displayedEmojis &&
 						displayedEmojis.map((item) => (
 							<div
 								key={item.id}
-								className="text-5xl flex flex-col gap-2 items-center absolute h-[60px] origin-center will-change-[transform,opacity] backface-hidden contain-[layout_style_paint]"
+								className="pointer-events-none text-5xl flex flex-col gap-2 items-center absolute h-[60px] origin-center will-change-[transform,opacity] backface-hidden contain-[layout_style_paint]"
 								style={{
 									bottom: item.position?.bottom || '15%',
 									left: item.position?.left || '50%',
@@ -222,9 +222,9 @@ export const ReactionCallHandler = memo(() => {
 							</div>
 						))}
 					{!!raisingList.length && (
-						<div className="absolute w-40 right-2 top-[68px] flex flex-col gap-1">
+						<div className="absolute w-80 right-2 top-[68px] flex flex-col gap-1 items-end">
 							{raisingList.map((item) => (
-								<div className="w-40 h-9 bg-white rounded-full right-2 flex gap-2 items-center justify-center p-1" key={item.id}>
+								<div className="w-40 h-9 bg-white rounded-full flex gap-2 items-center justify-center p-1 hover:w-fit" key={item.id}>
 									{item.avatar ? (
 										<img src={item.avatar} className="w-8 h-8 rounded-full" />
 									) : (

@@ -12,6 +12,7 @@ import {
 	selectCurrentClanCreatorId,
 	selectCurrentClanId,
 	selectCurrentUserId,
+	selectFirstChannelWithBadgeByClanId,
 	selectIsElectronDownloading,
 	selectIsElectronUpdateAvailable,
 	selectIsOpenCreateNewChannel,
@@ -140,9 +141,7 @@ const RowVirtualizerDynamic = memo(({ permissions }: { permissions: IChannelLink
 	const dispatch = useAppDispatch();
 
 	const listChannelRender = useAppSelector((state) => selectListChannelRenderByClanId(state, currentClanId as string));
-	const firstChannelWithBadgeCount = useMemo(() => {
-		return listChannelRender?.find((item) => (item as IChannel)?.count_mess_unread && ((item as IChannel)?.count_mess_unread || 0) > 0) || null;
-	}, [listChannelRender]);
+	const firstChannelWithBadgeCount = useSelector((state) => selectFirstChannelWithBadgeByClanId(state, currentClanId as string));
 
 	const [height, setHeight] = useState(0);
 

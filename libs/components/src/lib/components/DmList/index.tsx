@@ -1,5 +1,5 @@
 import { useFriends } from '@mezon/core';
-import { appActions, selectDirectsOpenlistOrder, selectPinnedDms, useAppDispatch } from '@mezon/store';
+import { appActions, selectDirectMessageIds, selectDmSort, selectPinnedDms, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import { generateE2eId } from '@mezon/utils';
 import { memo, useEffect, useMemo, useRef } from 'react';
@@ -15,12 +15,31 @@ export type CategoriesState = Record<string, boolean>;
 
 function DirectMessageList() {
 	const { t } = useTranslation('directMessage');
-	const dmGroupChatList = useSelector(selectDirectsOpenlistOrder);
+	const dmGroupChatList = useSelector(selectDmSort);
+	const directIds = useSelector(selectDirectMessageIds);
 	const { quantityPendingRequest } = useFriends();
 	const pinnedDmIds = useSelector(selectPinnedDms);
+	const pinnedDmSet = useMemo(() => new Set(pinnedDmIds), [pinnedDmIds]);
+	const directIdsSet = useMemo(() => new Set(directIds), [directIds]);
 
-	const pinnedDMs = useMemo(() => dmGroupChatList.filter((id) => pinnedDmIds.includes(id)), [dmGroupChatList, pinnedDmIds]);
-	const unpinnedDMs = useMemo(() => dmGroupChatList.filter((id) => !pinnedDmIds.includes(id)), [dmGroupChatList, pinnedDmIds]);
+	const { pinnedDMs, unpinnedDMs } = useMemo(() => {
+		const pinned: string[] = [];
+		const unpinned: string[] = [];
+
+		const idsToProcess = dmGroupChatList?.length ? dmGroupChatList : directIds;
+
+		for (const id of idsToProcess) {
+			if (!dmGroupChatList || directIdsSet.has(id)) {
+				if (pinnedDmSet.has(id)) {
+					pinned.push(id);
+				} else {
+					unpinned.push(id);
+				}
+			}
+		}
+
+		return { pinnedDMs: pinned, unpinnedDMs: unpinned };
+	}, [dmGroupChatList, directIdsSet, pinnedDmSet]);
 
 	return (
 		<>
@@ -39,7 +58,7 @@ function DirectMessageList() {
 						<div className="text-xs font-semibold tracking-wide left-sp text-theme-primary mt-6 flex flex-row items-center w-content justify-between px-2 pb-0 h-5 cursor-default text-theme-primary-hover">
 							<p>{t('pinned', 'PINNED')}</p>
 						</div>
-						<div className={`messages-scroll font-medium px-2 mt-1 max-h-[215px] overflow-y-auto`}>
+						<div className={`messages-scroll font-medium mt-1 max-h-[215px] overflow-y-auto`}>
 							<ListDMChannel listDM={pinnedDMs} isPinnedList />
 						</div>
 					</>
@@ -52,7 +71,7 @@ function DirectMessageList() {
 			</div>
 			<div className={`flex-1 font-medium  px-2`}>
 				<div className="flex flex-col gap-1 text-center relative">
-					<ListDMChannel listDM={unpinnedDMs} />
+					<ListDMChannel listDM={unpinnedDMs} pinnedCount={pinnedDMs.length} />
 				</div>
 			</div>
 		</>

@@ -46,7 +46,8 @@
 		"appIcon": "Biểu tượng",
 		"advanced": "Nâng cao",
 		"appVersion": "Phiên bản ứng dụng",
-		"startUp": "Khởi chạy"
+		"startUp": "Khởi chạy",
+		"quitApp": "Thoát ứng dụng"
 	},
 	"autoStart": {
 		"title": "Tự động khởi động ứng dụng",
@@ -84,7 +85,9 @@
 		"title": "Ngôn ngữ",
 		"description": "Chọn ngôn ngữ.",
 		"english": "English",
-		"vietnamese": "Tiếng Việt"
+		"vietnamese": "Tiếng Việt",
+		"russian": "Русский",
+		"spanish": "Español"
 	},
 	"voice": {
 		"title": "Giọng nói",

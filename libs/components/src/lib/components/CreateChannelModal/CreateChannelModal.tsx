@@ -4,7 +4,6 @@ import {
 	createNewChannel,
 	fetchApplications,
 	listChannelRenderAction,
-	selectAllApps,
 	selectChannelById,
 	selectCurrentCategory,
 	selectCurrentClanId,
@@ -42,13 +41,12 @@ export const CreateNewChannelModal = () => {
 	const [isErrorName, setIsErrorName] = useState<string>('');
 	const [isErrorAppUrl, setIsErrorAppUrl] = useState<string>('');
 	const [isPrivate, setIsPrivate] = useState<number>(0);
-	const [channelType, setChannelType] = useState<number>(-1);
+	const [channelType, setChannelType] = useState<number>(ChannelType.CHANNEL_TYPE_CHANNEL);
 	const [channelTypeVoice, setChannelTypeVoice] = useState<number>(ChannelType.CHANNEL_TYPE_MEZON_VOICE);
 	const navigate = useNavigate();
 	const { toChannelPage } = useAppNavigation();
 	const isAppChannel = channelType === ChannelType.CHANNEL_TYPE_APP;
-	const channelWelcome = useAppSelector((state) => selectChannelById(state, welcomeChannelId as string)) || {};
-	const allApps = useAppSelector(selectAllApps);
+	const channelWelcome = useAppSelector((state) => selectChannelById(state, welcomeChannelId as string));
 
 	useEffect(() => {
 		if (isAppChannel) {
@@ -56,10 +54,14 @@ export const CreateNewChannelModal = () => {
 		}
 	}, [isAppChannel, dispatch]);
 
-	const handleAppSelect = (app: ApiApp) => {
-		setSelectedApp(app);
-		setIsErrorAppUrl('');
-	};
+	const clearDataAfterCreateNew = useCallback(() => {
+		setChannelName('');
+		setChannelType(ChannelType.CHANNEL_TYPE_CHANNEL);
+		setChannelTypeVoice(ChannelType.CHANNEL_TYPE_MEZON_VOICE);
+		setIsPrivate(0);
+		setSelectedApp(null);
+	}, []);
+
 	const handleSubmit = async () => {
 		if (channelType === -1) {
 			setIsErrorType(t('errors.typeRequired'));
@@ -138,14 +140,6 @@ export const CreateNewChannelModal = () => {
 		setIsPrivate(value);
 	};
 
-	const clearDataAfterCreateNew = () => {
-		setChannelName('');
-		setChannelType(-1);
-		setChannelTypeVoice(ChannelType.CHANNEL_TYPE_MEZON_VOICE);
-		setIsPrivate(0);
-		setSelectedApp(null);
-	};
-
 	const handleChangeValue = useCallback(() => {
 		const isValid = InputRef.current?.checkInput() ?? false;
 
@@ -162,6 +156,13 @@ export const CreateNewChannelModal = () => {
 		dispatch(channelsActions.openCreateNewModalChannel({ clanId: currentClanId as string, isOpen: false }));
 	}, [currentClanId, dispatch]);
 	useEscapeKeyClose(modalRef, handleClose);
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSubmit();
+		}
+	};
 
 	return (
 		<div
@@ -199,18 +200,21 @@ export const CreateNewChannelModal = () => {
 								>
 									<ChannelTypeComponent
 										type={ChannelType.CHANNEL_TYPE_CHANNEL}
+										selectedType={channelType}
 										onChange={onChangeChannelType}
 										error={isErrorType}
 									/>
 									<ChannelTypeComponent
 										disable={false}
 										type={channelTypeVoice}
+										selectedType={channelType}
 										onChange={onChangeChannelType}
 										error={isErrorType}
 									/>
 									<ChannelTypeComponent
 										disable={false}
 										type={ChannelType.CHANNEL_TYPE_STREAMING}
+										selectedType={channelType}
 										onChange={onChangeChannelType}
 										error={isErrorType}
 									/>
@@ -229,6 +233,7 @@ export const CreateNewChannelModal = () => {
 									shouldValidate={true}
 									categoryId={currentCategory?.category_id || channelWelcome?.category_id}
 									clanId={currentCategory?.clan_id as string}
+									onKeyDown={handleKeyDown}
 								/>
 							)}
 							{channelType !== ChannelType.CHANNEL_TYPE_MEZON_VOICE && channelType !== ChannelType.CHANNEL_TYPE_STREAMING && (

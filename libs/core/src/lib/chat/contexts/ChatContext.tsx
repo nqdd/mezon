@@ -28,9 +28,9 @@ import {
 	e2eeActions,
 	emojiRecentActions,
 	emojiSuggestionActions,
+	EStateFriend,
 	eventManagementActions,
 	friendsActions,
-	getPoll,
 	getStore,
 	getStoreAsync,
 	giveCoffeeActions,
@@ -77,7 +77,6 @@ import {
 	selectLastSentMessageStateByChannelId,
 	selectLatestMessageId,
 	selectLoadingStatus,
-	selectMessageEntityById,
 	selectOrderedClans,
 	selectStreamMembersByChannelId,
 	selectUserCallId,
@@ -432,15 +431,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					dispatch(messagesActions.newMessage(mess));
 
 					if (message.code === TypeMessage.ChatUpdate && message?.message_id) {
-						const existingMessage = selectMessageEntityById(store.getState(), message.channel_id, message.message_id);
-						if (existingMessage && existingMessage.code === TypeMessage.Poll) {
-							dispatch(
-								getPoll({
-									message_id: message.message_id,
-									channel_id: message.channel_id
-								})
-							);
-						}
 					}
 
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
@@ -471,6 +461,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					const isContentMutation = message.code === TypeMessage.ChatUpdate || message.code === TypeMessage.ChatRemove;
 					if (!isContentMutation) {
 						await dispatch(directActions.addDirectByMessageWS(mess)).unwrap();
+						dispatch(channelMetaActions.updateDmLastSentMessage({ channelId: message.channel_id, message: mess }));
 					}
 
 					const isClanView = selectClanView(store.getState());
@@ -492,16 +483,20 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 					}
 
-					if (mess.isMe && isNotCurrentDirect && !isContentMutation) {
+					if (mess.isMe && !isContentMutation) {
 						const directReceiver = selectDirectById(store.getState(), mess?.channel_id);
 						// Mark as read if isMe send token
 						if (
 							directReceiver &&
-							(directReceiver.type === ChannelType.CHANNEL_TYPE_DM || directReceiver.type === ChannelType.CHANNEL_TYPE_GROUP) &&
-							!directReceiver.count_mess_unread
+							(directReceiver.type === ChannelType.CHANNEL_TYPE_DM || directReceiver.type === ChannelType.CHANNEL_TYPE_GROUP)
 						) {
 							dispatch(
-								directMetaActions.setDirectLastSeenTimestamp({ channelId: message.channel_id, timestamp, messageId: message.id })
+								channelMetaActions.setChannelLastSentTimestamp({
+									channelId: message.channel_id,
+									timestamp,
+									senderId: message.sender_id,
+									clanId: message.clan_id || '0'
+								})
 							);
 						}
 					}
@@ -549,7 +544,12 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 					if (message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
 						dispatch(
-							channelMetaActions.setChannelLastSentTimestamp({ channelId: message.channel_id, timestamp, senderId: message.sender_id })
+							channelMetaActions.setChannelLastSentTimestamp({
+								channelId: message.channel_id,
+								timestamp,
+								senderId: message.sender_id,
+								clanId: message.clan_id || '0'
+							})
 						);
 					}
 					dispatch(listChannelsByUserActions.updateLastSentTime({ channelId: message.channel_id }));
@@ -684,7 +684,11 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					})
 				);
 
-				if (notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED) {
+				if (
+					notification.channel_type !== ChannelType.CHANNEL_TYPE_APP &&
+					notification.channel_type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE &&
+					(notification.code === NotificationCode.USER_MENTIONED || notification.code === NotificationCode.USER_REPLIED)
+				) {
 					if (notification?.channel?.type === ChannelType.CHANNEL_TYPE_THREAD) {
 						await dispatch(
 							channelsActions.addThreadSocket({
@@ -1031,16 +1035,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					if (channel_desc.type === ChannelType.CHANNEL_TYPE_THREAD) {
 						dispatch(
-							channelMetaActions.updateBulkChannelMetadata([
-								{
-									id: channel.id,
-									lastSentTimestamp: channel.last_sent_message?.timestamp_seconds || Date.now() / 1000,
-									clanId: channel.clan_id ?? '',
-									isMute: false,
-									senderId: '',
-									lastSeenTimestamp: Date.now() / 1000 - 1000
-								}
-							])
+							channelMetaActions.updateBulkChannelMetadata({
+								data: [
+									{
+										id: channel.id,
+										lastSentTimestamp: channel.last_sent_message?.timestamp_seconds || Date.now() / 1000,
+										clanId: channel.clan_id ?? '',
+										isMute: false,
+										senderId: '',
+										lastSeenTimestamp: Date.now() / 1000 - 1000
+									}
+								],
+								clanId: channel.clan_id ?? ''
+							})
 						);
 						dispatch(
 							listChannelRenderAction.setActiveThread({
@@ -1522,16 +1529,19 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			};
 
 			dispatch(
-				channelMetaActions.updateBulkChannelMetadata([
-					{
-						id: extendChannelCreated.channel_id,
-						lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
-						lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
-						clanId: extendChannelCreated.clan_id ?? '',
-						isMute: false,
-						senderId: ''
-					}
-				])
+				channelMetaActions.updateBulkChannelMetadata({
+					data: [
+						{
+							id: extendChannelCreated.channel_id,
+							lastSeenTimestamp: extendChannelCreated.last_seen_message.timestamp_seconds,
+							lastSentTimestamp: extendChannelCreated.last_sent_message.timestamp_seconds,
+							clanId: extendChannelCreated.clan_id ?? '',
+							isMute: false,
+							senderId: ''
+						}
+					],
+					clanId: extendChannelCreated.clan_id ?? ''
+				})
 			);
 		} else if (channelCreated.creator_id === userId) {
 			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
@@ -2474,9 +2484,10 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				return;
 			}
 			dispatch(
-				friendsActions.updateFriendState({
+				friendsActions.applyFriendBlockState({
 					userId: blockFriend.user_id,
-					sourceId: blockFriend.user_id
+					state: EStateFriend.BLOCK,
+					sourceId: userId as string
 				})
 			);
 		},
@@ -2489,8 +2500,9 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				return;
 			}
 			dispatch(
-				friendsActions.updateFriendState({
-					userId: unblockFriend.user_id
+				friendsActions.applyFriendBlockState({
+					userId: unblockFriend.user_id,
+					state: EStateFriend.FRIEND
 				})
 			);
 		},

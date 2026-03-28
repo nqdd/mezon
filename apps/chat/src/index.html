@@ -128,6 +128,7 @@
 				const walletData = localStorage.getItem('persist:wallet');
 				const languageData = localStorage.getItem('i18nextLng');
 				const activityData = localStorage.getItem('persist:activitiesapi');
+				const directData = localStorage.getItem('persist:direct');
 				localStorage.clear();
 
 				mezonSession && localStorage.setItem('mezon_session', mezonSession);
@@ -142,7 +143,8 @@
 				walletData && localStorage.setItem('persist:wallet', walletData);
 				languageData && localStorage.setItem('i18nextLng', languageData);
 				activityData && localStorage.setItem('persist:activitiesapi', activityData);
-
+				directData && localStorage.setItem('persist:direct', directData);
+				
 				const isCrashScreen = document.getElementById('error-crash');
 				if (isCrashScreen) {
 					return window.location.replace(path);

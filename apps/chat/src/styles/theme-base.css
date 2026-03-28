@@ -419,3 +419,10 @@ input.bg-theme-input-primary::placeholder {
 .text-tooltip-app {
 	color: var(--text-tooltip-app);
 }
+
+.bg-theme-sound-bar {
+	background: var(--bg-theme-sound-bar);
+}
+.bg-theme-sound-unselect {
+	background: var(--bg-theme-sound-unselect);
+}

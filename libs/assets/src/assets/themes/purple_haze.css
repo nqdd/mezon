@@ -154,7 +154,7 @@
 				hsl(264.76 100% 66%) 78%,
 				hsl(207, 82%, 58%) 100%
 			)
-			fixed 0 0 / cover;;
+			fixed 0 0 / cover;
 	/* option  */
 	--bg-option-theme: #252d36;
 	--bg-option-active: #3c424b;
@@ -181,4 +181,10 @@
 	--bg-tooltip-app: #19191c;
 	--text-tooltip-app: #ffffff;
 	--bg-unread-message: #fafafa;
+	/* bg-theme-sound-dark */
+	--bg-theme-bar-play-color-dark-sound: #ffffff;
+	--bg-theme-unselect-dark-sound: #ada9a8;
+	/* unified sound variables */
+	--bg-theme-sound-bar: var(--bg-theme-bar-play-color-dark-sound);
+	--bg-theme-sound-unselect: var(--bg-theme-unselect-dark-sound);
 }

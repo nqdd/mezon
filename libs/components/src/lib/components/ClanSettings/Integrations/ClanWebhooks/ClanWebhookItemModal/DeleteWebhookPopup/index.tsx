@@ -43,7 +43,9 @@ const DeleteClanWebhookPopup = ({ webhookItem, closeShowPopup }: IDeleteClanWebh
 			<div className="fixed inset-0 bg-black opacity-80" />
 			<div className="relative z-10 w-[440px]">
 				<div className="bg-theme-setting-primary pt-[16px] px-[16px]">
-					<div className=" text-[20px] font-semibold pb-[16px]">{t('webhooksEdit.deleteCaptionHook')}</div>
+					<div className=" text-[20px] font-semibold pb-[16px]">
+						{t('webhooksEdit.deleteCaptionHook', { webhookName: webhookItem.webhook_name })}
+					</div>
 					<div className=" pb-[20px]">{t('webhooksEdit.deleteWebhookConfirmation', { webhookName: webhookItem.webhook_name })}</div>
 				</div>
 				<div className="bg-theme-setting-nav  flex justify-end items-center gap-4 p-[16px] text-[14px] font-medium">

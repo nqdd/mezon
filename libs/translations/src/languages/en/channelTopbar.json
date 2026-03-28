@@ -19,6 +19,7 @@
 		"pinnedMessages": "Pinned Messages",
 		"members": "Members",
 		"showChat": "Show Chat",
+		"hideChat": "Hide Chat",
 		"addFriendsToDM": "Add friends to DM",
 		"jump": "Jump",
 		"gallery": "Gallery",
@@ -143,7 +144,7 @@
 		"newThread": "New Thread",
 		"inviteMessage": "You can invite new people by @mentioning them.",
 		"validation": {
-			"invalidChannelName": "Please enter a valid channel name (max 64 characters, only words, numbers, _ or -).",
+			"invalidChannelName": "Please enter a channel name (max 64 characters, only words, numbers, _ or -).",
 			"threadNameRequired": "Thread name is required.",
 			"starterMessageRequired": "Starter message is required."
 		},

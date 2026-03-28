@@ -1,15 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import type { MessagesEntity, RootState } from '@mezon/store';
-import {
-	getPoll,
-	getStore,
-	selectBanMeInChannel,
-	selectPollByMessageId,
-	selectPollEmojiByMessageId,
-	topicsActions,
-	useAppDispatch,
-	useAppSelector
-} from '@mezon/store';
+import { getPoll, getStore, selectBanMeInChannel, topicsActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
 import type { ObserveFn, UsersClanEntity } from '@mezon/utils';
 import {
@@ -80,14 +71,15 @@ export type MessageWithUserProps = {
 
 const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { message: MessagesEntity; observeIntersectionForLoading?: ObserveFn }) => {
 	const dispatch = useAppDispatch();
-	const pollData = useAppSelector((state: RootState) => selectPollByMessageId(state, message.id));
-	const pollEmoji = useAppSelector((state: RootState) => selectPollEmojiByMessageId(state, message.id));
 	const { t } = useTranslation();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const hasFetched = useRef(false);
 
+	const pollContent = message?.content as unknown as Record<string, unknown> | undefined;
+	const hasPollData = pollContent && ('poll_id' in pollContent || 'question' in pollContent || 'answer_counts' in pollContent);
+
 	useEffect(() => {
-		if (pollData || hasFetched.current || !message.channel_id) return;
+		if (hasPollData || hasFetched.current || !message.channel_id) return;
 
 		const el = containerRef.current;
 		if (!el || !observeIntersectionForLoading) {
@@ -102,7 +94,8 @@ const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { messag
 				dispatch(getPoll({ message_id: message.id, channel_id: message.channel_id }));
 			}
 		});
-	}, [dispatch, message.id, message.channel_id, pollData, observeIntersectionForLoading]);
+	}, [dispatch, message.id, message.channel_id, hasPollData, observeIntersectionForLoading]);
+
 
 	const answerCount = useMemo(() => {
 		const content = message?.content?.t;
@@ -111,22 +104,21 @@ const PollMessageWrapper = ({ message, observeIntersectionForLoading }: { messag
 		return lines.filter((line: string) => /^\d+\.\s/.test(line.trim())).length || 2;
 	}, [message?.content?.t]);
 
-	if (!pollData) {
+	if (!hasPollData) {
 		const placeholderHeight = 80 + answerCount * 44;
 		return <div ref={containerRef} style={{ minHeight: `${placeholderHeight}px` }} />;
 	}
 
-	const answers = pollData.answers?.map((answer) => answer.label || '') || [];
-	const duration = pollData.exp ? convertTimestampToTimeRemainingI18n(parseInt(pollData.exp), t) : '';
+	const answers =
+		(pollContent?.answers as Array<string | { label?: string }> | undefined)?.map((a) => (typeof a === 'string' ? a : (a?.label ?? ''))) ?? [];
+	const duration = pollContent?.expire_at ? convertTimestampToTimeRemainingI18n(Number(pollContent.expire_at), t) : '';
 
 	return (
 		<PollMessage
-			question={pollData.question || ''}
-			questionEmojiId={pollEmoji?.questionEmojiId}
+			question={String(pollContent?.question || '')}
 			answers={answers}
-			answerEmojiIds={pollEmoji?.answerEmojiIds}
 			duration={duration}
-			allowMultipleAnswers={pollData.type === 1}
+			allowMultipleAnswers={pollContent?.type === 1}
 			messageId={message.id}
 			channelId={message.channel_id}
 		/>

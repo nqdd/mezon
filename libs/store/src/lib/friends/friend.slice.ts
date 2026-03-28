@@ -225,6 +225,14 @@ export const sendRequestUnblockFriend = createAsyncThunk('friends/requestUnblock
 export const upsertFriendRequest = createAsyncThunk(
 	'friends/upsertFriendRequest',
 	async ({ user, myId }: { user: AddFriend; myId: string }, thunkAPI) => {
+		const state = thunkAPI.getState() as RootState;
+		const currentFriendApi = friendsAdapter.getSelectors().selectById(state.friends, `${user.user_id}`);
+		if (currentFriendApi) {
+			if (currentFriendApi.state === EStateFriend.OTHER_PENDING) {
+				thunkAPI.dispatch(friendsActions.acceptFriend(user.user_id));
+			}
+			return;
+		}
 		const friend: FriendsEntity = {
 			state: EStateFriend.MY_PENDING,
 			id: user.user_id,
@@ -293,20 +301,19 @@ export const friendsSlice = createSlice({
 				//TODO: thai fix later
 			}
 		},
-		updateFriendState: (
+		applyFriendBlockState: (
 			state,
 			action: PayloadAction<{
 				userId: string;
+				state: EStateFriend;
 				sourceId?: string;
 			}>
 		) => {
-			const { userId, sourceId } = action.payload;
-
+			const { userId, state: nextState, sourceId } = action.payload;
 			const friend = state?.entities?.[userId];
-
 			if (friend) {
-				friend.state = friend.state === EStateFriend.BLOCK ? EStateFriend.FRIEND : EStateFriend.BLOCK;
-				if (sourceId) {
+				friend.state = nextState;
+				if (sourceId !== undefined) {
 					friend.source_id = sourceId;
 				}
 			}

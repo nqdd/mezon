@@ -10,7 +10,15 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import type { IMessageWithUser } from '@mezon/utils';
-import { convertTimeString, generateE2eId, getShareContactInfo, isImageFileType, isVideoFileType } from '@mezon/utils';
+import {
+	TypeMessage,
+	convertTimeString,
+	convertTimestampToTimeRemainingI18n,
+	generateE2eId,
+	getShareContactInfo,
+	isImageFileType,
+	isVideoFileType
+} from '@mezon/utils';
 import { ChannelStreamMode, decodeAttachments, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api';
 import { useMemo } from 'react';
@@ -20,6 +28,7 @@ import type { UnpinMessageObject } from '.';
 import BaseProfile from '../../../MemberProfile/BaseProfile';
 import MessageAttachment from '../../../MessageWithUser/MessageAttachment';
 import { MessageLine } from '../../../MessageWithUser/MessageLine';
+import { PollMessage } from '../../../MessageWithUser/PollMessage';
 import ShareContactCard from '../../../ShareContact/ShareContactCard';
 
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
@@ -51,6 +60,35 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 		selectMessageByMessageId(state, String(pinMessage?.channel_id || '0'), String(pinMessage?.message_id || '0'))
 	);
 	const pinMessageAttachments = message?.attachments || pinMessage?.attachment;
+
+	const messageContentObject = useMemo(() => {
+		try {
+			return safeJSONParse(pinMessage.content || '{}') || {};
+		} catch (e) {
+			console.error({ e });
+		}
+		return {};
+	}, [pinMessage.content]);
+
+	// Poll data: prefer from message.content (messages store), fallback to parsed pinMessage.content
+	const pollData = useMemo(() => {
+		const contentObj = (message?.content as unknown as Record<string, unknown>) ?? messageContentObject;
+		if (!contentObj || !('poll_id' in contentObj || 'question' in contentObj || 'answer_counts' in contentObj)) return null;
+		return contentObj;
+	}, [message?.content, messageContentObject]);
+
+	const isPollMessage = message?.code === TypeMessage.Poll || Boolean(pollData?.poll_id);
+
+	const pollDuration = useMemo(() => {
+		if (!pollData?.expire_at) return '';
+		return convertTimestampToTimeRemainingI18n(Number(pollData.expire_at), t);
+	}, [pollData?.expire_at, t]);
+
+	const { isShareContact, shareContactEmbed } = useMemo(() => {
+		const embeds = messageContentObject?.embed || message?.content?.embed || [];
+		return getShareContactInfo(embeds);
+	}, [message, messageContentObject]);
+
 	const handleJumpMess = () => {
 		if (pinMessage.message_id && pinMessage.channel_id) {
 			dispatch(
@@ -67,19 +105,6 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 		}
 		onClose();
 	};
-	const messageContentObject = useMemo(() => {
-		try {
-			return safeJSONParse(pinMessage.content || '{}') || {};
-		} catch (e) {
-			console.error({ e });
-		}
-		return {};
-	}, [pinMessage.content]);
-
-	const { isShareContact, shareContactEmbed } = useMemo(() => {
-		const embeds = messageContentObject?.embed || message?.content?.embed || [];
-		return getShareContactInfo(embeds);
-	}, [message, messageContentObject]);
 
 	const handleUnpinConfirm = () => {
 		handleUnPinMessage({
@@ -116,6 +141,21 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 					<div className="leading-6">
 						{isShareContact && shareContactEmbed ? (
 							<ShareContactCard embed={shareContactEmbed} />
+						) : isPollMessage && pollData ? (
+							<div className="mt-1">
+								<PollMessage
+									question={String(pollData.question || '')}
+									answers={
+										(pollData.answers as Array<string | { label?: string }> | undefined)?.map((a) =>
+											typeof a === 'string' ? a : ((a as { label?: string })?.label as string) || ''
+										) ?? []
+									}
+									duration={pollDuration}
+									allowMultipleAnswers={pollData.type === 1}
+									messageId={String(pinMessage.message_id || '')}
+									channelId={String(pinMessage.channel_id || '')}
+								/>
+							</div>
 						) : (
 							contentString && (
 								<MessageLine
@@ -148,11 +188,14 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 									}
 								}
 
-								attachmentsList = Array.isArray(attachment)
-									? (attachment as ApiMessageAttachment[]).filter((att) => att && Object.keys(att).length > 0)
-									: ((attachment as any)?.attachments as ApiMessageAttachment[])?.filter(
-											(att) => att && Object.keys(att).length > 0
-										) || [];
+								if (Array.isArray(attachment)) {
+									attachmentsList = (attachment as ApiMessageAttachment[]).filter((att) => att && Object.keys(att).length > 0);
+								} else if (attachment && typeof attachment === 'object') {
+									const parsedAttachments = (attachment as { attachments?: ApiMessageAttachment[] }).attachments;
+									attachmentsList = (parsedAttachments || []).filter((att) => att && Object.keys(att).length > 0);
+								} else {
+									attachmentsList = [];
+								}
 							}
 
 							if (attachmentsList.length === 0) return null;
@@ -261,7 +304,7 @@ export const ListPinAttachment = ({ attachments }: { attachments: ApiMessageAtta
 	return (
 		<div className={`grid ${gridClass?.classGridParent} gap-1`}>
 			{attachments.map((attach) => {
-				return <img src={attach.url} className={`${gridClass?.classGridChild}`} key={attach.url} />;
+				return <img src={attach.url} alt="" className={`${gridClass?.classGridChild}`} key={attach.url} />;
 			})}
 		</div>
 	);

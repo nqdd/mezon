@@ -46,6 +46,7 @@ export * from './lib/eventManagement/eventManagement.slice';
 export * from './lib/fcm/fcm.slice';
 export * from './lib/forwardMessage/forwardMessage.slice';
 export * from './lib/friends/friend.slice';
+export * from './lib/friends/friendCrossTabSync';
 export * from './lib/gallery/gallery.slice';
 export * from './lib/giftStickerEmojiPanel/gifs.slice';
 export * from './lib/giftStickerEmojiPanel/gifsStickerEmoji.slice';

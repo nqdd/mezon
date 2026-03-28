@@ -16,6 +16,7 @@ import { COMPOSE_FEATURE_KEY, composeReducer } from './compose/compose.slice';
 import { directReducer } from './direct/direct.slice';
 import { emojiSuggestionReducer } from './emojiSuggestion/emojiSuggestion.slice';
 import { friendsReducer } from './friends/friend.slice';
+import { initFriendRelationCrossTabSync } from './friends/friendCrossTabSync';
 import { gifsReducer } from './giftStickerEmojiPanel/gifs.slice';
 import { inviteReducer } from './invite/invite.slice';
 import { messagesReducer } from './messages/messages.slice';
@@ -88,8 +89,7 @@ import { WINDOW_CONTROLS_FEATURE_KEY, windowControlsReducer } from './windowCont
 const persistedPollsReducer = persistReducer(
 	{
 		key: 'polls',
-		storage,
-		whitelist: ['pollEmojiByMessageId']
+		storage
 	},
 	pollsReducer
 );
@@ -106,7 +106,7 @@ const persistedClansReducer = persistReducer(
 	{
 		key: 'clans',
 		storage,
-		blacklist: ['invitePeople']
+		blacklist: ['invitePeople', 'checkJoinList']
 	},
 	clansReducer
 );
@@ -299,6 +299,22 @@ const persistedDirectReducer = persistReducer(
 	directReducer
 );
 
+const persistedChannelMetaReducer = persistReducer(
+	{
+		key: 'channelmeta',
+		storage
+	},
+	channelMetaReducer
+);
+
+const persistedFcmReducer = persistReducer(
+	{
+		key: 'fcm',
+		storage
+	},
+	fcmReducer
+);
+
 const reducer = {
 	app: persistedAppReducer,
 	dashboard: dashboardReducer,
@@ -309,7 +325,7 @@ const reducer = {
 	channelMedia: channelMediaReducer,
 	clans: persistedClansReducer,
 	channels: persistedChannelReducer,
-	channelmeta: channelMetaReducer,
+	channelmeta: persistedChannelMetaReducer,
 	settingSticker: persistedsettingClanStickerReducer,
 	allUsersByAddChannel: userChannelsReducer,
 	listchannelbyusers: persistedListchannelsByUserReducer,
@@ -347,7 +363,7 @@ const reducer = {
 	activitiesapi: persistedActivitiesReducer,
 	auditlog: auditLogReducer,
 	audiocall: audioCallReducer,
-	fcm: fcmReducer,
+	fcm: persistedFcmReducer,
 	auditlogfilter: auditLogFilterReducer,
 	references: referencesReducer,
 	reaction: reactionReducer,
@@ -477,6 +493,8 @@ export const initStore = (mezon: MezonContextValue, preloadedState?: PreloadedRo
 	}
 
 	setupSessionSyncListener(store);
+
+	initFriendRelationCrossTabSync(store.dispatch);
 
 	return { store, persistor };
 };

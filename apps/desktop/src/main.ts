@@ -20,6 +20,7 @@ import {
 	MAXIMIZE_WINDOW,
 	MINIMIZE_WINDOW,
 	OPEN_NEW_WINDOW,
+	QUIT_APP,
 	REQUEST_PERMISSION_SCREEN,
 	SENDER_ID,
 	SET_RATIO_WINDOW,
@@ -209,6 +210,10 @@ ipcMain.handle(CLEAR_SCREEN_SOURCES_CACHE, async (_event, source?: string) => {
 
 ipcMain.handle(SENDER_ID, () => {
 	return environment.senderId;
+});
+
+ipcMain.on(QUIT_APP, () => {
+	app.quit();
 });
 
 const handleWindowAction = async (window: BrowserWindow, action: string) => {

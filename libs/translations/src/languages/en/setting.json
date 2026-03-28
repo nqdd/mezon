@@ -46,7 +46,8 @@
 		"appIcon": "App Icon",
 		"advanced": "Advanced",
 		"appVersion": "App Version",
-		"startUp": "Start Up"
+		"startUp": "Start Up",
+		"quitApp": "Quit App"
 	},
 	"autoStart": {
 		"title": "Auto start application",
@@ -84,7 +85,9 @@
 		"title": "Language",
 		"description": "Select your preferred language.",
 		"english": "English",
-		"vietnamese": "Tiếng Việt"
+		"vietnamese": "Tiếng Việt",
+		"russian": "Русский",
+		"spanish": "Español"
 	},
 	"voice": {
 		"title": "Voice",

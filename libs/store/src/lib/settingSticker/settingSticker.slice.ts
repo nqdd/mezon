@@ -213,9 +213,7 @@ export const createSound = createAsyncThunk('settingClanSticker/createSound', as
 
 		const res = await mezon.client.addClanSticker(mezon.session, soundRequest);
 
-		if (res) {
-			thunkAPI.dispatch(fetchStickerByUserId({ noCache: true, clanId: form.clanId }));
-		} else {
+		if (!res) {
 			return thunkAPI.rejectWithValue({});
 		}
 	} catch (error) {
@@ -223,6 +221,7 @@ export const createSound = createAsyncThunk('settingClanSticker/createSound', as
 		return thunkAPI.rejectWithValue(error);
 	}
 });
+
 
 export const updateSound = createAsyncThunk('settingClanSticker/updateSound', async ({ request, soundId }: UpdateSoundArgs, thunkAPI) => {
 	try {

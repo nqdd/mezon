@@ -2,12 +2,10 @@ import { useMemberStatus } from '@mezon/core';
 import type { DirectEntity } from '@mezon/store';
 import {
 	directActions,
-	directMetaActions,
 	getStore,
 	selectBuzzStateByDirectId,
 	selectDirectById,
 	selectIsUnreadDMById,
-	selectLatestMessageId,
 	selectStatusInVoice,
 	useAppDispatch,
 	useAppSelector
@@ -44,7 +42,7 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const { t } = useTranslation('common');
 	const dispatch = useAppDispatch();
 	const directMessage = useAppSelector((state) => selectDirectById(state, id));
-	const isTypeDMGroup = Number(directMessage.type) === ChannelType.CHANNEL_TYPE_GROUP;
+	const isTypeDMGroup = directMessage?.type === ChannelType.CHANNEL_TYPE_GROUP;
 	const isUnReadChannel = useAppSelector((state) => selectIsUnreadDMById(state, directMessage?.id as string));
 	const buzzStateDM = useAppSelector((state) => selectBuzzStateByDirectId(state, directMessage?.channel_id ?? ''));
 
@@ -60,19 +58,16 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 			if (isTypeDMGroup) {
 				openUnknown();
 			} else {
-				handleLeave(e, directMessage.channel_id as string, currentDmGroupId);
+				handleLeave(e, directMessage?.channel_id as string, currentDmGroupId);
 			}
 		},
-		[isTypeDMGroup, directMessage.channel_id, currentDmGroupId]
+		[isTypeDMGroup, directMessage?.channel_id, currentDmGroupId]
 	);
 
 	const handleLeave = async (e: React.MouseEvent, directId: string, currentDmGroupId: string) => {
 		e.stopPropagation();
 		await dispatch(directActions.closeDirectMessage({ channel_id: directId }));
-		const timestamp = Date.now() / 1000;
 		const store = getStore();
-		const messageId = store ? selectLatestMessageId(store.getState(), directId) : undefined;
-		dispatch(directMetaActions.setDirectLastSeenTimestamp({ channelId: directId, timestamp, messageId }));
 		if (directId === currentDmGroupId) {
 			dispatch(directActions.setDmGroupCurrentId(''));
 			navigateToFriends();
@@ -90,6 +85,10 @@ function DMListItem({ id, currentDmGroupId, joinToChatAndNavigate, navigateToFri
 	const handleClickDM = useCallback(async () => {
 		joinToChatAndNavigate(id, directMessage?.type as number);
 	}, [directMessage, id, currentDmGroupId]);
+
+	if (!directMessage) {
+		return null;
+	}
 
 	return (
 		<div
@@ -149,7 +148,7 @@ const DmItemProfile = ({
 	direct: DirectEntity;
 	t: (key: string) => string;
 }) => {
-	const userStatus = useMemberStatus(direct.user_ids?.[0] || '');
+	const userStatus = useMemberStatus(direct?.user_ids?.[0] || '');
 	return (
 		<div
 			className={`relative flex gap-2 items-center text-theme-primary-hover  ${highlight ? 'text-theme-primary-active' : 'text-theme-primary'}`}
@@ -173,7 +172,7 @@ const DmItemProfile = ({
 					</p>
 				</div>
 			) : (
-				<DmInvoiceProfile name={name} directId={direct.id} userId={direct.user_ids?.[0] || ''} status={userStatus.status} />
+				<DmInvoiceProfile name={name} directId={direct?.id} userId={direct?.user_ids?.[0] || ''} status={userStatus.status} />
 			)}
 		</div>
 	);

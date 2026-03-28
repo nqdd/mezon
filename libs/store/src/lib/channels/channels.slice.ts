@@ -514,9 +514,6 @@ export const updateChannel = createAsyncThunk('channels/updateChannel', async (b
 						}
 					})
 				);
-				thunkAPI.dispatch(
-					listChannelRenderAction.updateChannelInListRender({ channelId: body.channel_id, clanId: clanId as string, dataUpdate: body })
-				);
 			}
 		}
 	} catch (error) {
@@ -817,9 +814,6 @@ export const fetchChannels = createAsyncThunk(
 					})
 				);
 
-				const meta = channels.map((ch) => extractChannelMeta(ch));
-				thunkAPI.dispatch(channelMetaActions.updateBulkChannelMetadata(meta));
-
 				const currentState = thunkAPI.getState() as RootState;
 				const queuedMessages = currentState.messages.queuedLastSeenMessages;
 				if (queuedMessages.length > 0) {
@@ -1049,6 +1043,19 @@ export const channelsSlice = createSlice({
 			}
 		},
 
+		updateCategoryNameForChannels: (state, action: PayloadAction<{ clanId: string; categoryId: string; categoryName: string }>) => {
+			const { clanId, categoryId, categoryName } = action.payload;
+			const clanState = state.byClans[clanId];
+			if (!clanState) return;
+			const entityState = clanState.entities;
+			const updates = (entityState.ids as string[])
+				.filter((id) => entityState.entities[id]?.category_id === categoryId)
+				.map((id) => ({ id, changes: { category_name: categoryName } }));
+			if (updates.length > 0) {
+				channelsAdapter.updateMany(entityState, updates);
+			}
+		},
+
 		update: (state, action: PayloadAction<{ clanId: string; update: Update<ChannelsEntity, string> }>) => {
 			const { clanId, update } = action.payload;
 			if (!state.byClans[clanId]) {
@@ -1259,34 +1266,6 @@ export const channelsSlice = createSlice({
 					count_mess_unread: finalCount
 				}
 			});
-		},
-
-		resetChannelsCount: (
-			state: ChannelsState,
-			action: PayloadAction<{
-				clanId: string;
-				channelIds: string[];
-			}>
-		) => {
-			const { clanId, channelIds } = action.payload;
-			const clanChannels = state.byClans[clanId];
-
-			if (!clanChannels) return;
-
-			const updates = channelIds.reduce<Array<{ id: string; changes: { count_mess_unread: number } }>>((acc, channelId) => {
-				const entity = clanChannels.entities.entities[channelId];
-				if (!entity || entity.count_mess_unread === 0) return acc;
-				acc.push({
-					id: channelId,
-					changes: {
-						count_mess_unread: 0
-					}
-				});
-				return acc;
-			}, []);
-			if (updates.length > 0) {
-				channelsAdapter.updateMany(state.byClans[clanId].entities, updates);
-			}
 		},
 
 		updateAppChannel: (state, action: PayloadAction<{ clanId: string; channelId: string; changes: Partial<ApiChannelAppResponse> }>) => {
@@ -1640,7 +1619,8 @@ export const channelsActions = {
 	addThreadSocket,
 	changeCategoryOfChannel,
 	updateChannelPrivateSocket,
-	bulkDeleteChannelSocket
+	bulkDeleteChannelSocket,
+	updateCategoryNameForChannels: channelsSlice.actions.updateCategoryNameForChannels
 };
 
 /*
