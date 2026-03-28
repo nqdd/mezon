@@ -719,6 +719,7 @@ export const ContainerMessageActionModal = React.memo(
 				message?.code === TypeMessage.MessageBuzz ||
 				anonymousMode ||
 				isVoiceStreamOrAppChannel;
+			const isPollMessage = message?.code === TypeMessage.Poll;
 			const listOfActionOnlyMyMessage = [EMessageActionType.EditMessage];
 			const listOfActionOnlyOtherMessage = [EMessageActionType.Report];
 			const isHideActionImage = !(message?.attachments?.length === 1 && message?.attachments?.[0]?.filetype?.includes('image'));
@@ -744,17 +745,19 @@ export const ContainerMessageActionModal = React.memo(
 			const listOfActionShouldHide = [
 				isHidePinMessage && EMessageActionType.PinMessage,
 				isUnPinMessage ? EMessageActionType.PinMessage : EMessageActionType.UnPinMessage,
-				!isShowForwardAll() && EMessageActionType.ForwardAllMessages,
-				isHideCreateThread && EMessageActionType.CreateThread,
+				!isShowForwardAll() && isPollMessage && EMessageActionType.ForwardAllMessages,
+				isHideCreateThread && isPollMessage && EMessageActionType.CreateThread,
 				isHideDeleteMessage && EMessageActionType.DeleteMessage,
 				((!isMessageError && isMyMessage) || !isMyMessage) && EMessageActionType.ResendMessage,
 				(isMyMessage || isMessageSystem || isAnonymous) && EMessageActionType.GiveACoffee,
-				isHideTopicDiscussion && EMessageActionType.TopicDiscussion,
+				isHideTopicDiscussion && isPollMessage && EMessageActionType.TopicDiscussion,
 				isDM && EMessageActionType.QuickMenu,
 				isHideActionImage && EMessageActionType.CopyImage,
 				isHideActionImage && EMessageActionType.ShareImage,
 				isHideActionMedia && EMessageActionType.SaveMedia,
-				(isTopicInitMessage || message?.content?.fwd || message?.code === TypeMessage.SendToken) && EMessageActionType.EditMessage
+				(isTopicInitMessage || message?.content?.fwd || message?.code === TypeMessage.SendToken || isPollMessage) && EMessageActionType.EditMessage,
+				isPollMessage && EMessageActionType.CopyText,
+				isPollMessage && EMessageActionType.ForwardMessage,
 			];
 
 			let availableMessageActions: IMessageAction[] = [];

@@ -256,6 +256,11 @@
 		"showResults": "Show results",
 		"voteButton": "Vote",
 		"removeVote": "Remove Vote",
-		"noVoterDetails": "No voter details"
+		"noVoterDetails": "No voter details",
+		"ended": "Ended",
+		"loadMore": "Load more {{count}} options",
+		"loadMore1Option": "Load more 1 option",
+		"showLess": "Show less",
+		"noVotesYet": "No votes yet"
 	}
 }

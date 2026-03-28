@@ -42,6 +42,7 @@ import UserProfile from './components/UserProfile';
 import { EMessageActionType } from './enums';
 import { style } from './styles';
 import type { IMessageActionNeedToResolve } from './types';
+import { PollCard } from './components/PollCard';
 
 const NX_CHAT_APP_ANNONYMOUS_USER_ID = process.env.NX_CHAT_APP_ANNONYMOUS_USER_ID || 'anonymous';
 
@@ -365,10 +366,10 @@ const MessageItem = React.memo(
 						isHighlight && styles.highlightMessageMention,
 						isEphemeralMessage && styles.ephemeralMessage,
 						Platform.OS === 'ios' &&
-							pressed && {
-								backgroundColor: themeValue.secondaryWeight,
-								opacity: 0.8
-							}
+						pressed && {
+							backgroundColor: themeValue.secondaryWeight,
+							opacity: 0.8
+						}
 					]}
 				>
 					{!isMessageSystem && !message?.content?.fwd && (
@@ -471,6 +472,13 @@ const MessageItem = React.memo(
 													/>
 												))
 											))}
+										{message?.code === TypeMessage.Poll && (
+											<PollCard
+												key={`message_poll_${message?.id}`}
+												onLongPress={handleLongPressMessage}
+												message={message}
+											/>
+										)}
 										{!!message?.content?.components?.length &&
 											message?.content.components?.map((component, index) => (
 												<EmbedComponentsPanel
