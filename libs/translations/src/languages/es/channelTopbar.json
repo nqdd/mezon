@@ -140,27 +140,27 @@
     }
   },
   "createThread": {
-    "newThread": "Nuevo hilo",
-    "inviteMessage": "Puedes invitar a nuevas personas mediante menciones @.",
-    "validation": {
-      "invalidChannelName": "Introduce un nombre de canal válido (máx. 64 caracteres, solo palabras, números, _ o -).",
-      "threadNameRequired": "Se requiere el nombre del hilo.",
-      "starterMessageRequired": "Se requiere un mensaje de inicio."
-    },
-    "threadName": "Nombre del hilo",
-    "enterThreadName": "Introduce el nombre del hilo",
-    "privateThread": "Hilo privado",
-    "privateThreadDescription": "Solo las personas que invites y los moderadores pueden verlo",
-    "toast": {
-      "threadNameTooShort": "El nombre del hilo debe tener más de 3 caracteres",
-      "threadNameExists": "El nombre del hilo ya existe",
-      "initialMessageRequired": "Se requiere un mensaje inicial para iniciar un hilo.",
-      "messageTooLong": "El mensaje excede el límite de 4000 caracteres",
-      "messageLimitExceeded": "El mensaje excede el límite de {{limit}} caracteres"
-    },
-    "placeholder": {
-      "threadName": "Introduce el nombre del hilo"
-    }
+		"newThread": "Nuevo hilo",
+		"inviteMessage": "Puedes invitar a nuevas personas mediante menciones @.",
+		"validation": {
+			"invalidChannelName": "Introduce un nombre de hilo válido (máx. 65 caracteres, solo palabras, números, _ o -).",
+			"threadNameRequired": "Se requiere el nombre del hilo.",
+			"starterMessageRequired": "Se requiere un mensaje de inicio."
+		},
+		"threadName": "Nombre del hilo",
+		"enterThreadName": "Introduce el nombre del hilo",
+		"privateThread": "Hilo privado",
+		"privateThreadDescription": "Solo las personas que invites y los moderadores pueden verlo",
+		"toast": {
+			"threadNameTooShort": "El nombre del hilo debe tener más de 3 caracteres",
+			"threadNameExists": "El nombre del hilo ya existe",
+			"initialMessageRequired": "Se requiere un mensaje inicial para iniciar un hilo.",
+			"messageTooLong": "El mensaje excede el límite de 4000 caracteres",
+			"messageLimitExceeded": "El mensaje excede el límite de {{limit}} caracteres"
+		},
+		"placeholder": {
+			"threadName": "Introduce el nombre del hilo"
+		}
   },
   "moreFile": "más archivo",
   "moreFiles": "más archivos"
