@@ -29,7 +29,8 @@
 		"sendAddFriendSuccess": "Запрос в друзья успешно отправлен!",
 		"acceptAddFriendSuccess": "Запрос на дружбу принят!",
 		"sendAddFriendFail": "Хм, не сработало. Проверьте, правильно ли указано имя пользователя.",
-		"somethingWentWrong": "Что-то пошло не так"
+		"somethingWentWrong": "Что-то пошло не так",
+		"friendRequestAlreadySent": "Запрос на дружбу уже отправлен, ожидайте подтверждения."
 	},
 	"you": "Вы"
 }

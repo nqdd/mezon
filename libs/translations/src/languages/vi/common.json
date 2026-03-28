@@ -133,7 +133,9 @@
 			"days": "{{count}} ngày",
 			"hours": "{{count}} giờ",
 			"minutes": "{{count}} phút",
-			"justNow": "Vừa xong"
+			"justNow": "Vừa xong",
+			"lessThanMinute": "Ít hơn một phút",
+			"expired": "Hết hạn"
 		},
 		"fullDate": "{{dayName}}, ngày {{day}} tháng {{monthName}} - {{hours}}:{{minutes}}"
 	},

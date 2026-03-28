@@ -133,7 +133,9 @@
 			"days": "{{count}}д",
 			"hours": "{{count}}ч",
 			"minutes": "{{count}}мин",
-			"justNow": "Только что"
+			"justNow": "Только что",
+			"lessThanMinute": "Менее минуты",
+			"expired": "Истек"
 		},
 		"fullDate": "{{dayName}} {{monthName}} {{day}} - {{hours}}:{{minutes}}"
 	},

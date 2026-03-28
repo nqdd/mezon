@@ -165,11 +165,11 @@ const ThreadBox = () => {
 		) => {
 			if (sessionUser) {
 				if (value?.nameValueThread && !threadCurrentChannel) {
-					const shouldSeedStarterFromValueThread = Boolean(valueThread && openThreadMessageState);
+					const shouldSeedStarterFromValueThread = Boolean(valueThread);
 					const hasUserMessage = Boolean(content?.t && content.t.trim().length > 0) || (attachments?.length ?? 0) > 0;
 
-					const createThreadMessageContent = hasUserMessage ? content : valueThread?.content;
-					const createThreadAttachments = hasUserMessage ? attachments : valueThread?.attachments;
+					const createThreadMessageContent = shouldSeedStarterFromValueThread ? valueThread?.content : hasUserMessage ? content : valueThread?.content;
+					const createThreadAttachments = shouldSeedStarterFromValueThread ? valueThread?.attachments : hasUserMessage ? attachments : valueThread?.attachments;
 
 					const thread = (await createThread(value, createThreadMessageContent, createThreadAttachments)) as ApiChannelDescription;
 					if (thread) {
@@ -410,7 +410,7 @@ const ThreadBox = () => {
 
 			const mentionInput = threadBoxRef.current?.querySelector<HTMLElement>(`#${CHANNEL_INPUT_ID}`);
 
-			if (!mentionInput?.innerHTML) {
+			if (!mentionInput?.innerText?.trim()) {
 				dispatch(threadsActions.setMessageThreadError(t('createThread.validation.starterMessageRequired')));
 				return;
 			}

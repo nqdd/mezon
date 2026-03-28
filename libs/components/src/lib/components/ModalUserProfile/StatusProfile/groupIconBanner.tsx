@@ -7,6 +7,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import type { OpenModalProps } from '..';
+import { useRemoveFriendModal } from '../../../hooks/useRemoveFriendModal';
 import { PopupFriend } from './PopupShortUser';
 
 type GroupIconBannerProps = {
@@ -23,6 +24,7 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 	const { t } = useTranslation('common');
 	const transferDetail = useSelector(selectInfoSendToken);
 	const { addFriend, acceptFriend, deleteFriend } = useFriends();
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
 	const currentUserId = useAppSelector(selectCurrentUserId);
 	const dispatch = useAppDispatch();
 	const isMe = user?.user?.id === currentUserId;
@@ -87,7 +89,7 @@ const GroupIconBanner = (props: GroupIconBannerProps) => {
 						acceptFriend(user.user?.username || '', user.user?.id || '');
 						break;
 					}
-					deleteFriend(user.user?.username || '', user.user?.id || '');
+					openRemoveFriendModal({ username: user.user?.username, id: user.user?.id, displayName: user.user?.display_name });
 				}
 				break;
 			default: {

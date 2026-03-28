@@ -133,7 +133,9 @@
             "days": "{{count}} días",
             "hours": "{{count}} horas",
             "minutes": "{{count}} minutos",
-            "justNow": "Justo ahora"
+            "justNow": "Justo ahora",
+            "lessThanMinute": "Menos de un minuto",
+            "expired": "Expirado"
         },
         "fullDate": "{{dayName}} {{monthName}} {{day}} - {{hours}}:{{minutes}}"
     },
