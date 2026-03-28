@@ -1,4 +1,4 @@
-import { BaseProfile } from '@mezon/components';
+import { BaseProfile, useRemoveFriendModal } from '@mezon/components';
 import { useAppNavigation, useDirect, useFriends, useMemberStatus } from '@mezon/core';
 import type { FriendsEntity } from '@mezon/store';
 import { audioCallActions, listUsersByUserActions, selectCurrentTabStatus } from '@mezon/store';
@@ -25,7 +25,7 @@ type FriendMenuProps = {
 	friend: FriendsEntity;
 	coords: Coords;
 	onClose: () => void;
-	onDeleteFriend: (username: string, id: string) => void;
+	onDeleteFriend: (friend: FriendsEntity) => void;
 	onBlockFriend: (username: string, id: string) => void;
 	handleCreateDm: () => Promise<string | undefined>;
 };
@@ -85,7 +85,7 @@ const FriendMenu = ({ friend, coords, onClose, onDeleteFriend, onBlockFriend, ha
 				<button
 					className="hover:bg-[#f67e882a] p-2 rounded-[5px] w-full text-colorDanger flex"
 					onClick={() => {
-						onDeleteFriend(friend?.user?.username as string, friend?.user?.id as string);
+						onDeleteFriend(friend);
 						onClose();
 					}}
 				>
@@ -110,6 +110,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	const { createDirectMessageWithUser } = useDirect();
 	const { toDmGroupPageFromFriendPage, navigate } = useAppNavigation();
 	const { acceptFriend, deleteFriend, blockFriend, unBlockFriend } = useFriends();
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
 	const currentTabStatus = useSelector(selectCurrentTabStatus);
 	const userStatus = useMemberStatus(friend?.user?.id || '');
 
@@ -139,8 +140,12 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 		dispatch(listUsersByUserActions.updateUserInList({ id, avatar_url: avatar, display_name: displayName, username }));
 	};
 
-	const handleDeleteFriend = (username: string, id: string) => {
-		deleteFriend(username, id);
+	const handleDeleteFriend = (selectedFriend: FriendsEntity) => {
+		openRemoveFriendModal({
+			username: selectedFriend.user?.username,
+			id: selectedFriend.user?.id,
+			displayName: selectedFriend.user?.display_name
+		});
 	};
 
 	const handleBlockFriend = async (username: string, id: string) => {
@@ -241,7 +246,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 							<button
 								title={t('friendMenu.cancel')}
 								className="  bg-button-secondary  rounded-full w-8 h-8 flex items-center justify-center"
-								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								onClick={() => handleDeleteFriend(friend)}
 								data-e2e={generateE2eId('friend_page.button.cancel_friend_request')}
 							>
 								✕
@@ -268,7 +273,7 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 							<button
 								title={t('friendMenu.reject')}
 								className=" bg-button-secondary  text-theme-primary rounded-full w-8 h-8 flex items-center justify-center"
-								onClick={() => handleDeleteFriend(friend?.user?.username as string, friend?.user?.id as string)}
+								onClick={() => handleDeleteFriend(friend)}
 								data-e2e={generateE2eId('friend_page.button.reject_friend_request')}
 							>
 								✕

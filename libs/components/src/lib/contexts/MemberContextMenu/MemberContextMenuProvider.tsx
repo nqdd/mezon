@@ -31,6 +31,7 @@ import { useSelector } from 'react-redux';
 import ModalRemoveMemberClan from '../../components/MemberProfile/ModalRemoveMemberClan';
 import ItemPanel from '../../components/PanelChannel/ItemPanel';
 import ShareContactModal from '../../components/ShareContact';
+import { useRemoveFriendModal } from '../../hooks/useRemoveFriendModal';
 import { MemberMenuItem } from './MemberMenuItem';
 import type { MemberContextMenuContextType, MemberContextMenuHandlers, MemberContextMenuProps } from './types';
 import { MEMBER_CONTEXT_MENU_ID } from './types';
@@ -131,6 +132,20 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 	);
 
 	const [currentHandlers, setCurrentHandlers] = useState<MemberContextMenuHandlers | null>(null);
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
+
+	const openRemoveFriendConfirm = useCallback(
+		(user?: ChannelMembersEntity) => {
+			if (user?.user?.username && user?.user?.id) {
+				openRemoveFriendModal({
+					username: user.user.username,
+					id: user.user.id,
+					displayName: user.user.display_name
+				});
+			}
+		},
+		[openRemoveFriendModal]
+	);
 
 	const { show } = useContextMenu({
 		id: MEMBER_CONTEXT_MENU_ID
@@ -326,9 +341,7 @@ export const MemberContextMenuProvider: FC<MemberContextMenuProps> = ({ children
 				}
 			},
 			handleRemoveFriend: () => {
-				if (user?.user?.username && user?.user?.id) {
-					deleteFriend(user.user.username, user.user.id);
-				}
+				openRemoveFriendConfirm(user);
 			},
 			handleKick: () => {
 				if (user) {

@@ -59,15 +59,16 @@ const FriendsPage = () => {
 	}, [dispatch]);
 
 	const handleChange = (key: string, value: string) => {
-		const isValidInput = /^[\p{L}0-9+\-_.]+$/u.test(value);
+		const limitedValue = (value || '').slice(0, 40);
+		const isValidInput = limitedValue.length > 0 && /^[\p{L}0-9+-_.]+$/u.test(limitedValue);
 
 		setIsInvalidInput(!isValidInput && value !== '');
 
 		switch (key) {
 			case 'username':
-				if ((value || '').trim()) {
-					setRequestAddFriend({ ...requestAddFriend, usernames: value });
-					const blocked = blockedUsers.some((u) => u.user?.username === value);
+				if (limitedValue) {
+					setRequestAddFriend({ ...requestAddFriend, usernames: limitedValue });
+					const blocked = blockedUsers.some((u) => u.user?.username === limitedValue);
 					setIsBlockedUser(blocked);
 				} else {
 					setRequestAddFriend({ ...requestAddFriend, usernames: '' });
