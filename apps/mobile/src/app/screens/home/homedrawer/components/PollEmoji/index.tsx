@@ -37,7 +37,7 @@ export const PollEmoji = memo(({ text, textStyle }: IPollEmojiProps) => {
 
     return (
         <Text style={textStyle} numberOfLines={1}>
-            {tokens.map((token, index) => {
+            {(tokens ?? []).map((token, index) => {
                 if (token.type === 'text') {
                     return <Text key={`text_${index}`}>{token.value}</Text>;
                 }

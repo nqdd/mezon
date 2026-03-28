@@ -1,111 +1,23 @@
-import { baseColor, size, ThemeModeBase, useTheme } from '@mezon/mobile-ui';
-import type { TFunction } from 'i18next';
+import { ThemeModeBase, useTheme } from '@mezon/mobile-ui';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Dimensions, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import MezonIconCDN from '../../../../../componentUI/MezonIconCDN';
-import { IconCDN } from '../../../../../constants/icon_cdn';
 import useTabletLandscape from '../../../../../hooks/useTabletLandscape';
 import { style } from './styles';
 import { getStore, MessagesEntity, selectMemberClanByUserId, selectMemberDMByUserId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
 import { convertTimestampToTimeRemainingI18n } from '@mezon/utils';
 import { getPoll, selectMyVote, votePoll } from '@mezon/store';
 import { EPollType } from '@mezon/utils';
-import { PollEmoji } from '../PollEmoji';
 import { IPollVoter, PollDetailModal } from '../PollDetail';
-
-interface IPollOptionRow {
-    index: number;
-    label: string;
-    voteCount: number;
-    percentage: number;
-    isSelected: boolean;
-}
+import { PollOptionRow } from '../PollOptionRow';
 
 interface IPollCardProps {
     onLongPress?: () => void;
     message: MessagesEntity;
 }
 
-interface IPollOptionRowProps {
-    option: IPollOptionRow;
-    shouldShowResults: boolean;
-    allowMultiple: boolean;
-    styles: ReturnType<typeof style>;
-    onPress: () => void;
-    t: TFunction;
-    hasVoted: boolean;
-    themeBasic: ThemeModeBase;
-}
-
 const MAX_VISIBLE_OPTIONS = 5;
-const ANIMATION_DURATION = 600;
-const ACTIVE_TEXT_WHITE_THRESHOLD = 55;
-
-const PollOptionRow = memo(({ option, shouldShowResults, allowMultiple, styles, onPress, t, hasVoted, themeBasic }: IPollOptionRowProps) => {
-    const progress = useSharedValue(0);
-    const checkIconColor = useMemo(() => {
-        return hasVoted
-            ? baseColor.white
-            : themeBasic === ThemeModeBase.LIGHT || themeBasic === ThemeModeBase.SUNRISE
-                ? baseColor.white
-                : baseColor.black;
-    }, [hasVoted, themeBasic]);
-
-    const shouldUseActiveLabelColor = useMemo(() => {
-        return hasVoted && option.isSelected;
-    }, [hasVoted, option.isSelected]);
-
-    const shouldUseActiveMetaColor = useMemo(() => {
-        return hasVoted && option.isSelected && shouldShowResults && option.percentage >= ACTIVE_TEXT_WHITE_THRESHOLD;
-    }, [hasVoted, option.isSelected, shouldShowResults, option.percentage]);
-
-    useEffect(() => {
-        if (shouldShowResults) {
-            progress.value = withTiming(option.percentage, { duration: ANIMATION_DURATION });
-        } else {
-            progress.value = 0;
-        }
-    }, [shouldShowResults, option.percentage]);
-
-    const animatedFillStyle = useAnimatedStyle(() => ({
-        width: `${progress.value}%`,
-    }));
-
-    return (
-        <Pressable onPress={onPress} disabled={shouldShowResults} style={styles.optionRow}>
-            <Animated.View
-                style={[
-                    styles.optionFill,
-                    option.isSelected && styles.optionFillActive,
-                    shouldShowResults && !option.isSelected && styles.optionFillResult,
-                    animatedFillStyle
-                ]}
-            />
-            <View style={styles.optionContent}>
-                <PollEmoji
-                    text={option?.label}
-                    textStyle={[styles.optionText, shouldUseActiveLabelColor && styles.optionTextActiveConfirmed]}
-                />
-                {shouldShowResults && (
-                    <Text style={[styles.optionMeta, shouldUseActiveMetaColor && styles.optionTextActiveConfirmed]}>
-                        {option.percentage}% {`${option.voteCount} ${option.voteCount > 1 ? t('poll.votes') : t('poll.vote')}`}
-                    </Text>
-                )}
-                {option.isSelected && (
-                    <View style={[
-                        styles.checkmark,
-                        allowMultiple ? styles.checkmarkSquare : styles.checkmarkCircle
-                    ]}>
-                        <MezonIconCDN icon={IconCDN.checkmarkSmallIcon} color={checkIconColor} width={size.s_14} height={size.s_14} />
-                    </View>
-                )}
-            </View>
-        </Pressable>
-    );
-});
 
 export const PollCard = memo(({ onLongPress, message }: IPollCardProps) => {
     const isTablet = useTabletLandscape();
@@ -152,7 +64,7 @@ export const PollCard = memo(({ onLongPress, message }: IPollCardProps) => {
         return dimentsions.width > dimentsions.height;
     }, [dimentsions]);
 
-    const styles = useMemo(() => style(themeValue, isTablet, hasVoted, pollData?.is_closed, isLandscape), [themeValue, isTablet, hasVoted, pollData?.is_closed, isLandscape]);
+    const styles = useMemo(() => style(themeValue, isTablet, pollData?.is_closed, isLandscape), [themeValue, isTablet, pollData?.is_closed, isLandscape]);
     const isMultiple = useMemo(() => pollData?.type === EPollType.MULTIPLE, [pollData?.type]);
 
     const shouldVote = useMemo(() => {
@@ -323,7 +235,6 @@ export const PollCard = memo(({ onLongPress, message }: IPollCardProps) => {
                             option={option}
                             shouldShowResults={shouldShowResults}
                             allowMultiple={isMultiple}
-                            styles={styles}
                             onPress={() => handleOptionPress(option?.index)}
                             t={t}
                             hasVoted={hasVoted}

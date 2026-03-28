@@ -103,10 +103,13 @@ export const pollsSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder.addCase(votePoll.fulfilled, (state, action) => {
-		  const messageId = action.meta.arg?.message_id;
-		  if (!messageId) return;
-		  const indices = action.payload?.my_answer_indices ?? [];
-		  state.myVote[messageId] = indices; 
+			const messageId = action.meta.arg?.message_id;
+			if (!messageId) return;
+			const indices = action.payload?.my_answer_indices ?? [];
+			if (!state.myVote) {
+				state.myVote = {};
+			}
+			state.myVote[messageId] = indices;
 		});
 	  }
 });
@@ -116,4 +119,4 @@ export const pollsActions = pollsSlice.actions;
 
 export const getPollsState = (rootState: { [POLLS_FEATURE_KEY]: PollsState }): PollsState => rootState[POLLS_FEATURE_KEY];
 
-export const selectMyVote = createSelector(getPollsState, (state) => state.myVote);
+export const selectMyVote = createSelector(getPollsState, (state) => state?.myVote);
