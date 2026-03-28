@@ -1,5 +1,5 @@
 import { captureSentryError } from '@mezon/logger';
-import { createAsyncThunk, createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit';
 import type {
 	ApiClosePollRequest,
 	ApiCreatePollRequest,
@@ -103,15 +103,16 @@ export const pollsSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder.addCase(votePoll.fulfilled, (state, action) => {
-			const messageId = action.meta.arg?.message_id;
-			if (!messageId) return;
-			const indices = action.payload?.my_answer_indices ?? [];
-			if (!state.myVote) {
-				state.myVote = {};
+			try {
+				const messageId = action.meta.arg?.message_id;
+				if (!messageId) return;
+				const indices = action.payload?.my_answer_indices ?? [];
+				state.myVote[messageId] = indices;
+			} catch (error) {
+				console.error('Failed to update my vote:', error);
 			}
-			state.myVote[messageId] = indices;
 		});
-	  }
+	}
 });
 
 export const pollsReducer = pollsSlice.reducer;
