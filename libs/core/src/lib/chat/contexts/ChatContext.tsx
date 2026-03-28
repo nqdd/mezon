@@ -2293,7 +2293,20 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				}
 				return;
 			}
-
+			dispatch(
+				rolesClanActions.addUsersToRoleUserList({
+					clanId: role.clan_id as string,
+					roleId: role.id as string,
+					userIds: user_add_ids
+				})
+			);
+			dispatch(
+				rolesClanActions.removeUsersFromRoleUserList({
+					clanId: role.clan_id as string,
+					roleId: role.id as string,
+					userIds: user_remove_ids
+				})
+			);
 			// Handle role update
 			if (status === EEventAction.UPDATE) {
 				const isUserAffected = user_add_ids.includes(userId as string) || user_remove_ids.includes(userId as string);
@@ -3008,3 +3021,4 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
+
