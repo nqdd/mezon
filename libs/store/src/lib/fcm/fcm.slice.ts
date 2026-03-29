@@ -64,7 +64,7 @@ export const connectNotificationService = createAsyncThunk('fcm/connectNotificat
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
 		const response = await withRetry(
-			(session) => mezon.client.registFCMDeviceToken(session, state.fcm.token || '', state.fcm.deviceId || '', 'desktop', ''),
+			(session) => mezon.client.registFCMDeviceToken(session, state.fcm.deviceId || '', state.fcm.token || '', 'desktop', ''),
 			{
 				maxRetries: 3,
 				initialDelay: 1000,
