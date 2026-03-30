@@ -2,6 +2,7 @@ import { isEmpty } from '@mezon/mobile-components';
 import { size, useTheme } from '@mezon/mobile-ui';
 import type { DirectEntity } from '@mezon/store-mobile';
 import {
+	clansActions,
 	directActions,
 	selectDirectById,
 	selectDirectMessageEntities,
@@ -14,7 +15,7 @@ import { createImgproxyUrl, sleep } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { ChannelType } from 'mezon-js';
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Text, TouchableOpacity, View } from 'react-native';
+import { Animated, AppState, Text, TouchableOpacity, View } from 'react-native';
 import { Flow } from 'react-native-animated-spinkit';
 import FastImage from 'react-native-fast-image';
 import { useSelector } from 'react-redux';
@@ -114,6 +115,7 @@ const UnreadDMLoading = memo(() => {
 	const listOpacity = useRef(new Animated.Value(0)).current;
 	const listTranslateY = useRef(new Animated.Value(20)).current;
 	const [showData, setShowData] = useState(false);
+	const dispatch = useAppDispatch();
 
 	const validUnreadDM = useMemo(() => {
 		return unReadDM.filter((dm) => {
@@ -162,6 +164,18 @@ const UnreadDMLoading = memo(() => {
 			]).start();
 		}
 	}, [showData, listOpacity, listTranslateY]);
+
+	useEffect(() => {
+		const subscription = AppState.addEventListener('change', (nextState) => {
+			if (nextState === 'active') {
+				dispatch(clansActions.listChannelBadgeCount({ clanId: '0' }));
+			}
+		});
+
+		return () => {
+			subscription.remove();
+		};
+	}, []);
 
 	return (
 		<View style={[styles.container, !!validUnreadDM?.length && styles.containerBottom]}>

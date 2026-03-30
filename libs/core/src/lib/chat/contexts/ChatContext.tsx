@@ -3,6 +3,7 @@ import { captureSentryError } from '@mezon/logger';
 import type { ActivitiesEntity, AttachmentEntity, ChannelsEntity, RootState, ThreadsEntity } from '@mezon/store';
 import {
 	DMCallActions,
+	EStateFriend,
 	accountActions,
 	acitvitiesActions,
 	appActions,
@@ -28,7 +29,6 @@ import {
 	e2eeActions,
 	emojiRecentActions,
 	emojiSuggestionActions,
-	EStateFriend,
 	eventManagementActions,
 	friendsActions,
 	getStore,
@@ -466,16 +466,23 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					const isClanView = selectClanView(store.getState());
 
-					const path = isElectron() ? window.location.hash : window.location.pathname;
-					const isFriendPageView = path.includes('/chat/direct/friends');
-					const isFocus = !isBackgroundModeActive();
+					let isNotCurrentDirect = false;
 
-					const isNotCurrentDirect =
-						isFriendPageView ||
-						isClanView ||
-						!currentDirectId ||
-						(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
-						!isFocus;
+					if (isMobile) {
+						isNotCurrentDirect =
+							isClanView || !currentDirectId || (!!currentDirectId && !RegExp(currentDirectId).test(message?.channel_id));
+					} else {
+						const path = isElectron() ? window.location.hash : window.location.pathname;
+						const isFriendPageView = path.includes('/chat/direct/friends');
+						const isFocus = !isBackgroundModeActive();
+
+						isNotCurrentDirect =
+							isFriendPageView ||
+							isClanView ||
+							!currentDirectId ||
+							(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
+							!isFocus;
+					}
 
 					if (isNotCurrentDirect) {
 						if (message.sender_id !== userId && message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {

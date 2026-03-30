@@ -980,7 +980,8 @@ export const clansActions = {
 	joinClan,
 	transferClan,
 	updateHasUnreadBasedOnChannels,
-	listClanBadgeCount
+	listClanBadgeCount,
+	listChannelBadgeCount
 };
 
 /*
