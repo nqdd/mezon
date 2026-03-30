@@ -11,6 +11,8 @@ import { RenderVideoDetail } from '../../screens/home/homedrawer/components/Rend
 import { isVideo } from '../../utils/helpers';
 import { style } from './styles';
 
+const MAX_RETRY_COUNT = 1;
+
 export const ItemImageModal = React.memo(
 	({ item, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
 		const [dims, setDims] = useState(Dimensions.get('screen'));
@@ -18,13 +20,12 @@ export const ItemImageModal = React.memo(
 		const [isLoading, setIsLoading] = useState(false);
 		const [retryCount, setRetryCount] = useState(0);
 		const [imageOriginal, setImageOriginal] = useState<ApiMessageAttachment | null>(null);
-		const MAX_RETRY_COUNT = 1;
 		const isVideoItem = isVideo(item?.url || '');
 		const thumbnail = useVideoThumbnail(item?.url || '', item?.thumbnail, isVideoItem);
 		const styles = style();
 
 		const handleImageError = useCallback(() => {
-			if (retryCount < MAX_RETRY_COUNT) {
+			if (retryCount <= MAX_RETRY_COUNT) {
 				setRetryCount((prev) => prev + 1);
 			} else {
 				setImageOriginal(item);
