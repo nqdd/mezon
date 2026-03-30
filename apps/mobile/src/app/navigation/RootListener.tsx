@@ -106,6 +106,7 @@ const RootListener = () => {
 			}
 			dispatch(directActions.fetchDirectMessage({ noCache: true, isMobile: true }));
 			dispatch(clansActions.fetchClans({ noCache: true, isMobile: true }));
+			dispatch(clansActions.listChannelBadgeCount({ clanId: '0' }));
 			return null;
 		} catch (error) {
 			/* empty */
