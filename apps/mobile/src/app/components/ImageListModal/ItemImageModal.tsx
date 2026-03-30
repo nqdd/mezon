@@ -1,7 +1,7 @@
 import { ActionEmitEvent } from '@mezon/mobile-components';
-import { sleep } from '@mezon/utils';
+import { EMimeTypes, createImgproxyUrl, sleep } from '@mezon/utils';
 import type { ApiMessageAttachment } from 'mezon-js/api';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, DeviceEventEmitter, Dimensions, Image, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import type { RenderItemInfo } from 'react-native-awesome-gallery';
 import FastImage from 'react-native-fast-image';
@@ -11,14 +11,48 @@ import { RenderVideoDetail } from '../../screens/home/homedrawer/components/Rend
 import { isVideo } from '../../utils/helpers';
 import { style } from './styles';
 
+const MAX_RETRY_COUNT = 1;
+
 export const ItemImageModal = React.memo(
 	({ item, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
 		const [dims, setDims] = useState(Dimensions.get('screen'));
 		const [ready, setReady] = useState(true);
 		const [isLoading, setIsLoading] = useState(false);
+		const [retryCount, setRetryCount] = useState(0);
+		const [imageOriginal, setImageOriginal] = useState<ApiMessageAttachment | null>(null);
 		const isVideoItem = isVideo(item?.url || '');
 		const thumbnail = useVideoThumbnail(item?.url || '', item?.thumbnail, isVideoItem);
 		const styles = style();
+
+		const handleImageError = useCallback(() => {
+			if (retryCount <= MAX_RETRY_COUNT) {
+				setRetryCount((prev) => prev + 1);
+			} else {
+				setImageOriginal(item);
+			}
+		}, [item, retryCount]);
+
+		const imageProxyObj = useMemo(() => {
+			if (!item?.url || imageOriginal?.url) {
+				return { isProxyImage: false, url: imageOriginal?.url ?? item?.url ?? '' };
+			}
+
+			const isSpecialFormat =
+				['image/gif', 'image/webp', 'gif', 'webp'].includes(item?.filetype || '') || item?.url?.includes(EMimeTypes.tenor);
+
+			if (isSpecialFormat) {
+				return {
+					isProxyImage: false,
+					url: item.url
+				};
+			}
+
+			return {
+				isProxyImage: true,
+				url: createImgproxyUrl(item?.url ?? '', { width: item?.width || 500, height: item?.height || 500, resizeType: 'fit' }) as string,
+				urlOriginal: item?.url
+			};
+		}, [item, imageOriginal?.url]);
 
 		useEffect(() => {
 			const sub = Dimensions.addEventListener('change', async ({ screen }) => {
@@ -60,7 +94,7 @@ export const ItemImageModal = React.memo(
 			<View style={styles.container}>
 				{Platform.OS === 'ios' ? (
 					<FastImage
-						source={{ uri: item?.url }}
+						source={{ uri: imageProxyObj?.url }}
 						style={[StyleSheet.absoluteFill, { width: dims.width, height: dims.height }]}
 						resizeMode="contain"
 						onLoadEnd={() => {
@@ -72,10 +106,11 @@ export const ItemImageModal = React.memo(
 							const heightResult = height < dims.height ? height : dims.height;
 							setImageDimensions({ width: widthResult, height: heightResult });
 						}}
+						onError={handleImageError}
 					/>
 				) : (
 					<Image
-						source={{ uri: item?.url }}
+						source={{ uri: imageProxyObj?.url }}
 						style={[StyleSheet.absoluteFill, { width: dims.width, height: dims.height }]}
 						resizeMode="contain"
 						onLoadEnd={() => {
@@ -87,6 +122,7 @@ export const ItemImageModal = React.memo(
 							const heightResult = height < dims.height ? height : dims.height;
 							setImageDimensions({ width: widthResult, height: heightResult });
 						}}
+						onError={handleImageError}
 					/>
 				)}
 				{!isLoading && (
