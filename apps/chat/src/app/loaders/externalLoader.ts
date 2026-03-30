@@ -12,10 +12,6 @@ export const externalLoader: CustomLoaderFunction = async ({ dispatch, initialPa
 		return true;
 	} catch (error) {
 		console.error('refreshSession error:', error);
-		return false;
+		return true;
 	}
-};
-
-export const shouldRevalidateAuth = () => {
-	return false;
 };
