@@ -7,6 +7,8 @@ interface ICachedImageWithRetryIOSProps {
 	urlOriginal?: string;
 	style?: any;
 	resizeMode?: 'contain' | 'cover' | 'stretch' | 'center';
+	onLoad?: (event: any) => void;
+	onLoadEnd?: () => void;
 }
 
 const NX_BASE_IMG_URL_OLD = 'https://cdn.mezon.vn';
