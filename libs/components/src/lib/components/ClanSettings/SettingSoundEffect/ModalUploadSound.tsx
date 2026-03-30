@@ -155,13 +155,21 @@ function WaveformPlayer({
 	useEffect(() => {
 		const el = containerRef.current;
 		if (!el) return;
+
+		const updateWidth = () => {
+			const w = el.getBoundingClientRect().width;
+			if (w > 0) setContainerWidth(Math.floor(w));
+		};
+
+		updateWidth();
+
 		const observer = new ResizeObserver((entries) => {
 			const width = entries[0]?.contentRect.width;
-			if (width) setContainerWidth(Math.floor(width));
+			if (width && width > 0) setContainerWidth(Math.floor(width));
 		});
 		observer.observe(el);
 		return () => observer.disconnect();
-	}, []);
+	}, [blob, src]);
 
 	useEffect(() => {
 		setIsPlaying(false);
@@ -404,7 +412,7 @@ const ModalUploadSound = ({ sound, onSuccess, onClose }: ModalUploadSoundProps) 
 					setError(t('modal.errorLoadFailed'));
 				});
 		}
-	}, [sound]);
+	}, [sound, t]);
 
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const f = e.target.files?.[0];
