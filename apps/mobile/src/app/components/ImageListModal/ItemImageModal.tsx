@@ -9,32 +9,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { useVideoThumbnail } from '../../hooks/useVideoThumbnail';
 import { RenderVideoDetail } from '../../screens/home/homedrawer/components/RenderVideoDetail';
 import { isVideo } from '../../utils/helpers';
-import ImageNative from '../ImageNative';
 import { style } from './styles';
-
-const calculateImageSize = (imageWidth: number, imageHeight: number) => {
-	const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-	const screenAspectRatio = screenWidth / screenHeight;
-	const imageAspectRatio = imageWidth / imageHeight;
-
-	let calculatedWidth = screenWidth;
-	let calculatedHeight = screenHeight;
-
-	if (imageAspectRatio > screenAspectRatio) {
-		// Image is wider than the screen
-		calculatedWidth = screenWidth;
-		calculatedHeight = screenWidth / imageAspectRatio;
-	} else {
-		// Image is taller than the screen
-		calculatedHeight = screenHeight;
-		calculatedWidth = screenHeight * imageAspectRatio;
-	}
-
-	return {
-		width: Math.round(calculatedWidth),
-		height: Math.round(calculatedHeight)
-	};
-};
 
 export const ItemImageModal = React.memo(
 	({ item, setImageDimensions }: RenderItemInfo<ApiMessageAttachment>) => {
@@ -73,10 +48,7 @@ export const ItemImageModal = React.memo(
 
 			return {
 				isProxyImage: true,
-				url: createImgproxyUrl(item?.url ?? '', {
-					...calculateImageSize(item?.width || 500, item?.height || 500),
-					resizeType: 'fit'
-				}) as string,
+				url: createImgproxyUrl(item?.url ?? '', { width: item?.width || 500, height: item?.height || 500, resizeType: 'fit' }) as string,
 				urlOriginal: item?.url
 			};
 		}, [item, imageOriginal?.url]);
@@ -119,23 +91,7 @@ export const ItemImageModal = React.memo(
 
 		return (
 			<View style={styles.container}>
-				{imageProxyObj?.isProxyImage ? (
-					<ImageNative
-						url={imageProxyObj?.url}
-						urlOriginal={item?.url}
-						resizeMode="contain"
-						style={[StyleSheet.absoluteFill, { width: dims.width, height: dims.height }]}
-						onLoadEnd={() => {
-							setIsLoading(true);
-						}}
-						onLoad={(event) => {
-							const { width = dims.width, height = dims.height } = event?.nativeEvent || {};
-							const widthResult = width < dims.width ? width : dims.width;
-							const heightResult = height < dims.height ? height : dims.height;
-							setImageDimensions({ width: widthResult, height: heightResult });
-						}}
-					/>
-				) : Platform.OS === 'ios' ? (
+				{Platform.OS === 'ios' ? (
 					<FastImage
 						source={{ uri: imageProxyObj?.url }}
 						style={[StyleSheet.absoluteFill, { width: dims.width, height: dims.height }]}
