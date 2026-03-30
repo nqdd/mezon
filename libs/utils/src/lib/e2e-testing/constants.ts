@@ -1062,6 +1062,12 @@ export const DATA_E2E_IDENTIFIER = {
 				event_detail: ''
 			}
 		}
+	},
+	friend_remove_modal: {
+		button: {
+			cancel: '',
+			confirm: ''
+		}
 	}
 };
 type DotNestedKeys<T> = T extends object
