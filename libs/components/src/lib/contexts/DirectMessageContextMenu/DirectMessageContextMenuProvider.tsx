@@ -27,6 +27,7 @@ import ModalEditGroup from '../../components/ModalEditGroup';
 import ItemPanelMember from '../../components/PanelMember/ItemPanelMember';
 import ShareContactModal from '../../components/ShareContact';
 import { useEditGroupModal } from '../../hooks/useEditGroupModal';
+import { useRemoveFriendModal } from '../../hooks/useRemoveFriendModal';
 import { MemberMenuItem } from '../MemberContextMenu';
 import { useModals } from '../MemberContextMenu/useModals';
 import type { DirectMessageContextMenuContextType, DirectMessageContextMenuHandlers, DirectMessageContextMenuProps } from './types';
@@ -129,6 +130,17 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		isLastOne
 	});
 
+	const { openRemoveFriendModal } = useRemoveFriendModal((username, userId) => deleteFriend(username, userId));
+
+	const openRemoveFriendConfirm = useCallback(
+		(payload?: { username?: string; userId?: string; displayName?: string }) => {
+			if (payload?.username && payload?.userId) {
+				openRemoveFriendModal({ username: payload.username, id: payload.userId, displayName: payload.displayName });
+			}
+		},
+		[openRemoveFriendModal]
+	);
+
 	const notificationSettings = useAppSelector((state) => selectNotifiSettingsEntitiesById(state, channelId || ''));
 
 	const { mutedUntilText, nameChildren, muteOrUnMuteChannel, handleScheduleMute, getNotificationSetting } = useNotificationSettings({
@@ -141,7 +153,6 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		openUserProfile,
 		handleDirectMessageWithUser,
 		addFriend,
-		deleteFriend,
 		handleMarkAsRead,
 		handleScheduleMute,
 		muteOrUnMuteChannel,
@@ -152,7 +163,8 @@ export const DirectMessageContextMenuProvider: FC<DirectMessageContextMenuProps>
 		unBlockFriend,
 		openEditGroupModal: editGroupModal.openEditModal,
 		openLeaveGroupModal,
-		openShareContactModal
+		openShareContactModal,
+		openRemoveFriendModal: openRemoveFriendConfirm
 	});
 
 	const { showContextMenu } = useContextMenuHandlers({
@@ -393,3 +405,4 @@ export const useDirectMessageContextMenu = () => {
 };
 
 export * from './types';
+

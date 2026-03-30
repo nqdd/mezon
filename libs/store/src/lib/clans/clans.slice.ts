@@ -998,7 +998,7 @@ export const clansActions = {
  * See: https://react-redux.js.org/next/api/hooks#useselector
  */
 const { selectAll, selectEntities, selectById } = clansAdapter.getSelectors();
-const { selectAll: selectAllBadgeClan } = clanUnreadAdapter.getSelectors();
+const { selectAll: selectAllBadgeClan, selectById: selectClanUnreadById } = clanUnreadAdapter.getSelectors();
 
 export const getClansState = (rootState: { [CLANS_FEATURE_KEY]: ClansState }): ClansState => rootState[CLANS_FEATURE_KEY];
 export const selectAllClans = createSelector(getClansState, selectAll);
@@ -1052,15 +1052,15 @@ export const selectClanGroups = createSelector(getClansState, (state) => clanGro
 
 export const selectClanGroupOrder = createSelector(getClansState, (state) => state?.clanGroupOrder || []);
 
-export const selectClanUnreadStates = createSelector(getClansState, (state) => state?.clanUnreadStates?.entities || {});
+export const selectClanUnreadStates = createSelector(getClansState, (state) => state?.clanUnreadStates || {});
 export const selectBadgeClanById = createSelector(
 	[selectClanUnreadStates, (_, clan_id: string) => clan_id],
-	(clan, clan_id) => clan[clan_id]?.badge ?? 0
+	(clan, clan_id) => selectClanUnreadById(clan, clan_id)?.badge || 0
 );
 
 export const selectClanHasUnreadMessage = createSelector(
 	[selectClanUnreadStates, (_, clan_id: string) => clan_id],
-	(clan, clan_id) => clan[clan_id]?.has_unread ?? 0
+	(clan, clan_id) => selectClanUnreadById(clan, clan_id)?.has_unread || false
 );
 
 export const selectClanExists = (clanId: string) =>

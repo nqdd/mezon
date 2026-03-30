@@ -1,92 +1,93 @@
 {
   "fields": {
-    "channelName": {
-      "title": "Nombre del canal",
-      "placeholder": "Introduce el nombre del canal",
-      "errorMessage": "Introduce un nombre de canal válido (máx. 64 caracteres, solo palabras, números, _ o -).",
-      "duplicateError": "El nombre de canal ya existe en la categoría. Introduce otro nombre."
-    },
-    "threadName": {
-      "title": "Nombre del hilo",
-      "placeholder": "Introduce el nombre del hilo",
-      "errorMessage": "Introduce un nombre de hilo válido (máx. 64 caracteres, solo palabras, números, _ o -).",
-      "duplicateError": "El nombre del hilo ya existe en el canal. Introduce otro nombre."
-    },
-    "channelDescription": {
-      "title": "Tema del canal",
-      "placeholder": "¡Haz saber a todos cómo usar este canal!"
-    },
-    "threadDescription": {
-      "title": "Tema del hilo",
-      "placeholder": "¡Haz saber a todos cómo usar este hilo!"
-    },
-    "appUrl": {
-      "title": "URL de la app",
-      "invalidError": "Introduce una URL válida (ej.: https://ejemplo.com)."
-    },
-    "channelCategory": {
-      "title": "Categoría"
-    },
-    "channelPermission": {
-      "title": "",
-      "permission": "Permisos del canal",
-      "description": "Cambia la configuración de privacidad y personaliza cómo los miembros pueden interactuar con este canal."
-    },
-    "quickAction": {
-      "title": "Acción rápida"
-    },
-    "privateChannelInvite": {
-      "addMember": "Añadir miembro"
-    },
-    "channelNotifications": {
-      "title": "",
-      "notification": "Configuración de notificaciones",
-      "pinned": "Mensajes fijados",
-      "invite": "Invitaciones"
-    },
-    "channelSlowMode": {
-      "title": "Tiempo de espera de slowmode",
-      "description": "Los miembros estarán restringidos a enviar un mensaje y crear un hilo cada intervalo, a menos que tengan permisos Gestionar canal o Gestionar mensajes.",
-      "slowModeOff": "Slowmode desactivado",
-      "_5seconds": "5 segundos",
-      "_10seconds": "10 segundos",
-      "_15seconds": "15 segundos",
-      "_30seconds": "30 segundos",
-      "_1minute": "1 minuto",
-      "_2minutes": "2 minutos",
-      "_5minutes": "5 minutos",
-      "_10minutes": "10 minutos",
-      "_15minutes": "15 minutos",
-      "_30minutes": "30 minutos",
-      "_1hour": "1 hora",
-      "_2hours": "2 horas",
-      "_6hours": "6 horas"
-    },
-    "channelHideInactivity": {
-      "title": "Ocultar después de inactividad",
-      "description": "Los hilos nuevos no se mostrarán en la lista de canales tras estar inactivos durante el período especificado",
-      "_1hour": "1 hora",
-      "_24hours": "24 horas",
-      "_3days": "3 días",
-      "_1Week": "1 semana"
-    },
-    "channelWebhooks": {
-      "title": "",
-      "webhook": "Webhook"
-    },
-    "channelDelete": {
-      "title": "",
-      "delete": "Eliminar canal",
-      "leave": "Salir del canal"
-    },
-    "threadDelete": {
-      "title": "",
-      "delete": "Eliminar hilo"
-    },
-    "threadLeave": {
-      "title": "",
-      "leave": "Salir del hilo"
-    }
+		"channelName": {
+			"title": "Nombre del canal",
+			"placeholder": "Introduce el nombre del canal",
+			"errorMessage": "Introduce un nombre de canal válido (máx. 64 caracteres, solo palabras, números, _ o -).",
+			"duplicateError": "El nombre de canal ya existe en la categoría. Introduce otro nombre."
+		},
+		"threadName": {
+			"title": "Nombre del hilo",
+			"placeholder": "Introduce el nombre del hilo",
+			"errorMessage": "Introduce un nombre de hilo válido (máx. 65 caracteres, solo palabras, números, _ o -).",
+      "emptyError": "Por favor introduce un nombre de hilo válido (máx. 65 caracteres, solo palabras, números, _ o -).",
+			"duplicateError": "El nombre del hilo ya existe en el canal. Introduce otro nombre."
+		},
+		"channelDescription": {
+			"title": "Tema del canal",
+			"placeholder": "¡Haz saber a todos cómo usar este canal!"
+		},
+		"threadDescription": {
+			"title": "Tema del hilo",
+			"placeholder": "¡Haz saber a todos cómo usar este hilo!"
+		},
+		"appUrl": {
+			"title": "URL de la app",
+			"invalidError": "Introduce una URL válida (ej.: https://ejemplo.com)."
+		},
+		"channelCategory": {
+			"title": "Categoría"
+		},
+		"channelPermission": {
+			"title": "",
+			"permission": "Permisos del canal",
+			"description": "Cambia la configuración de privacidad y personaliza cómo los miembros pueden interactuar con este canal."
+		},
+		"quickAction": {
+			"title": "Acción rápida"
+		},
+		"privateChannelInvite": {
+			"addMember": "Añadir miembro"
+		},
+		"channelNotifications": {
+			"title": "",
+			"notification": "Configuración de notificaciones",
+			"pinned": "Mensajes fijados",
+			"invite": "Invitaciones"
+		},
+		"channelSlowMode": {
+			"title": "Tiempo de espera de slowmode",
+			"description": "Los miembros estarán restringidos a enviar un mensaje y crear un hilo cada intervalo, a menos que tengan permisos Gestionar canal o Gestionar mensajes.",
+			"slowModeOff": "Slowmode desactivado",
+			"_5seconds": "5 segundos",
+			"_10seconds": "10 segundos",
+			"_15seconds": "15 segundos",
+			"_30seconds": "30 segundos",
+			"_1minute": "1 minuto",
+			"_2minutes": "2 minutos",
+			"_5minutes": "5 minutos",
+			"_10minutes": "10 minutos",
+			"_15minutes": "15 minutos",
+			"_30minutes": "30 minutos",
+			"_1hour": "1 hora",
+			"_2hours": "2 horas",
+			"_6hours": "6 horas"
+		},
+		"channelHideInactivity": {
+			"title": "Ocultar después de inactividad",
+			"description": "Los hilos nuevos no se mostrarán en la lista de canales tras estar inactivos durante el período especificado",
+			"_1hour": "1 hora",
+			"_24hours": "24 horas",
+			"_3days": "3 días",
+			"_1Week": "1 semana"
+		},
+		"channelWebhooks": {
+			"title": "",
+			"webhook": "Webhook"
+		},
+		"channelDelete": {
+			"title": "",
+			"delete": "Eliminar canal",
+			"leave": "Salir del canal"
+		},
+		"threadDelete": {
+			"title": "",
+			"delete": "Eliminar hilo"
+		},
+		"threadLeave": {
+			"title": "",
+			"leave": "Salir del hilo"
+		}
   },
   "confirm": {
     "delete": {

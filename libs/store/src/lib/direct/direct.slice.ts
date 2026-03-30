@@ -240,12 +240,20 @@ export const fetchDirectMessage = createAsyncThunk(
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await mezon.client.listChannelDescs(mezon.session, DM_PAGE_SIZE, 1, 1, '0', channelType, isMobile);
 			if (!response.channeldesc || response.channeldesc.length === 0) {
-				thunkAPI.dispatch(directActions.setAll([]));
 				return { channels: [], hasMore: false, page: 1 };
 			}
 
 			const state = thunkAPI.getState() as RootState;
 			const checkJoinDM = state.clans?.checkJoinList?.['0'];
+
+			const existingEntities = selectAllDirectMessages(state);
+			const userProfile = selectAllAccount(state)?.user;
+
+			const channels = processDmChannels(response.channeldesc, existingEntities, userProfile, thunkAPI);
+
+			thunkAPI.dispatch(directActions.setDirectMetaEntities(channels));
+			thunkAPI.dispatch(directActions.setAll(channels));
+
 			if (!checkJoinDM) {
 				try {
 					const res = await thunkAPI.dispatch(listChannelBadgeCount({ clanId: '0' })).unwrap();
@@ -263,15 +271,6 @@ export const fetchDirectMessage = createAsyncThunk(
 					);
 				}
 			}
-
-			const existingEntities = selectAllDirectMessages(state);
-			const userProfile = selectAllAccount(state)?.user;
-
-			const channels = processDmChannels(response.channeldesc, existingEntities, userProfile, thunkAPI);
-
-			thunkAPI.dispatch(directActions.setDirectMetaEntities(channels));
-			thunkAPI.dispatch(directActions.setAll(channels));
-
 			const hasMore = response.channeldesc.length >= DM_PAGE_SIZE;
 			return { channels, hasMore, page: 1 };
 		} catch (error) {
@@ -397,15 +396,6 @@ interface JoinDirectMessagePayload {
 	isFetchingLatestMessages?: boolean;
 	isClearMessage?: boolean;
 }
-interface members {
-	user_id?: string;
-}
-
-export type StatusDMUnreadArgs = {
-	dmId: string;
-	isUnread: boolean;
-};
-
 export const joinDirectMessage = createAsyncThunk<void, JoinDirectMessagePayload>(
 	'direct/joinDirectMessage',
 	async ({ directMessageId, type, noCache = false, isFetchingLatestMessages = false, isClearMessage = false }, thunkAPI) => {
@@ -965,17 +955,11 @@ export const directActions = {
 
 export const directMetaActions = directActions;
 
-const getStatusUnread = (lastSeenStamp: number, lastSentStamp: number) => {
-	if (lastSeenStamp && lastSentStamp) {
-		return Number(lastSeenStamp) < Number(lastSentStamp);
-	}
-	return true;
-};
-
-const { selectAll, selectEntities } = directAdapter.getSelectors();
+const { selectAll, selectEntities, selectIds } = directAdapter.getSelectors();
 
 export const getDirectState = (rootState: { [DIRECT_FEATURE_KEY]: DirectState }): DirectState => rootState[DIRECT_FEATURE_KEY];
 export const selectDirectMessageEntities = createSelector(getDirectState, selectEntities);
+export const selectDirectMessageIds = createSelector(getDirectState, selectIds);
 
 export const selectAllDirectMessages = createSelector(getDirectState, selectAll);
 export const selectDmGroupCurrentId = createSelector(getDirectState, (state) => state.currentDirectMessageId);

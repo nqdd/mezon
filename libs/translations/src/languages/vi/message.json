@@ -254,6 +254,11 @@
 		"showResults": "Xem kết quả",
 		"voteButton": "Bình chọn",
 		"removeVote": "Bỏ bình chọn",
-		"noVoterDetails": "Không có chi tiết người bình chọn"
+		"noVoterDetails": "Không có chi tiết người bình chọn",
+		"ended": "Đã kết thúc",
+		"loadMore": "Xem thêm {{count}} câu trả lời",
+		"loadMore1Option": "Xem thêm 1 câu trả lời",
+		"showLess": "Thu gọn",
+		"noVotesYet": "Chưa có người bình chọn"
 	}
 }

@@ -20,12 +20,12 @@ export interface ChannelMetaEntity {
 	last_sent_message?: ApiChannelMessageHeader;
 }
 
-function extractChannelMeta(channel: ApiChannelDescription): ChannelMetaEntity {
+function extractChannelMeta(channel: ApiChannelDescription, clanId: string): ChannelMetaEntity {
 	return {
 		id: channel.channel_id || '0',
 		lastSeenTimestamp: Number(channel.last_seen_message?.timestamp_seconds) ?? 0,
 		lastSentTimestamp: Number(channel.last_sent_message?.timestamp_seconds),
-		clanId: channel.clan_id ?? '0',
+		clanId: (clanId || channel.clan_id) ?? '0',
 		isMute: channel.is_mute ?? false,
 		senderId: channel.last_sent_message?.sender_id ?? '0',
 		lastSeenMessageId: channel.last_seen_message?.id,
@@ -111,7 +111,7 @@ export const channelMetaSlice = createSlice({
 
 			for (const ch of data) {
 				if (ch.type !== ChannelType.CHANNEL_TYPE_APP && ch.type !== ChannelType.CHANNEL_TYPE_MEZON_VOICE) {
-					meta.push(extractChannelMeta(ch));
+					meta.push(extractChannelMeta(ch, action?.payload?.clanId));
 				}
 			}
 			if (action?.payload?.clanId === '0') {
@@ -259,7 +259,7 @@ import { remove } from '@mezon/mobile-components';
  *
  * See: https://react-redux.js.org/next/api/hooks#useselector
  */
-const { selectEntities, selectById } = channelMetaAdapter.getSelectors();
+const { selectEntities, selectById, selectAll } = channelMetaAdapter.getSelectors();
 
 const {
 	selectAll: selectAllDmMetadata,
@@ -273,6 +273,12 @@ export const getChannelMetaState = (rootState: { [CHANNELMETA_FEATURE_KEY]: Chan
 export const getDmMetadataState = createSelector(getChannelMetaState, (state) => state?.dmEntities);
 
 export const selectChannelMetaEntities = createSelector(getChannelMetaState, selectEntities);
+export const selectAllChannelMeta = createSelector(getChannelMetaState, selectAll);
+
+export const selectFirstChannelWithBadgeByClanId = createSelector(
+	[selectAllChannelMeta, (_, clanId: string) => clanId],
+	(channels, clanId) => channels.find((ch) => ch && ch.clanId === clanId && !!ch.count_mess_unread) ?? null
+);
 
 export const selectChannelMetaById = createSelector([selectChannelMetaEntities, (state, channelId) => channelId], (entities, channelId) => {
 	return entities[channelId];

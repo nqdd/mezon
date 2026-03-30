@@ -80,9 +80,9 @@ const ItemPinMessage = (props: ItemPinMessageProps) => {
 	const isPollMessage = message?.code === TypeMessage.Poll || Boolean(pollData?.poll_id);
 
 	const pollDuration = useMemo(() => {
-		if (!pollData?.exp) return '';
-		return convertTimestampToTimeRemainingI18n(parseInt(pollData.exp as unknown as string, 10), t);
-	}, [pollData?.exp, t]);
+		if (!pollData?.expire_at) return '';
+		return convertTimestampToTimeRemainingI18n(Number(pollData.expire_at), t);
+	}, [pollData?.expire_at, t]);
 
 	const { isShareContact, shareContactEmbed } = useMemo(() => {
 		const embeds = messageContentObject?.embed || message?.content?.embed || [];

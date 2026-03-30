@@ -50,6 +50,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	const [topic, setTopic] = useState(topicInit);
 	const [channelLabel, setChannelLabel] = useState(channelLabelInit);
 	const [checkValidate, setCheckValidate] = useState('');
+	const [checkValidateEmpty, setCheckValidateEmpty] = useState('');
 	const [checkValidateUrl, setCheckValidateUrl] = useState(!ValidateURL().test(appUrlInit || ''));
 	const [countCharacterTopic, setCountCharacterTopic] = useState(1024);
 	const isThread = checkIsThread(currentChannel as ChannelsEntity);
@@ -98,6 +99,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 
 	const messages = useMemo(
 		() => ({
+			EMPTY_NAME: isThread ? t('fields.threadName.emptyError') : t('fields.channelName.emptyError'),
 			INVALID_NAME: isThread ? t('fields.threadName.errorMessage') : t('fields.channelName.errorMessage'),
 			DUPLICATE_NAME: isThread ? t('fields.threadName.duplicateError') : t('fields.channelName.duplicateError'),
 			INVALID_URL: t('fields.appUrl.invalidError')
@@ -114,6 +116,14 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 	);
 
 	const debouncedSetChannelName = useDebouncedCallback(async (value: string) => {
+		if (!value.trim()) {
+			setCheckValidateEmpty(messages.EMPTY_NAME);
+			setCheckValidate('');
+			return;
+		}
+
+		setCheckValidateEmpty('');
+
 		if (channelLabelInit && value.trim() === channelLabelInit.trim()) {
 			setCheckValidate('');
 			return;
@@ -284,6 +294,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 				e2eeInit !== isE2ee ||
 				isCheckForSystemMsg) &&
 			!checkValidate &&
+			!checkValidateEmpty &&
 			(!appUrl || !checkValidateUrl)
 		);
 	}, [
@@ -294,6 +305,7 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 		topicInit,
 		topic,
 		checkValidate,
+		checkValidateEmpty,
 		checkValidateUrl,
 		isCheckForSystemMsg,
 		ageRestrictedInit,
@@ -315,7 +327,11 @@ const OverviewChannel = (props: OverviewChannelProps) => {
 					className="pl-3 border-theme-primary bg-input-secondary  py-2 w-full  outline-none rounded-lg"
 					maxLength={Number(process.env.NX_MAX_LENGTH_NAME_ALLOWED)}
 				/>
-				{checkValidate && <p className="text-[#e44141] text-xs italic font-thin">{checkValidate}</p>}
+				{(checkValidateEmpty || checkValidate) && (
+					<p className="text-[#e44141] text-xs italic font-thin">
+						{checkValidateEmpty || checkValidate}
+					</p>
+				)}
 
 				{channel.type === ChannelType.CHANNEL_TYPE_APP && (
 					<>

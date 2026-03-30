@@ -1,7 +1,7 @@
 import { useTheme } from '@mezon/mobile-ui';
 import type { PinMessageEntity } from '@mezon/store-mobile';
 import { messagesActions, selectMemberClanByUserId, selectMessageByMessageId, useAppDispatch, useAppSelector } from '@mezon/store-mobile';
-import { SHARE_CONTACT_KEY, type IExtendedMessage, type IMessageWithUser } from '@mezon/utils';
+import { SHARE_CONTACT_KEY, TypeMessage, type IExtendedMessage, type IMessageWithUser } from '@mezon/utils';
 import { useNavigation } from '@react-navigation/native';
 import { decodeAttachments, safeJSONParse } from 'mezon-js';
 import type { ApiMessageAttachment } from 'mezon-js/api';
@@ -16,6 +16,7 @@ import { ContactMessageCard } from '../../../screens/home/homedrawer/components/
 import { MessageAttachment } from '../../../screens/home/homedrawer/components/MessageAttachment';
 import { RenderTextMarkdownContent } from '../../../screens/home/homedrawer/components/RenderTextMarkdown';
 import { style } from './PinMessageItem.styles';
+import { PollCard } from '../../../screens/home/homedrawer/components/PollCard';
 
 interface IPinMessageItemProps {
 	pinMessageItem: PinMessageEntity;
@@ -126,6 +127,12 @@ const PinMessageItem = memo(({ pinMessageItem, handleUnpinMessage, contentMessag
 					/>
 				)}
 				{!!contactData && <ContactMessageCard key={`pin_message_contact_${pinMessageItem?.message_id}`} data={contactData} />}
+				{message?.code === TypeMessage.Poll && (
+					<PollCard
+						key={`pin_message_poll_${message?.id}`}
+						message={message}
+					/>
+				)}
 			</View>
 			<View>
 				<TouchableOpacity

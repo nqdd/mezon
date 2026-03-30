@@ -1,4 +1,5 @@
-import { Attributes, baseColor, size } from '@mezon/mobile-ui';
+import type { Attributes } from '@mezon/mobile-ui';
+import { baseColor, size } from '@mezon/mobile-ui';
 import { StyleSheet } from 'react-native';
 export const style = (colors: Attributes) =>
 	StyleSheet.create({
@@ -16,7 +17,7 @@ export const style = (colors: Attributes) =>
 			flexDirection: 'row',
 			alignItems: 'center',
 			gap: size.s_4,
-			backgroundColor: colors.secondaryLight,
+			backgroundColor: colors.border,
 			borderRadius: size.s_6
 		},
 		dateMessageBox: {

@@ -33,6 +33,7 @@
     "preview": "Vista previa",
     "audioFile": "Archivo de audio",
     "soundName": "Nombre de la voz",
+    "soundVolume": "Volumen del sonido",
     "chooseOrDrop": "Selecciona o suelta un archivo",
     "browse": "Examinar",
     "placeholder": "Ex.cat abrazo",

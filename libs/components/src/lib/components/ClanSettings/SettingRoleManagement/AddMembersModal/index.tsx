@@ -183,7 +183,7 @@ const ItemMemberModal = (props: ItemMemberModalProps) => {
 	const avatarPrioritize = getAvatarForPrioritize(clanAvatar, avatar);
 	return (
 		<li key={id}>
-			<label htmlFor={id} className="w-full inline-flex justify-between items-center">
+			<label htmlFor={id} className="w-full inline-flex justify-between items-center bg-item-theme-hover cursor-pointer">
 				<div className="inline-flex gap-x-2">
 					<AvatarImage
 						alt={username}

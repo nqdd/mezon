@@ -29,7 +29,7 @@
 		"delete": "Удалить",
 		"selectAChannel": "Выбрать канал",
 		"yes": "Да",
-		"deleteCaptionHook": "Удалить ключ заголовка",
+		"deleteCaptionHook": "Удалить {{webhookName}}",
 		"deleteWebhookConfirmation": "Пожалуйста, подтвердите, хотите ли Вы удалить веб-хук {{webhookName}}? Это действие не может быть отменено.",
 		"resetToken": "Сбросить токен",
 		"name": "Название вебхука",

@@ -28,7 +28,7 @@
 		"delete": "Xóa",
 		"selectAChannel": "Chọn một kênh",
 		"yes": "Có",
-		"deleteCaptionHook": "Xóa Webhook",
+		"deleteCaptionHook": "Xóa {{webhookName}}",
 		"deleteWebhookTitle": "Xóa {{webhookName}}",
 		"deleteWebhookConfirmation": "Bạn có chắc chắn muốn xóa webhook {{webhookName}}? Hành động này không thể hoàn tác.",
 		"resetToken": "Đặt lại token",
