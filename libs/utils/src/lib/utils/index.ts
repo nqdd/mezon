@@ -175,16 +175,12 @@ export const uniqueUsers = (mentions: IMentionOnMessage[], memUserIds: string[] 
 	return userIdsNotInChannel;
 };
 
-export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1) => {
+export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1, t?: (key: string, options?: any) => string) => {
 	const target = new Date(Math.floor(timestampSec) * 1000);
 	const diffSec = Math.max(0, differenceInSeconds(Date.now(), target));
-	const normalizedLang = String(languageCode || 'en').toLowerCase();
 
 	if (diffSec <= justNowThreshold) {
-		if (normalizedLang.startsWith('vi')) return 'Vừa xong';
-		if (normalizedLang.startsWith('es')) return 'Ahora mismo';
-		if (normalizedLang.startsWith('ru')) return 'Только что';
-		return 'Just now';
+		return t ? t('common:justNow') : 'Just now';
 	}
 
 	return formatDistanceToNowStrict(target, {
