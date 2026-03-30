@@ -856,6 +856,9 @@ export const clansSlice = createSlice({
 		clearClanGroups: (state) => {
 			state.clanGroups = clanGroupAdapter.getInitialState();
 			state.clanGroupOrder = [];
+		},
+		clearJoinList: (state) => {
+			state.checkJoinList = {};
 		}
 	},
 	extraReducers: (builder) => {
