@@ -5,6 +5,7 @@ import {
 	selectMemberClanByUserId,
 	selectMemberDMByUserId,
 	selectMessageByMessageId,
+	selectMyVote,
 	useAppDispatch,
 	useAppSelector,
 	votePoll
@@ -88,31 +89,6 @@ export { renderPollTextWithEmoji };
 
 const POLL_ANSWERS_SCROLL_AFTER = 5;
 
-const POLL_MY_VOTES_KEY = 'mezon_poll_my_votes';
-
-function getMyVoteFromStorage(messageId: string): number[] {
-	try {
-		const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(POLL_MY_VOTES_KEY) : null;
-		if (!raw) return [];
-		const data = JSON.parse(raw) as Record<string, number[]>;
-		return Array.isArray(data[messageId]) ? data[messageId] : [];
-	} catch {
-		return [];
-	}
-}
-
-function setMyVoteToStorage(messageId: string, indices: number[]) {
-	try {
-		const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(POLL_MY_VOTES_KEY) : null;
-		const data = (raw ? JSON.parse(raw) : {}) as Record<string, number[]>;
-		if (indices.length === 0) delete data[messageId];
-		else data[messageId] = indices;
-		localStorage.setItem(POLL_MY_VOTES_KEY, JSON.stringify(data));
-	} catch {
-		// ignore
-	}
-}
-
 export type PollVoter = {
 	displayName: string;
 	username: string;
@@ -165,13 +141,6 @@ export const PollMessage = ({
 		const details = pd.voter_details;
 		if (!Array.isArray(details)) return;
 		setUiVotedIndices(null);
-		const myIndices: number[] = [];
-		details.forEach((d: unknown, idx: number) => {
-			const o = d as Record<string, unknown>;
-			const ids = o.user_ids;
-			if (Array.isArray(ids) && ids.includes(currentUserId)) myIndices.push((o.answer_index as number) ?? idx);
-		});
-		setMyVoteToStorage(messageId, myIndices);
 	}, [messageId, pollData, currentUserId]);
 
 	const isClosed = useMemo(() => {
@@ -195,6 +164,8 @@ export const PollMessage = ({
 		return new Array(answers.length).fill(0);
 	}, [pollData, answers.length]);
 
+	const reduxMyVote = useAppSelector(selectMyVote);
+
 	const votedAnswers = useMemo(() => {
 		if (uiVotedIndices !== null) return uiVotedIndices;
 		const pollDataAny = pollData as Record<string, unknown>;
@@ -209,8 +180,8 @@ export const PollMessage = ({
 			if (userVotes.length > 0) return userVotes;
 		}
 
-		return messageId ? getMyVoteFromStorage(messageId) : [];
-	}, [pollData, currentUserId, uiVotedIndices, messageId]);
+		return messageId ? (reduxMyVote?.[messageId] ?? []) : [];
+	}, [pollData, currentUserId, uiVotedIndices, messageId, reduxMyVote]);
 
 	const votersByOptionFromApi = useMemo(() => {
 		const pollDataAny = pollData as Record<string, unknown>;
@@ -314,7 +285,7 @@ export const PollMessage = ({
 					answer_indices: selectedAnswers
 				})
 			).unwrap();
-			setMyVoteToStorage(messageId, selectedAnswers);
+
 			setUiVotedIndices(selectedAnswers);
 			setSelectedAnswers([]);
 			setShowResults(false);
@@ -337,7 +308,7 @@ export const PollMessage = ({
 					answer_indices: []
 				})
 			).unwrap();
-			setMyVoteToStorage(messageId, []);
+
 			setUiVotedIndices([]);
 			setSelectedAnswers([]);
 			setShowResults(false);
