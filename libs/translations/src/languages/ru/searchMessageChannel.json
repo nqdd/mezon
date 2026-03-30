@@ -41,6 +41,12 @@
 		"has": "имеет:",
 		"in": "в:"
 	},
+	"mentionPrefixes": {
+		"from": "от:",
+		"mentions": "упоминания:",
+		"has": "имеет:",
+		"in": "в:"
+	},
 	"allChannels": "Все каналы",
 	"searching": "Поиск...",
 	"noResults": "Нет результатов",

@@ -7,7 +7,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons, Menu, Pagination } from '@mezon/ui';
-import { createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { createImgproxyUrl, generateE2eId, getDateLocale } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import { ChannelType } from 'mezon-js';
 import type { ApiChannelMessageHeader, ApiChannelSettingItem } from 'mezon-js/api';
@@ -297,7 +297,7 @@ const ItemInfor = ({
 	isStream?: boolean;
 	isApp?: boolean;
 }) => {
-	const { t } = useTranslation('channelSetting');
+	const { t, i18n } = useTranslation('channelSetting');
 	const creatorChannel = useAppSelector((state) => selectMemberClanByUserId(state, creatorId));
 	const handleCopyChannelId = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		e.stopPropagation();
@@ -309,7 +309,10 @@ const ItemInfor = ({
 		compactDisplay: 'short'
 	});
 	const date = lastMessage?.timestamp_seconds
-		? formatDistance((lastMessage?.timestamp_seconds as number) * 1000, new Date(), { addSuffix: true })
+		? formatDistance((lastMessage?.timestamp_seconds as number) * 1000, new Date(), {
+				addSuffix: true,
+				locale: getDateLocale(i18n.language)
+			})
 		: null;
 
 	const handleShowAllMemberList = () => {
