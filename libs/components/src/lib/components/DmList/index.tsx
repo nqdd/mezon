@@ -20,26 +20,26 @@ function DirectMessageList() {
 	const { quantityPendingRequest } = useFriends();
 	const pinnedDmIds = useSelector(selectPinnedDms);
 	const pinnedDmSet = useMemo(() => new Set(pinnedDmIds), [pinnedDmIds]);
-	const directIdsSet = useMemo(() => new Set(directIds), [directIds]);
+	const directSortSet = useMemo(() => new Set(dmGroupChatList), [dmGroupChatList]);
 
 	const { pinnedDMs, unpinnedDMs } = useMemo(() => {
 		const pinned: string[] = [];
 		const unpinned: string[] = [];
 
-		const idsToProcess = dmGroupChatList?.length ? dmGroupChatList : directIds;
+		const base = dmGroupChatList ?? [];
 
-		for (const id of idsToProcess) {
-			if (!dmGroupChatList || directIdsSet.has(id)) {
-				if (pinnedDmSet.has(id)) {
-					pinned.push(id);
-				} else {
-					unpinned.push(id);
-				}
-			}
+		const push = (id: string) => {
+			if (pinnedDmSet.has(id)) pinned.push(id);
+			else unpinned.push(id);
+		};
+
+		for (const id of base) push(id);
+		for (const id of directIds) {
+			if (!directSortSet.has(id)) push(id);
 		}
 
 		return { pinnedDMs: pinned, unpinnedDMs: unpinned };
-	}, [dmGroupChatList, directIdsSet, pinnedDmSet]);
+	}, [dmGroupChatList, directIds, pinnedDmSet]);
 
 	return (
 		<>
