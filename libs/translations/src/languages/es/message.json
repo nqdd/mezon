@@ -126,6 +126,10 @@
   "isBanned": "Estás bloqueado",
   "blockedUserMessage": "No puedes responder a esta conversación",
   "messageInputPlaceHolder": "Escribe un mensaje...",
+  "fileSelection": {
+    "uploadFile": "Subir archivo",
+    "createPoll": "Crear encuesta"
+  },
   "shareLocationModal": {
     "sendThisLocation": "Enviar esta ubicación a",
     "send": "Enviar",

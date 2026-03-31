@@ -21,12 +21,14 @@ import { Platform, SIZE_PAGE_SEARCH, getPlatform } from '@mezon/utils';
 import { ChannelStreamMode } from 'mezon-js';
 import type { ApiSearchMessageRequest } from 'mezon-js/api';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
 import { hasKeySearch, searchFieldName } from './constant';
 
 export const useSearchLogic = (mode?: ChannelStreamMode) => {
 	const dispatch = useAppDispatch();
+	const { t } = useTranslation('searchMessageChannel');
 	const { fetchSearchMessages, currentPage } = useSearchMessages();
 
 	const isActive = useSelector(selectIsShowMemberList);
@@ -45,6 +47,15 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 	const searchedRequest = useSelector((state) => selectSearchedRequestByChannelId(state, channelId));
 	const valueInputSearch = useSelector((state) => selectValueInputSearchMessage(state, channelId));
 	const isSearchMessage = useAppSelector((state) => selectIsSearchMessage(state, channelId));
+	const mentionPrefixMap = useMemo(
+		() => [
+			{ mappedType: 'from', prefixes: ['from:', t('mentionPrefixes.from')] },
+			{ mappedType: 'mentions', prefixes: ['mentions:', 'mention:', t('mentionPrefixes.mentions')] },
+			{ mappedType: 'has', prefixes: ['has:', t('mentionPrefixes.has')] },
+			{ mappedType: 'in', prefixes: ['in:', t('mentionPrefixes.in')] }
+		],
+		[t]
+	);
 
 	const [expanded, setExpanded] = useState(false);
 	const [isShowSearchMessageModal, setIsShowSearchMessageModal] = useState(false);
@@ -96,7 +107,7 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			const value = event.target.value;
 			const words = value.split(' ');
 			const cleanedWords = words.filter((word) => {
-				const mentionPrefixes = ['from:', 'mention:', 'has:', 'in:', '>', '~', '&', '#'];
+				const mentionPrefixes = [...mentionPrefixMap.flatMap((item) => item.prefixes), '>', '~', '&', '#'];
 				const isMentionStart = mentionPrefixes.some((prefix) => word.startsWith(prefix));
 				return !isMentionStart;
 			});
@@ -114,18 +125,10 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 			}
 
 			for (const mention of mentions) {
-				const convertMention = mention.display.split(':');
-				const mentionType = convertMention[0];
-				const mappedType =
-					mentionType === '>'
-						? 'from'
-						: mentionType === '~'
-							? 'mentions'
-							: mentionType === '&'
-								? 'has'
-								: mentionType === 'in'
-									? 'in'
-									: mentionType;
+				const mentionDisplay = mention.display || '';
+				const prefixItem = mentionPrefixMap.find((item) => item.prefixes.some((prefix) => mentionDisplay.startsWith(prefix)));
+				const matchedPrefix = prefixItem?.prefixes.find((prefix) => mentionDisplay.startsWith(prefix)) || '';
+				const mappedType = prefixItem?.mappedType || mentionDisplay.split(':')[0];
 
 				let fieldValue: string;
 				if (mappedType === 'mentions') {
@@ -133,18 +136,18 @@ export const useSearchLogic = (mode?: ChannelStreamMode) => {
 				} else if (mappedType === 'in' || searchFieldName?.[mappedType] === 'channel_id') {
 					fieldValue = mention.id;
 				} else {
-					fieldValue = convertMention?.[1] || mention.id;
+					fieldValue = mentionDisplay.replace(matchedPrefix, '') || mention.id;
 				}
 
 				filter.push({
-					field_name: searchFieldName?.[mappedType] || searchFieldName?.[mentionType],
+					field_name: searchFieldName?.[mappedType] || searchFieldName?.[mentionDisplay.split(':')[0]],
 					field_value: fieldValue
 				});
 			}
 			const search: ApiSearchMessageRequest = { ...searchedRequest, filters: filter };
 			dispatch(searchMessagesActions.setSearchedRequest({ channelId, value: search }));
 		},
-		[channelId, currentClanId, dispatch, searchedRequest]
+		[channelId, dispatch, mentionPrefixMap, searchedRequest]
 	);
 
 	const clearSearchInput = useCallback(() => {
