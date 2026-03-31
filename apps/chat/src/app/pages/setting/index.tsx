@@ -110,7 +110,7 @@ const Setting = ({ isDM }: settingProps) => {
 	const isShowSettingFooter = useSelector(selectIsShowSettingFooter);
 	const [openSettingModal, closeSettingModal] = useModal(() => {
 		return <SettingContent isDM={isDM} isShowSettingFooter={isShowSettingFooter} />;
-	}, [isDM]);
+	}, [isDM, isShowSettingFooter]);
 
 	useEffect(() => {
 		if (isShowSettingFooter?.status) {

@@ -33,9 +33,13 @@ const SettingRightProfile = ({ menuIsOpen, isDM }: SettingRightProfileProps) => 
 	};
 
 	useEffect(() => {
-		setActiveType(EActiveType.USER_SETTING);
+		const shouldShowClan = !isDM || !isShowSettingFooter.isUserProfile;
+		const desiredActiveType =
+			isShowSettingFooter?.profileInitTab === EActiveType.CLAN_SETTING && shouldShowClan ? EActiveType.CLAN_SETTING : EActiveType.USER_SETTING;
+
+		setActiveType(desiredActiveType);
 		setClanId(isShowSettingFooter.clanId ? isShowSettingFooter.clanId || '' : currentClanId || '');
-	}, [isShowSettingFooter?.profileInitTab, isShowSettingFooter.clanId, currentClanId]);
+	}, [isDM, isShowSettingFooter?.profileInitTab, isShowSettingFooter.clanId, isShowSettingFooter.isUserProfile, currentClanId]);
 
 	return (
 		<div
