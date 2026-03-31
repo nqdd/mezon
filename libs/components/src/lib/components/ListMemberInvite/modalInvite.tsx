@@ -65,8 +65,10 @@ const ModalInvite = (props: ModalParam) => {
 	}, [channelID, effectiveClanId]);
 
 	useEffect(() => {
-		handleOpenInvite();
-	}, []);
+		if (!isInviteExternalCalling) {
+			handleOpenInvite();
+		}
+	}, [handleOpenInvite, isInviteExternalCalling]);
 
 	useEffect(() => {
 		return () => {

@@ -15,6 +15,7 @@
   "error": "Error",
   "profile": "Perfil",
   "message": "Mensaje",
+  "timeAgo": "hace {{time}}",
   "transferOwnership": "Transferir la propiedad",
   "removeMember": "Eliminar miembro"
 }

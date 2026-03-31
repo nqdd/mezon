@@ -71,7 +71,7 @@
 		"remove": "Xóa"
 	},
 	"enableOnboarding": {
-		"title": "Bạn có bật Hướng dẫn không?",
+		"title": "Bạn có muốn bật Onboarding không?",
 		"description": "Chuyển đổi sang Hướng dẫn để truy cập các công cụ quản trị bổ sung",
 		"subtitle": "giúp bạn kiểm duyệt và phát triển Clan của mình một cách hiệu quả.",
 		"button": "Bật Hướng dẫn",

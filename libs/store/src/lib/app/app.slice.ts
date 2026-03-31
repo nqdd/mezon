@@ -188,6 +188,7 @@ export const refreshApp = createAsyncThunk('app/refreshApp', async (_, thunkAPI)
 			clanId = '0';
 			channelId = currentDirectId;
 		}
+		thunkAPI.dispatch(clansActions.clearJoinList());
 
 		channelId &&
 			thunkAPI.dispatch(

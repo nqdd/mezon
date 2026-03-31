@@ -14,6 +14,7 @@
   "error": "Ошибка",
   "profile": "Профиль",
   "message": "Сообщение",
+  "timeAgo": "{{time}} назад",
   "transferOwnership": "Передать права",
   "removeMember": "Убрать участника"
 }

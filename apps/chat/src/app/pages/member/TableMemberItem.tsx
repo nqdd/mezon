@@ -14,7 +14,7 @@ import {
 } from '@mezon/store';
 import { HighlightMatchBold, Icons } from '@mezon/ui';
 import type { ChannelMembersEntity } from '@mezon/utils';
-import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_TITLE, createImgproxyUrl, generateE2eId } from '@mezon/utils';
+import { DEFAULT_ROLE_COLOR, EPermission, EVERYONE_ROLE_TITLE, createImgproxyUrl, generateE2eId, getDateLocale } from '@mezon/utils';
 import { formatDistance } from 'date-fns';
 import Tooltip from 'rc-tooltip';
 import type { MouseEvent } from 'react';
@@ -36,7 +36,7 @@ type TableMemberItemProps = {
 };
 
 const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime, displayName }: TableMemberItemProps) => {
-	const { t } = useTranslation('common');
+	const { t, i18n } = useTranslation(['common', 'memberTable']);
 	const rolesClanEntity = useSelector(selectRolesClanEntities);
 
 	const userRolesClan = useMemo(() => {
@@ -216,11 +216,13 @@ const TableMemberItem = ({ userId, username, avatar, clanJoinTime, mezonJoinTime
 			</div>
 			<div className="flex-1 p-1 text-center">
 				<span className="text-xs  font-medium uppercase">
-					{clanJoinTime ? formatDistance(clanJoinTime as string, new Date(), { addSuffix: true }) : '-'}
+					{clanJoinTime
+						? formatDistance(clanJoinTime as string, new Date(), { addSuffix: true, locale: getDateLocale(i18n.language) })
+						: '-'}
 				</span>
 			</div>
 			<div className="flex-1 p-1 text-center">
-				<span className="text-xs  font-medium uppercase">{mezonJoinTime ? `${mezonJoinTime} ago` : '-'}</span>
+				<span className="text-xs  font-medium uppercase">{mezonJoinTime ? t('memberTable:timeAgo', { time: mezonJoinTime }) : '-'}</span>
 			</div>
 			<div className="flex-2 p-1 text-center">
 				<span className={'inline-flex items-center'}>
