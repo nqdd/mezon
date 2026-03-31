@@ -41,6 +41,12 @@
 		"has": "có:",
 		"in": "trong:"
 	},
+	"mentionPrefixes": {
+		"from": "từ:",
+		"mentions": "nhắc đến:",
+		"has": "có:",
+		"in": "trong:"
+	},
 	"allChannels": "Tất cả kênh",
 	"searching": "Đang tìm kiếm...",
 	"noResults": "Không có kết quả",

@@ -40,6 +40,10 @@ const SearchInput = ({
 }: SearchInputProps) => {
 	const { t } = useTranslation('searchMessageChannel');
 	const isClanMode = mode === ChannelStreamMode.STREAM_MODE_CHANNEL;
+	const mentionPrefixFrom = t('mentionPrefixes.from');
+	const mentionPrefixMentions = t('mentionPrefixes.mentions');
+	const mentionPrefixHas = t('mentionPrefixes.has');
+	const mentionPrefixIn = t('mentionPrefixes.in');
 	const userListData = UserMentionList({
 		channelID: channelId,
 		channelMode: mode
@@ -166,7 +170,7 @@ const SearchInput = ({
 				appendSpaceOnAdd={true}
 				data={handleSearchUserMentionFrom}
 				trigger=">"
-				displayTransform={(id: string, display: string) => `from:${display}`}
+				displayTransform={(id: string, display: string) => `${mentionPrefixFrom}${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 					<SelectItemUser
 						search={valueHighlight}
@@ -184,7 +188,7 @@ const SearchInput = ({
 				appendSpaceOnAdd={true}
 				data={handleSearchUserMentionMentions}
 				trigger="~"
-				displayTransform={(id: string, display: string) => `mentions:${display}`}
+				displayTransform={(id: string, display: string) => `${mentionPrefixMentions}${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 					<SelectItemUser
 						search={valueHighlight}
@@ -202,7 +206,7 @@ const SearchInput = ({
 				appendSpaceOnAdd={true}
 				data={handleSearchHasOptions}
 				trigger="&"
-				displayTransform={(id: string, display: string) => `has:${display}`}
+				displayTransform={(id: string, display: string) => `${mentionPrefixHas}${display}`}
 				renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 					<SelectItemUser
 						search={search}
@@ -221,7 +225,7 @@ const SearchInput = ({
 					appendSpaceOnAdd={true}
 					data={handleSearchChannel}
 					trigger="#"
-					displayTransform={(id: string, display: string) => `in:${display}`}
+					displayTransform={(id: string, display: string) => `${mentionPrefixIn}${display}`}
 					renderSuggestion={(suggestion: any, search: any, highlightedDisplay: any, index: any, focused: any) => (
 						<SelectItemUser
 							search={valueHighlight}

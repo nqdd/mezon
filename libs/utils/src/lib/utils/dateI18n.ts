@@ -1,12 +1,16 @@
 import type { Locale } from 'date-fns';
 import { format, isSameDay, startOfDay, subDays } from 'date-fns';
-import { enUS, vi } from 'date-fns/locale';
+import { enUS, es, ru, vi } from 'date-fns/locale';
 
 const localeMap: Record<string, Locale> = {
 	vi,
 	en: enUS,
+	es,
+	ru,
 	'en-US': enUS,
-	'vi-VN': vi
+	'vi-VN': vi,
+	'es-ES': es,
+	'ru-RU': ru
 };
 
 export const getDateLocale = (languageCode: string): Locale => {
