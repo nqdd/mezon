@@ -1,6 +1,6 @@
 import type { ChannelTimeline } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import type { LoadingStatus } from '@mezon/utils';
+import { generateE2eId, type LoadingStatus } from '@mezon/utils';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MediaImage } from './MediaImage';
@@ -62,6 +62,7 @@ export function TimelineView({ events, loadingStatus, onNavigateToEvents, onNavi
 				<button
 					onClick={onOpenCreate}
 					className="flex items-center gap-2 px-6 py-3 btn-primary btn-primary-hover rounded-lg font-medium transition-colors"
+					data-e2e={generateE2eId('timeline.buttons.create_new')}
 				>
 					<Icons.PlusIcon defaultSize="w-5 h-5" />
 					<span>{t('fields.mediaHighlights.createFirstMilestone')}</span>
@@ -108,10 +109,17 @@ export function TimelineView({ events, loadingStatus, onNavigateToEvents, onNavi
 								{date && (
 									<div
 										className={`absolute top-2 ${position !== 'left' ? 'right-[calc(50%+20px)]' : 'left-[calc(50%+20px)]'} text-center`}
+										data-e2e={generateE2eId('timeline.events.time')}
 									>
-										<div className="text-xs font-bold text-buttonPrimary">{date.month}</div>
-										<div className="text-lg font-bold text-theme-primary">{date.day}</div>
-										<div className="text-xs text-theme-secondary">{date.year}</div>
+										<div className="text-xs font-bold text-buttonPrimary" data-e2e={generateE2eId('timeline.events.time.month')}>
+											{date.month}
+										</div>
+										<div className="text-lg font-bold text-theme-primary" data-e2e={generateE2eId('timeline.events.time.day')}>
+											{date.day}
+										</div>
+										<div className="text-xs text-theme-secondary" data-e2e={generateE2eId('timeline.events.time.year')}>
+											{date.year}
+										</div>
 									</div>
 								)}
 
@@ -119,6 +127,7 @@ export function TimelineView({ events, loadingStatus, onNavigateToEvents, onNavi
 									<button
 										onClick={() => onNavigateToEventDetail(event)}
 										className={`w-full text-left bg-theme-primary rounded-xl p-4 bg-item-hover-chat transition-colors cursor-pointer border-theme-primary ${isSpecial ? 'border-2 border-buttonPrimary/30' : ''}`}
+										data-e2e={generateE2eId('timeline.events.trigger.event_detail')}
 									>
 										{isSpecial && (
 											<div className="flex items-center gap-2 mb-2">
@@ -171,6 +180,7 @@ export function TimelineView({ events, loadingStatus, onNavigateToEvents, onNavi
 			<button
 				onClick={onOpenCreate}
 				className="fixed bottom-6 right-6 w-12 h-12 btn-primary btn-primary-hover rounded-full shadow-lg flex items-center justify-center transition-colors z-20"
+				data-e2e={generateE2eId('timeline.buttons.create_new')}
 			>
 				<Icons.Plus defaultSize="w-6 h-6" />
 			</button>

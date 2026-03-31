@@ -121,7 +121,7 @@ export const Events = memo(() => {
 					onClick={handleClose}
 					className={`self-stretch inline-flex cursor-pointer px-2 rounded h-[34px] ${isGuidePath ? 'bg-button-secondary text-theme-primary-active' : ''} bg-item-hover text-theme-primary text-theme-primary-hover`}
 				>
-					<div className="grow w-5 flex-row items-center gap-2 flex">
+					<div className="grow w-5 flex-row items-center gap-2 flex" data-e2e={generateE2eId('clan_page.side_bar.button.clan_guide')}>
 						<div className="w-5 h-5 relative flex flex-row items-center">
 							<div className="w-5 h-5 left-[1.67px] top-[1.67px] absolute">
 								<Icons.GuideIcon defaultSize="w-5 h-5 " defaultFill="" />

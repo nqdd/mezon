@@ -1,6 +1,6 @@
 import { auditLogFilterActions, useAppDispatch } from '@mezon/store';
 import { Icons } from '@mezon/ui';
-import { generateE2eId, UserAuditLog } from '@mezon/utils';
+import { UserAuditLog, generateE2eId } from '@mezon/utils';
 
 export type ModalExitProps = {
 	onClose: () => void;

@@ -8,6 +8,7 @@ import {
 	useAppSelector
 } from '@mezon/store';
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ApiOnboardingItem, OnboardingAnswer } from 'mezon-js/api';
 import type { ChangeEvent } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -59,7 +60,9 @@ const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps)
 		<div className="flex flex-col gap-4 md:gap-8 overflow-x-hidden">
 			<div onClick={() => handleGoToPage(EOnboardingStep.MAIN)} className="flex gap-3 cursor-pointer">
 				<Icons.LongArrowRight className="rotate-180 w-3 text-theme-primary flex-shrink-0" />
-				<div className="font-semibold text-theme-primary">{t('buttons.back').toUpperCase()}</div>
+				<div className="font-semibold text-theme-primary" data-e2e={generateE2eId('clan_page.settings.onboarding.button.back')}>
+					{t('buttons.back').toUpperCase()}
+				</div>
 			</div>
 			<div className="flex flex-col gap-4 md:gap-6 overflow-x-hidden">
 				<div className="flex flex-col gap-2">
@@ -108,7 +111,9 @@ const Questions = ({ handleGoToPage, setOpenModalSaveChanges }: IQuestionsProps)
 							className="rounded-xl text-indigo-500 dark:text-[#949cf7] justify-center items-center p-3 md:p-4 border-2 border-gray-300 dark:border-[#4e5058] border-dashed font-medium flex gap-2 hover:border-indigo-400 dark:hover:border-[#7d808c] transition-colors text-sm md:text-base"
 						>
 							<Icons.CirclePlusFill className="w-4 md:w-5 flex-shrink-0" />
-							<div className="break-words">{t('questionsPage.addQuestion')}</div>
+							<div className="break-words" data-e2e={generateE2eId('clan_page.settings.onboarding.button.add_question')}>
+								{t('questionsPage.addQuestion')}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -266,6 +271,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 		<div
 			className="flex flex-col gap-4 md:gap-6 bg-white dark:bg-bgSecondary p-3 md:p-4 rounded-lg border border-gray-200 dark:border-transparent overflow-x-hidden"
 			onClick={handleOpenWrap}
+			data-e2e={generateE2eId('clan_page.settings.onboarding.question.item')}
 		>
 			<div className="flex flex-col gap-2">
 				<div className="flex justify-between items-center gap-2">
@@ -273,7 +279,11 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 						{t('questionsPage.questionNumber', { number: index + 1 })}
 					</div>
 					<div className="flex gap-2 items-center flex-shrink-0">
-						<div onClick={handleRemoveQuestion} className="text-gray-500 dark:text-white hover:text-red-500 dark:hover:text-red-400">
+						<div
+							onClick={handleRemoveQuestion}
+							className="text-gray-500 dark:text-white hover:text-red-500 dark:hover:text-red-400"
+							data-e2e={generateE2eId('clan_page.settings.onboarding.button.remove_question')}
+						>
 							<Icons.TrashIcon className="w-4" />
 						</div>
 						<div onClick={toggleExpand} className="text-gray-500 dark:text-white hover:text-gray-700 dark:hover:text-gray-300">
@@ -289,6 +299,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 							placeholder={t('questionsPage.enterQuestion')}
 							value={titleQuestion}
 							onChange={handleQuestionOnchange}
+							data-e2e={generateE2eId('clan_page.settings.onboarding.input.question')}
 						/>
 						{error && <p className="text-red-500 text-sm">{error}</p>}
 					</>
@@ -302,7 +313,10 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 						<div className="text-gray-700 dark:text-channelTextLabel text-sm md:text-base">
 							{t('questionsPage.availableAnswers', { count: answers.length })}
 						</div>
-						<div className="flex gap-1 gap-y-2 flex-wrap overflow-x-hidden">
+						<div
+							className="flex gap-1 gap-y-2 flex-wrap overflow-x-hidden"
+							data-e2e={generateE2eId('clan_page.settings.onboarding.button.answer_action')}
+						>
 							{answers.map((answer, index) => (
 								<GuideItemLayout
 									onClick={() => handleOpenEditAnswer(index)}
@@ -325,6 +339,7 @@ const QuestionItem = ({ question, index, tempId }: { question: ApiOnboardingItem
 						<div
 							className="rounded-md w-24 md:w-28 h-8 md:h-9 bg-indigo-500 hover:bg-indigo-600 dark:bg-primary dark:hover:bg-blue-600 text-white flex items-center font-semibold justify-center transition-colors cursor-pointer text-sm md:text-base"
 							onClick={handleAddQuestion}
+							data-e2e={generateE2eId('clan_page.settings.onboarding.button.save_change')}
 						>
 							{t('buttons.save')}
 						</div>
@@ -380,7 +395,10 @@ const ModalAddAnswer = ({ closeAnswerPopup, index, setAnswer, titleQuestion, edi
 					<div className="uppercase text-xs font-medium ">{t('questionsPage.questionNumber', { number: index + 1 })}</div>
 					<div className="text-base md:text-xl font-semibold break-words">{titleQuestion || t('questionsPage.questionPlaceholder')} ?</div>
 				</div>
-				<div className="pb-5 pt-10 flex flex-col gap-2 overflow-x-hidden">
+				<div
+					className="pb-5 pt-10 flex flex-col gap-2 overflow-x-hidden"
+					data-e2e={generateE2eId('clan_page.settings.onboarding.input.answer')}
+				>
 					<ControlInput
 						title={t('questionsPage.answerTitle')}
 						message={t('questionsPage.titleRequired')}

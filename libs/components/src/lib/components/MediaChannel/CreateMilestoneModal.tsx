@@ -2,7 +2,7 @@ import type { ChannelTimelineAttachment } from '@mezon/store';
 import { channelMediaActions, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { isImageFileType, isVideoFileType, useLastCallback } from '@mezon/utils';
+import { generateE2eId, isImageFileType, isVideoFileType, useLastCallback } from '@mezon/utils';
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MediaImage } from './MediaImage';
@@ -210,10 +210,11 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 							placeholder={t('fields.createMilestone.eventTitlePlaceholder')}
 							maxLength={TITLE_MAX_LENGTH}
 							className="w-full px-3 py-2.5 bg-input-theme border-theme-primary rounded-lg text-theme-primary placeholder:text-theme-muted focus:outline-none focus:border-buttonPrimary transition-colors"
+							data-e2e={generateE2eId('timeline.modal.input.title')}
 						/>
 					</div>
 
-					<div>
+					<div data-e2e={generateE2eId('timeline.modal.input.date')}>
 						<label className="block text-sm font-medium text-theme-primary mb-1.5">{t('fields.createMilestone.dateLabel')}</label>
 						<Suspense fallback={<DatePickerPlaceholder />}>
 							<DatePickerWrapper
@@ -240,14 +241,15 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 							rows={4}
 							maxLength={DESCRIPTION_MAX_LENGTH}
 							className="w-full px-3 py-2.5 bg-input-theme border-theme-primary rounded-lg text-theme-primary placeholder:text-theme-muted focus:outline-none focus:border-buttonPrimary transition-colors resize-none"
+							data-e2e={generateE2eId('timeline.modal.input.description')}
 						/>
 					</div>
 
-					<div>
+					<div data-e2e={generateE2eId('timeline.modal.attachments_list')}>
 						<label className="block text-sm font-medium text-theme-primary mb-1.5">{t('fields.createMilestone.memoriesLabel')}</label>
 
 						{attachments.length > 0 && (
-							<div className="grid grid-cols-3 gap-2 mb-3">
+							<div className="grid grid-cols-3 gap-2 mb-3" data-e2e={generateE2eId('timeline.modal.attachments_list.item')}>
 								{attachments.map((att) => {
 									const originalUrl = att.thumbnail || att.file_url || '';
 
@@ -267,6 +269,7 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 											<button
 												onClick={() => handleRemoveAttachment(att.id)}
 												className="absolute top-1 right-1 w-6 h-6 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-colors"
+												data-e2e={generateE2eId('timeline.modal.attachments_list.item.button.remove')}
 											>
 												<Icons.CloseIcon className="w-3 h-3" />
 											</button>
@@ -276,7 +279,15 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 							</div>
 						)}
 
-						<input ref={fileInputRef} type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleAddMedia} />
+						<input
+							ref={fileInputRef}
+							type="file"
+							multiple
+							accept="image/*,video/*"
+							className="hidden"
+							onChange={handleAddMedia}
+							data-e2e={generateE2eId('timeline.modal.input.attachment')}
+						/>
 
 						<button
 							onClick={() => fileInputRef.current?.click()}
@@ -299,6 +310,7 @@ export function CreateMilestoneModal({ channelId, clanId, onClose }: CreateMiles
 						onClick={handleSave}
 						disabled={!eventTitle.trim() || isSaving}
 						className="w-full flex items-center justify-center gap-2 py-3 btn-primary btn-primary-hover disabled:opacity-50 rounded-lg font-medium transition-colors"
+						data-e2e={generateE2eId('timeline.modal.button.save')}
 					>
 						{isSaving ? (
 							<div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />

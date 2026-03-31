@@ -2,7 +2,7 @@ import type { ChannelTimelineAttachment } from '@mezon/store';
 import { channelMediaActions, useAppDispatch } from '@mezon/store';
 import { handleUploadFile, useMezon } from '@mezon/transport';
 import { Icons } from '@mezon/ui';
-import { isImageFileType, isVideoFileType } from '@mezon/utils';
+import { generateE2eId, isImageFileType, isVideoFileType } from '@mezon/utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
@@ -306,7 +306,11 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 	return (
 		<div className="flex flex-col h-full">
 			<div className="flex items-center gap-3 px-6 py-4 border-b-theme-primary">
-				<button onClick={onBack} className="p-1 rounded-lg text-theme-primary text-theme-primary-hover transition-colors">
+				<button
+					onClick={onBack}
+					className="p-1 rounded-lg text-theme-primary text-theme-primary-hover transition-colors"
+					data-e2e={generateE2eId('timeline.buttons.back')}
+				>
 					<Icons.ArrowLeft defaultSize="w-5 h-5" />
 				</button>
 				<div className="flex-1 min-w-0">
@@ -329,6 +333,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 									className="w-full text-lg font-bold bg-input-theme border-theme-primary rounded px-2 py-1 text-theme-primary focus:outline-none focus:border-buttonPrimary"
 									autoFocus
 									disabled={isSaving}
+									data-e2e={generateE2eId('timeline.input.title')}
 								/>
 							) : (
 								<button
@@ -337,6 +342,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 										setTimeout(() => titleInputRef.current?.focus(), 0);
 									}}
 									className="w-full text-left group"
+									data-e2e={generateE2eId('timeline.buttons.edit_title')}
 								>
 									<h2 className="text-lg font-bold text-theme-primary truncate group-hover:text-buttonPrimary transition-colors">
 										{title || t('fields.eventDetail.defaultTitle')}
@@ -389,6 +395,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 										className="w-full bg-input-theme border-theme-primary rounded-lg px-3 py-2 text-sm text-theme-primary placeholder:text-theme-muted focus:outline-none focus:border-buttonPrimary resize-none"
 										autoFocus
 										disabled={isSaving}
+										data-e2e={generateE2eId('timeline.input.description')}
 									/>
 								) : (
 									<button
@@ -397,6 +404,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 											setTimeout(() => descriptionTextareaRef.current?.focus(), 0);
 										}}
 										className="w-full text-left p-3 bg-theme-primary rounded-lg border-theme-primary hover:bg-item-hover-chat transition-colors group"
+										data-e2e={generateE2eId('timeline.buttons.add_description')}
 									>
 										<p className="text-sm text-theme-secondary whitespace-pre-wrap group-hover:text-theme-primary transition-colors">
 											{description}
@@ -411,6 +419,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 								<button
 									onClick={() => setIsEditingDescription(true)}
 									className="w-full p-3 border-2 border-dashed border-theme-secondary hover:border-buttonPrimary/50 rounded-lg flex items-center justify-center gap-2 text-theme-secondary hover:text-buttonPrimary transition-colors"
+									data-e2e={generateE2eId('timeline.buttons.add_description')}
 								>
 									<Icons.PenEdit className="w-4 h-4" />
 									<span className="text-sm">{t('fields.eventDetail.addDescription')}</span>
@@ -432,6 +441,7 @@ export function EventDetailView({ channelId, clanId, eventId, startTimeSeconds, 
 									onClick={handleSave}
 									disabled={isSaving}
 									className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-white bg-buttonPrimary hover:bg-buttonPrimary/80 transition-colors"
+									data-e2e={generateE2eId('timeline.buttons.save')}
 								>
 									{isSaving ? (
 										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />

@@ -1,4 +1,5 @@
 import { Checkbox, Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import { SuggestItem } from '../../components';
 
 type ShareItemType = 'friend' | 'dm' | 'group' | 'channel' | 'thread';
@@ -27,7 +28,12 @@ export const ShareItemRow = ({ item, isSelected, onToggle, searchText, t }: Shar
 	const isChannelOrThread = item.type === 'channel' || item.type === 'thread';
 
 	return (
-		<div key={item.id} className="flex items-center px-4 py-1 rounded bg-item-hover cursor-pointer" onClick={() => onToggle(item.id)}>
+		<div
+			key={item.id}
+			className="flex items-center px-4 py-1 rounded bg-item-hover cursor-pointer"
+			onClick={() => onToggle(item.id)}
+			data-e2e={generateE2eId('suggest_item')}
+		>
 			{isChannelOrThread ? (
 				<div className="flex items-center flex-1 mr-1 gap-2">
 					{item.type === 'channel' ? (
@@ -42,7 +48,11 @@ export const ShareItemRow = ({ item, isSelected, onToggle, searchText, t }: Shar
 						<Icons.ThreadIconLocker className="w-5 h-5 text-theme-secondary" />
 					)}
 					<span className="text-theme-primary text-sm flex-1">{item.displayName}</span>
-					{item.clanName && <span className="text-theme-primary text-xs uppercase ml-2">{item.clanName}</span>}
+					{item.clanName && (
+						<span className="text-theme-primary text-xs uppercase ml-2" data-e2e={generateE2eId('suggest_item.clan_name')}>
+							{item.clanName}
+						</span>
+					)}
 				</div>
 			) : (
 				<div className="flex-1 mr-1">

@@ -23,9 +23,15 @@ export const DATA_E2E_IDENTIFIER = {
 		base: '',
 		copy: ''
 	},
+	input: {
+		base: ''
+	},
 	base_profile: {
 		display_name: '',
-		user_status: ''
+		user_status: '',
+		anonymous: {
+			avatar: ''
+		}
 	},
 	short_profile: {
 		display_name: '',
@@ -45,7 +51,8 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		action: {
 			button: {
-				base: ''
+				base: '',
+				status: ''
 			}
 		},
 		modal: {
@@ -162,7 +169,8 @@ export const DATA_E2E_IDENTIFIER = {
 				add_channel: '',
 				events: '',
 				members: '',
-				channels: ''
+				channels: '',
+				clan_guide: ''
 			},
 			panel: {
 				category_panel: '',
@@ -175,6 +183,8 @@ export const DATA_E2E_IDENTIFIER = {
 				display_name: '',
 				username: ''
 			},
+			member_since: '',
+			join_mezon: '',
 			role_settings: {
 				add_role: {
 					button: '',
@@ -183,6 +193,12 @@ export const DATA_E2E_IDENTIFIER = {
 				},
 				exist_role: {
 					role_name: ''
+				}
+			},
+			actions: '',
+			transfer_owner_modal: {
+				input: {
+					confirm_transfer: ''
 				}
 			}
 		},
@@ -339,19 +355,48 @@ export const DATA_E2E_IDENTIFIER = {
 			sidebar: {
 				title: '',
 				delete: '',
-				item: ''
+				item: '',
+				onboarding_status: ''
 			},
 			onboarding: {
 				button: {
 					enable_onboarding: '',
 					add_resources: '',
-					clan_guide: ''
+					clan_guide: '',
+					setup_question: '',
+					add_question: '',
+					answer_action: '',
+					save_change: '',
+					remove_question: '',
+					save_all: '',
+					add_task: '',
+					cancel: '',
+					back: '',
+					disable_onboarding: '',
+					open_preview_mode: '',
+					close_preview_mode: ''
+				},
+				input: {
+					question: '',
+					answer: ''
+				},
+				question: {
+					item: ''
+				},
+				clan_guide: {
+					input: {
+						title: ''
+					}
 				}
 			},
 			community: {
 				button: {
-					enable_community: ''
-				}
+					enable_community: '',
+					save: ''
+				},
+				description: '',
+				about: '',
+				vanity_url: ''
 			},
 			emoji: {
 				upload: ''
@@ -385,7 +430,8 @@ export const DATA_E2E_IDENTIFIER = {
 							category_name: ''
 						}
 					}
-				}
+				},
+				prevent_anonymous: ''
 			},
 			upload: {
 				clan_logo_input: '',
@@ -466,6 +512,7 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		screen: {
 			voice_room: {
+				channel_name: '',
 				button: {
 					join_voice: ''
 				}
@@ -474,6 +521,10 @@ export const DATA_E2E_IDENTIFIER = {
 				input: {
 					title: '',
 					content: ''
+				},
+				button: {
+					save: '',
+					discard_changes: ''
 				}
 			}
 		},
@@ -576,7 +627,9 @@ export const DATA_E2E_IDENTIFIER = {
 		},
 		direct_message: {
 			header: {
-				left_container: '',
+				left_container: {
+					in_voice_status: ''
+				},
 				right_container: {
 					user_profile: '',
 					call: '',
@@ -590,7 +643,8 @@ export const DATA_E2E_IDENTIFIER = {
 				username: '',
 				close_dm_button: '',
 				text_area: '',
-				namegroup: ''
+				namegroup: '',
+				in_voice_status: ''
 			},
 			message_buzz: {
 				header: '',
@@ -646,7 +700,8 @@ export const DATA_E2E_IDENTIFIER = {
 			},
 			side_bar: {
 				item: ''
-			}
+			},
+			pin_list_container: ''
 		},
 		channel_message: {
 			header: {
@@ -689,7 +744,8 @@ export const DATA_E2E_IDENTIFIER = {
 						item: ''
 					},
 					chat: '',
-					gallery: ''
+					gallery: '',
+					timeline: ''
 				},
 				badge: ''
 			},
@@ -777,11 +833,30 @@ export const DATA_E2E_IDENTIFIER = {
 				view_topic: ''
 			},
 			number_replies: ''
+		},
+		anonymous: '',
+		share_contact: {
+			display_name: '',
+			username: '',
+			button: {
+				call: '',
+				message: ''
+			}
+		},
+		button: {
+			wave_to_say_hi: ''
 		}
 	},
 	onboarding: {
 		chat: {
 			guide_sections: ''
+		},
+		clan_guide_page: {
+			label: '',
+			question: '',
+			title: '',
+			description: '',
+			action: ''
 		}
 	},
 	user_setting: {
@@ -890,7 +965,9 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	icon: {
-		end_call: ''
+		end_call: '',
+		owner: '',
+		profile_status: ''
 	},
 	friend_page: {
 		tab: {
@@ -918,7 +995,10 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	message: {
-		item: ''
+		item: '',
+		hashtag: {
+			canvas: ''
+		}
 	},
 	replied_message: {
 		item: '',
@@ -930,10 +1010,64 @@ export const DATA_E2E_IDENTIFIER = {
 		}
 	},
 	suggest_item: {
-		username: ''
+		username: '',
+		clan_name: ''
 	},
 	badge: {
 		friend_pending: ''
+	},
+	full_profile: {
+		about_me: '',
+		member_since: ''
+	},
+	timeline: {
+		buttons: {
+			create_new: '',
+			add_description: '',
+			edit_title: '',
+			save: '',
+			back: ''
+		},
+		input: {
+			title: '',
+			description: ''
+		},
+		current_year: '',
+		list_year: '',
+		modal: {
+			input: {
+				title: '',
+				date: '',
+				description: '',
+				attachment: ''
+			},
+			attachments_list: {
+				item: {
+					button: {
+						remove: ''
+					}
+				}
+			},
+			button: {
+				save: ''
+			}
+		},
+		events: {
+			time: {
+				month: '',
+				day: '',
+				year: ''
+			},
+			trigger: {
+				event_detail: ''
+			}
+		}
+	},
+	friend_remove_modal: {
+		button: {
+			cancel: '',
+			confirm: ''
+		}
 	}
 };
 type DotNestedKeys<T> = T extends object

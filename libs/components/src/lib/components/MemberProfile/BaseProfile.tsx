@@ -35,7 +35,10 @@ const BaseProfile = ({
 				isAnonymous={isAnonymous}
 			/>
 			{!hideIcon && (
-				<div className="rounded-full left-5 absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary">
+				<div
+					className="rounded-full left-5 absolute bottom-0 inline-flex items-center justify-center gap-1 p-[3px] text-sm text-theme-primary"
+					data-e2e={generateE2eId('icon.profile_status')}
+				>
 					<UserStatusIconClan status={status} />
 				</div>
 			)}

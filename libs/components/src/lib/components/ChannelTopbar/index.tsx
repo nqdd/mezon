@@ -250,7 +250,7 @@ const TopBarChannelText = memo(() => {
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
 						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
-							<div className="absolute top-6 left-5 w-3 h-3">
+							<div className="absolute top-6 left-5 w-3 h-3" data-e2e={generateE2eId('icon.profile_status')}>
 								<UserStatusIconDM status={userStatus?.status} />
 							</div>
 						)}
@@ -271,6 +271,7 @@ const TopBarChannelText = memo(() => {
 									<span
 										className="truncate min-w-0 h-4 text-xs flex gap-1 items-center cursor-pointer pointer-events-auto"
 										onClick={handleJoinVoice}
+										data-e2e={generateE2eId(`chat.direct_message.header.left_container.in_voice_status`)}
 									>
 										<Icons.Speaker className="text-green-500 !w-3 !h-3" /> {t('invoice')}
 									</span>
@@ -864,7 +865,7 @@ function TimelineViewToggleButton() {
 	}, [dispatch, isMediaChannelView]);
 
 	return (
-		<div className="relative leading-5 h-5">
+		<div className="relative leading-5 h-5" data-e2e={generateE2eId('chat.channel_message.header.button.timeline')}>
 			<button
 				title={isMediaChannelView ? t('tooltips.defaultView') : t('tooltips.timelineView')}
 				onClick={handleToggle}

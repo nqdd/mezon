@@ -1,3 +1,4 @@
+import { generateE2eId } from '@mezon/utils';
 import { Trans, useTranslation } from 'react-i18next';
 import ModalLayout from '../Modal';
 
@@ -36,7 +37,7 @@ const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfir
 						type="button"
 						className="min-w-[120px] h-10 px-4 rounded-md bg-button-secondary text-theme-primary hover:bg-item-hover transition-colors duration-150"
 						onClick={onClose}
-						data-e2e="friend_remove_modal.button.cancel"
+						data-e2e={generateE2eId('friend_remove_modal.button.cancel')}
 					>
 						{t('removeFriendModal.cancel')}
 					</button>
@@ -45,7 +46,7 @@ const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfir
 						className="min-w-[120px] h-10 px-4 rounded-md bg-colorDanger text-white font-semibold hover:bg-colorDanger/80 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={onConfirm}
 						disabled={isProcessing}
-						data-e2e="friend_remove_modal.button.confirm"
+						data-e2e={generateE2eId('friend_remove_modal.button.confirm')}
 					>
 						{t('removeFriendModal.confirm')}
 					</button>
