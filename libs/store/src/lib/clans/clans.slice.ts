@@ -856,6 +856,9 @@ export const clansSlice = createSlice({
 		clearClanGroups: (state) => {
 			state.clanGroups = clanGroupAdapter.getInitialState();
 			state.clanGroupOrder = [];
+		},
+		clearJoinList: (state) => {
+			state.checkJoinList = {};
 		}
 	},
 	extraReducers: (builder) => {
@@ -938,7 +941,12 @@ export const clansSlice = createSlice({
 			}
 		);
 		builder.addCase(listClanBadgeCount.fulfilled, (state: ClansState, action: PayloadAction<ClanUnreadState[]>) => {
-			clanUnreadAdapter.setAll(state.clanUnreadStates, action.payload);
+			const normalizedPayload: ClanUnreadState[] = action.payload.map((item) => ({
+				...item,
+				badge: item.badge <= 0 ? 0 : item.badge
+			}));
+
+			clanUnreadAdapter.setAll(state.clanUnreadStates, normalizedPayload);
 			state.loadingStatus = 'loaded';
 		});
 	}
@@ -980,7 +988,8 @@ export const clansActions = {
 	joinClan,
 	transferClan,
 	updateHasUnreadBasedOnChannels,
-	listClanBadgeCount
+	listClanBadgeCount,
+	listChannelBadgeCount
 };
 
 /*

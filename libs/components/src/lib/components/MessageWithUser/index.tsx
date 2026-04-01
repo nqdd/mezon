@@ -321,6 +321,7 @@ function MessageWithUser({
 					)}
 					<div
 						className={`pl-[72px] justify-start inline-flex flex-wrap w-full mb-1 relative h-fit overflow-visible ${isSearchMessage ? '' : 'pr-12'}`}
+						data-e2e={generateE2eId('base_profile.anonymous')}
 					>
 						{showMessageHead && (
 							<>

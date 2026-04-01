@@ -109,9 +109,10 @@ const UserProfileModalInner = ({
 		} else if (onClose) {
 			onClose();
 		}
-	}, [isOPenEditOption]);
+	}, [isOPenEditOption, onClose]);
 
 	const handleOpenUserProfileSetting = () => {
+		setIsUserProfile(true);
 		setIsShowSettingFooterInitTab(EUserSettings.PROFILES);
 		setIsShowSettingProfileInitTab(EActiveType.USER_SETTING);
 		setIsShowSettingFooterStatus(true);

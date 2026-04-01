@@ -17,22 +17,22 @@ export const SettingLanguage = ({ menuIsOpen }: ISettingLanguageProps) => {
 			{
 				title: t('setting:language.english'),
 				value: 'en',
-				contributed: ''
+				contributedBy: 'Mezon Team'
 			},
 			{
 				title: t('setting:language.vietnamese'),
 				value: 'vi',
-				contributed: ''
+				contributedBy: 'Mezon Team'
 			},
 			{
 				title: `${t('setting:language.russian')}`,
 				value: 'ru',
-				contributed: 'tsruber'
+				contributedBy: 'tsruber'
 			},
 			{
 				title: `${t('setting:language.spanish')}`,
 				value: 'es',
-				contributed: 'español'
+				contributedBy: 'robits'
 			}
 		];
 	}, [t]);
@@ -65,10 +65,10 @@ export const SettingLanguage = ({ menuIsOpen }: ISettingLanguageProps) => {
 							}`}
 							onClick={() => changeLanguage(language.value)}
 						>
-							<span className="text-theme-primary font-medium">
-								{language.title}
-								{language.contributed && <span className="italic ml-1">{language.contributed}</span>}
-							</span>
+							<span className="text-theme-primary font-medium">{language.title}</span>
+							{language.contributedBy ? (
+								<span className="italic text-xs text-theme-primary-secondary pr-2">{`by ${language.contributedBy}`}</span>
+							) : null}
 						</div>
 					))}
 				</div>

@@ -122,9 +122,14 @@
 	},
 	"newMessages": "НОВЫЕ СООБЩЕНИЯ",
 	"noSendMessagePermission": "У Вас нет разрешения на отправку сообщения.",
+	"tooLongMessage": "Слишком длинное сообщение",
 	"isBanned": "Вы забанены",
 	"blockedUserMessage": "Вы не можете ответить на этот разговор",
 	"messageInputPlaceHolder": "Написать сообщение...",
+	"fileSelection": {
+		"uploadFile": "Загрузить файл",
+		"createPoll": "Создать опрос"
+	},
 	"shareLocationModal": {
 		"sendThisLocation": "Отправить это местоположение на",
 		"send": "Отправить",

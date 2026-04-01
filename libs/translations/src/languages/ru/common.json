@@ -183,6 +183,17 @@
 	"justNow": "Только что",
 	"sampleMessage": "Посмотрите на меня, я красивая бабочка",
 	"switchingTheme": "Переключение темы...",
+	"themeOptions": {
+		"dark": "Темная тема",
+		"light": "Светлая тема",
+		"sunrise": "Тема Рассвет",
+		"purple_haze": "Фиолетовая дымка",
+		"redDark": "Темно-красная",
+		"abyss_dark": "Темная бездна",
+		"berrynade": "Ягодный микс",
+		"cisher": "Cisher",
+		"sunset": "Закат"
+	},
 	"settingsSaved": "Настройки успешно сохранены!",
 	"notifications": "Уведомления",
 	"hideNotificationsContent": "Скрыть контент уведомлений",
@@ -528,5 +539,30 @@
 		"errorMaxLength": "Длина должна быть между {{min}} и {{max}}.",
 		"formatDate": "ММММ д, гггг",
 		"cannotSendLocationWithAnonymous": "Нельзя поделиться локацией, находясь под \"анонимкой\"."
+	},
+	"emojiCategories": {
+		"forsale": "Продаётся",
+		"Recent": "Недавние",
+		"Frequently": "Часто используемые",
+		"People": "Люди",
+		"Nature": "Природа",
+		"Food": "Еда",
+		"Activities": "Активности",
+		"Travel": "Путешествия",
+		"Objects": "Объекты",
+		"Symbols": "Символы",
+		"Flags": "Флаги",
+		"Custom": "Свои",
+		"FORSALE": "Продаётся",
+		"RECENT": "Недавние",
+		"FREQUENTLY": "Часто используемые",
+		"PEOPLE": "Люди",
+		"NATURE": "Природа",
+		"FOOD": "Еда",
+		"ACTIVITIES": "Активности",
+		"TRAVEL": "Путешествия",
+		"OBJECTS": "Объекты",
+		"SYMBOLS": "Символы",
+		"FLAGS": "Флаги"
 	}
 }

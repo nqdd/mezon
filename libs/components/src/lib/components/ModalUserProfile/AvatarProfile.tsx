@@ -78,7 +78,7 @@ const AvatarProfile = ({
 				/>
 
 				{userID !== '0' && !isUserLeft && (
-					<div className="absolute bottom-1 right-2">
+					<div className="absolute bottom-1 right-2" data-e2e={generateE2eId('icon.profile_status')}>
 						<UserStatusIcon status={statusOnline} />
 					</div>
 				)}

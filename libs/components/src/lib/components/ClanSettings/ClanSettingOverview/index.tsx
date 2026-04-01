@@ -1,5 +1,6 @@
 import { useClans } from '@mezon/core';
 import { fetchSystemMessageByClanId, selectCurrentClan, updateSystemMessage, useAppDispatch } from '@mezon/store';
+import { generateE2eId } from '@mezon/utils';
 import { unwrapResult } from '@reduxjs/toolkit';
 import type { ApiSystemMessage, ApiSystemMessageRequest, MezonUpdateClanDescBody, MezonUpdateSystemMessageBody } from 'mezon-js/api';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -26,6 +27,7 @@ const ClanSettingOverview = () => {
 	const [systemMessage, setSystemMessage] = useState<ApiSystemMessage | null>(null);
 	const [updateSystemMessageRequest, setUpdateSystemMessageRequest] = useState<ApiSystemMessageRequest | null>(null);
 	const [resetTrigger, setResetTrigger] = useState<boolean>(false);
+	const [isClanNameValid, setIsClanNameValid] = useState<boolean>(true);
 
 	const dispatch = useAppDispatch();
 
@@ -164,6 +166,7 @@ const ClanSettingOverview = () => {
 				resetTrigger={resetTrigger}
 				onResetComplete={handleResetComplete}
 				handleRemovelogo={handleRemovelogo}
+				onValidationChange={setIsClanNameValid}
 			/>
 			<ClanBannerBackground onUpload={handleUploadBackground} urlImage={clanRequest?.banner} />
 			{systemMessage && (
@@ -179,12 +182,15 @@ const ClanSettingOverview = () => {
 				/>
 			)}
 
-			<div className={'border-t-theme-primary mt-10 pt-10 flex flex-col '}>
+			<div
+				className={'border-t-theme-primary mt-10 pt-10 flex flex-col '}
+				data-e2e={generateE2eId('clan_page.settings.overview.prevent_anonymous')}
+			>
 				<h3 className="text-sm font-bold uppercase mb-2">{t('systemMessages.anoTitle')}</h3>
 				<ToggleItem label={t('systemMessages.anoDesc')} value={!!clanRequest.prevent_anonymous} handleToggle={handleToggleAno} />
 			</div>
 
-			{(hasClanChanges || hasSystemMessageChanges) && <ModalSaveChanges onSave={handleSave} onReset={handleReset} />}
+			{(hasClanChanges || hasSystemMessageChanges) && isClanNameValid && <ModalSaveChanges onSave={handleSave} onReset={handleReset} />}
 		</div>
 	);
 };

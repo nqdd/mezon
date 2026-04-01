@@ -3,6 +3,7 @@ import { captureSentryError } from '@mezon/logger';
 import type { ActivitiesEntity, AttachmentEntity, ChannelsEntity, RootState, ThreadsEntity } from '@mezon/store';
 import {
 	DMCallActions,
+	EStateFriend,
 	accountActions,
 	acitvitiesActions,
 	appActions,
@@ -28,7 +29,6 @@ import {
 	e2eeActions,
 	emojiRecentActions,
 	emojiSuggestionActions,
-	EStateFriend,
 	eventManagementActions,
 	friendsActions,
 	getStore,
@@ -56,6 +56,7 @@ import {
 	selectCategoryById,
 	selectChannelById,
 	selectChannelByIdAndClanId,
+	selectChannelMetaEntities,
 	selectChannelThreads,
 	selectChannelsByClanId,
 	selectClanMemberByClanId,
@@ -72,6 +73,7 @@ import {
 	selectDefaultChannelIdByClanId,
 	selectDirectById,
 	selectDmGroupCurrentId,
+	selectDmMetaEntities,
 	selectIsInCall,
 	selectLastMessageByChannelId,
 	selectLastSentMessageStateByChannelId,
@@ -430,9 +432,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				) {
 					dispatch(messagesActions.newMessage(mess));
 
-					if (message.code === TypeMessage.ChatUpdate && message?.message_id) {
-					}
-
 					if (message.code === TypeMessage.ChatRemove && message.topic_id && message.topic_id !== '0' && message?.message_id) {
 						dispatch(
 							messagesActions.updateTopicRplCount({
@@ -466,16 +465,23 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 					const isClanView = selectClanView(store.getState());
 
-					const path = isElectron() ? window.location.hash : window.location.pathname;
-					const isFriendPageView = path.includes('/chat/direct/friends');
-					const isFocus = !isBackgroundModeActive();
+					let isNotCurrentDirect = false;
 
-					const isNotCurrentDirect =
-						isFriendPageView ||
-						isClanView ||
-						!currentDirectId ||
-						(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
-						!isFocus;
+					if (isMobile) {
+						isNotCurrentDirect =
+							isClanView || !currentDirectId || (!!currentDirectId && !RegExp(currentDirectId).test(message?.channel_id));
+					} else {
+						const path = isElectron() ? window.location.hash : window.location.pathname;
+						const isFriendPageView = path.includes('/chat/direct/friends');
+						const isFocus = !isBackgroundModeActive();
+
+						isNotCurrentDirect =
+							isFriendPageView ||
+							isClanView ||
+							!currentDirectId ||
+							(currentDirectId && !RegExp(currentDirectId).test(message?.channel_id)) ||
+							!isFocus;
+					}
 
 					if (isNotCurrentDirect) {
 						if (message.sender_id !== userId && message.code !== TypeMessage.ChatUpdate && message.code !== TypeMessage.ChatRemove) {
@@ -833,7 +839,14 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			for (let index = 0; index < user?.user_ids.length; index++) {
 				const userID = user.user_ids[index];
 				if (userID === userId) {
-					const badgeCount = user.badge_counts[index] || 0;
+					const directEntities = selectDmMetaEntities(store.getState());
+					const channelMetaEntities = selectChannelMetaEntities(store.getState());
+					const badgeCount =
+						user.badge_counts[index] ||
+						directEntities?.[user.channel_id]?.count_mess_unread ||
+						channelMetaEntities?.[user.channel_id]?.count_mess_unread ||
+						0;
+
 					if (badgeCount > 0) {
 						badgeService.decrementChannel(user?.clan_id || '0', user.channel_id, badgeCount);
 					}

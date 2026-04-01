@@ -175,12 +175,12 @@ export const uniqueUsers = (mentions: IMentionOnMessage[], memUserIds: string[] 
 	return userIdsNotInChannel;
 };
 
-export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1) => {
+export const convertTimeMessage = (timestampSec: number, languageCode = 'en', justNowThreshold = 1, t?: (key: string, options?: any) => string) => {
 	const target = new Date(Math.floor(timestampSec) * 1000);
 	const diffSec = Math.max(0, differenceInSeconds(Date.now(), target));
 
 	if (diffSec <= justNowThreshold) {
-		return languageCode.startsWith('vi') ? 'Vừa xong' : 'Just now';
+		return t ? t('common:justNow') : 'Just now';
 	}
 
 	return formatDistanceToNowStrict(target, {

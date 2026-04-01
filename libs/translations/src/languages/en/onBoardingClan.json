@@ -71,7 +71,7 @@
 		"remove": "Remove"
 	},
 	"enableOnboarding": {
-		"title": "Are you enable Onboarding?",
+		"title": "Would you like to enable Onboarding?",
 		"description": "Convert to Onboarding to access additional administrative tools",
 		"subtitle": "that help you moderate and grow your Clan effectively.",
 		"button": "Enable Onboarding",

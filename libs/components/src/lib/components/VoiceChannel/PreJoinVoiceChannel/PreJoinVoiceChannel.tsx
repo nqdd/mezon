@@ -35,7 +35,10 @@ export const PreJoinVoiceChannel: React.FC<PreJoinVoiceChannelProps> = ({
 				<div className="w-full flex gap-2 justify-center p-2">
 					{voiceChannelMembers.length > 0 && <VoiceChannelUsers voiceChannelMembers={voiceChannelMembers}></VoiceChannelUsers>}
 				</div>
-				<div className="max-w-[350px] text-center text-3xl font-bold text-gray-800 dark:text-white">
+				<div
+					className="max-w-[350px] text-center text-3xl font-bold text-gray-800 dark:text-white"
+					data-e2e={generateE2eId('clan_page.screen.voice_room.channel_name')}
+				>
 					{channel_label && channel_label.length > 20 ? `${channel_label.substring(0, 20)}...` : channel_label}
 				</div>
 				{voiceChannelMembers.length > 0 ? (
