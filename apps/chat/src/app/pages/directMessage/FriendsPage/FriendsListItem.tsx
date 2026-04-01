@@ -6,7 +6,7 @@ import { Icons } from '@mezon/ui';
 import { ETabUserStatus, generateE2eId } from '@mezon/utils';
 import { ChannelType } from 'mezon-js';
 import { useCallback, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { useModal } from 'react-modal-hook';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -141,10 +141,42 @@ const FriendsListItem = ({ friend }: FriendProps) => {
 	};
 
 	const handleDeleteFriend = (selectedFriend: FriendsEntity) => {
+		const displayUsername = selectedFriend.user?.display_name || selectedFriend.user?.username || t('friend');
+		let titleText;
+		let descriptionText;
+		let confirmText;
+
+		if (selectedFriend.state === 1) {
+			titleText = t('cancelRequestModal.title', { username: displayUsername });
+			descriptionText = (
+				<Trans
+					i18nKey="cancelRequestModal.description"
+					ns="friendsPage"
+					values={{ username: displayUsername }}
+					components={{ bold: <span className="font-semibold text-theme-primary-active" /> }}
+				/>
+			);
+			confirmText = t('cancelRequestModal.confirm');
+		} else if (selectedFriend.state === 2) {
+			titleText = t('rejectRequestModal.title', { username: displayUsername });
+			descriptionText = (
+				<Trans
+					i18nKey="rejectRequestModal.description"
+					ns="friendsPage"
+					values={{ username: displayUsername }}
+					components={{ bold: <span className="font-semibold text-theme-primary-active" /> }}
+				/>
+			);
+			confirmText = t('rejectRequestModal.confirm');
+		}
+
 		openRemoveFriendModal({
 			username: selectedFriend.user?.username,
 			id: selectedFriend.user?.id,
-			displayName: selectedFriend.user?.display_name
+			displayName: selectedFriend.user?.display_name,
+			titleText,
+			descriptionText,
+			confirmText
 		});
 	};
 
