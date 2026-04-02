@@ -29,6 +29,7 @@ export interface PinMessageState extends EntityState<PinMessageEntity, string> {
 	loadingStatus: LoadingStatus;
 	error?: string | null;
 	isPinModalVisible?: boolean;
+	pinModalChannelId?: string;
 }
 
 export const pinMessageAdapter = createEntityAdapter<PinMessageEntity>();
@@ -232,7 +233,8 @@ export const initialPinMessageState: PinMessageState = pinMessageAdapter.getInit
 	loadingStatus: 'not loaded',
 	error: null,
 	jumpPinMessageId: '',
-	isPinModalVisible: false
+	isPinModalVisible: false,
+	pinModalChannelId: undefined
 });
 
 export const pinMessageSlice = createSlice({
@@ -242,8 +244,13 @@ export const pinMessageSlice = createSlice({
 		add: pinMessageAdapter.addOne,
 		addMany: pinMessageAdapter.addMany,
 		remove: pinMessageAdapter.removeOne,
-		togglePinModal: (state: PinMessageState) => {
+		togglePinModal: (state: PinMessageState, action: PayloadAction<string | undefined>) => {
 			state.isPinModalVisible = !state.isPinModalVisible;
+			state.pinModalChannelId = state.isPinModalVisible ? action.payload : undefined;
+		},
+		closePinModal: (state: PinMessageState) => {
+			state.isPinModalVisible = false;
+			state.pinModalChannelId = undefined;
 		},
 		clearChannelCache: (state: PinMessageState, action: PayloadAction<string>) => {
 			const channelId = action.payload;
@@ -375,3 +382,5 @@ export const selectPinMessageByChannelId = createSelector(
 );
 
 export const selectIsPinModalVisible = createSelector(getPinMessageState, (state: PinMessageState) => state.isPinModalVisible);
+
+export const selectPinModalChannelId = createSelector(getPinMessageState, (state: PinMessageState) => state.pinModalChannelId);
