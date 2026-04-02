@@ -51,7 +51,10 @@ const SettingItem = ({ name, active = false, onClick, handleMenu, setting }: Set
 						)}
 					</div>
 
-					<span className="text-[12px] font-black tracking-[0.1em] uppercase leading-none mt-[0.5px]">
+					<span
+						className="text-[12px] font-black tracking-[0.1em] uppercase leading-none mt-[0.5px]"
+						data-e2e={generateE2eId('clan_page.settings.sidebar.onboarding_status')}
+					>
 						{currentClanIsOnboarding ? 'ON' : 'OFF'}
 					</span>
 				</div>

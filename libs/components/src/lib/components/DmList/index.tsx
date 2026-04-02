@@ -20,26 +20,27 @@ function DirectMessageList() {
 	const { quantityPendingRequest } = useFriends();
 	const pinnedDmIds = useSelector(selectPinnedDms);
 	const pinnedDmSet = useMemo(() => new Set(pinnedDmIds), [pinnedDmIds]);
+	const directSortSet = useMemo(() => new Set(dmGroupChatList), [dmGroupChatList]);
 	const directIdsSet = useMemo(() => new Set(directIds), [directIds]);
-
 	const { pinnedDMs, unpinnedDMs } = useMemo(() => {
 		const pinned: string[] = [];
 		const unpinned: string[] = [];
 
-		const idsToProcess = dmGroupChatList?.length ? dmGroupChatList : directIds;
+		const base = dmGroupChatList ?? [];
 
-		for (const id of idsToProcess) {
-			if (!dmGroupChatList || directIdsSet.has(id)) {
-				if (pinnedDmSet.has(id)) {
-					pinned.push(id);
-				} else {
-					unpinned.push(id);
-				}
-			}
+		const push = (id: string) => {
+			if (!directIdsSet.has(id)) return;
+			if (pinnedDmSet.has(id)) pinned.push(id);
+			else unpinned.push(id);
+		};
+
+		for (const id of base) push(id);
+		for (const id of directIds) {
+			if (!directSortSet.has(id)) push(id);
 		}
 
 		return { pinnedDMs: pinned, unpinnedDMs: unpinned };
-	}, [dmGroupChatList, directIdsSet, pinnedDmSet]);
+	}, [dmGroupChatList, directIds, pinnedDmSet, directIdsSet, directSortSet]);
 
 	return (
 		<>
@@ -58,7 +59,10 @@ function DirectMessageList() {
 						<div className="text-xs font-semibold tracking-wide left-sp text-theme-primary mt-6 flex flex-row items-center w-content justify-between px-2 pb-0 h-5 cursor-default text-theme-primary-hover">
 							<p>{t('pinned', 'PINNED')}</p>
 						</div>
-						<div className={`messages-scroll font-medium mt-1 max-h-[215px] overflow-y-auto`}>
+						<div
+							className={`messages-scroll font-medium mt-1 max-h-[215px] overflow-y-auto`}
+							data-e2e={generateE2eId('chat.direct_message.pin_list_container')}
+						>
 							<ListDMChannel listDM={pinnedDMs} isPinnedList />
 						</div>
 					</>
@@ -70,7 +74,7 @@ function DirectMessageList() {
 				</div>
 			</div>
 			<div className={`flex-1 font-medium  px-2`}>
-				<div className="flex flex-col gap-1 text-center relative">
+				<div className="flex flex-col gap-1 text-center relative" data-e2e={generateE2eId(`chat.direct_message.chat_list`)}>
 					<ListDMChannel listDM={unpinnedDMs} pinnedCount={pinnedDMs.length} />
 				</div>
 			</div>

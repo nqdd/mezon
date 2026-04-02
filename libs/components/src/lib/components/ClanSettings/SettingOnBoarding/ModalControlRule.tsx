@@ -1,4 +1,5 @@
 import { Icons } from '@mezon/ui';
+import { generateE2eId } from '@mezon/utils';
 import type { ChangeEvent, HTMLInputTypeAttribute, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -26,17 +27,26 @@ const ModalControlRule = ({
 
 				<div className="absolute w-full p-4 flex bottom-0 left-0 justify-between bg-theme-setting-nav border-t border-gray-200 dark:border-transparent rounded-b-md">
 					<div className="flex-1 flex">
-						<div className="h-10 items-center text-red-500 cursor-pointer hover:underline flex" onClick={bottomLeftBtnFunction}>
+						<div
+							className="h-10 items-center text-red-500 cursor-pointer hover:underline flex"
+							onClick={bottomLeftBtnFunction}
+							data-e2e={generateE2eId('button.base')}
+						>
 							{bottomLeftBtn || t('buttons.reset')}
 						</div>
 					</div>
 					<div className="flex text-theme-primary">
-						<div className="hover:underline px-4 h-10 items-center flex cursor-pointer" onClick={onClose}>
+						<div
+							className="hover:underline px-4 h-10 items-center flex cursor-pointer"
+							onClick={onClose}
+							data-e2e={generateE2eId('button.base')}
+						>
 							{t('buttons.cancel')}
 						</div>
 						<div
 							className="hover:underline px-4 w-24 h-10 btn-primary btn-primary-hover flex items-center justify-center rounded-md cursor-pointer  transition-colors"
 							onClick={onSave}
+							data-e2e={generateE2eId('button.base')}
 						>
 							{t('buttons.save')}
 						</div>
@@ -81,6 +91,7 @@ export const ControlInput = ({
 					onChange={handleOnChange}
 					value={value}
 					className="w-full p-[10px] outline-none rounded bg-theme-input text-theme-primary border border-theme-border-input focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 z-10"
+					data-e2e={generateE2eId('mention.input')}
 				/>
 				{note && <span className="text-xs mt-1 font-light text-gray-500 dark:text-gray-400 animate-move_down">{note}</span>}
 				{required && message && <span className="text-red-500 text-xs mt-1 font-light animate-move_down ">{message}</span>}

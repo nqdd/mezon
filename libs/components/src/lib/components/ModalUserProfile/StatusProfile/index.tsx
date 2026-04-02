@@ -2,7 +2,7 @@ import { useAuth, useMemberStatus } from '@mezon/core';
 import type { ChannelMembersEntity } from '@mezon/store';
 import { accountActions, giveCoffeeActions, useAppDispatch, useWallet, userClanProfileActions } from '@mezon/store';
 import { Icons, Menu } from '@mezon/ui';
-import { CURRENCY, EUserStatus, formatBalanceToString, useAppLayout } from '@mezon/utils';
+import { CURRENCY, EUserStatus, formatBalanceToString, generateE2eId, useAppLayout } from '@mezon/utils';
 import type { ReactElement, ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -186,7 +186,7 @@ const StatusProfile = ({ userById, isDM: _isDM, modalRef, onClose }: StatusProfi
 					}
 					className=" bg-theme-contexify text-theme-primary ml-2 py-[6px] px-[8px] w-[200px] max-md:!mx-auto "
 				>
-					<div className="capitalize ml-[1px] text-theme-primary">
+					<div className="capitalize ml-[1px] text-theme-primary" data-e2e={generateE2eId('short_profile.action.button.base')}>
 						<ItemStatus
 							children={getStatusText(status.status)}
 							dropdown

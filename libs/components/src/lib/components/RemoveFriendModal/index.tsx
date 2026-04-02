@@ -1,3 +1,5 @@
+import { generateE2eId } from '@mezon/utils';
+import type { ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import ModalLayout from '../Modal';
 
@@ -5,12 +7,23 @@ type RemoveFriendModalProps = {
 	username?: string;
 	displayName?: string;
 	titleText?: string;
+	descriptionText?: string | ReactNode;
+	confirmText?: string;
 	onClose: () => void;
 	onConfirm: () => void;
 	isProcessing?: boolean;
 };
 
-const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfirm, isProcessing }: RemoveFriendModalProps) => {
+const RemoveFriendModal = ({
+	username,
+	displayName,
+	titleText,
+	descriptionText,
+	confirmText,
+	onClose,
+	onConfirm,
+	isProcessing
+}: RemoveFriendModalProps) => {
 	const { t } = useTranslation('friendsPage');
 	const displayUsername = displayName || username || (t('friend') as string);
 	const heading = titleText || (t('removeFriendModal.title', { username: displayUsername }) as string);
@@ -23,12 +36,14 @@ const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfir
 						{heading}
 					</h2>
 					<p className="text-theme-primary text-sm leading-6">
-						<Trans
-							i18nKey="removeFriendModal.description"
-							ns="friendsPage"
-							values={{ username: displayUsername }}
-							components={{ bold: <span className="font-semibold text-theme-primary-active" /> }}
-						/>
+						{descriptionText || (
+							<Trans
+								i18nKey="removeFriendModal.description"
+								ns="friendsPage"
+								values={{ username: displayUsername }}
+								components={{ bold: <span className="font-semibold text-theme-primary-active" /> }}
+							/>
+						)}
 					</p>
 				</div>
 				<div className="flex justify-end gap-3 px-6 pb-6">
@@ -36,7 +51,7 @@ const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfir
 						type="button"
 						className="min-w-[120px] h-10 px-4 rounded-md bg-button-secondary text-theme-primary hover:bg-item-hover transition-colors duration-150"
 						onClick={onClose}
-						data-e2e="friend_remove_modal.button.cancel"
+						data-e2e={generateE2eId('friend_remove_modal.button.cancel')}
 					>
 						{t('removeFriendModal.cancel')}
 					</button>
@@ -45,9 +60,9 @@ const RemoveFriendModal = ({ username, displayName, titleText, onClose, onConfir
 						className="min-w-[120px] h-10 px-4 rounded-md bg-colorDanger text-white font-semibold hover:bg-colorDanger/80 transition-colors duration-150 disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={onConfirm}
 						disabled={isProcessing}
-						data-e2e="friend_remove_modal.button.confirm"
+						data-e2e={generateE2eId('friend_remove_modal.button.confirm')}
 					>
-						{t('removeFriendModal.confirm')}
+						{confirmText || t('removeFriendModal.confirm')}
 					</button>
 				</div>
 			</div>

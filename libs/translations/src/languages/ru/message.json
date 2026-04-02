@@ -122,6 +122,7 @@
 	},
 	"newMessages": "НОВЫЕ СООБЩЕНИЯ",
 	"noSendMessagePermission": "У Вас нет разрешения на отправку сообщения.",
+	"tooLongMessage": "Слишком длинное сообщение",
 	"isBanned": "Вы забанены",
 	"blockedUserMessage": "Вы не можете ответить на этот разговор",
 	"messageInputPlaceHolder": "Написать сообщение...",
@@ -246,6 +247,7 @@
 		"durationDays": "{{count}} дней",
 		"durationHours": "{{count}} часов",
 		"durationMinutes": "{{count}} минут",
+		"durationLessThanMinute": "Меньше минуты",
 		"selectOneOrMore": "Выберите один или несколько вариантов",
 		"selectOne": "Выберите один вариант",
 		"vote": "голос",
@@ -260,8 +262,8 @@
 		"loadMore": "Показать ещё {{count}} вариантов",
 		"loadMore1Option": "Показать ещё 1 вариант",
 		"showLess": "Показать меньше",
-		"noVotesYet": "Голосов пока нет"
+		"noVotesYet": "Голосов пока нет",
+		"pollLabel": "[Опрос]"
 	},
 	"unknown": "неизвестно"
 }
-

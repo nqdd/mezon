@@ -122,6 +122,7 @@
 	},
 	"newMessages": "NEW MESSAGES",
 	"noSendMessagePermission": "You don't have permission to send message",
+	"tooLongMessage": "Too long message",
 	"isBanned": "You are banned",
 	"blockedUserMessage": "You can't reply to this conversation",
 	"messageInputPlaceHolder": "Write message...",
@@ -247,6 +248,7 @@
 		"durationDays": "{{count}} days",
 		"durationHours": "{{count}} hours",
 		"durationMinutes": "{{count}} minutes",
+		"durationLessThanMinute": "Less than a minute",
 		"selectOneOrMore": "Select one or more answers",
 		"selectOne": "Select one answer",
 		"vote": "vote",
@@ -261,6 +263,7 @@
 		"loadMore": "Load more {{count}} options",
 		"loadMore1Option": "Load more 1 option",
 		"showLess": "Show less",
-		"noVotesYet": "No votes yet"
+		"noVotesYet": "No votes yet",
+		"pollLabel": "[Poll]"
 	}
 }

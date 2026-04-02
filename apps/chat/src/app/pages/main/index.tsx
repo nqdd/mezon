@@ -43,6 +43,7 @@ import {
 	selectCurrentClanId,
 	selectCurrentStreamInfo,
 	selectCurrentTopicId,
+	selectDirectMessageIds,
 	selectDirectsUnreadlist,
 	selectHasKeyE2ee,
 	selectIsShowChatStream,
@@ -229,6 +230,8 @@ type ShowModal = () => void;
 
 const DirectUnreadList = memo(() => {
 	const listUnreadDM = useSelector(selectDirectsUnreadlist);
+	const listDirectId = useSelector(selectDirectMessageIds);
+	const directIdSet = useMemo(() => new Set(listDirectId), [listDirectId]);
 	const [listDmRender, setListDmRender] = useState(() => [...listUnreadDM]);
 	const previousIdsRef = useRef(listDmRender.map((channel) => channel.id));
 
@@ -256,14 +259,15 @@ const DirectUnreadList = memo(() => {
 
 	const validIdsSet = useMemo(() => new Set(listUnreadDM.map((channel) => channel.id)), [listUnreadDM]);
 
-	const renderItems = useMemo(
-		() =>
-			listDmRender.map((dmGroupChatUnread) => {
-				const shouldAnimateOut = !validIdsSet.has(dmGroupChatUnread.id);
-				return <DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} shouldAnimateOut={shouldAnimateOut} />;
-			}),
-		[listDmRender, validIdsSet]
-	);
+	const renderItems = useMemo(() => {
+		return listDmRender.map((dmGroupChatUnread) => {
+			if (!directIdSet.has(dmGroupChatUnread.id)) return null;
+
+			const shouldAnimateOut = !validIdsSet.has(dmGroupChatUnread.id);
+
+			return <DirectUnread key={dmGroupChatUnread.id} directMessage={dmGroupChatUnread} shouldAnimateOut={shouldAnimateOut} />;
+		});
+	}, [listDmRender, validIdsSet, directIdSet]);
 
 	if (!listDmRender?.length) return null;
 
@@ -628,7 +632,11 @@ const PreviewOnboardingMode = () => {
 		<div className="fixed z-50 top-0 left-0 w-screen  bg-theme-setting-primary flex px-4 py-2 h-12 items-center justify-center ">
 			<div className="absolute cursor-pointer bg-item-theme-hover left-6 px-2 flex gap-1 border-2 py-1 items-center justify-center  border-theme-primary rounded bg-transparent">
 				<Icons.LeftArrowIcon className="fill-theme-primary-active text-theme-primary-active" />
-				<p className="text-theme-primary-active text-xs font-medium" onClick={handleClosePreview}>
+				<p
+					className="text-theme-primary-active text-xs font-medium"
+					onClick={handleClosePreview}
+					data-e2e={generateE2eId('clan_page.settings.onboarding.button.close_preview_mode')}
+				>
 					{t('closePreviewMode')}
 				</p>
 			</div>

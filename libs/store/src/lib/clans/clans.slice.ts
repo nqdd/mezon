@@ -161,7 +161,7 @@ export const listChannelBadgeCount = createAsyncThunk('clans/listChannelBadgeCou
 					clan_id: clanId
 				}
 			},
-			(session) => Promise.resolve([]),
+			(session) => mezon.client.listChannelBadgeCount(session, clanId),
 			'channel_badge_count'
 		);
 
@@ -856,6 +856,9 @@ export const clansSlice = createSlice({
 		clearClanGroups: (state) => {
 			state.clanGroups = clanGroupAdapter.getInitialState();
 			state.clanGroupOrder = [];
+		},
+		clearJoinList: (state) => {
+			state.checkJoinList = {};
 		}
 	},
 	extraReducers: (builder) => {
@@ -938,7 +941,12 @@ export const clansSlice = createSlice({
 			}
 		);
 		builder.addCase(listClanBadgeCount.fulfilled, (state: ClansState, action: PayloadAction<ClanUnreadState[]>) => {
-			clanUnreadAdapter.setAll(state.clanUnreadStates, action.payload);
+			const normalizedPayload: ClanUnreadState[] = action.payload.map((item) => ({
+				...item,
+				badge: item.badge <= 0 ? 0 : item.badge
+			}));
+
+			clanUnreadAdapter.setAll(state.clanUnreadStates, normalizedPayload);
 			state.loadingStatus = 'loaded';
 		});
 	}

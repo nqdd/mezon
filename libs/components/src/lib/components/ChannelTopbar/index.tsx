@@ -250,7 +250,7 @@ const TopBarChannelText = memo(() => {
 							avatarName={currentDmGroup?.channel_label?.at(0)}
 						/>
 						{currentDmGroup?.type !== ChannelType.CHANNEL_TYPE_GROUP && (
-							<div className="absolute top-6 left-5 w-3 h-3">
+							<div className="absolute top-6 left-5 w-3 h-3" data-e2e={generateE2eId('icon.profile_status')}>
 								<UserStatusIconDM status={userStatus?.status} />
 							</div>
 						)}
@@ -271,6 +271,7 @@ const TopBarChannelText = memo(() => {
 									<span
 										className="truncate min-w-0 h-4 text-xs flex gap-1 items-center cursor-pointer pointer-events-auto"
 										onClick={handleJoinVoice}
+										data-e2e={generateE2eId(`chat.direct_message.header.left_container.in_voice_status`)}
 									>
 										<Icons.Speaker className="text-green-500 !w-3 !h-3" /> {t('invoice')}
 									</span>
@@ -693,7 +694,7 @@ const DmTopbarTools = memo(() => {
 
 		dispatch(audioCallActions.setIsBusyTone(false));
 	};
-	const isGroupCallDisabled = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_GROUP;
+	const canShowCallButtons = currentDmGroup?.type === ChannelType.CHANNEL_TYPE_DM;
 
 	const setIsUseProfileDM = useCallback(
 		async (status: boolean) => {
@@ -727,13 +728,12 @@ const DmTopbarTools = memo(() => {
 		<div className=" items-center h-full ml-auto hidden justify-end ssm:flex">
 			<div className=" items-center gap-2 flex">
 				<div className="justify-start items-center gap-[15px] flex ">
-					{!isBlockUser && !isMe && (
+					{canShowCallButtons && !isBlockUser && !isMe && (
 						<>
 							<button
 								title={t('tooltips.startVoiceCall')}
 								onClick={() => handleStartCall()}
-								disabled={isGroupCallDisabled}
-								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+								className="text-theme-primary-hover"
 								data-e2e={generateE2eId(`chat.direct_message.header.right_container.call`)}
 							>
 								<Icons.IconPhoneDM defaultSize="size-5" />
@@ -741,8 +741,7 @@ const DmTopbarTools = memo(() => {
 							<button
 								title={t('tooltips.startVideoCall')}
 								onClick={() => handleStartCall(true)}
-								disabled={isGroupCallDisabled}
-								className={`text-theme-primary-hover ${isGroupCallDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+								className="text-theme-primary-hover"
 								data-e2e={generateE2eId(`chat.direct_message.header.right_container.video_call`)}
 							>
 								<Icons.IconMeetDM defaultSize="size-5" />
@@ -864,7 +863,7 @@ function TimelineViewToggleButton() {
 	}, [dispatch, isMediaChannelView]);
 
 	return (
-		<div className="relative leading-5 h-5">
+		<div className="relative leading-5 h-5" data-e2e={generateE2eId('chat.channel_message.header.button.timeline')}>
 			<button
 				title={isMediaChannelView ? t('tooltips.defaultView') : t('tooltips.timelineView')}
 				onClick={handleToggle}
