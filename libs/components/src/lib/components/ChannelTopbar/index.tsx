@@ -994,8 +994,10 @@ function PinButton({ styleCss, mode, isDMView = false }: { styleCss: string; mod
 	const shouldShowPinMessage = isShowPinMessage && pinModalChannelId === conversationKey;
 
 	const handleClosePinMessage = useCallback(() => {
+		if (isShowPinBadge) dispatch(pinMessageActions.setIsShowPinBadge(false));
+		if (isShowPinDMBadge) dispatch(pinMessageActions.setIsShowPinDMBadge(false));
 		dispatch(pinMessageActions.closePinModal());
-	}, [dispatch]);
+	}, [dispatch, isShowPinBadge, isShowPinDMBadge]);
 
 	const handleTogglePinMessage = useCallback(async () => {
 		const store = getStore();
