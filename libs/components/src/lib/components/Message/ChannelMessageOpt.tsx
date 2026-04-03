@@ -67,6 +67,7 @@ enum EMessageOpt {
 	ADD_TO_NOTE = 'addtonote',
 	REACT = 'react',
 	REPLY = 'reply',
+	TOPIC = 'topic',
 	THREAD = 'thread',
 	OPTION = 'option'
 }
@@ -119,7 +120,10 @@ const ChannelMessageOpt = ({
 							if (message?.content?.tp && item.id === 'edit') {
 								return false;
 							}
-							if (message?.code === TypeMessage.Poll && (item.id === 'edit' || item.id === EMessageOpt.THREAD)) {
+							if (
+								message?.code === TypeMessage.Poll &&
+								(item.id === 'edit' || item.id === EMessageOpt.THREAD || item.id === EMessageOpt.TOPIC)
+							) {
 								return false;
 							}
 							return true;
@@ -158,7 +162,8 @@ function useTopicMenuBuilder(message: IMessageWithUser, doNotAllowCreateTopic: b
 		message?.code !== TypeMessage.MessageBuzz &&
 		message?.code !== TypeMessage.AuditLog &&
 		message?.code !== TypeMessage.Welcome &&
-		message?.code !== TypeMessage.UpcomingEvent;
+		message?.code !== TypeMessage.UpcomingEvent &&
+		message?.code !== TypeMessage.Poll;
 
 	const setIsShowCreateTopic = useCallback(
 		(isShowCreateTopic: boolean, channelId?: string) => {
