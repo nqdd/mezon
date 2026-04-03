@@ -1058,6 +1058,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 		code
 	} = payload;
 	const payloadSizeInBytes = Buffer.byteLength(JSON.stringify(payload), 'utf8');
+	console.log('payloadSizeInBytes: ', payloadSizeInBytes);
 	if (payloadSizeInBytes > 4 * 1024) {
 		toast.error(t(`message:tooLongMessage`));
 		return;
@@ -1129,7 +1130,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			const mk = [...(content.mk ?? [])];
 
 			mk.push({
-				description: ogpData?.description || '',
+				description: ogpData?.description?.slice(0, 200) || '',
 				image: ogpData?.image || '',
 				title: ogpData.type !== EOgpType.image ? ogpData?.title || '' : '',
 				s: content.t?.length || 0,
@@ -1147,6 +1148,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 
 		try {
 			if (socketState.isConnected) {
+				console.log('Here');
 				res = await socket.writeChatMessage(
 					clanId,
 					channelId,
@@ -1165,6 +1167,8 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 				throw new Error('Socket not connected');
 			}
 		} catch (err) {
+			console.log('Here');
+
 			res = await client.sendChannelMessage(
 				session,
 				clanId,
