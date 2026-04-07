@@ -3,6 +3,8 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import { initReactI18next } from 'react-i18next';
 import enTranslations from './languages/en/index';
 import esTranslations from './languages/es/index';
+import itTranslations from './languages/it/index';
+import ptTranslations from './languages/pt/index';
 import ruTranslations from './languages/ru/index';
 import ttTranslations from './languages/tt/index';
 import viTranslations from './languages/vi/index';
@@ -14,7 +16,16 @@ const timezoneDetector = {
 	lookup() {
 		const storedLang = localStorage.getItem('i18nextLng');
 
-		if (storedLang && (storedLang === 'vi' || storedLang === 'en' || storedLang === 'ru' || storedLang === 'es' || storedLang === 'tt')) {
+		if (
+			storedLang &&
+			(storedLang === 'vi' ||
+				storedLang === 'en' ||
+				storedLang === 'ru' ||
+				storedLang === 'es' ||
+				storedLang === 'tt' ||
+				storedLang === 'pt' ||
+				storedLang === 'it')
+		) {
 			return undefined;
 		}
 
@@ -37,12 +48,18 @@ const timezoneDetector = {
 			if (languageCode.startsWith('tt')) {
 				return 'tt';
 			}
+			if (languageCode.startsWith('pt')) {
+				return 'pt';
+			}
+			if (languageCode.startsWith('it')) {
+				return 'it';
+			}
 		}
 
 		return undefined;
 	},
 	cacheUserLanguage(lng: string) {
-		if (lng && (lng === 'vi' || lng === 'en' || lng === 'ru' || lng === 'es' || lng === 'tt')) {
+		if (lng && (lng === 'vi' || lng === 'en' || lng === 'ru' || lng === 'es' || lng === 'tt' || lng === 'pt' || lng === 'it')) {
 			localStorage.setItem('i18nextLng', lng);
 		}
 	}
@@ -56,13 +73,15 @@ i18n.use(languageDetector)
 	.init({
 		defaultNS,
 		fallbackLng: 'en',
-		supportedLngs: ['en', 'vi', 'ru', 'es', 'tt'],
+		supportedLngs: ['en', 'vi', 'ru', 'es', 'tt', 'pt', 'it'],
 		resources: {
 			en: enTranslations,
 			vi: viTranslations,
 			ru: ruTranslations,
 			es: esTranslations,
-			tt: ttTranslations
+			tt: ttTranslations,
+			pt: ptTranslations,
+			it: itTranslations
 		},
 		detection: {
 			order: ['timezone', 'localStorage', 'navigator', 'htmlTag'],
