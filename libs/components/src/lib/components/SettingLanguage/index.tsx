@@ -35,8 +35,8 @@ export const SettingLanguage = ({ menuIsOpen }: ISettingLanguageProps) => {
 				contributedBy: 'robits'
 			},
 			{
-				title: `${t('setting:language.italian')}`,
-				value: 'it',
+				title: `${t('setting:language.portuguese')}`,
+				value: 'pt',
 				contributedBy: 'robits'
 			}
 		];

@@ -212,8 +212,8 @@ export default defineConfig(({ mode }) => {
 						if (normalizedId.includes('libs/translations/src/languages/ru')) {
 							return 'i18n-ru';
 						}
-						if (normalizedId.includes('libs/translations/src/languages/it')) {
-							return 'i18n-it';
+						if (normalizedId.includes('libs/translations/src/languages/pt')) {
+							return 'i18n-pt';
 						}
 					}
 				}
