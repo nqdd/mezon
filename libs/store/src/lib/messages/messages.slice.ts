@@ -385,7 +385,7 @@ export const fetchMessages = createAsyncThunk(
 				mezon,
 				clanId,
 				channelId,
-				messageId || lastMessageId || '0',
+				toPresent ? '0' : messageId || lastMessageId || '0',
 				direction,
 				topicId,
 				noCache,
@@ -1129,7 +1129,7 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 			const mk = [...(content.mk ?? [])];
 
 			mk.push({
-				description: ogpData?.description || '',
+				description: ogpData?.description?.slice(0, 200) || '',
 				image: ogpData?.image || '',
 				title: ogpData.type !== EOgpType.image ? ogpData?.title || '' : '',
 				s: content.t?.length || 0,
@@ -1758,7 +1758,7 @@ export const messagesSlice = createSlice({
 						update_time_seconds: updateTimeSeconds,
 						update_time: action.payload.update_time || (updateTimeSeconds ? new Date(updateTimeSeconds * 1000).toISOString() : undefined)
 					};
-					if (!action.payload.attachments?.length) {
+					if (action.payload.attachments?.length !== channelEntity?.entities?.[messageId]?.attachments?.length) {
 						changes.attachments = action.payload.attachments;
 					}
 					channelMessagesAdapter.updateOne(channelEntity, {
