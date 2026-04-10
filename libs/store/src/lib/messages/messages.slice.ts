@@ -968,7 +968,8 @@ export const sendMessageViaApi = createAsyncThunk('messages/sendMessageViaApi', 
 					channelMetaActions.setChannelLastSeenTimestamp({
 						channelId,
 						timestamp,
-						messageId: messageResult.channel_id
+						messageId: messageResult.channel_id,
+						clanId: clanId
 					})
 				);
 			}
@@ -1287,7 +1288,8 @@ export const sendMessage = createAsyncThunk('messages/sendMessage', async (paylo
 					channelMetaActions.setChannelLastSeenTimestamp({
 						channelId,
 						timestamp,
-						messageId: messageResult.message_id
+						messageId: messageResult.message_id,
+						clanId: clanId
 					})
 				);
 			}
@@ -1758,7 +1760,7 @@ export const messagesSlice = createSlice({
 						update_time_seconds: updateTimeSeconds,
 						update_time: action.payload.update_time || (updateTimeSeconds ? new Date(updateTimeSeconds * 1000).toISOString() : undefined)
 					};
-					if (!action.payload.attachments?.length) {
+					if (action.payload.attachments?.length !== channelEntity?.entities?.[messageId]?.attachments?.length) {
 						changes.attachments = action.payload.attachments;
 					}
 					channelMessagesAdapter.updateOne(channelEntity, {

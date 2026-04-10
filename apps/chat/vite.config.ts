@@ -212,8 +212,23 @@ export default defineConfig(({ mode }) => {
 						if (normalizedId.includes('libs/translations/src/languages/ru')) {
 							return 'i18n-ru';
 						}
+						if (normalizedId.includes('libs/translations/src/languages/tt')) {
+							return 'i18n-tt';
+						}
+						if (normalizedId.includes('libs/translations/src/languages/pt')) {
+							return 'i18n-pt';
+						}
 						if (normalizedId.includes('libs/translations/src/languages/it')) {
 							return 'i18n-it';
+						}
+						if (normalizedId.includes('libs/translations/src/languages/jpn')) {
+							return 'i18n-jpn';
+						}
+						if (normalizedId.includes('libs/translations/src/languages/kr')) {
+							return 'i18n-kr';
+						}
+						if (normalizedId.includes('libs/translations/src/languages/swe')) {
+							return 'i18n-swe';
 						}
 					}
 				}

@@ -4,7 +4,12 @@ import { initReactI18next } from 'react-i18next';
 import enTranslations from './languages/en/index';
 import esTranslations from './languages/es/index';
 import itTranslations from './languages/it/index';
+import jpnTranslations from './languages/jpn/index';
+import krTranslations from './languages/kr/index';
+import ptTranslations from './languages/pt/index';
 import ruTranslations from './languages/ru/index';
+import sweTranslations from './languages/swe/index';
+import ttTranslations from './languages/tt/index';
 import viTranslations from './languages/vi/index';
 
 export const defaultNS = 'common';
@@ -14,7 +19,19 @@ const timezoneDetector = {
 	lookup() {
 		const storedLang = localStorage.getItem('i18nextLng');
 
-		if (storedLang && (storedLang === 'vi' || storedLang === 'en' || storedLang === 'ru' || storedLang === 'es' || storedLang === 'it')) {
+		if (
+			storedLang &&
+			(storedLang === 'vi' ||
+				storedLang === 'en' ||
+				storedLang === 'ru' ||
+				storedLang === 'es' ||
+				storedLang === 'tt' ||
+				storedLang === 'pt' ||
+				storedLang === 'jpn' ||
+				storedLang === 'kr' ||
+				storedLang === 'swe' ||
+				storedLang === 'it')
+		) {
 			return undefined;
 		}
 
@@ -34,15 +51,42 @@ const timezoneDetector = {
 			if (languageCode.startsWith('es')) {
 				return 'es';
 			}
+			if (languageCode.startsWith('tt')) {
+				return 'tt';
+			}
+			if (languageCode.startsWith('pt')) {
+				return 'pt';
+			}
 			if (languageCode.startsWith('it')) {
 				return 'it';
+			}
+			if (languageCode.startsWith('jpn')) {
+				return 'jpn';
+			}
+			if (languageCode.startsWith('kr')) {
+				return 'kr';
+			}
+			if (languageCode.startsWith('swe')) {
+				return 'swe';
 			}
 		}
 
 		return undefined;
 	},
 	cacheUserLanguage(lng: string) {
-		if (lng && (lng === 'vi' || lng === 'en' || lng === 'ru' || lng === 'es' || lng === 'it')) {
+		if (
+			lng &&
+			(lng === 'vi' ||
+				lng === 'en' ||
+				lng === 'ru' ||
+				lng === 'es' ||
+				lng === 'tt' ||
+				lng === 'pt' ||
+				lng === 'it' ||
+				lng === 'jpn' ||
+				lng === 'kr' ||
+				lng === 'swe')
+		) {
 			localStorage.setItem('i18nextLng', lng);
 		}
 	}
@@ -56,13 +100,18 @@ i18n.use(languageDetector)
 	.init({
 		defaultNS,
 		fallbackLng: 'en',
-		supportedLngs: ['en', 'vi', 'ru', 'es', 'it'],
+		supportedLngs: ['en', 'vi', 'ru', 'es', 'tt', 'pt', 'it', 'jpn', 'kr', 'swe'],
 		resources: {
 			en: enTranslations,
 			vi: viTranslations,
 			ru: ruTranslations,
 			es: esTranslations,
-			it: itTranslations
+			tt: ttTranslations,
+			pt: ptTranslations,
+			it: itTranslations,
+			jpn: jpnTranslations,
+			kr: krTranslations,
+			swe: sweTranslations
 		},
 		detection: {
 			order: ['timezone', 'localStorage', 'navigator', 'htmlTag'],

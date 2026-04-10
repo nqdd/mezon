@@ -23,12 +23,17 @@ export interface ChannelMetaEntity {
 function extractChannelMeta(channel: ApiChannelDescription, clanId: string): ChannelMetaEntity {
 	return {
 		id: channel.channel_id || '0',
-		lastSeenTimestamp: Number(channel.last_seen_message?.timestamp_seconds) ?? 0,
-		lastSentTimestamp: Number(channel.last_sent_message?.timestamp_seconds),
+		lastSeenTimestamp:
+			Number.isNaN(channel.last_seen_message?.timestamp_seconds) || !channel.last_seen_message?.timestamp_seconds
+				? 0
+				: channel.last_seen_message?.timestamp_seconds,
+		lastSentTimestamp:
+			Number.isNaN(channel.last_sent_message?.timestamp_seconds) || !channel.last_sent_message?.timestamp_seconds
+				? 0
+				: channel.last_sent_message?.timestamp_seconds,
 		clanId: (clanId || channel.clan_id) ?? '0',
 		isMute: channel.is_mute ?? false,
 		senderId: channel.last_sent_message?.sender_id ?? '0',
-		lastSeenMessageId: channel.last_seen_message?.id,
 		count_mess_unread: channel?.count_mess_unread ?? 0,
 		last_sent_message: channel?.last_sent_message
 	};
@@ -48,7 +53,9 @@ export interface ChannelMetaState extends EntityState<ChannelMetaEntity, string>
 	dmEntities: EntityState<ChannelMetaEntity, string>;
 }
 
-const channelMetaAdapter = createEntityAdapter<ChannelMetaEntity>();
+const channelMetaAdapter = createEntityAdapter({
+	selectId: (channel: ChannelMetaEntity) => channel.id
+});
 const dmMetaAdapter = createEntityAdapter<ChannelMetaEntity>({
 	sortComparer: (a, b) => (b.lastSentTimestamp || 0) - (a.lastSentTimestamp || 0)
 });
@@ -81,8 +88,8 @@ export const channelMetaSlice = createSlice({
 				}
 			});
 		},
-		setChannelLastSeenTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; messageId?: string }>) => {
-			const { channelId, timestamp, messageId } = action.payload;
+		setChannelLastSeenTimestamp: (state, action: PayloadAction<{ channelId: string; timestamp: number; messageId?: string; clanId: string }>) => {
+			const { channelId, timestamp, messageId, clanId } = action.payload;
 			const channel = state?.entities[channelId];
 			if (channel) {
 				channelMetaAdapter.updateOne(state, {
@@ -91,6 +98,16 @@ export const channelMetaSlice = createSlice({
 						lastSeenTimestamp: Math.floor(timestamp),
 						...(messageId && { lastSeenMessageId: messageId })
 					}
+				});
+			} else {
+				channelMetaAdapter.upsertOne(state, {
+					id: channelId,
+					clanId,
+					isMute: false,
+					lastSeenMessageId: messageId,
+					senderId: '0',
+					lastSentTimestamp: 0,
+					lastSeenTimestamp: Math.floor(timestamp)
 				});
 			}
 		},
@@ -115,10 +132,10 @@ export const channelMetaSlice = createSlice({
 				}
 			}
 			if (action?.payload?.clanId === '0') {
-				dmMetaAdapter.upsertMany(state.dmEntities, meta);
+				dmMetaAdapter.setMany(state.dmEntities, meta);
 				return;
 			}
-			channelMetaAdapter.upsertMany(state, meta);
+			channelMetaAdapter.setMany(state, meta);
 		},
 		updateChannelBadgeCount: (state, action: PayloadAction<{ clanId: string; channelId: string; count: number; isReset?: boolean }>) => {
 			const { clanId, channelId, count, isReset = false } = action.payload;
@@ -130,13 +147,12 @@ export const channelMetaSlice = createSlice({
 			if (!entity) {
 				const initialCount = isReset ? 0 : Math.max(0, count);
 				if (initialCount <= 0) return;
-
 				adapter.addOne(entitiesState, {
 					id: channelId,
 					clanId,
 					isMute: false,
 					lastSeenTimestamp: 0,
-					lastSentTimestamp: Date.now(),
+					lastSentTimestamp: Date.now() / 1000,
 					senderId: '0',
 					count_mess_unread: initialCount
 				});
@@ -296,13 +312,9 @@ export const selectChannelMetaById = createSelector([selectChannelMetaEntities, 
 	return entities[channelId];
 });
 
-export const selectIsUnreadChannelById = createSelector(
-	[getChannelMetaState, selectChannelMetaEntities, (state, channelId) => channelId],
-	(state, settings, channelId) => {
-		const channel = state?.entities[channelId];
-		return channel?.lastSeenTimestamp < channel?.lastSentTimestamp || !!channel?.count_mess_unread;
-	}
-);
+export const selectIsUnreadChannelById = createSelector([selectChannelMetaById], (channel) => {
+	return !isNaN(channel?.lastSeenTimestamp) ? channel?.lastSeenTimestamp < channel?.lastSentTimestamp || !!channel?.count_mess_unread : false;
+});
 
 export const selectLastSeenMessageId = createSelector([selectChannelMetaEntities, (state, channelId) => channelId], (settings, channelId) => {
 	const channel = settings?.[channelId];

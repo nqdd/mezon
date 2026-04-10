@@ -1,3 +1,4 @@
+import { notificationService } from '@mezon/utils';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import type { Session } from 'mezon-js';
@@ -32,7 +33,7 @@ export const registFcmDeviceToken = createAsyncThunk(
 		try {
 			const mezon = await ensureSession(getMezonCtx(thunkAPI));
 			const response = await withRetry(
-				(latestSession) => mezon.client.registFCMDeviceToken(latestSession, tokenId, deviceId, platform || '', voipToken || ''),
+				(latestSession) => mezon.client.registFCMDeviceToken(latestSession, tokenId, '', platform || '', voipToken || ''),
 				{
 					maxRetries: 3,
 					initialDelay: 1000,
@@ -43,7 +44,6 @@ export const registFcmDeviceToken = createAsyncThunk(
 			if (!response) {
 				return thunkAPI.rejectWithValue(null);
 			}
-			thunkAPI.dispatch(fcmActions.setGotifyToken(response?.token));
 			return response;
 		} catch (e) {
 			console.error('Error', e);
@@ -63,22 +63,21 @@ export const connectNotificationService = createAsyncThunk('fcm/connectNotificat
 
 		const mezon = await ensureSession(getMezonCtx(thunkAPI));
 
-		const response = await withRetry(
-			(session) => mezon.client.registFCMDeviceToken(session, state.fcm.deviceId || '', state.fcm.token || '', 'desktop', ''),
-			{
-				maxRetries: 3,
-				initialDelay: 1000,
-				scope: 'regist-fcm-connect',
-				mezon
-			}
-		);
+		const response = await withRetry((session) => mezon.client.registFCMDeviceToken(session, state.fcm.deviceId || '', '', 'desktop', ''), {
+			maxRetries: 3,
+			initialDelay: 1000,
+			scope: 'regist-fcm-connect',
+			mezon
+		});
 
-		if (!response?.token) {
-			return thunkAPI.rejectWithValue('Failed to register FCM token');
+		if (response.token) {
+			notificationService.connect(response.token, sessionData.user_id);
+		} else if (state.fcm.token) {
+			notificationService.connect(state.fcm.token, sessionData.user_id);
 		}
 
 		return {
-			token: response.token,
+			token: response.token || '',
 			userId: sessionData.user_id,
 			deviceId: response.device_id
 		};
@@ -99,9 +98,11 @@ export const fcmSlice = createSlice({
 	extraReducers: (builder) => {
 		builder.addCase(connectNotificationService.fulfilled, (state, action: PayloadAction<{ token: string; deviceId?: string }>) => {
 			const { token, deviceId } = action.payload;
-			state.token = token;
-			if (deviceId) {
+			if (!state.deviceId && deviceId) {
 				state.deviceId = deviceId;
+			}
+			if (token) {
+				state.token = token;
 			}
 		});
 	}

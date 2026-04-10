@@ -35,8 +35,33 @@ export const SettingLanguage = ({ menuIsOpen }: ISettingLanguageProps) => {
 				contributedBy: 'robits'
 			},
 			{
+				title: `${t('setting:language.tatar')}`,
+				value: 'tt',
+				contributedBy: 'reburst'
+			},
+			{
 				title: `${t('setting:language.italian')}`,
 				value: 'it',
+				contributedBy: 'robits'
+			},
+			{
+				title: `${t('setting:language.portuguese')}`,
+				value: 'pt',
+				contributedBy: 'robits'
+			},
+			{
+				title: `${t('setting:language.japanese')}`,
+				value: 'jpn',
+				contributedBy: 'robits'
+			},
+			{
+				title: `${t('setting:language.korean')}`,
+				value: 'kr',
+				contributedBy: 'robits'
+			},
+			{
+				title: `${t('setting:language.swedish')}`,
+				value: 'swe',
 				contributedBy: 'robits'
 			}
 		];
