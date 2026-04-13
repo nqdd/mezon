@@ -57,12 +57,6 @@ export const selectListChannelRenderByClanId = createCachedSelector(
 		const sortedCategories = sortCategoriesByOrder(categoriesList);
 
 		_recomputeCount += 1;
-		// console.log(`[selectListChannelRenderByClanId] recompute #${_recomputeCount}`, {
-		// 	channelEntitiesChanged: channelEntities !== _prevChannelEntities,
-		// 	categoryEntitiesChanged: categoryEntities !== _prevCategoryEntities,
-		// 	favoriteIdsChanged: favoriteIds !== _prevFavoriteIds,
-		// 	channelCount: channels.length
-		// });
 		_prevChannelEntities = channelEntities;
 		_prevCategoryEntities = categoryEntities;
 		_prevFavoriteIds = favoriteIds;

@@ -416,7 +416,7 @@ export const categoriesSlice = createSlice({
 		builder.addMatcher(
 			(action) => action.type === 'channels/syncClanChannelSidebarSources/fulfilled',
 			(state: CategoriesState, action) => {
-				const { clanId, categories, categoriesFromCache } = action.payload ?? {};
+				const { clanId, categories, categoriesFromCache } = (action as any).payload ?? {};
 				if (categoriesFromCache || !categories || !clanId) return;
 				if (!state.byClans[clanId]) {
 					state.byClans[clanId] = getInitialClanState();
@@ -515,8 +515,7 @@ export const selectCategoryExpandStateByCategoryId = createSelector(
 	(state, clanId, categoryId) => state.byClans[clanId]?.categoryExpandState[categoryId] ?? true
 );
 
-export const selectCategoryEntityStateByClanId = (state: RootState, clanId: string) =>
-	state[CATEGORIES_FEATURE_KEY].byClans[clanId]?.entities;
+export const selectCategoryEntityStateByClanId = (state: RootState, clanId: string) => state[CATEGORIES_FEATURE_KEY].byClans[clanId]?.entities;
 
 export const selectAllCategories = createSelector(
 	[
