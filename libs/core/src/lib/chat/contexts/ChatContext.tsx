@@ -35,7 +35,7 @@ import {
 	getStoreAsync,
 	giveCoffeeActions,
 	inviteActions,
-	listChannelRenderAction,
+	updateClanBadgeRender,
 	listChannelsByUserActions,
 	listUsersByUserActions,
 	mapMessageChannelToEntityAction,
@@ -56,6 +56,7 @@ import {
 	selectCategoryById,
 	selectChannelById,
 	selectChannelByIdAndClanId,
+	selectChannelMetaById,
 	selectChannelMetaEntities,
 	selectChannelThreads,
 	selectChannelsByClanId,
@@ -814,7 +815,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		}
 
 		if (clan_id && clan_id !== '0') {
-			const channel = selectChannelByIdAndClanId(state, clan_id, channel_id);
+			const channel = selectChannelMetaById(state, channel_id);
 			badge_count = channel?.count_mess_unread || 0;
 			badgeService.resetChannel({
 				clanId: clan_id,
@@ -904,7 +905,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						}
 					}
 					dispatch(listChannelsByUserActions.remove(userID));
-					dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: user.channel_id, clanId: user.clan_id }));
 					dispatch(directMetaActions.remove(user.channel_id));
 					dispatch(
 						appActions.clearHistoryChannel({
@@ -949,6 +949,8 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				if (id === userId) {
 					dispatch(emojiSuggestionActions.invalidateCache());
 					dispatch(stickerSettingActions.invalidateCache());
+					dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true, clanId: '0' }));
+					dispatch(stickerSettingActions.fetchStickerByUserId({ noCache: true, clanId: '0' }));
 
 					if (clanId === user.clan_id) {
 						if (isMobile) {
@@ -984,7 +986,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 					dispatch(clansSlice.actions.removeByClanID(user.clan_id));
 					dispatch(listChannelsByUserActions.remove(id));
-					dispatch(listChannelRenderAction.removeListChannelRenderByClanId({ clanId: user?.clan_id }));
 					dispatch(topicsActions.removeClanTopics(user?.clan_id));
 					dispatch(appActions.cleanHistoryClan(user.clan_id));
 					dispatch(channelsActions.removeByClanId(user.clan_id));
@@ -1043,7 +1044,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 						channel_desc.type === ChannelType.CHANNEL_TYPE_APP ||
 						channel_desc.type === ChannelType.CHANNEL_TYPE_MEZON_VOICE
 					) {
-						dispatch(listChannelRenderAction.addChannelToListRender({ type: channel_desc.type, ...channel }));
 					}
 
 					if (channel_desc.type === ChannelType.CHANNEL_TYPE_THREAD) {
@@ -1060,21 +1060,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 									}
 								],
 								clanId: channel.clan_id ?? ''
-							})
-						);
-						dispatch(
-							listChannelRenderAction.setActiveThread({
-								channelId: channel_desc.channel_id as string,
-								clanId: channel_desc.clan_id as string
-							})
-						);
-						dispatch(
-							listChannelRenderAction.addThreadToListRender({
-								channel: {
-									...channel,
-									active: 1
-								},
-								clanId: channel.clan_id || '0'
 							})
 						);
 						if (channel_desc.channel_private === ChannelStatusEnum.isPrivate) {
@@ -1163,36 +1148,44 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 		[userId, dispatch]
 	);
 
-	const onuserclanadded = useCallback(async (userJoinClan: AddClanUserEvent) => {
-		const store = await getStoreAsync();
+	const onuserclanadded = useCallback(
+		async (userJoinClan: AddClanUserEvent) => {
+			const store = await getStoreAsync();
 
-		const clanMemberStore = selectClanMemberByClanId(store.getState() as unknown as RootState, userJoinClan.clan_id);
+			const clanMemberStore = selectClanMemberByClanId(store.getState() as unknown as RootState, userJoinClan.clan_id);
 
-		if (userJoinClan?.user && clanMemberStore) {
-			const accountCreateTime = new Date(userJoinClan?.user?.create_time_second * 1000).toISOString();
-			const joinTime = Date.now() / 1000;
-			dispatch(
-				usersClanActions.add({
-					user: {
-						...userJoinClan,
-						id: userJoinClan.user.user_id,
+			if (userJoinClan?.user && clanMemberStore) {
+				const accountCreateTime = new Date(userJoinClan?.user?.create_time_second * 1000).toISOString();
+				const joinTime = Date.now() / 1000;
+				dispatch(
+					usersClanActions.add({
 						user: {
-							...userJoinClan.user,
-							avatar_url: userJoinClan.user.avatar,
+							...userJoinClan,
 							id: userJoinClan.user.user_id,
-							display_name: userJoinClan.user.display_name,
-							metadata: userJoinClan.user.custom_status,
-							username: userJoinClan.user.username,
-							create_time: accountCreateTime,
-							create_time_seconds: userJoinClan?.user?.create_time_second,
-							join_time_seconds: joinTime
-						}
-					},
-					clanId: userJoinClan.clan_id
-				} as any)
-			);
-		}
-	}, []);
+							user: {
+								...userJoinClan.user,
+								avatar_url: userJoinClan.user.avatar,
+								id: userJoinClan.user.user_id,
+								display_name: userJoinClan.user.display_name,
+								metadata: userJoinClan.user.custom_status,
+								username: userJoinClan.user.username,
+								create_time: accountCreateTime,
+								create_time_seconds: userJoinClan?.user?.create_time_second,
+								join_time_seconds: joinTime
+							}
+						},
+						clanId: userJoinClan.clan_id
+					} as any)
+				);
+			}
+
+			if (userJoinClan?.user?.user_id === userId) {
+				dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true, clanId: '0' }));
+				dispatch(stickerSettingActions.fetchStickerByUserId({ noCache: true, clanId: '0' }));
+			}
+		},
+		[userId]
+	);
 
 	const onremovefriend = useCallback(
 		(removeFriend: RemoveFriend) => {
@@ -1495,7 +1488,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					app_id: channelCreated.app_id,
 					clan_id: channelCreated.clan_id
 				};
-				dispatch(listChannelRenderAction.addThreadToListRender({ clanId: channelCreated?.clan_id as string, channel: thread }));
 
 				if (channelCreated.channel_private === ChannelStatusEnum.isPrivate) {
 					const privateThread: ThreadsEntity = {
@@ -1517,9 +1509,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				}
 			}
 
-			if (channelCreated.channel_private === 1 && channelCreated.channel_type === ChannelType.CHANNEL_TYPE_CHANNEL) {
-				dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
-			}
 		}
 		if (channelCreated && channelCreated.channel_private === 0 && (channelCreated.parent_id === '' || channelCreated.parent_id === '0')) {
 			const store = await getStoreAsync();
@@ -1532,8 +1521,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(
 				listChannelsByUserActions.addOneChannel({ id: channelCreated.channel_id, type: channelCreated.channel_type, ...channelCreated })
 			);
-			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
-
 			const now = Math.floor(Date.now() / 1000);
 			const extendChannelCreated = {
 				...channelCreated,
@@ -1557,7 +1544,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				})
 			);
 		} else if (channelCreated.creator_id === userId) {
-			dispatch(listChannelRenderAction.addChannelToListRender({ type: channelCreated.channel_type, ...channelCreated }));
 			if (channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_DM && channelCreated.channel_type !== ChannelType.CHANNEL_TYPE_GROUP) {
 				dispatch(
 					listChannelsByUserActions.addOneChannel({
@@ -1611,19 +1597,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 				})
 			);
-			dispatch(
-				listChannelRenderAction.addCategoryToListRender({
-					clanId: categoryEvent.clan_id as string,
-					cate: {
-						id: categoryEvent.id as string,
-						channels: [],
-						category_id: categoryEvent.id,
-						category_name: categoryEvent.category_name,
-						creator_id: categoryEvent.creator_id,
-						clan_id: categoryEvent.clan_id as string
-					}
-				})
-			);
 		} else if (categoryEvent.status === EEventAction.DELETE) {
 			const store = await getStoreAsync();
 			const currentChannelId = selectCurrentChannelId(store.getState() as unknown as RootState);
@@ -1665,12 +1638,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				}
 
 				dispatch(categoriesActions.deleteOne({ clanId: categoryEvent.clan_id, categoryId: categoryEvent.id }));
-				dispatch(
-					listChannelRenderAction.removeCategoryFromListRender({
-						clanId: categoryEvent?.clan_id || '0',
-						categoryId: categoryEvent.id
-					})
-				);
 			}
 		} else {
 			const request: ApiUpdateCategoryDescRequest = {
@@ -1687,12 +1654,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 					}
 				})
 			);
-			dispatch(
-				listChannelRenderAction.updateCategory({
-					clanId: categoryEvent.clan_id,
-					cate: request
-				})
-			);
 		}
 	}, []);
 
@@ -1706,6 +1667,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			dispatch(stickerSettingActions.removeStickersByClanId(clanDelete.clan_id));
 			dispatch(emojiSuggestionActions.invalidateCache());
 			dispatch(stickerSettingActions.invalidateCache());
+			dispatch(emojiSuggestionActions.fetchEmoji({ noCache: true, clanId: '0' }));
 			dispatch(channelsActions.removeByClanId(clanDelete.clan_id));
 			dispatch(topicsActions.removeClanTopics(clanDelete?.clan_id));
 			if (clanDelete.deletor !== userId && currentClanId === clanDelete.clan_id) {
@@ -1787,8 +1749,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 			if (channelDeleted?.deletor === userId) {
 				dispatch(channelsActions.deleteChannelSocket(channelDeleted));
 				dispatch(listChannelsByUserActions.remove(channelDeleted.channel_id));
-				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
-				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
+				dispatch(updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(threadsActions.remove(channelDeleted.channel_id));
 				dispatch(channelsActions.removeChannelApp({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 
@@ -1830,8 +1791,7 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 
 				dispatch(channelsActions.deleteChannelSocket(channelDeleted));
 				dispatch(listChannelsByUserActions.remove(channelDeleted.channel_id));
-				dispatch(listChannelRenderAction.updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
-				dispatch(listChannelRenderAction.deleteChannelInListRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
+				dispatch(updateClanBadgeRender({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 				dispatch(channelsActions.removeChannelApp({ channelId: channelDeleted.channel_id, clanId: channelDeleted.clan_id }));
 
 				dispatch(
@@ -1952,14 +1912,6 @@ const ChatContextProvider: React.FC<ChatContextProviderProps> = ({ children, isM
 				if (!isMobile && result && currentChannelId === channelUpdated.channel_id) {
 					navigate(`/chat/clans/${channelUpdated.clan_id}/member-safety`);
 				}
-			} else if (channelExist) {
-				dispatch(
-					listChannelRenderAction.updateChannelInListRender({
-						channelId: channelUpdated.channel_id,
-						clanId: channelUpdated.clan_id as string,
-						dataUpdate: { ...channelUpdated }
-					})
-				);
 			}
 
 			// Switch private to public
@@ -3034,4 +2986,3 @@ const ChatContextConsumer = ChatContext.Consumer;
 ChatContextProvider.displayName = 'ChatContextProvider';
 
 export { ChatContext, ChatContextConsumer, ChatContextProvider, MobileEventEmitter };
-
