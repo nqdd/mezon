@@ -1,0 +1,24 @@
+[package]
+name = "mezon-native"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+tracing.workspace = true
+serde.workspace = true
+tokio.workspace = true
+open = "5"
+dirs = { workspace = true }
+
+# Platform-specific deps added in Stage 2 when badge/notification APIs are implemented
+# [target.'cfg(target_os = "macos")'.dependencies]
+# objc2-app-kit = { version = "0.3", ... }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_System_Threading",
+] }

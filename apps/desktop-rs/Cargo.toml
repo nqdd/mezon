@@ -1,0 +1,62 @@
+[workspace]
+members = [
+    "crates/mezon-app",
+    "crates/mezon-ui",
+    "crates/mezon-client",
+    "crates/mezon-store",
+    "crates/mezon-native",
+    "crates/mezon-updater",
+    "crates/mezon-proto",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Mezon Team"]
+license = "MIT"
+
+# Pin GPUI to Zed v0.232.3
+[workspace.dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", rev = "da25b914c25f17ba457abc8cf75b8e42d0b899e2" }
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Networking
+reqwest = { version = "0.12", features = ["json", "stream", "rustls-tls"], default-features = false }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+
+# Protobuf
+prost = "0.13"
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Utilities
+anyhow = "1"
+thiserror = "2"
+dirs = "5"
+
+# Internal crates
+mezon-ui      = { path = "crates/mezon-ui" }
+mezon-client  = { path = "crates/mezon-client" }
+mezon-store   = { path = "crates/mezon-store" }
+mezon-native  = { path = "crates/mezon-native" }
+mezon-proto   = { path = "crates/mezon-proto" }
+mezon-updater = { path = "crates/mezon-updater" }
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
