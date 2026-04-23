@@ -1,6 +1,4 @@
-use gpui::{
-    div, prelude::*, px, rgb, size, App, Bounds, Context, Window, WindowBounds, WindowOptions,
-};
+use gpui::{div, prelude::*, px, rgb, App, Context, Window};
 
 pub mod root;
 pub mod theme;

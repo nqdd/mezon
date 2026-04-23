@@ -1,7 +1,7 @@
 [package]
 name = "mezon-app"
 version.workspace = true
-edition.workspace = true
+edition = "2024"
 
 [[bin]]
 name = "mezon"
@@ -9,7 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 gpui.workspace = true
-gpui_platform = { git = "https://github.com/zed-industries/zed", rev = "da25b914c25f17ba457abc8cf75b8e42d0b899e2" }
+gpui_platform = { workspace = true, features = ["font-kit"] }
 mezon-ui.workspace = true
 mezon-store.workspace = true
 mezon-native.workspace = true
