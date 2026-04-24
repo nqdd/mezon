@@ -128,6 +128,9 @@ unsafe fn build_classes() {
         WINDOW_CLASS = build_window_class("GPUIWindow", class!(NSWindow));
         PANEL_CLASS = build_window_class("GPUIPanel", class!(NSPanel));
         VIEW_CLASS = {
+            if let Some(existing) = Class::get("GPUIView") {
+                existing as *const Class
+            } else {
             let mut decl = ClassDecl::new("GPUIView", class!(NSView)).unwrap();
             decl.add_ivar::<*mut c_void>(WINDOW_STATE_IVAR);
             unsafe {
@@ -287,8 +290,12 @@ unsafe fn build_classes() {
                 );
             }
             decl.register()
+            } // else: GPUIView not yet registered
         };
         BLURRED_VIEW_CLASS = {
+            if let Some(existing) = Class::get("BlurredView") {
+                existing as *const Class
+            } else {
             let mut decl = ClassDecl::new("BlurredView", class!(NSVisualEffectView)).unwrap();
             unsafe {
                 decl.add_method(
@@ -301,6 +308,7 @@ unsafe fn build_classes() {
                 );
                 decl.register()
             }
+            } // else: BlurredView not yet registered
         };
     }
 }
@@ -315,6 +323,9 @@ pub(crate) fn convert_mouse_position(position: NSPoint, window_height: Pixels) -
 
 unsafe fn build_window_class(name: &'static str, superclass: &Class) -> *const Class {
     unsafe {
+        if let Some(existing) = Class::get(name) {
+            return existing as *const Class;
+        }
         let mut decl = ClassDecl::new(name, superclass).unwrap();
         decl.add_ivar::<*mut c_void>(WINDOW_STATE_IVAR);
         decl.add_method(sel!(dealloc), dealloc_window as extern "C" fn(&Object, Sel));

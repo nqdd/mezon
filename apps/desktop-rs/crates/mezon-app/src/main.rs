@@ -82,5 +82,8 @@ fn open_main_window(cx: &mut App, settings: &Settings) {
         let title_bar = cx.new(|_cx| TitleBar::new("Mezon"));
         cx.new(|_cx| RootView::new(title_bar))
     })
-    .expect("Failed to open main window");
+    .unwrap_or_else(|e| {
+        tracing::error!("Failed to open main window: {e}");
+        std::process::exit(1);
+    });
 }

@@ -69,13 +69,21 @@ static mut APP_DELEGATE_CLASS: *const Class = ptr::null();
 unsafe fn build_classes() {
     unsafe {
         APP_CLASS = {
-            let mut decl = ClassDecl::new("GPUIApplication", class!(NSApplication)).unwrap();
-            decl.add_ivar::<*mut c_void>(MAC_PLATFORM_IVAR);
-            decl.register()
+            if let Some(existing) = Class::get("GPUIApplication") {
+                existing as *const Class
+            } else {
+                let mut decl =
+                    ClassDecl::new("GPUIApplication", class!(NSApplication)).unwrap();
+                decl.add_ivar::<*mut c_void>(MAC_PLATFORM_IVAR);
+                decl.register()
+            }
         }
     };
     unsafe {
         APP_DELEGATE_CLASS = unsafe {
+            if let Some(existing) = Class::get("GPUIApplicationDelegate") {
+                existing as *const Class
+            } else {
             let mut decl = ClassDecl::new("GPUIApplicationDelegate", class!(NSResponder)).unwrap();
             decl.add_ivar::<*mut c_void>(MAC_PLATFORM_IVAR);
             decl.add_method(
@@ -151,6 +159,7 @@ unsafe fn build_classes() {
             );
 
             decl.register()
+            } // else: class not yet registered
         }
     }
 }
