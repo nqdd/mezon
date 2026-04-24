@@ -1,6 +1,6 @@
 use crate::theme::Theme;
 use crate::title_bar::TitleBar;
-use gpui::{div, prelude::*, px, App, Context, Entity, FontWeight, Window};
+use gpui::{div, prelude::*, Context, Entity, FontWeight, Window};
 
 /// RootView is the top-level GPUI view for the main window.
 /// Owns the TitleBar and the content area.

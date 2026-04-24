@@ -9,7 +9,7 @@ pub enum PowerEvent {
 
 pub type PowerEventCallback = Box<dyn Fn(PowerEvent) + Send + 'static>;
 
-pub fn subscribe(callback: PowerEventCallback) {
+pub fn subscribe(_callback: PowerEventCallback) {
     #[cfg(target_os = "macos")]
     {
         // TODO: implement IOKit distributed notification center subscription in Stage 2

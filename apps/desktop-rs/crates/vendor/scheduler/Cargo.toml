@@ -21,3 +21,9 @@ futures.workspace = true
 parking_lot.workspace = true
 rand.workspace = true
 web-time.workspace = true
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

@@ -23,3 +23,9 @@ objc.workspace = true
 
 [build-dependencies]
 bindgen = "0.71"
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

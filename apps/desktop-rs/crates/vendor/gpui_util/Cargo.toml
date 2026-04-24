@@ -8,3 +8,9 @@ edition = "2024"
 log.workspace = true
 anyhow.workspace = true
 
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

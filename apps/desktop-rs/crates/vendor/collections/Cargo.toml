@@ -16,3 +16,9 @@ test-support = []
 [dependencies]
 indexmap.workspace = true
 rustc-hash.workspace = true
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

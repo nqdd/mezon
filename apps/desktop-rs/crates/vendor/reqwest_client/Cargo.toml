@@ -28,3 +28,9 @@ gpui_util = { path = "../gpui_util" }
 http_client_tls.workspace = true
 
 [dev-dependencies]
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

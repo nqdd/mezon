@@ -15,3 +15,9 @@ doctest = true
 [dependencies]
 rustls.workspace = true
 rustls-platform-verifier.workspace = true
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

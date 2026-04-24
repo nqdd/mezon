@@ -18,3 +18,9 @@ perf = { path = "../perf" }
 
 [features]
 perf-enabled = []
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

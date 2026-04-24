@@ -20,3 +20,9 @@ gpui = { path = "../gpui" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 gpui_macos = { path = "../gpui_macos" }
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

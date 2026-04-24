@@ -12,3 +12,9 @@ doctest = false
 
 [dependencies]
 derive_refineable = { path = "../derive_refineable" }
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

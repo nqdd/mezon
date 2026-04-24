@@ -17,3 +17,9 @@ tracing-tracy = { version = "0.11.4", optional = true, features = ["enable", "on
 tracy-client = { version = "0.18.2", optional = true, features = ["enable", "ondemand"] }
 
 ztracing_macro = { path = "../ztracing_macro" }
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

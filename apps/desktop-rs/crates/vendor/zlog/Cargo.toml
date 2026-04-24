@@ -19,3 +19,9 @@ anyhow.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

@@ -64,3 +64,9 @@ git2.workspace = true
 rand.workspace = true
 util_macros = { path = "../util_macros" }
 pretty_assertions.workspace = true
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

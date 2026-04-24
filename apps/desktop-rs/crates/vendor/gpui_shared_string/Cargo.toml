@@ -13,3 +13,9 @@ gpui_util = { path = "../gpui_util" }
 schemars.workspace = true
 serde.workspace = true
 
+
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

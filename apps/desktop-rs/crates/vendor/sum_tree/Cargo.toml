@@ -30,3 +30,8 @@ ignored = ["tracing"]
 
 [features]
 test-support = ["proptest"]
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"

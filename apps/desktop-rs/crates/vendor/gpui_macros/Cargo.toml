@@ -22,3 +22,8 @@ syn.workspace = true
 
 [dev-dependencies]
 gpui = { path = "../gpui", features = ["inspector"] }
+[lints.rust]
+warnings = "allow"
+
+[lints.clippy]
+all = "allow"
