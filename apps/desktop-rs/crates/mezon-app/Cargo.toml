@@ -2,6 +2,7 @@
 name = "mezon-app"
 version.workspace = true
 edition = "2024"
+default-run = "mezon"
 
 [[bin]]
 name = "mezon"
