@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use dirs::config_dir;
+use mezon_client::Session;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tokio::fs;
@@ -68,12 +69,25 @@ impl Settings {
                 .await
                 .with_context(|| format!("Failed to create config dir: {}", parent.display()))?;
         }
-        let data = serde_json::to_string_pretty(self)
-            .context("Failed to serialize settings")?;
+        let data = serde_json::to_string_pretty(self).context("Failed to serialize settings")?;
         fs::write(&path, data)
             .await
             .with_context(|| format!("Failed to write settings to {}", path.display()))?;
         tracing::debug!("Saved settings to {}", path.display());
         Ok(())
     }
+}
+
+/// Authentication state of the application.
+///
+/// Drives which view is shown in the content area of `RootView`.
+#[derive(Debug, Clone, Default)]
+pub enum AuthState {
+    /// No session — show login button.
+    #[default]
+    NotAuthenticated,
+    /// OAuth2 browser was opened; waiting for the `mezonapp://callback` deep link.
+    AwaitingCallback,
+    /// Token received and session is valid.
+    Authenticated(Session),
 }

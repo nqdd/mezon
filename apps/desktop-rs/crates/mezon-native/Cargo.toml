@@ -3,6 +3,9 @@ name = "mezon-native"
 version.workspace = true
 edition = "2024"
 
+[lints]
+workspace = true
+
 [dependencies]
 anyhow.workspace = true
 tracing.workspace = true
@@ -10,10 +13,12 @@ serde.workspace = true
 tokio.workspace = true
 open = "5"
 dirs = { workspace = true }
+tray-icon = { version = "0.19", features = ["common-controls-v6"] }
+image = { workspace = true }
+auto-launch = "0.5"
 
-# Platform-specific deps added in Stage 2 when badge/notification APIs are implemented
-# [target.'cfg(target_os = "macos")'.dependencies]
-# objc2-app-kit = { version = "0.3", ... }
+[target.'cfg(target_os = "macos")'.dependencies]
+objc.workspace = true
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.58", features = [
