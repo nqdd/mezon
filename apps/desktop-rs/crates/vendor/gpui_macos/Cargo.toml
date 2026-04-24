@@ -59,6 +59,9 @@ uuid.workspace = true
 cbindgen = { version = "0.28.0", default-features = false }
 gpui = { path = "../gpui" }
 
+[dev-dependencies]
+gpui = { path = "../gpui", features = ["test-support"] }
+
 [lints.rust]
 warnings = "allow"
 

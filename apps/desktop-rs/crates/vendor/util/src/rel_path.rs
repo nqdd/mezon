@@ -1,5 +1,5 @@
-use crate::paths::{PathStyle, is_absolute};
-use anyhow::{Context as _, Result, anyhow};
+use crate::paths::{is_absolute, PathStyle};
+use anyhow::{anyhow, Context as _, Result};
 use serde::{Deserialize, Serialize};
 use std::{
     borrow::{Borrow, Cow},
@@ -451,7 +451,6 @@ impl<'a> DoubleEndedIterator for RelPathComponents<'a> {
 mod tests {
     use super::*;
     use itertools::Itertools;
-    use pretty_assertions::assert_matches;
 
     #[test]
     fn test_rel_path_new() {
@@ -461,11 +460,11 @@ mod tests {
 
         let path = RelPath::new("foo/".as_ref(), PathStyle::local()).unwrap();
         assert_eq!(path, rel_path("foo").into());
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         let path = RelPath::new("foo\\".as_ref(), PathStyle::Windows).unwrap();
         assert_eq!(path, rel_path("foo").into());
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         assert_eq!(
             RelPath::new("foo/bar/../baz/./quux/".as_ref(), PathStyle::local())
@@ -476,27 +475,27 @@ mod tests {
 
         let path = RelPath::new("./foo/bar".as_ref(), PathStyle::Posix).unwrap();
         assert_eq!(path.as_ref(), rel_path("foo/bar"));
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         let path = RelPath::new(".\\foo".as_ref(), PathStyle::Windows).unwrap();
         assert_eq!(path, rel_path("foo").into());
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         let path = RelPath::new("./.\\./foo/\\/".as_ref(), PathStyle::Windows).unwrap();
         assert_eq!(path, rel_path("foo").into());
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         let path = RelPath::new("foo/./bar".as_ref(), PathStyle::Posix).unwrap();
         assert_eq!(path.as_ref(), rel_path("foo/bar"));
-        assert_matches!(path, Cow::Owned(_));
+        assert!(matches!(path, Cow::Owned(_)));
 
         let path = RelPath::new("./foo/bar".as_ref(), PathStyle::Windows).unwrap();
         assert_eq!(path.as_ref(), rel_path("foo/bar"));
-        assert_matches!(path, Cow::Borrowed(_));
+        assert!(matches!(path, Cow::Borrowed(_)));
 
         let path = RelPath::new(".\\foo\\bar".as_ref(), PathStyle::Windows).unwrap();
         assert_eq!(path.as_ref(), rel_path("foo/bar"));
-        assert_matches!(path, Cow::Owned(_));
+        assert!(matches!(path, Cow::Owned(_)));
     }
 
     #[test]
