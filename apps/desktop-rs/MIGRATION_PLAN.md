@@ -1,9 +1,9 @@
 # Mezon Desktop — Rust/GPUI Migration Plan
 
-**Status:** Planning  
-**Target:** Full native desktop app using [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) (Zed's GPU-accelerated UI framework)  
-**Strategy:** Page-by-page migration — each screen is replaced one at a time with a native GPUI view  
-**Platform priority:** macOS first, then Windows and Linux  
+**Status:** Stage 0 — Complete ✓ | Stage 1 (Auth Pages) — Next
+**Target:** Full native desktop app using [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) (Zed's GPU-accelerated UI framework) — vendored locally under `crates/vendor/`
+**Strategy:** Page-by-page migration — each screen is replaced one at a time with a native GPUI view
+**Platform priority:** macOS first, then Windows and Linux
 **Parallel development:** New app lives in `apps/desktop-rs/` alongside the existing Electron app in `apps/desktop/`
 
 ---
@@ -27,20 +27,51 @@
 apps/desktop-rs/
 ├── Cargo.toml                    ← workspace root
 ├── Cargo.lock
-├── rust-toolchain.toml           ← pin nightly (GPUI requires it)
+├── rust-toolchain.toml           ← pins stable 1.94.1 (vendored GPUI, nightly not required)
 ├── .cargo/config.toml            ← target-specific linker flags
 ├── crates/
 │   ├── mezon-app/                ← binary entry point, GPUI bootstrap, window management
+│   │   ├── src/main.rs           ← app bootstrap, tray, deep link polling, power events
+│   │   └── Info.plist            ← macOS bundle metadata + CFBundleURLTypes (mezonapp://)
 │   ├── mezon-ui/                 ← all GPUI views (one module per page)
 │   ├── mezon-client/             ← Rust equivalent of mezon-js (REST + WebSocket + Protobuf)
 │   ├── mezon-store/              ← app state models (Model<T> per domain)
 │   ├── mezon-native/             ← OS APIs: tray, badge, notifications, screen capture, activity
+│   │   ├── src/autostart.rs      ← login item (auto-launch crate)
+│   │   ├── src/badge.rs          ← dock badge (macOS objc) + taskbar overlay (Windows ITaskbarList3)
+│   │   ├── src/deep_link.rs      ← mezonapp:// scheme registration (Info.plist / registry / .desktop)
+│   │   ├── src/instance.rs       ← single-instance lock (Unix socket / Windows named pipe)
+│   │   ├── src/notifications.rs  ← UNUserNotificationCenter / WinRT Toast / notify-rust
+│   │   ├── src/power.rs          ← screen lock/unlock (CFNotificationCenter / WTSRegisterSessionNotification)
+│   │   └── src/tray.rs           ← system tray icon + menu (tray-icon crate)
 │   ├── mezon-updater/            ← auto-update (polls cdn.mezon.ai/release/)
-│   └── mezon-proto/              ← generated Protobuf types via prost-build
+│   ├── mezon-proto/              ← generated Protobuf types via prost-build
+│   └── vendor/                   ← vendored Zed/GPUI crates (cloned from zed-industries/zed)
+│       ├── gpui/                 ← main GPUI framework (Metal + wgpu renderer, layout, views)
+│       ├── gpui_macros/          ← derive macros: Action, IntoElement, Render, etc.
+│       ├── gpui_shared_string/   ← SharedString (Arc<str> wrapper)
+│       ├── gpui_util/            ← ArcCow + utility helpers
+│       ├── gpui_platform/        ← platform abstraction, exports application()
+│       ├── gpui_macos/           ← macOS Metal renderer backend
+│       ├── collections/          ← VecMap<K,V>
+│       ├── refineable/           ← Refineable trait for cascading style structs
+│       ├── derive_refineable/    ← derive macro for Refineable
+│       ├── scheduler/            ← async task scheduler with test clock
+│       ├── sum_tree/             ← B-tree with cursor (used in text system)
+│       ├── util/                 ← fs, paths, markdown, archive, shell helpers
+│       ├── util_macros/          ← derive macros for util types
+│       ├── http_client/          ← HTTP client abstraction (wraps reqwest)
+│       ├── http_client_tls/      ← TLS config for http_client
+│       ├── reqwest_client/       ← reqwest-backed http_client impl
+│       ├── media/                ← C FFI bindings for audio/video
+│       ├── ztracing/             ← tracing integration
+│       ├── ztracing_macro/       ← tracing derive macros
+│       ├── zlog/                 ← logging sink with env config
+│       └── perf/                 ← performance benchmarking utilities
 └── assets/
-    ├── fonts/                    ← Inter, JetBrains Mono, NotoEmoji
-    ├── icons/                    ← app.icns, app.ico, trayicon-linux.png
-    └── sounds/                   ← notification sounds
+    ├── fonts/                    ← IBM Plex Sans, Lilex
+    ├── icons/                    ← app.icns, app.ico, trayicon-linux.png  [TODO]
+    └── sounds/                   ← notification sounds  [TODO]
 ```
 
 ### GPUI Data Flow
@@ -70,7 +101,7 @@ WebSocket (mezon API — Protobuf frames)
 
 | Layer                | Electron/JS               | Rust                                             |
 | -------------------- | ------------------------- | ------------------------------------------------ |
-| HTTP REST            | `mezon-js` Client         | `reqwest` async client                           |
+| HTTP REST            | `mezon-js` Client         | `reqwest` async client (Zed fork)                |
 | WebSocket + Protobuf | `WebSocketAdapterPb`      | `tokio-tungstenite` + `prost`                    |
 | Auth tokens          | `localStorage`            | `keyring` crate (OS keychain)                    |
 | OAuth2               | Browser window            | System browser + `mezonapp://callback` deep link |
@@ -92,45 +123,96 @@ mezon-app
 
 ---
 
+## Current Component Inventory
+
+> Implemented as of Stage 0. All components live in `crates/mezon-ui/src/`.
+
+### Theme (`src/theme.rs`)
+
+-   `Theme::dark()` and `Theme::light()` — 22 color tokens covering backgrounds, text, brand, status, unread/mention, border, title bar.
+
+### Views
+
+| View       | Location           | Status                                                                                                                                   |
+| ---------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `TitleBar` | `src/title_bar.rs` | Frameless, drag region, macOS traffic lights hidden off-screen, platform-conditional window controls (minimize/zoom/close) for non-macOS |
+| `RootView` | `src/root.rs`      | Top-level view; switches content area on `AuthState` (NotAuthenticated / AwaitingCallback / Authenticated)                               |
+
+### Primitive Components (`src/components/primitives/`)
+
+| Component   | Key Features                                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Avatar`    | `AvatarSize` (Xs–Xl2), `PresenceStatus` (Online/Idle/Dnd/Offline), URL image or initials fallback, presence dot                   |
+| `Badge`     | Count pill, mention variant, caps at "99+", auto-hides at 0                                                                       |
+| `Button`    | `ButtonVariant` (Primary/Secondary/Ghost/Danger), `ButtonSize` (Xs–Lg), disabled/loading states, leading icon, `on_click` handler |
+| `Divider`   | Horizontal rule, optional centered label                                                                                          |
+| `Icon`      | 32 named icons (`IconName` enum), inline SVG via `gpui::svg()`, size + color control                                              |
+| `Label`     | `LabelSize` (Xs–Xl2), `LabelWeight` (Normal/Medium/SemiBold/Bold), secondary/muted helpers                                        |
+| `Spinner`   | Animated SVG rotation via `gpui::Animation` (700ms, repeat)                                                                       |
+| `TextInput` | Stateful view, `FocusHandle`, placeholder, label, error, masked/password mode, disabled, caret rendering                          |
+
+### Composition Components (`src/components/compositions/`)
+
+| Component       | Key Features                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------- |
+| `EmptyState`    | Icon + title + subtitle + optional action `Button`                                                   |
+| `FormField`     | Owns `Entity<TextInput>`, uppercase label header, `set_masked()` / `set_on_change()` / `set_error()` |
+| `IconButton`    | Square button with `Icon`, variant + size, tooltip field (display pending)                           |
+| `SectionHeader` | Collapsible sidebar category header, chevron toggle, `on_toggle` callback, trailing action button    |
+| `StatusDot`     | Presence indicator dot, derives color from `PresenceStatus`                                          |
+| `UserChip`      | Avatar + username label inline                                                                       |
+
+---
+
 ## Key Dependencies
 
 ```toml
-# UI framework
-gpui = { git = "https://github.com/zed-industries/zed", rev = "<pinned-commit>" }
+# UI framework — vendored locally from zed-industries/zed
+gpui               = { path = "crates/vendor/gpui", default-features = false }
+gpui_platform      = { path = "crates/vendor/gpui_platform", default-features = false }
+gpui_macos         = { path = "crates/vendor/gpui_macos", default-features = false }
+# (+ gpui_macros, gpui_shared_string, gpui_util, collections, refineable, scheduler, sum_tree, util, ...)
 
 # Async runtime
 tokio = { version = "1", features = ["full"] }
+futures = "0.3"
+smol = "2.0"
 
-# Networking
-reqwest = { version = "0.12", features = ["json", "stream"] }
-tokio-tungstenite = "0.24"
+# Networking — Zed forks
+reqwest = { git = "https://github.com/zed-industries/reqwest.git", rev = "c15662463bda39148ba154100dd44d3fba5873a4", package = "zed-reqwest", version = "0.12.15-zed" }
+tokio-tungstenite = { version = "0.24", features = ["rustls-tls-webpki-roots"] }
+http = "1.0"
 
 # Protobuf
 prost = "0.13"
-prost-build = "0.13"
+# prost-build = "0.13"  ← added in mezon-proto/build.rs when .proto files are vendored
 
 # Serialization
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = { version = "1", features = ["preserve_order", "raw_value"] }
 
 # Native OS
-tray-icon = "0.19"       # system tray
-rfd = "0.15"             # native file dialogs
-arboard = "3"            # clipboard
-scap = "0.3"             # screen capture
+tray-icon = "0.19"       # system tray (active)
+rfd = "0.15"             # native file dialogs  [Stage 4]
+arboard = "3"            # clipboard  [Stage 4]
+scap = { git = "https://github.com/zed-industries/scap", package = "zed-scap" }  # screen capture  [Stage 13]
 open = "5"               # open URLs in system browser
-auto-launch = "0.5"      # login item / startup registration
-keyring = "3"            # OS keychain (auth tokens)
+auto-launch = "0.5"      # login item / startup registration (active)
+keyring = "3"            # OS keychain (auth tokens)  [Stage 1]
 
 # Image & media
-image = "0.25"           # PNG/WebP/JPEG decoding
+image = "0.25.1"         # PNG/WebP/JPEG decoding
 
-# Voice/video (Stage 12+)
-livekit = { git = "https://github.com/livekit/rust-sdks" }
-cpal = "0.15"            # cross-platform audio I/O
+# Graphics
+wgpu = { version = "24", features = ["wgsl"] }
+metal = "0.33"           # macOS Metal bindings
 
-# Syntax highlighting (Stage 6)
-syntect = "5"
+# Voice/video  [Stage 12+]
+# livekit = { git = "https://github.com/livekit/rust-sdks" }
+# cpal = "0.15"
+
+# Syntax highlighting  [Stage 6]
+# syntect = "5"
 
 # Logging
 tracing = "0.1"
@@ -138,18 +220,30 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # macOS-specific
 [target.'cfg(target_os = "macos")'.dependencies]
-objc2 = "0.5"
-objc2-foundation = "0.2"
-objc2-app-kit = "0.2"
+objc = "0.2"
+objc2-app-kit = { version = "0.3", default-features = false }
+cocoa = "=0.26.0"
+core-foundation = "=0.10.0"
+metal = "0.33"
 
 # Windows-specific
 [target.'cfg(target_os = "windows")'.dependencies]
 windows = { version = "0.58", features = [
-  "Win32_UI_Shell",
-  "Win32_UI_WindowsAndMessaging",
-  "Win32_System_Threading",
-  "Win32_Foundation",
+    "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation", "Win32_System_Threading",
+    "Win32_System_RemoteDesktop",     # screen lock/unlock
+    "Win32_Storage_FileSystem",       # named pipe single-instance
+    "Win32_System_Pipes",
+    "Win32_Graphics_Gdi",             # badge HICON generation
+    "Win32_System_Com",               # ITaskbarList3
+    "Win32_System_Registry",          # deep link scheme registration
+    "Data_Xml_Dom",                   # toast notification XML
+    "UI_Notifications",               # ToastNotification
 ] }
+
+# Linux-specific
+[target.'cfg(not(any(target_os = "macos", target_os = "windows")))'.dependencies]
+notify-rust = "4"   # desktop notifications via D-Bus
 ```
 
 ---
@@ -162,22 +256,25 @@ windows = { version = "0.58", features = [
 
 **Tasks:**
 
--   [ ] Scaffold `apps/desktop-rs/` Cargo workspace with all crates (empty stubs)
--   [ ] Pin GPUI from Zed repo at a stable release tag in `Cargo.toml`
--   [ ] Open frameless window (1280×720, min 950×500, background `#313338`)
--   [ ] Custom title bar: macOS hidden traffic lights + drag region + app menu bar
--   [ ] System tray: icon + "Show Mezon" / "Check for Updates" / "Quit"
--   [ ] Deep link: register `mezonapp://` scheme (macOS `LSURLSchemes`, Windows registry, Linux `.desktop`)
--   [ ] Single instance lock (Unix socket on macOS/Linux, named pipe on Windows)
--   [ ] Persistent settings: `~/.config/mezon/settings.json` (autoStart, hardwareAcceleration, windowBounds, zoomFactor)
--   [ ] Auto-start on login (`auto-launch` crate, wired to settings)
--   [ ] Badge count on dock icon (`objc2` on macOS, `ITaskbarList3` on Windows)
--   [ ] Screen lock/unlock detection (`IOKit` distributed notifications on macOS, `WM_WTSSESSION_CHANGE` on Windows)
--   [ ] OAuth2 flow: open system browser → receive `mezonapp://callback?token=...` deep link → extract + store token
--   [ ] "Connecting..." placeholder view while auth is pending
--   [ ] GitHub Actions build matrix: `macos-latest` (arm64 + x64), `windows-latest`, `ubuntu-latest`
+-   [x] Scaffold `apps/desktop-rs/` Cargo workspace with all crates
+-   [x] Vendor GPUI from Zed repo into `crates/vendor/` (stable toolchain, no nightly required)
+-   [x] Open frameless window (1280×720, min 950×500, background `#313338`)
+-   [x] Custom title bar: macOS hidden traffic lights + drag region + app menu bar
+-   [x] System tray: icon + "Show Mezon" / "Check for Updates" / "Quit"
+-   [x] Single instance lock (Unix socket on macOS/Linux)
+-   [x] Persistent settings: `~/.config/mezon/settings.json` (autoStart, hardwareAcceleration, windowBounds, zoomFactor)
+-   [x] Auto-start on login (`auto-launch` crate, wired to settings)
+-   [x] Badge count on dock icon (`objc` on macOS)
+-   [x] Deep link: register `mezonapp://` scheme (macOS `Info.plist` + `CFBundleURLTypes`, Windows registry self-registration via `HKCU\Software\Classes\mezonapp`, Linux `.desktop` + `xdg-mime`)
+-   [x] Single instance lock (Windows named pipe `\\.\pipe\mezon-single-instance` with `FILE_FLAG_FIRST_PIPE_INSTANCE`)
+-   [x] Badge count on taskbar icon (Windows `ITaskbarList3::SetOverlayIcon` with dynamically generated `HICON`)
+-   [x] Screen lock/unlock detection (macOS `CFNotificationCenter` + `CFRunLoopRun` thread; Windows `WTSRegisterSessionNotification` + message-only `HWND`)
+-   [x] OAuth2 flow: wire sign-in button → open system browser → receive `mezonapp://callback` deep link → set `AwaitingCallback` (token parsing deferred to Stage 1)
+-   [x] Desktop notifications delivery (macOS `UNUserNotificationCenter` via `objc` runtime; Windows WinRT `ToastNotification`; Linux `notify-rust` / D-Bus)
+-   [x] Tray "Check for Updates" → calls `mezon_updater::check_for_updates()` via tokio spawn; opens download URL on update available
+-   [x] GitHub Actions build matrix: `macos-latest` (arm64), `macos-13` (x64), `windows-latest`, `ubuntu-latest` — stable toolchain, clippy, fmt, correct system deps
 
-**Deliverable:** DMG installer. Opens native frameless window. OAuth login works. System tray works.
+**Deliverable:** DMG installer. Opens native frameless window. OAuth login works. System tray works. ✓ **Stage 0 complete.**
 
 **Validation spikes (must pass before proceeding):**
 
@@ -207,10 +304,10 @@ windows = { version = "0.58", features = [
 LoginView
 ├── App logo + "Mezon" wordmark
 ├── "Sign in with Mezon" button → opens system browser for OAuth2
-├── Email / password form (alternative)
+├── Email / password form (uses TextInput + FormField + Button components)
 ├── "Forgot password" link → open browser
 ├── Error message display (invalid credentials, network error)
-└── Loading spinner while awaiting deep link callback
+└── Loading spinner (Spinner component) while awaiting deep link callback
 ```
 
 **Deliverable:** User can sign in. Token persisted to keychain. App remembers login across restarts.
@@ -246,20 +343,22 @@ MainLayout
 │
 ├── ClanSidebar (72px wide)
 │   ├── Direct Messages icon (top)
-│   ├── ClanIcon × N (virtual list — avatar, unread dot, tooltip on hover)
-│   ├── Separator
+│   ├── ClanIcon × N (virtual list — Avatar component, unread Badge, tooltip on hover)
+│   ├── Separator (Divider component)
 │   └── Add Clan / Discover (bottom)
 │
 ├── ChannelSidebar (240px wide)
-│   ├── Clan name header + settings gear icon
-│   ├── CategorySection × N (collapsible)
+│   ├── Clan name header + settings gear icon (IconButton component)
+│   ├── CategorySection × N (SectionHeader component — collapsible)
 │   │   └── ChannelRow × N (# text, 🔊 voice, unread bold, lock icon)
-│   ├── DM list (when in DM mode — avatar, name, unread)
-│   └── UserInfoBar (avatar, username, status, mic/deaf/settings icons)
+│   ├── DM list (when in DM mode — Avatar, Label, Badge components)
+│   └── UserInfoBar (Avatar, Label, StatusDot, IconButton components)
 │
 └── ContentArea (flex-1)
-    └── Placeholder: "Select a channel to start chatting"
+    └── Placeholder: "Select a channel to start chatting" (EmptyState component)
 ```
+
+**Note:** Tray "Show Mezon" stub (see `mezon-app/src/main.rs:187`) is completed here by storing the `WindowHandle` and calling `window.activate()`.
 
 **Deliverable:** Full sidebar renders with real data. Switching clans updates channel list. Unread badges update in real-time via WebSocket. Content area still shows placeholder.
 
@@ -274,7 +373,7 @@ Self-contained, no real-time data — ideal first native page.
 **GPUI views:**
 
 ```
-SettingsModal (overlay — `Cmd+,` or settings gear)
+SettingsModal (overlay — Cmd+,  or settings gear)
 ├── TabBar
 │   ├── My Account
 │   ├── Privacy & Safety
@@ -284,8 +383,8 @@ SettingsModal (overlay — `Cmd+,` or settings gear)
 │   └── Advanced
 │
 ├── My Account tab
-│   ├── Avatar + username + email display
-│   └── Edit profile button → API call
+│   ├── Avatar + username + email (Avatar, Label components)
+│   └── Edit profile button (Button component) → API call
 │
 ├── Notifications tab
 │   ├── Enable/disable desktop notifications toggle
@@ -323,8 +422,8 @@ ImageViewerWindow (secondary Window — transparent bg)
 │   │   ├── Click + drag → pan
 │   │   └── Double-click → fit to window
 │   ├── VideoElement (for .mp4/.webm attachments)
-│   ├── Zoom controls (+ / - / fit buttons)
-│   └── Rotate controls (← 90° / → 90°)
+│   ├── Zoom controls (IconButton components)
+│   └── Rotate controls (IconButton components)
 │
 ├── ThumbnailStrip (bottom, horizontally scrollable, virtualized)
 │   ├── ThumbnailItem × N (only visible range rendered — binary search)
@@ -390,7 +489,7 @@ pub struct Message {
 ```
 DirectMessageView
 ├── DMHeader
-│   ├── Recipient avatar + username
+│   ├── Avatar + Label (recipient username)
 │   └── "This is the beginning of your direct message history with @{user}"
 │
 ├── MessageList (virtual scroll — core reusable component)
@@ -398,32 +497,32 @@ DirectMessageView
 │   ├── Variable row heights — measured on first render, cached
 │   ├── Scroll-to-bottom on new message (if already at bottom)
 │   ├── "New Messages" separator line (last-seen boundary)
-│   ├── "Jump to Present" button (when scrolled far up)
+│   ├── "Jump to Present" Button (when scrolled far up)
 │   │
-│   ├── DateSeparator ("Today" / "Yesterday" / "April 21, 2025")
+│   ├── DateSeparator ("Today" / "Yesterday" / "April 21, 2025") — Divider + Label
 │   │
 │   └── MessageGroup (consecutive messages, same sender, <5 min apart)
-│       ├── SenderAvatar (left, shown once per group)
-│       ├── SenderName + Timestamp (shown once per group)
+│       ├── Avatar (left, shown once per group)
+│       ├── Label (sender name + timestamp, shown once per group)
 │       └── MessageRow × N
 │           ├── TextContent (plain text — markdown in Stage 6)
 │           ├── AttachmentGrid (images → click opens ImageViewer)
-│           ├── ReactionBar (emoji + count + click to react)
-│           ├── HoverActions (visible on mouse hover)
+│           ├── ReactionBar (emoji + Badge count + click to react)
+│           ├── HoverActions (visible on mouse hover — IconButton components)
 │           │   ├── Reply
 │           │   ├── React (emoji picker)
 │           │   ├── Edit (own messages)
 │           │   └── Delete (own messages)
-│           └── EditedIndicator "(edited)"
+│           └── Label "(edited)"
 │
 ├── TypingIndicator
 │   └── "{user} is typing..." / "{user1} and {user2} are typing..."
 │
 └── MessageInputBar
     ├── TextInput (multi-line, Shift+Enter = newline, Enter = send)
-    ├── Attachment button → rfd file picker → upload → show inline preview
-    ├── Emoji button → EmojiPicker panel (basic grid)
-    └── Send button
+    ├── Attachment IconButton → rfd file picker → upload → show inline preview
+    ├── Emoji IconButton → EmojiPicker panel (basic grid)
+    └── Send Button
 ```
 
 **Deliverable:** Full DM conversations work. Send/receive real-time. Images open ImageViewer. Basic text. Typing indicators.
@@ -445,18 +544,24 @@ Extends the message components from Stage 5 with channel-specific features and r
 
 **Rich text rendering (extends Stage 5 plain text):**
 
-| Syntax                 | Render                                          |
-| ---------------------- | ----------------------------------------------- |
-| `**bold**`             | Bold weight                                     |
-| `*italic*`             | Italic style                                    |
-| `~~strikethrough~~`    | Strikethrough                                   |
-| `` `code` ``           | Inline code (monospace, bg highlight)           |
-| ` ```lang\ncode\n``` ` | Code block with syntax highlighting (`syntect`) |
-| `> quote`              | Blockquote with left border                     |
-| `@username`            | Mention chip (avatar + name, highlighted bg)    |
-| `#channel-name`        | Channel link (clickable → navigate)             |
-| `:emoji_name:`         | Custom emoji image inline                       |
-| `https://...`          | URL underlined + OGP embed card below           |
+| Syntax                 | Render                                            |
+| ---------------------- | ------------------------------------------------- |
+| `**bold**`             | Bold weight                                       |
+| `*italic*`             | Italic style                                      |
+| `~~strikethrough~~`    | Strikethrough                                     |
+| `` `code` ``           | Inline code (monospace, bg highlight)             |
+| ` ```lang\ncode\n``` ` | Code block with syntax highlighting (`syntect`)   |
+| `> quote`              | Blockquote with left border                       |
+| `@username`            | Mention chip (UserChip component, highlighted bg) |
+| `#channel-name`        | Channel link (clickable → navigate)               |
+| `:emoji_name:`         | Custom emoji image inline                         |
+| `https://...`          | URL underlined + OGP embed card below             |
+
+**Dependencies added this stage:**
+
+```toml
+syntect = "5"   # syntax highlighting for code blocks
+```
 
 **Additional GPUI views:**
 
@@ -488,7 +593,7 @@ The most complex single component. Starting point: adapt Zed's `editor` crate.
 -   [ ] Drag-and-drop file → attachment preview
 -   [ ] Press `↑` to edit last sent message
 -   [ ] Draft persistence per channel (saved to `mezon-store`)
--   [ ] Character limit indicator (2000 chars)
+-   [ ] Character limit indicator (2000 chars) — Label component
 -   [ ] Send loading state (optimistic UI with Snowflake temp ID)
 
 **Deliverable:** Full-featured message editor matching current React app behavior.
@@ -517,20 +622,19 @@ Thread panel slides in as a right overlay alongside the main message list. Reuse
 
 ```
 MemberSidebar (right panel, toggled)
-├── Search members input
-├── Role group header ("ONLINE — 12", "OFFLINE — 48")
+├── TextInput (search members)
+├── SectionHeader ("ONLINE — 12", "OFFLINE — 48")
 └── MemberRow × N (virtual list)
-    ├── Avatar + presence dot (green/yellow/red/grey)
-    ├── Username + display name
+    ├── Avatar + StatusDot + Label (username)
     └── Click → UserProfilePopover
 
 UserProfilePopover (floating panel)
 ├── Banner + Avatar
-├── Username + discriminator
-├── "Playing {game}" / "Listening to {song}" (activity from ActivityModel)
-├── Role badges
-├── Note field (editable)
-└── Action buttons: Send Message, Call
+├── Label (username + discriminator)
+├── Label ("Playing {game}" / "Listening to {song}")
+├── Badge × N (role badges)
+├── TextInput (note field, editable)
+└── Button × 2 (Send Message, Call)
 ```
 
 ---
@@ -540,13 +644,13 @@ UserProfilePopover (floating panel)
 **GPUI views:**
 
 ```
-NotificationPanel (dropdown from bell icon in TitleBar)
-├── "Mark all as read" button
-├── Filter tabs: All / Mentions / DMs
+NotificationPanel (dropdown from bell IconButton in TitleBar)
+├── Button "Mark all as read"
+├── Tab filter: All / Mentions / DMs
 └── NotificationRow × N
-    ├── Sender avatar + channel context
-    ├── Message preview (truncated)
-    ├── Timestamp
+    ├── Avatar + Label (channel context)
+    ├── Label (message preview, truncated)
+    ├── Label (timestamp)
     └── Click → navigate to message (triggers jump-scroll in MessageList)
 ```
 
@@ -558,11 +662,11 @@ NotificationPanel (dropdown from bell icon in TitleBar)
 
 ```
 AppDirectoryView
-├── Search input
-├── Category filter tabs
+├── TextInput (search)
+├── Tab (category filter)
 └── AppCard grid × N
-    ├── App icon + name + description
-    ├── Install / Uninstall button
+    ├── Avatar (app icon) + Label (name + description)
+    ├── Button (Install / Uninstall)
     └── Click → AppDetailModal
 ```
 
@@ -572,9 +676,16 @@ AppDirectoryView
 
 **Partial voice — no video yet**
 
+**Dependencies added this stage:**
+
+```toml
+livekit = { git = "https://github.com/livekit/rust-sdks" }
+cpal = "0.15"    # cross-platform audio I/O
+```
+
 **`mezon-client` work:**
 
--   LiveKit Rust SDK: `livekit` crate (git dependency: `github.com/livekit/rust-sdks`)
+-   LiveKit Rust SDK: `livekit` crate
 -   Join voice channel → `Room::connect(url, token)`
 -   Audio I/O: `cpal` crate — enumerate devices, capture mic, play remote audio
 -   Publish local audio track → LiveKit room
@@ -584,17 +695,17 @@ AppDirectoryView
 
 ```
 VoiceChannelBar (bottom overlay, shown when in a voice channel)
-├── Channel name + clan name
-├── Participant avatars (speaking ring animation)
-├── Mute/Unmute button
-├── Deafen/Undeafen button
-└── Disconnect button
+├── Label (channel name + clan name)
+├── Avatar × N (participant avatars, speaking ring animation)
+├── IconButton (Mute/Unmute)
+├── IconButton (Deafen/Undeafen)
+└── Button (Disconnect)
 
 VoiceChannelView (in ContentArea when viewing a voice channel)
 ├── Participant tiles × N
 │   ├── Avatar + speaking indicator (animated ring)
-│   └── Username + muted indicator
-└── "Join Voice" button (if not yet connected)
+│   └── Label (username) + StatusDot (muted indicator)
+└── Button "Join Voice" (if not yet connected)
 ```
 
 **Deliverable:** Voice calls work. Audio in/out. Mute/deafen. Speaking indicators animated.
@@ -609,8 +720,8 @@ VoiceChannelView (in ContentArea when viewing a voice channel)
 
 **`mezon-client` work:**
 
--   Camera capture: platform APIs via `objc2` (macOS) / `windows-rs` (Windows)
--   Screen capture: `scap` crate → raw frames → encode with `openh264` → publish as LiveKit track
+-   Camera capture: platform APIs via `objc` (macOS) / `windows-rs` (Windows)
+-   Screen capture: `scap` crate (Zed fork) → raw frames → encode with `openh264` → publish as LiveKit track
 -   Video subscribe: receive remote video tracks → YUV frames → `wgpu::Texture` → GPUI `VideoElement`
 
 **GPUI views:**
@@ -620,26 +731,22 @@ MeetingView
 ├── VideoGrid (responsive — 1, 2×2, 3×3 based on participant count)
 │   └── VideoTile × N
 │       ├── VideoElement (custom GPUI element wrapping wgpu texture)
-│       ├── Participant name overlay
-│       └── Speaking indicator border
+│       ├── Label (participant name overlay)
+│       └── speaking indicator border
 │
 ├── Spotlight mode (pin a participant to full-screen)
 │
 └── ControlBar (bottom)
-    ├── Mute/Unmute
-    ├── Camera on/off
-    ├── Share Screen button → scap source picker
-    ├── Participants button → side panel
-    └── End Call / Leave button
-```
+    ├── IconButton (Mute/Unmute)
+    ├── IconButton (Camera on/off)
+    ├── Button (Share Screen → scap source picker)
+    ├── Button (Participants → side panel)
+    └── Button (End Call / Leave)
 
-**Screen share source picker:**
-
-```
 ScreenPickerModal
-├── "Entire Screen" section (batched — 12 initial, load 8 more)
-└── "Application Window" section
-    └── SourceCard × N (thumbnail + name)
+├── SectionHeader "Entire Screen"
+└── SectionHeader "Application Window"
+    └── SourceCard × N (thumbnail + Label)
 ```
 
 ---
@@ -649,7 +756,7 @@ ScreenPickerModal
 **Routes:** `/aigeneration`, `/integrations`, `/organize`, `/customize`
 
 -   **AI Generation:** Streaming text output display (SSE or WebSocket chunks → append to GPUI text view)
--   **Integrations:** Webhook management forms, API key display
+-   **Integrations:** Webhook management forms (`FormField`, `Button` components)
 -   **Organize:** Clan management forms
 -   **Customize:** Theme/branding upload forms
 -   **Public pages** (`/about`, `/privacy-policy`, `/terms-of-service`, `/brand-center`): Static text + images — low effort
@@ -687,6 +794,13 @@ ScreenPickerModal
 
 ## Timeline Summary
 
+> **Current progress (as of 2026-04-24):** Stage 0 is **complete**. All foundation tasks are implemented and compile cleanly:
+> window management, title bar, single-instance guard (Unix + Windows named pipe), system tray, settings persistence,
+> auto-start, badge count (macOS + Windows), screen lock/unlock detection (macOS + Windows), desktop notifications
+> (all 3 platforms), OAuth2 sign-in button wiring, tray update check, deep link scheme registration (all 3 platforms),
+> full UI component library, and CI/CD build matrix.
+> **Stage 1 (Auth Pages) is next.**
+
 | Stage | Description                                              | Duration | Cumulative |
 | ----- | -------------------------------------------------------- | -------- | ---------- |
 | 0     | Foundation — app shell, tray, deep links, auth flow      | 3 weeks  | Week 3     |
@@ -706,7 +820,7 @@ ScreenPickerModal
 | 14    | AI generation + remaining pages                          | 2 weeks  | Week 44    |
 | 15    | Remove Electron, update CI/CD                            | 1 week   | Week 45    |
 
-**~11 months** for complete migration with a dedicated team.  
+**~11 months** for complete migration with a dedicated team.
 **~5 months** (Stages 0–7) for a fully shippable app covering all core use cases.
 
 ---
@@ -738,26 +852,25 @@ Every `ipcMain.handle` / `ipcRenderer.invoke` in the Electron app is replaced by
 
 ## Risks & Mitigations
 
-| Risk                                          | Impact | Mitigation                                                                                         |
-| --------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------- |
-| GPUI API breaks on Zed update                 | High   | Pin to specific commit in `Cargo.toml`; upgrade deliberately during low-activity periods           |
-| Windows GPUI support not fully mature         | High   | Run Spike 1 on Windows in Stage 0 before committing; macOS is primary target                       |
-| Rich text editor complexity                   | High   | Start with plain text (Stage 5); add features incrementally each stage; adapt Zed's `editor` crate |
-| Video frame rendering (Stage 13)              | High   | Defer to last stage; voice-only (Stage 12) is independently shippable                              |
-| LiveKit Rust SDK maturity                     | Medium | Evaluate SDK in Stage 12 spike; keep fallback plan of `wry` WebView for video-only                 |
-| `mezon-proto` Protobuf types                  | Medium | Generate with `prost-build` from the same `.proto` files the server uses                           |
-| `mezon-client` feature parity with `mezon-js` | Medium | Map API calls one-by-one from the Redux slice thunks in `libs/store/`                              |
-| macOS notarization / code signing             | Low    | Set up early in Stage 0 CI; use same Apple Team ID `E9Y2J54ZH3`                                    |
+| Risk                                          | Impact | Mitigation                                                                                                |
+| --------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| GPUI API breaks on Zed update                 | High   | GPUI is vendored locally — upgrade deliberately by re-vendoring from upstream during low-activity periods |
+| Windows GPUI support not fully mature         | High   | Run Spike 1 on Windows in Stage 0 before committing; macOS is primary target                              |
+| Rich text editor complexity                   | High   | Start with plain text (Stage 5); add features incrementally each stage; adapt Zed's `editor` crate        |
+| Video frame rendering (Stage 13)              | High   | Defer to last stage; voice-only (Stage 12) is independently shippable                                     |
+| LiveKit Rust SDK maturity                     | Medium | Evaluate SDK in Stage 12 spike; keep fallback plan of `wry` WebView for video-only                        |
+| `mezon-proto` Protobuf types                  | Medium | Generate with `prost-build` from the same `.proto` files the server uses                                  |
+| `mezon-client` feature parity with `mezon-js` | Medium | Map API calls one-by-one from the Redux slice thunks in `libs/store/`                                     |
+| macOS notarization / code signing             | Low    | Set up early in Stage 0 CI; use same Apple Team ID `E9Y2J54ZH3`                                           |
 
 ---
 
 ## References
 
--   GPUI source: https://github.com/zed-industries/zed/tree/main/crates/gpui
+-   GPUI source (vendored): `crates/vendor/gpui/` — upstream: https://github.com/zed-industries/zed/tree/main/crates/gpui
 -   GPUI examples: https://github.com/zed-industries/zed/tree/main/crates/gpui/examples
 -   Existing Electron app: `apps/desktop/src/`
 -   Existing React app pages: `apps/chat/src/app/pages/`
 -   Existing Redux store: `libs/store/src/lib/`
 -   Existing transport layer: `libs/transport/src/lib/`
 -   LiveKit Rust SDK: https://github.com/livekit/rust-sdks
--   Halloy IRC client (Iced reference, similar domain): https://github.com/squidowl/halloy

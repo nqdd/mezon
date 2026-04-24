@@ -4,6 +4,7 @@ use gpui_platform::application;
 use mezon_native::instance::SingleInstance;
 use mezon_store::{AuthState, Settings};
 use mezon_ui::{title_bar::TitleBar, RootView};
+use std::sync::Arc;
 use tracing_subscriber::{fmt, EnvFilter};
 
 fn main() -> Result<()> {
@@ -39,10 +40,14 @@ fn main() -> Result<()> {
 }
 
 fn run_app(lock: SingleInstance, initial_url: Option<String>) {
-    let settings = tokio::runtime::Builder::new_current_thread()
+    // Build a multi-threaded tokio runtime that lives for the entire process.
+    let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
-        .expect("Failed to build tokio runtime")
+        .expect("Failed to build tokio runtime");
+    let rt_handle = Arc::new(rt.handle().clone());
+
+    let settings = rt
         .block_on(Settings::load())
         .unwrap_or_default();
 
@@ -56,12 +61,24 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
     // Sync login-item with settings.
     mezon_native::autostart::sync_auto_start(settings.auto_start);
 
+    // Register mezonapp:// deep link scheme (idempotent).
+    mezon_native::deep_link::register_deep_link_scheme();
+
+    // Subscribe to screen lock/unlock events.
+    mezon_native::power::subscribe(Box::new(|event| match event {
+        mezon_native::power::PowerEvent::ScreenLocked => {
+            tracing::info!("Screen locked");
+        }
+        mezon_native::power::PowerEvent::ScreenUnlocked => {
+            tracing::info!("Screen unlocked");
+        }
+    }));
+
     application().run(move |cx: &mut App| {
         tracing::debug!("App started");
 
         // Shared channel so background threads can send deep link URLs to the GPUI main thread.
-        let (url_tx, url_rx) =
-            std::sync::mpsc::channel::<String>();
+        let (url_tx, url_rx) = std::sync::mpsc::channel::<String>();
 
         // Listen for deep link URLs forwarded from secondary instances.
         {
@@ -91,6 +108,7 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
                             cx.update(|cx| {
                                 auth_state.update(cx, |state, cx| {
                                     if url.starts_with("mezonapp://callback") {
+                                        // TODO Stage 1: parse token from URL and create Session.
                                         *state = AuthState::AwaitingCallback;
                                     }
                                     cx.notify();
@@ -107,7 +125,7 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
         }
 
         // System tray.
-        let _tray = setup_tray(cx);
+        let _tray = setup_tray(cx, rt_handle.clone());
 
         cx.activate(true);
     });
@@ -139,9 +157,7 @@ fn open_main_window(cx: &mut App, settings: &Settings) -> Entity<AuthState> {
     };
 
     // Smuggle the Entity out of the open_window closure via an Arc<Mutex<Option<_>>>.
-    let auth_out = std::sync::Arc::new(std::sync::Mutex::new(
-        None::<Entity<AuthState>>,
-    ));
+    let auth_out = Arc::new(std::sync::Mutex::new(None::<Entity<AuthState>>));
     let auth_out_clone = auth_out.clone();
 
     cx.open_window(options, move |_window, cx| {
@@ -164,8 +180,11 @@ fn open_main_window(cx: &mut App, settings: &Settings) -> Entity<AuthState> {
 }
 
 /// Create the system tray (best-effort — log a warning on failure).
-fn setup_tray(cx: &mut App) -> Option<mezon_native::tray::MezonTray> {
-    let quit_flag = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+fn setup_tray(
+    cx: &mut App,
+    rt_handle: Arc<tokio::runtime::Handle>,
+) -> Option<mezon_native::tray::MezonTray> {
+    let quit_flag = Arc::new(std::sync::atomic::AtomicBool::new(false));
     let quit_flag_clone = quit_flag.clone();
 
     // Background task that watches the quit flag and fires cx.quit().
@@ -181,15 +200,16 @@ fn setup_tray(cx: &mut App) -> Option<mezon_native::tray::MezonTray> {
     })
     .detach();
 
+    // TODO Stage 2: store WindowHandle and bring window to front on on_show.
     match mezon_native::tray::MezonTray::new(
         || {
             tracing::debug!("Tray: Show Mezon");
-            // TODO Stage 2: bring window to front via stored WindowHandle
         },
         move || {
             tracing::info!("Tray: Quit requested");
             quit_flag.store(true, std::sync::atomic::Ordering::Relaxed);
         },
+        rt_handle,
     ) {
         Ok(tray) => {
             tracing::debug!("System tray initialised");

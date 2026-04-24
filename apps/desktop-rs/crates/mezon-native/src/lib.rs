@@ -1,5 +1,6 @@
 pub mod autostart;
 pub mod badge;
+pub mod deep_link;
 pub mod instance;
 pub mod notifications;
 pub mod power;
