@@ -1,6 +1,7 @@
 use anyhow::Result;
 use gpui::{px, size, App, AppContext, AsyncApp, Bounds, Entity, WindowBounds, WindowOptions};
 use gpui_platform::application;
+use mezon_client::{keychain, MezonClient};
 use mezon_native::instance::SingleInstance;
 use mezon_store::{AuthState, Settings};
 use mezon_ui::{title_bar::TitleBar, RootView};
@@ -47,9 +48,7 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
         .expect("Failed to build tokio runtime");
     let rt_handle = Arc::new(rt.handle().clone());
 
-    let settings = rt
-        .block_on(Settings::load())
-        .unwrap_or_default();
+    let settings = rt.block_on(Settings::load()).unwrap_or_default();
 
     tracing::debug!(
         "Settings: theme={}, zoom={}, auto_start={}",
@@ -57,6 +56,10 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
         settings.zoom_factor,
         settings.auto_start
     );
+
+    // ── Determine initial auth state from keychain ────────────────────────────
+    let client = Arc::new(MezonClient::default());
+    let initial_auth_state = resolve_initial_auth_state(&rt, &client);
 
     // Sync login-item with settings.
     mezon_native::autostart::sync_auto_start(settings.auto_start);
@@ -94,7 +97,7 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
         }
 
         // Open the main window and obtain the auth_state entity handle.
-        let auth_state_handle = open_main_window(cx, &settings);
+        let auth_state_handle = open_main_window(cx, &settings, client.clone(), initial_auth_state);
 
         // Background task: poll `url_rx` and update auth state on the main thread.
         {
@@ -108,7 +111,7 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
                             cx.update(|cx| {
                                 auth_state.update(cx, |state, cx| {
                                     if url.starts_with("mezonapp://callback") {
-                                        // TODO Stage 1: parse token from URL and create Session.
+                                        // Deep link OAuth — kept for future use.
                                         *state = AuthState::AwaitingCallback;
                                     }
                                     cx.notify();
@@ -124,6 +127,9 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
             .detach();
         }
 
+        // Background refresh task: wake every 60s, refresh if session is near expiry.
+        spawn_refresh_task(cx, auth_state_handle.clone(), client.clone());
+
         // System tray.
         let _tray = setup_tray(cx, rt_handle.clone());
 
@@ -131,8 +137,116 @@ fn run_app(lock: SingleInstance, initial_url: Option<String>) {
     });
 }
 
+/// Attempt to restore a valid session from the OS keychain.
+///
+/// - Valid + not expired → `Authenticated`
+/// - Valid + expired     → try silent refresh → `Authenticated` on success, else `NotAuthenticated`
+/// - Nothing stored      → `NotAuthenticated`
+fn resolve_initial_auth_state(
+    rt: &tokio::runtime::Runtime,
+    client: &MezonClient,
+) -> AuthState {
+    match keychain::load_session() {
+        None => {
+            tracing::info!("No stored session — showing login");
+            AuthState::NotAuthenticated
+        }
+        Some(session) if !mezon_client::Session::is_expired(&session) => {
+            tracing::info!(
+                "Restored valid session for user_id={}",
+                session.user_id
+            );
+            AuthState::Authenticated(session)
+        }
+        Some(session) => {
+            tracing::info!("Stored session expired — attempting silent refresh");
+            match rt.block_on(client.refresh_session(&session.refresh_token, false)) {
+                Ok(new_session) => {
+                    tracing::info!("Silent refresh succeeded for user_id={}", new_session.user_id);
+                    if let Err(e) = keychain::save_session(&new_session) {
+                        tracing::warn!("Failed to update keychain after refresh: {e}");
+                    }
+                    AuthState::Authenticated(new_session)
+                }
+                Err(e) => {
+                    tracing::warn!("Silent refresh failed: {e} — showing login");
+                    let _ = keychain::clear_session();
+                    AuthState::NotAuthenticated
+                }
+            }
+        }
+    }
+}
+
+/// Spawn a background task that refreshes the session ~60 seconds before it expires.
+fn spawn_refresh_task(cx: &mut App, auth_state: Entity<AuthState>, client: Arc<MezonClient>) {
+    cx.spawn(async move |cx: &mut AsyncApp| {
+        let exec = cx.background_executor().clone();
+        loop {
+            // Check every 60 seconds.
+            exec.timer(std::time::Duration::from_secs(60)).await;
+
+            // Read current session.
+            let session_opt = {
+                let state = cx.update(|cx| auth_state.read(cx).clone());
+                match state {
+                    AuthState::Authenticated(session) => Some(session),
+                    _ => None,
+                }
+            };
+
+            let Some(session) = session_opt else { continue };
+
+            // Refresh if within 5 minutes of expiry.
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+
+            let should_refresh = session.expires_at > 0
+                && session.expires_at.saturating_sub(now) < 300;
+
+            if !should_refresh {
+                continue;
+            }
+
+            tracing::info!("Session nearing expiry — refreshing");
+            match client.refresh_session(&session.refresh_token, false).await {
+                Ok(new_session) => {
+                    tracing::info!("Session refreshed for user_id={}", new_session.user_id);
+                    if let Err(e) = keychain::save_session(&new_session) {
+                        tracing::warn!("Failed to save refreshed session to keychain: {e}");
+                    }
+                    cx.update(|cx| {
+                        auth_state.update(cx, |state, cx| {
+                            *state = AuthState::Authenticated(new_session);
+                            cx.notify();
+                        });
+                    });
+                }
+                Err(e) => {
+                    tracing::warn!("Session refresh failed: {e} — logging out");
+                    let _ = keychain::clear_session();
+                    cx.update(|cx| {
+                        auth_state.update(cx, |state, cx| {
+                            *state = AuthState::NotAuthenticated;
+                            cx.notify();
+                        });
+                    });
+                }
+            }
+        }
+    })
+    .detach();
+}
+
 /// Open the main window and return a cloneable handle to the `AuthState` entity.
-fn open_main_window(cx: &mut App, settings: &Settings) -> Entity<AuthState> {
+fn open_main_window(
+    cx: &mut App,
+    settings: &Settings,
+    client: Arc<MezonClient>,
+    initial_auth: AuthState,
+) -> Entity<AuthState> {
     let window_bounds = if let Some([x, y, w, h]) = settings.window_bounds {
         WindowBounds::Windowed(Bounds {
             origin: gpui::point(px(x as f32), px(y as f32)),
@@ -161,11 +275,11 @@ fn open_main_window(cx: &mut App, settings: &Settings) -> Entity<AuthState> {
     let auth_out_clone = auth_out.clone();
 
     cx.open_window(options, move |_window, cx| {
-        let auth_state = cx.new(|_cx| AuthState::default());
+        let auth_state = cx.new(|_cx| initial_auth);
         *auth_out_clone.lock().unwrap() = Some(auth_state.clone());
 
         let title_bar = cx.new(|_cx| TitleBar::new("Mezon"));
-        cx.new(|_cx| RootView::new(title_bar, auth_state))
+        cx.new(|cx| RootView::new(title_bar, auth_state, client, cx))
     })
     .unwrap_or_else(|e| {
         tracing::error!("Failed to open main window: {e}");

@@ -1,6 +1,6 @@
 # Mezon Desktop — Rust/GPUI Migration Plan
 
-**Status:** Stage 0 — Complete ✓ | Stage 1 (Auth Pages) — Next
+**Status:** Stage 0 — Complete ✓ | Stage 1 (Auth Pages) — Complete ✓ | Stage 2 (App Shell) — Next
 **Target:** Full native desktop app using [GPUI](https://github.com/zed-industries/zed/tree/main/crates/gpui) (Zed's GPU-accelerated UI framework) — vendored locally under `crates/vendor/`
 **Strategy:** Page-by-page migration — each screen is replaced one at a time with a native GPUI view
 **Platform priority:** macOS first, then Windows and Linux
@@ -292,25 +292,27 @@ notify-rust = "4"   # desktop notifications via D-Bus
 
 **`mezon-client` work:**
 
--   `POST /v2/account/authenticate/email` — email/password login
--   `POST /v2/account/authenticate/mezon` — OAuth2 token exchange
--   Session struct: `token`, `refresh_token`, `expires_at`, `ws_url`, `api_url`
--   Keychain: store/load token via `keyring` crate
--   Background refresh task: re-authenticate before expiry
+-   [x] `POST /v2/account/authenticate/email` — email/password login (`MezonClient::authenticate_email`)
+-   [x] `POST /v2/account/authenticate/emailotp` — OTP step 1 (`MezonClient::request_otp`)
+-   [x] `POST /v2/account/authenticate/confirmotp` — OTP step 2 (`MezonClient::confirm_otp`)
+-   [x] `POST /v2/account/session/refresh` — token refresh (`MezonClient::refresh_session`)
+-   [x] Session struct: `token`, `refresh_token`, `expires_at`, `ws_url`, `api_url` — JWT claims decoded (`uid`, `usn`, `exp`)
+-   [x] Keychain: store/load/clear session via `keyring` crate (`mezon-client/src/keychain.rs`)
+-   [x] Background refresh task: re-authenticates before expiry (60s polling, refreshes when <5min remaining)
 
 **GPUI views:**
 
-```
-LoginView
-├── App logo + "Mezon" wordmark
-├── "Sign in with Mezon" button → opens system browser for OAuth2
-├── Email / password form (uses TextInput + FormField + Button components)
-├── "Forgot password" link → open browser
-├── Error message display (invalid credentials, network error)
-└── Loading spinner (Spinner component) while awaiting deep link callback
-```
+-   [x] `LoginView` — OTP mode (default): email → OTP code entry (6 digits, auto-submit), 60s countdown + resend
+-   [x] `LoginView` — Password mode: email + password form, "Forgot password" link
+-   [x] Toggle link: "Login by Password" ↔ "Login by OTP"
+-   [x] Error label, loading Spinner on in-flight requests
+-   [x] Wired into `RootView` as `Entity<LoginView>`
 
-**Deliverable:** User can sign in. Token persisted to keychain. App remembers login across restarts.
+**Startup session restore:**
+
+-   [x] On launch: load session from keychain → valid → `Authenticated`, expired → try silent refresh → else `NotAuthenticated`
+
+**Deliverable:** User can sign in via OTP or email+password. Token persisted to keychain. App remembers login across restarts. ✓ **Stage 1 complete.**
 
 ---
 
@@ -794,12 +796,12 @@ ScreenPickerModal
 
 ## Timeline Summary
 
-> **Current progress (as of 2026-04-24):** Stage 0 is **complete**. All foundation tasks are implemented and compile cleanly:
-> window management, title bar, single-instance guard (Unix + Windows named pipe), system tray, settings persistence,
-> auto-start, badge count (macOS + Windows), screen lock/unlock detection (macOS + Windows), desktop notifications
-> (all 3 platforms), OAuth2 sign-in button wiring, tray update check, deep link scheme registration (all 3 platforms),
-> full UI component library, and CI/CD build matrix.
-> **Stage 1 (Auth Pages) is next.**
+> **Current progress (as of 2026-04-24):** Stage 0 and Stage 1 are **complete**. All auth tasks are implemented and compile cleanly:
+> OTP login (two-step: email OTP request + confirm), email+password login, JWT claim decoding (uid/usn/exp),
+> OS keychain session persistence (`keyring` crate), startup silent session restore + token refresh,
+> background 60-second refresh task, `LoginView` with OTP/password toggle, error display, loading spinner,
+> 60-second OTP resend countdown, `RootView` refactored to use `Entity<LoginView>`.
+> **Stage 2 (App Shell + Navigation) is next.**
 
 | Stage | Description                                              | Duration | Cumulative |
 | ----- | -------------------------------------------------------- | -------- | ---------- |

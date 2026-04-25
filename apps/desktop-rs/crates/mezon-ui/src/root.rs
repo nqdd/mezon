@@ -1,28 +1,40 @@
-use crate::theme::Theme;
-use crate::title_bar::TitleBar;
-use gpui::{div, prelude::*, Context, Entity, FontWeight, MouseButton, Window};
+use std::sync::Arc;
+
+use gpui::{div, prelude::*, Context, Entity, FontWeight, Window};
+use mezon_client::MezonClient;
 use mezon_store::AuthState;
 
-/// OAuth2 authorisation URL.
-/// In production the base URL should come from settings/config;
-/// for Stage 0 we use the known Mezon auth endpoint.
-const OAUTH2_AUTH_URL: &str = "https://mezon.ai/oauth2/authorize\
-    ?client_id=mezon-desktop\
-    &response_type=code\
-    &redirect_uri=mezonapp%3A%2F%2Fcallback";
+use crate::login_view::LoginView;
+use crate::theme::Theme;
+use crate::title_bar::TitleBar;
 
 /// RootView is the top-level GPUI view for the main window.
-/// Owns the TitleBar and switches content area based on `AuthState`.
+///
+/// Owns the TitleBar and switches content area based on [`AuthState`]:
+///   - `NotAuthenticated` / `OtpRequested` → `LoginView`
+///   - `Authenticated`                     → (Stage 2: `MainLayout`)
 pub struct RootView {
     title_bar: Entity<TitleBar>,
     auth_state: Entity<AuthState>,
+    login_view: Entity<LoginView>,
 }
 
 impl RootView {
-    pub fn new(title_bar: Entity<TitleBar>, auth_state: Entity<AuthState>) -> Self {
+    pub fn new(
+        title_bar: Entity<TitleBar>,
+        auth_state: Entity<AuthState>,
+        client: Arc<MezonClient>,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        let login_view = cx.new({
+            let auth_state = auth_state.clone();
+            move |cx| LoginView::new(client, auth_state, cx)
+        });
+
         Self {
             title_bar,
             auth_state,
+            login_view,
         }
     }
 }
@@ -31,10 +43,11 @@ impl Render for RootView {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = Theme::dark();
         let state = self.auth_state.read(cx).clone();
-        let auth_entity = self.auth_state.clone();
 
-        let content = match state {
-            AuthState::NotAuthenticated => render_not_authenticated(&theme, auth_entity, cx),
+        let content: gpui::AnyElement = match state {
+            AuthState::NotAuthenticated | AuthState::OtpRequested { .. } => {
+                self.login_view.clone().into_any_element()
+            }
             AuthState::AwaitingCallback => render_awaiting_callback(&theme),
             AuthState::Authenticated(_) => render_authenticated_placeholder(&theme),
         };
@@ -48,60 +61,6 @@ impl Render for RootView {
             .child(self.title_bar.clone())
             .child(content)
     }
-}
-
-fn render_not_authenticated(
-    theme: &Theme,
-    auth_state: Entity<AuthState>,
-    _cx: &mut Context<RootView>,
-) -> gpui::AnyElement {
-    div()
-        .flex()
-        .flex_1()
-        .items_center()
-        .justify_center()
-        .flex_col()
-        .gap_4()
-        // Logo mark
-        .child(div().size_16().bg(theme.brand).rounded_lg())
-        // App name
-        .child(
-            div()
-                .text_xl()
-                .font_weight(FontWeight::BOLD)
-                .text_color(theme.text_primary)
-                .child("Mezon"),
-        )
-        // Sign-in button — opens system browser and sets AwaitingCallback
-        .child(
-            div()
-                .px_6()
-                .py_2()
-                .bg(theme.brand)
-                .rounded_md()
-                .text_sm()
-                .font_weight(FontWeight::MEDIUM)
-                .text_color(gpui::white())
-                .cursor_pointer()
-                .hover(|s| s.opacity(0.85))
-                .on_mouse_down(MouseButton::Left, {
-                    let auth_state = auth_state.clone();
-                    move |_, _, cx| {
-                        // Transition to waiting state immediately so the UI reflects it.
-                        auth_state.update(cx, |state, cx| {
-                            *state = AuthState::AwaitingCallback;
-                            cx.notify();
-                        });
-
-                        // Open the system browser for OAuth2.
-                        if let Err(e) = mezon_native::open_url(OAUTH2_AUTH_URL) {
-                            tracing::warn!("Failed to open OAuth2 URL: {e}");
-                        }
-                    }
-                })
-                .child("Sign in with Mezon"),
-        )
-        .into_any_element()
 }
 
 fn render_awaiting_callback(theme: &Theme) -> gpui::AnyElement {
@@ -149,7 +108,7 @@ fn render_authenticated_placeholder(theme: &Theme) -> gpui::AnyElement {
             div()
                 .text_sm()
                 .text_color(theme.text_secondary)
-                .child("Stage 0 — GPUI shell running"),
+                .child("Stage 1 — Authenticated ✓ (Stage 2: App Shell coming next)"),
         )
         .into_any_element()
 }

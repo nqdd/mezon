@@ -78,15 +78,57 @@ impl Settings {
     }
 }
 
+/// Which login method is currently shown in the `LoginView`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum LoginMethod {
+    /// Email OTP — two-step flow (default).
+    #[default]
+    Otp,
+    /// Email + password — single-step form.
+    Password,
+}
+
+/// A user-visible login error.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum LoginError {
+    /// Wrong credentials / bad OTP.
+    InvalidCredentials,
+    /// The server returned an unexpected error.
+    ServerError(String),
+    /// Could not reach the server.
+    NetworkError(String),
+    /// The OTP has expired; user must request a new one.
+    OtpExpired,
+}
+
+impl std::fmt::Display for LoginError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidCredentials => write!(f, "Invalid credentials. Please try again."),
+            Self::ServerError(msg) => write!(f, "Server error: {msg}"),
+            Self::NetworkError(msg) => write!(f, "Network error: {msg}"),
+            Self::OtpExpired => write!(f, "OTP has expired. Please request a new one."),
+        }
+    }
+}
+
 /// Authentication state of the application.
 ///
 /// Drives which view is shown in the content area of `RootView`.
 #[derive(Debug, Clone, Default)]
 pub enum AuthState {
-    /// No session — show login button.
+    /// No session — show login form.
     #[default]
     NotAuthenticated,
+    /// OTP email was sent; waiting for the user to enter the code.
+    OtpRequested {
+        /// Server-issued request ID — required for the confirm-OTP call.
+        req_id: String,
+        /// The email address the OTP was sent to.
+        email: String,
+    },
     /// OAuth2 browser was opened; waiting for the `mezonapp://callback` deep link.
+    /// Kept for future OAuth integration.
     AwaitingCallback,
     /// Token received and session is valid.
     Authenticated(Session),

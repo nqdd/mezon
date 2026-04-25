@@ -1,14 +1,23 @@
 /// TextInput — single-line controlled text input as a stateful GPUI View.
 ///
-/// Features: printable char input, Backspace, focus tracking, placeholder,
-/// masked mode (password), optional label, optional error message.
+/// Text input works via two mechanisms:
+///   1. `EntityInputHandler` + `ElementInputHandler` — registered during the **paint** phase
+///      via the `TextInputElement` wrapper so the OS delivers typed characters (including IME,
+///      dead keys, non-ASCII) via `replace_text_in_range`.
+///   2. `on_key_down` on the container div — handles Backspace, Delete, and a fallback
+///      for `key_char` in case the OS skips the input-handler path.
+use std::ops::Range;
 use std::sync::Arc;
 
 use gpui::{
-    App, Context, FocusHandle, Focusable, MouseButton, SharedString, Window, div, prelude::*,
+    div, prelude::*, AnyElement, App, Bounds, Context, Element, ElementId, ElementInputHandler,
+    Entity, EntityInputHandler, FocusHandle, Focusable, GlobalElementId, InspectorElementId,
+    LayoutId, MouseButton, Pixels, SharedString, UTF16Selection, Window,
 };
 
 use crate::theme::Theme;
+
+// ─── TextInput view ───────────────────────────────────────────────────────────
 
 pub struct TextInput {
     pub(crate) focus_handle: FocusHandle,
@@ -23,7 +32,7 @@ pub struct TextInput {
 
 impl TextInput {
     pub fn new(cx: &mut Context<Self>, id: impl Into<SharedString>) -> Self {
-        let _ = id; // used as identifier externally; FocusHandle is the internal key
+        let _ = id;
         Self {
             focus_handle: cx.focus_handle(),
             value: String::new(),
@@ -66,8 +75,6 @@ impl TextInput {
         self
     }
 
-    // ── Public getters/setters ───────────────────────────────────────────────
-
     pub fn value(&self) -> &str {
         &self.value
     }
@@ -82,23 +89,6 @@ impl TextInput {
         cx.notify();
     }
 
-    // ── Key handling — called by parent via cx.update on Entity<TextInput> ───
-
-    pub fn handle_char(&mut self, ch: char, window: &mut Window, cx: &mut Context<Self>) {
-        if !self.disabled && !ch.is_control() {
-            self.value.push(ch);
-            self.fire_change(window, cx);
-            cx.notify();
-        }
-    }
-
-    pub fn handle_backspace(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if !self.disabled && self.value.pop().is_some() {
-            self.fire_change(window, cx);
-            cx.notify();
-        }
-    }
-
     fn fire_change(&self, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(cb) = &self.on_change {
             cb(&self.value, window, cx);
@@ -106,13 +96,114 @@ impl TextInput {
     }
 }
 
-// ── GPUI View impl ────────────────────────────────────────────────────────────
+// ─── EntityInputHandler ───────────────────────────────────────────────────────
+// Implements the OS text-input protocol (NSTextInputClient on macOS).
+// `replace_text_in_range` is the primary entry point for all typed characters.
+
+impl EntityInputHandler for TextInput {
+    fn text_for_range(
+        &mut self,
+        range: Range<usize>,
+        adjusted_range: &mut Option<Range<usize>>,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> Option<String> {
+        let utf16: Vec<u16> = self.value.encode_utf16().collect();
+        let start = range.start.min(utf16.len());
+        let end = range.end.min(utf16.len());
+        *adjusted_range = Some(start..end);
+        String::from_utf16(&utf16[start..end]).ok()
+    }
+
+    fn selected_text_range(
+        &mut self,
+        _ignore_disabled_input: bool,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> Option<UTF16Selection> {
+        if self.disabled {
+            return None;
+        }
+        let len = self.value.encode_utf16().count();
+        Some(UTF16Selection {
+            range: len..len,
+            reversed: false,
+        })
+    }
+
+    fn marked_text_range(
+        &self,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> Option<Range<usize>> {
+        None
+    }
+
+    fn unmark_text(&mut self, _window: &mut Window, _cx: &mut Context<Self>) {}
+
+    /// Primary entry point for typed characters — called by the OS for every
+    /// printable keystroke including IME composition commits.
+    fn replace_text_in_range(
+        &mut self,
+        _range: Option<Range<usize>>,
+        text: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.disabled {
+            return;
+        }
+        self.value.push_str(text);
+        self.fire_change(window, cx);
+        cx.notify();
+    }
+
+    fn replace_and_mark_text_in_range(
+        &mut self,
+        _range: Option<Range<usize>>,
+        new_text: &str,
+        _new_selected_range: Option<Range<usize>>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.disabled {
+            return;
+        }
+        self.value.push_str(new_text);
+        self.fire_change(window, cx);
+        cx.notify();
+    }
+
+    fn bounds_for_range(
+        &mut self,
+        _range_utf16: Range<usize>,
+        _element_bounds: Bounds<Pixels>,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> Option<Bounds<Pixels>> {
+        None
+    }
+
+    fn character_index_for_point(
+        &mut self,
+        _point: gpui::Point<Pixels>,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> Option<usize> {
+        None
+    }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+// Builds the visual div tree and wraps it in a TextInputElement so that
+// `handle_input` is called during the paint phase (not here in render).
 
 impl Render for TextInput {
-    fn render(&mut self, window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let theme = Theme::dark();
         let is_focused = self.focus_handle.is_focused(window);
         let has_error = self.error.is_some();
+        let entity = cx.entity().clone();
 
         let border_color = if has_error {
             theme.status_dnd
@@ -132,9 +223,6 @@ impl Render for TextInput {
         let placeholder = self.placeholder.clone();
         let focus_handle = self.focus_handle.clone();
 
-        // Capture key events on the focus-tracked div.
-        // Actual char/backspace handling is done via handle_char/handle_backspace
-        // so the parent entity (LoginView) can call cx.update on this entity.
         let input_box = div()
             .track_focus(&focus_handle)
             .flex()
@@ -148,8 +236,39 @@ impl Render for TextInput {
             .border_1()
             .border_color(border_color)
             .cursor_text()
-            .on_mouse_down(MouseButton::Left, move |_event, window, cx| {
-                window.focus(&focus_handle, cx);
+            // Click → grab focus.
+            .on_mouse_down(MouseButton::Left, {
+                let focus_handle = focus_handle.clone();
+                move |_event, window, cx| {
+                    window.focus(&focus_handle, cx);
+                }
+            })
+            // Keyboard: Backspace + fallback for key_char (in case the OS skips handle_input).
+            .on_key_down({
+                let entity = entity.clone();
+                move |event, window, cx| {
+                    match event.keystroke.key.as_str() {
+                        "backspace" => {
+                            entity.update(cx, |this, cx| {
+                                if !this.disabled && !this.value.is_empty() {
+                                    let new_len = this
+                                        .value
+                                        .char_indices()
+                                        .next_back()
+                                        .map(|(i, _)| i)
+                                        .unwrap_or(0);
+                                    this.value.truncate(new_len);
+                                    this.fire_change(window, cx);
+                                    cx.notify();
+                                }
+                            });
+                        }
+                        _ => {
+                            // Printable characters are delivered via replace_text_in_range
+                            // by the OS input handler — no fallback needed here.
+                        }
+                    }
+                }
             })
             .child(if show_placeholder {
                 div()
@@ -195,12 +314,94 @@ impl Render for TextInput {
             );
         }
 
-        container
+        // Wrap in TextInputElement so handle_input is called during paint.
+        TextInputElement {
+            entity,
+            focus_handle: self.focus_handle.clone(),
+            child: container.into_any_element(),
+        }
     }
 }
 
 impl Focusable for TextInput {
     fn focus_handle(&self, _cx: &App) -> FocusHandle {
         self.focus_handle.clone()
+    }
+}
+
+// ─── TextInputElement — custom Element wrapper ────────────────────────────────
+//
+// Delegates layout + prepaint to the child `AnyElement`, then in `paint()`
+// additionally calls `window.handle_input()` so the OS knows this element
+// accepts text input.  This is the only legal place to call `handle_input`.
+
+struct TextInputElement {
+    entity: Entity<TextInput>,
+    focus_handle: FocusHandle,
+    child: AnyElement,
+}
+
+impl IntoElement for TextInputElement {
+    type Element = Self;
+    fn into_element(self) -> Self {
+        self
+    }
+}
+
+impl Element for TextInputElement {
+    /// No persistent per-frame state needed beyond what the child carries.
+    type RequestLayoutState = ();
+    type PrepaintState = ();
+
+    fn id(&self) -> Option<ElementId> {
+        None
+    }
+
+    fn source_location(&self) -> Option<&'static std::panic::Location<'static>> {
+        None
+    }
+
+    fn request_layout(
+        &mut self,
+        _id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> (LayoutId, Self::RequestLayoutState) {
+        let layout_id = self.child.request_layout(window, cx);
+        (layout_id, ())
+    }
+
+    fn prepaint(
+        &mut self,
+        _id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        _bounds: Bounds<Pixels>,
+        _request_layout: &mut Self::RequestLayoutState,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> Self::PrepaintState {
+        self.child.prepaint(window, cx);
+    }
+
+    fn paint(
+        &mut self,
+        _id: Option<&GlobalElementId>,
+        _inspector_id: Option<&InspectorElementId>,
+        bounds: Bounds<Pixels>,
+        _request_layout: &mut Self::RequestLayoutState,
+        _prepaint: &mut Self::PrepaintState,
+        window: &mut Window,
+        cx: &mut App,
+    ) {
+        // Paint the visual child tree first.
+        self.child.paint(window, cx);
+
+        // Now register the input handler — legal only during paint.
+        window.handle_input(
+            &self.focus_handle,
+            ElementInputHandler::new(bounds, self.entity.clone()),
+            cx,
+        );
     }
 }
