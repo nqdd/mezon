@@ -70,7 +70,7 @@ import MentionsInput, { type FormattedText, type MentionsInputHandle } from './M
 import SuggestItem from './SuggestItem';
 import { ChatBoxToolbarWrapper } from './components';
 import { useClickUpToEditMessage, useEmojiPicker, useFocusEditor, useFocusManager, useKeyboardHandler } from './hooks';
-import parseHtmlAsFormattedText, { ApiMessageEntityTypes } from './parseHtmlAsFormattedText';
+import parseHtmlAsFormattedToText, { ApiMessageEntityTypes } from './parseHtmlAsFormattedText';
 import { getCanvasTitles } from './utils/canvas';
 
 interface SlashCommand extends MentionData {
@@ -292,7 +292,6 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 					mentionRaw: [],
 					entities: []
 				});
-
 				return;
 			}
 
@@ -519,7 +518,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 				payload.cvtt = canvasTitles;
 			}
 
-			const removeEmptyOnPayload = filterEmptyArrays([]);
+			const removeEmptyOnPayload = filterEmptyArrays(payload);
 			const encoder = new TextEncoder();
 			const payloadJson = JSON.stringify(removeEmptyOnPayload);
 			const utf8Bytes = encoder.encode(payloadJson);
@@ -774,7 +773,7 @@ export const MentionReactBase = memo((props: MentionReactBaseProps): ReactElemen
 	const cachedLinkOgp = useRef<string>('');
 
 	const onChangeMentionInput = (html: string) => {
-		const { text: newPlainTextValue, entities, linkPreview } = parseHtmlAsFormattedText(html);
+		const { text: newPlainTextValue, entities, linkPreview } = parseHtmlAsFormattedToText(html);
 
 		if (cachedLinkOgp.current !== linkPreview.url) {
 			dispatch(referencesActions.setOgpPreview(linkPreview.url ? { ...linkPreview, channel_id: props.currentChannelId || '' } : null));
